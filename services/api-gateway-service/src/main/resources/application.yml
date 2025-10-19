@@ -1,0 +1,11 @@
+server:
+    port: 8000
+
+spring:
+    application:
+        name: api-gateway-service
+
+eureka:
+    client:
+        serviceUrl:
+            defaultZone: http://zaplink-service-registry:8761/eureka/

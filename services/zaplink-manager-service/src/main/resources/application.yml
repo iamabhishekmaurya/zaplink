@@ -1,0 +1,11 @@
+server:
+    port: 8083
+
+spring:
+    application:
+        name: zaplink-manager-service
+
+eureka:
+    client:
+        serviceUrl:
+            defaultZone: http://zaplink-service-registry:8761/eureka/

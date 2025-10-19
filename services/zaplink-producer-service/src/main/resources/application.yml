@@ -1,0 +1,11 @@
+server:
+    port: 8081
+
+spring:
+    application:
+        name: zaplink-producer-service
+
+eureka:
+    client:
+        serviceUrl:
+            defaultZone: http://zaplink-service-registry:8761/eureka/
