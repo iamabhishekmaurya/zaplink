@@ -18,10 +18,10 @@ docker_build("zaplink-manager-service", "services/zaplink-manager-service", dock
 docker_build("zaplink-consumer-service", "services/zaplink-consumer-service", dockerfile="services/zaplink-consumer-service/Dockerfile")
 
 # Map each service to its Kubernetes deployment
-k8s_resource("api-gateway-service", port_forwards=[8000])
-k8s_resource("zaplink-service-registry", port_forwards=[8761])
-k8s_resource("zaplink-producer-service", port_forwards=[9001])
-k8s_resource("zaplink-consumer-service", port_forwards=[9002])
-k8s_resource("zaplink-manager-service", port_forwards=[9003])
+k8s_resource("api-gateway-service", port_forwards=8080)
+k8s_resource("zaplink-service-registry", port_forwards=8761)
+k8s_resource("zaplink-producer-service", port_forwards=8081)
+k8s_resource("zaplink-consumer-service", port_forwards=8082)
+k8s_resource("zaplink-manager-service", port_forwards=8083)
 
 print("✅ Tiltfile loaded successfully! Run `tilt up` to start all services 🚀")
