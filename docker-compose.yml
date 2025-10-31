@@ -32,7 +32,7 @@ services:
         depends_on:
             - zaplink-service-registry
         ports:
-            - "8080:8080"
+            - "8090:8090"
         environment:
             - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://zaplink-service-registry:8761/eureka/
             - SPRING_PROFILES_ACTIVE=docker

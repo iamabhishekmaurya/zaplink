@@ -9,11 +9,12 @@ spring:
     # Redis configs
     redis:
         data:
-            host: localhost
+            host: 192.168.33.900
             port: 6379
     # Kafka config
     kafka:
-        bootstrap-servers: localhost:9092
+        # bootstrap-servers: localhost:9092
+        bootstrap-servers: 192.168.33.900:9092
         producer:
             key-serializer: org.apache.kafka.common.serialization.StringSerializer
             value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -24,7 +25,8 @@ spring:
 eureka:
     client:
         serviceUrl:
-            defaultZone: http://localhost:8761/eureka/
+            defaultZone: http://zaplink-service-registry:8761/eureka/
+            # defaultZone: http://localhost:8761/eureka/
 
 # logging:
 #     level:
