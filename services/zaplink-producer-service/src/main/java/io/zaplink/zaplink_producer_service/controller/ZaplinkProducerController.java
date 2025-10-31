@@ -26,11 +26,4 @@ public class ZaplinkProducerController
     {
         return urlServiceProvider.shortUrl( urlRequest );
     }
-    @GetMapping("/{key}")
-    public RedirectView getValue( @PathVariable("key") String key )
-    {
-        ShortUrlResponse shortUrlResponse = urlServiceProvider.getShortUrl( key );
-        return new RedirectView(shortUrlResponse.getUrl());
-
-    }
 }

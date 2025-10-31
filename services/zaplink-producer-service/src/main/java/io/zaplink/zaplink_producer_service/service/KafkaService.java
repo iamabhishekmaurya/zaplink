@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import io.zaplink.zaplink_producer_service.dto.request.ShortUrlConsumerRequest;
+
 @Service
 public class KafkaService
 {
@@ -16,7 +18,7 @@ public class KafkaService
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessage( Object message )
+    public void sendMessage( ShortUrlConsumerRequest message )
     {
         kafkaTemplate.send( TOPIC, message );
         logger.info( "✅ Sent message: {}", message );
