@@ -5,9 +5,9 @@ spring:
     application:
         name: zaplink-manager-service
     # Redis config
-    redis:
-        data:
-            host: 192.168.33.900
+    data:
+        redis:
+            host: host.docker.internal
             port: 6379
 
 eureka:

@@ -19,22 +19,14 @@ services:
         environment:
             KAFKA_BROKER_ID: 1
             KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-
-            # Two listeners: one internal (for other containers), one external (for host apps)
-            KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
-            # USE FOR LOCALHOST
-            # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_HOST://host.docker.internal:29092 
-            # USE FOR K8
-            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.33.900:9092,PLAINTEXT_HOST://host.docker.internal:29092
-            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-            KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-
+            KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092
+            KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://192.168.31.110:9092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+            KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
             # Kafka internal configs
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-            KAFKA_LOG_RETENTION_HOURS: 168
-
         depends_on:
             - zookeeper
 
@@ -44,8 +36,10 @@ services:
         ports:
             - "8080:8080"
         environment:
-            KAFKA_CLUSTERS_0_NAME: LocalKafka
-            KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: host.docker.internal:29092 # 👈 match external listener
+            KAFKA_CLUSTERS_0_NAME: local-cluster
+            KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
             KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+            DYNAMIC_CONFIG_ENABLED: "true"
         depends_on:
             - kafka
+            - zookeeper

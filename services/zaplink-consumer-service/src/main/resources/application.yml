@@ -9,7 +9,7 @@ spring:
         group-id: zaplink-group
         auto-offset-reset: earliest
         # bootstrap-servers: localhost:9092
-        bootstrap-servers: 192.168.33.900:9092
+        bootstrap-servers: 192.168.31.110:9092
         consumer:
             key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
             value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer

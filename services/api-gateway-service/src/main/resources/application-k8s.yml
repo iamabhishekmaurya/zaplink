@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: api-gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: producer
+          uri: lb://zaplink-producer-service
+          predicates:
+            - Path=/api/v1/**
+        - id: manager
+          uri: lb://zaplink-manager-service
+          predicates:
+            - Path=/r/**
+          filters:
+            - StripPrefix=1
+        - id: consumer
+          uri: lb://zaplink-consumer-service
+          predicates:
+            - Path=/consumer/**
+          filters:
+            - StripPrefix=1
+
+server:
+  port: 8090
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://zaplink-service-registry:8761/eureka/
