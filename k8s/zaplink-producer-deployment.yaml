@@ -1,45 +1,56 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: zaplink-producer-service
-    labels:
-        app: zaplink-producer-service
+  name: zaplink-producer-service
+  labels:
+    app: zaplink-producer-service
 spec:
-    replicas: 1
-    selector:
-        matchLabels:
-            app: zaplink-producer-service
-    template:
-        metadata:
-            labels:
-                app: zaplink-producer-service
-        spec:
-            containers:
-                - name: zaplink-producer-service
-                  image: zaplink-producer-service:latest
-                  imagePullPolicy: IfNotPresent
-                  ports:
-                      - containerPort: 8081
-                  env:
-                      - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-                        value: "http://zaplink-service-registry:8761/eureka/"
-                      - name: SPRING_PROFILES_ACTIVE
-                        value: "k8s"
-                      - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-                        value: "kafka.default.svc.cluster.local:9092"
-                      - name: SPRING_DATA_REDIS_HOST
-                        value: "redis"
-                      - name: SPRING_DATA_REDIS_PORT
-                        value: "6379"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zaplink-producer-service
+  template:
+    metadata:
+      labels:
+        app: zaplink-producer-service
+    spec:
+      containers:
+        - name: zaplink-producer-service
+          image: zaplink-producer-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
+
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://zaplink-service-registry:8761/eureka/"
+
+            # EXTERNAL Kafka access using dynamic IP
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "192.168.49.2:30092"
+            - name: KAFKA_NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+
+            # INTERNAL Redis access (recommended for Kubernetes)
+            - name: SPRING_DATA_REDIS_HOST
+              value: "redis"
+            - name: SPRING_DATA_REDIS_PORT
+              value: "6379"
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-    name: zaplink-producer-service
+  name: zaplink-producer-service
 spec:
-    selector:
-        app: zaplink-producer-service
-    ports:
-        - port: 8081
-          targetPort: 8081
-    type: ClusterIP
+  selector:
+    app: zaplink-producer-service
+  type: NodePort
+  ports:
+    - port: 8081
+      targetPort: 8081
+      nodePort: 30181

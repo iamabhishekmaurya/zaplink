@@ -17,7 +17,7 @@ spec:
             containers:
                 - name: zaplink-consumer-service
                   image: zaplink-consumer-service:latest
-                  imagePullPolicy: IfNotPresent
+                  imagePullPolicy: Never
                   ports:
                       - containerPort: 8082
                   env:
@@ -25,8 +25,20 @@ spec:
                         value: "http://zaplink-service-registry:8761/eureka/"
                       - name: SPRING_PROFILES_ACTIVE
                         value: "k8s"
+                      
+                      # EXTERNAL Kafka access using dynamic IP
                       - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
-                        value: "kafka.default.svc.cluster.local:9092"
+                        value: "192.168.49.2:30092"
+                      - name: KAFKA_NODE_IP
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: status.hostIP
+                      
+                      # INTERNAL Redis access (recommended for Kubernetes)
+                      - name: SPRING_DATA_REDIS_HOST
+                        value: "redis"
+                      - name: SPRING_DATA_REDIS_PORT
+                        value: "6379"
 ---
 apiVersion: v1
 kind: Service

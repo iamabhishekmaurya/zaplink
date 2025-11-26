@@ -7,8 +7,8 @@ spring:
     # Redis config
     data:
         redis:
-            host: host.docker.internal
-            port: 6379
+            host: ${SPRING_DATA_REDIS_HOST:redis}
+            port: ${SPRING_DATA_REDIS_PORT:6379}
 
 eureka:
     client:

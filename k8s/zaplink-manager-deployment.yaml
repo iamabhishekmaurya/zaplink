@@ -17,7 +17,7 @@ spec:
             containers:
                 - name: zaplink-manager-service
                   image: zaplink-manager-service:latest
-                  imagePullPolicy: IfNotPresent
+                  imagePullPolicy: Never
                   ports:
                       - containerPort: 8083
                   env:
@@ -25,6 +25,8 @@ spec:
                         value: "http://zaplink-service-registry:8761/eureka/"
                       - name: SPRING_PROFILES_ACTIVE
                         value: "k8s"
+                      
+                      # INTERNAL Redis access (recommended for Kubernetes)
                       - name: SPRING_DATA_REDIS_HOST
                         value: "redis"
                       - name: SPRING_DATA_REDIS_PORT

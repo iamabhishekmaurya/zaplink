@@ -2,6 +2,11 @@ spring:
   application:
     name: zaplink-manager-service
 
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST}
+      port: ${SPRING_DATA_REDIS_PORT}
+
 server:
   port: 8083
 
