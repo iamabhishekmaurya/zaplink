@@ -21,6 +21,13 @@ spec:
           env:
             - name: ALLOW_EMPTY_PASSWORD
               value: "yes"
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-pvc
 ---
 apiVersion: v1
 kind: Service

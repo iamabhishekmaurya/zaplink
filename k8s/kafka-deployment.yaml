@@ -75,7 +75,8 @@ spec:
 
       volumes:
         - name: data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: kafka-data-pvc
 
 ---
 apiVersion: v1
