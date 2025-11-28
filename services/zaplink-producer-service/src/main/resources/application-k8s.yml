@@ -1,6 +1,12 @@
 spring:
   application:
     name: zaplink-producer-service
+  
+   # Redis configs
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
 
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}

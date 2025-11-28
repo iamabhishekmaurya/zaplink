@@ -1,4 +1,5 @@
 resources:
+  - zaplink-config.yml
   - zaplink-service-registry-deployment.yaml
   - api-gateway-deployment.yaml
   - zaplink-producer-deployment.yaml
