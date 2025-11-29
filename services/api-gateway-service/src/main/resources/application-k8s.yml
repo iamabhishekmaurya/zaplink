@@ -10,7 +10,7 @@ spring:
         - id: shortner
           uri: lb://zaplink-shortner-service
           predicates:
-            - Path=/api/v1/**
+            - Path=/v1/**
         - id: manager
           uri: lb://zaplink-manager-service
           predicates:
@@ -20,7 +20,7 @@ spring:
         - id: processor
           uri: lb://zaplink-processor-service
           predicates:
-            - Path=/api/v1/**
+            - Path=/v1/**
           filters:
             - StripPrefix=1
 

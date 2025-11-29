@@ -1,11 +1,33 @@
-server:
-    port: 8090
-
 spring:
-    application:
-        name: api-gateway-service
+  application:
+    name: api-gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: shortner
+          uri: lb://zaplink-shortner-service
+          predicates:
+            - Path=/api/v1/**
+        - id: manager
+          uri: lb://zaplink-manager-service
+          predicates:
+            - Path=/r/**
+          filters:
+            - StripPrefix=1
+        - id: processor
+          uri: lb://zaplink-processor-service
+          predicates:
+            - Path=/api/v1/**
+          filters:
+            - StripPrefix=1
+
+server:
+  port: 8090
 
 eureka:
-    client:
-        serviceUrl:
-            defaultZone: http://zaplink-service-registry:8761/eureka/
+  client:
+    serviceUrl:
+      defaultZone: http://zaplink-service-registry:8761/eureka/
