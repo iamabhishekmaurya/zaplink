@@ -59,14 +59,14 @@ services:
             - zaplink-net
 
     # ============================================================
-    # 📦 Producer Service
+    # 📦 shortner Service
     # ============================================================
-    zaplink-producer-service:
+    zaplink-shortner-service:
         build:
-            context: ./services/zaplink-producer-service
+            context: ./services/zaplink-shortner-service
             dockerfile: Dockerfile
-        container_name: zaplink-producer-service
-        image: zaplink-producer-service:latest
+        container_name: zaplink-shortner-service
+        image: zaplink-shortner-service:latest
         ports:
             - "8081:8081"
         depends_on:
@@ -78,14 +78,14 @@ services:
             - zaplink-net
 
     # ============================================================
-    # 📥 Consumer Service
+    # 📥 processor Service
     # ============================================================
-    zaplink-consumer-service:
+    zaplink-processor-service:
         build:
-            context: ./services/zaplink-consumer-service
+            context: ./services/zaplink-processor-service
             dockerfile: Dockerfile
-        container_name: zaplink-consumer-service
-        image: zaplink-consumer-service:latest
+        container_name: zaplink-processor-service
+        image: zaplink-processor-service:latest
         ports:
             - "8082:8082"
         depends_on:

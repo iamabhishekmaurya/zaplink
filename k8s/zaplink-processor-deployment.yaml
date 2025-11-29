@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: zaplink-processor-service
+    labels:
+        app: zaplink-processor-service
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: zaplink-processor-service
+    template:
+        metadata:
+            labels:
+                app: zaplink-processor-service
+        spec:
+            containers:
+                - name: zaplink-processor-service
+                  image: zaplink-processor-service:latest
+                  imagePullPolicy: Never
+                  ports:
+                      - containerPort: 8082
+                  envFrom:
+                    - configMapRef:
+                        name: zaplink-config
+                  env:
+                    - name: SPRING_PROFILES_ACTIVE
+                      value: "k8s"
+                    - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+                      value: "http://zaplink-service-registry:8761/eureka/"
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: zaplink-processor-service
+spec:
+    type: NodePort
+    selector:
+        app: zaplink-processor-service
+    ports:
+        - port: 8082
+          targetPort: 8082
+          nodePort: 30082

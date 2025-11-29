@@ -4,9 +4,9 @@ resources:
   - zaplink-config.yml
   - zaplink-service-registry-deployment.yaml
   - api-gateway-deployment.yaml
-  - zaplink-producer-deployment.yaml
   - zaplink-manager-deployment.yaml
-  - zaplink-consumer-deployment.yaml
+  - zaplink-processor-deployment.yaml
+  - zaplink-shortner-deployment.yaml
   - redis-deployment.yaml
   - kafka-deployment.yaml
   - kafka-ui-deployment.yaml

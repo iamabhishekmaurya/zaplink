@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zaplink-shortner-service
+  labels:
+    app: zaplink-shortner-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zaplink-shortner-service
+  template:
+    metadata:
+      labels:
+        app: zaplink-shortner-service
+    spec:
+      containers:
+        - name: zaplink-shortner-service
+          image: zaplink-shortner-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: zaplink-config
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://zaplink-service-registry:8761/eureka/"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zaplink-shortner-service
+spec:
+  selector:
+    app: zaplink-shortner-service
+  type: NodePort
+  ports:
+    - port: 8081
+      targetPort: 8081
+      nodePort: 30081
