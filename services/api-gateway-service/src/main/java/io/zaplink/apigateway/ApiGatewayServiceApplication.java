@@ -1,4 +1,4 @@
-package io.zaplink.api_gateway_service;
+package io.zaplink.apigateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

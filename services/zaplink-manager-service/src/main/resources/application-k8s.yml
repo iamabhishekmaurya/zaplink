@@ -1,6 +1,8 @@
 spring:
   application:
     name: zaplink-manager-service
+  servlet:
+    context-path: /v1
 
   data:
     redis:

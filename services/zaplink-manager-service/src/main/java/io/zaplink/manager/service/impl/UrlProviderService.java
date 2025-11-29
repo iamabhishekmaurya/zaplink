@@ -1,11 +1,11 @@
-package io.zaplink.zaplink_manager_service.service.impl;
+package io.zaplink.manager.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import io.zaplink.zaplink_manager_service.service.RedisService;
-import io.zaplink.zaplink_manager_service.service.provider.UrlProvider;
+import io.zaplink.manager.service.UrlProvider;
+import io.zaplink.manager.service.helper.RedisServiceHelper;
 
 @Service
 public class UrlProviderService
@@ -13,8 +13,8 @@ public class UrlProviderService
     UrlProvider
 {
     private Logger       logger = LoggerFactory.getLogger( UrlProviderService.class );
-    private RedisService redisService;
-    public UrlProviderService( RedisService redisService )
+    private RedisServiceHelper redisService;
+    public UrlProviderService( RedisServiceHelper redisService )
     {
         this.redisService = redisService;
     }

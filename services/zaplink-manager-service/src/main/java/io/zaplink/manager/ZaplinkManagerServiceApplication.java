@@ -1,4 +1,4 @@
-package io.zaplink.zaplink_manager_service;
+package io.zaplink.manager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

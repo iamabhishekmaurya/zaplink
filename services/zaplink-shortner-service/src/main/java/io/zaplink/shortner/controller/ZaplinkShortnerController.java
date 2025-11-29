@@ -11,7 +11,7 @@ import io.zaplink.shortner.dto.request.ShortnerRequest;
 import io.zaplink.shortner.dto.response.ShortnerResponse;
 import io.zaplink.shortner.service.UrlShortnerService;
 
-@RestController @RequestMapping("/producers")
+@RestController @RequestMapping("/shortner")
 public class ZaplinkShortnerController
 {
     private UrlShortnerService urlServiceProvider;

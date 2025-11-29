@@ -1,11 +1,11 @@
-package io.zaplink.zaplink_manager_service.controller;
+package io.zaplink.manager.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
-import io.zaplink.zaplink_manager_service.service.provider.UrlProvider;
+import io.zaplink.manager.service.UrlProvider;
 
 @RestController
 public class UrlController

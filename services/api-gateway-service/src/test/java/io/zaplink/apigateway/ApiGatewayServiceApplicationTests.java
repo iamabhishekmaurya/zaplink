@@ -1,10 +1,10 @@
-package io.zaplink.zaplink_manager_service;
+package io.zaplink.apigateway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ZaplinkManagerServiceApplicationTests {
+class ApiGatewayServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

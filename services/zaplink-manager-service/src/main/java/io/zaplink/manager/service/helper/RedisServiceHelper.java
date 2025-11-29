@@ -1,4 +1,4 @@
-package io.zaplink.zaplink_manager_service.service;
+package io.zaplink.manager.service.helper;
 
 import java.util.concurrent.TimeUnit;
 
@@ -8,11 +8,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisService
+public class RedisServiceHelper
 {
-    private Logger                        logger = LoggerFactory.getLogger( RedisService.class );
+    private Logger                        logger = LoggerFactory.getLogger( RedisServiceHelper.class );
     private RedisTemplate<String, Object> redisTemplate;
-    public RedisService( RedisTemplate<String, Object> redisTemplate )
+    public RedisServiceHelper( RedisTemplate<String, Object> redisTemplate )
     {
         this.redisTemplate = redisTemplate;
     }

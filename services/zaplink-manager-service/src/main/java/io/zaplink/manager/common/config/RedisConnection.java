@@ -1,4 +1,4 @@
-package io.zaplink.zaplink_manager_service.common.config;
+package io.zaplink.manager.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
