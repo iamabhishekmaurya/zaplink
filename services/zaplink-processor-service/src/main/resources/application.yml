@@ -23,9 +23,3 @@ spring:
         redis:
             host: ${SPRING_DATA_REDIS_HOST:redis}
             port: ${SPRING_DATA_REDIS_PORT:6379}
-
-eureka:
-    client:
-        serviceUrl:
-            # defaultZone: http://localhost:8761/eureka/
-            defaultZone: http://zaplink-service-registry:8761/eureka/

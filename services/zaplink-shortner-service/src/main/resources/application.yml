@@ -28,10 +28,3 @@ spring:
             retries: 5
             # properties:
             #     spring.json.add.type.headers: false
-
-# SERVICE REGISTRY CONFIG
-eureka:
-    client:
-        serviceUrl:
-            defaultZone: http://zaplink-service-registry:8761/eureka/
-            # defaultZone: http://localhost:8761/eureka/

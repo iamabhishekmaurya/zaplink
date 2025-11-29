@@ -26,8 +26,6 @@ spec:
                   env:
                     - name: SPRING_PROFILES_ACTIVE
                       value: "k8s"
-                    - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
-                      value: "http://zaplink-service-registry:8761/eureka/"
 ---
 apiVersion: v1
 kind: Service

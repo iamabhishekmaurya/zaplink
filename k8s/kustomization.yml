@@ -2,7 +2,6 @@ resources:
   - redis-storage.yml
   - kafka-storage.yml
   - zaplink-config.yml
-  - zaplink-service-registry-deployment.yaml
   - api-gateway-deployment.yaml
   - zaplink-manager-deployment.yaml
   - zaplink-processor-deployment.yaml

@@ -17,7 +17,7 @@ COPY build/libs/api-gateway-service-0.0.1-SNAPSHOT.jar app.jar
 # ---------------------------------------------------
 # STEP 4: Expose the API Gateway service port (default 8000)
 # ---------------------------------------------------
-EXPOSE 8080
+EXPOSE 8090
 
 # ---------------------------------------------------
 # STEP 5: Run the API Gateway service

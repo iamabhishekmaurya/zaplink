@@ -5,29 +5,26 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true
+          enabled: false
       routes:
         - id: shortner
-          uri: lb://zaplink-shortner-service
+          uri: http://zaplink-shortner-service:8081
           predicates:
-            - Path=/api/v1/**
+            - Path=/v1/shortner/**
+          filters:
+            - StripPrefix=2
         - id: manager
-          uri: lb://zaplink-manager-service
+          uri: http://zaplink-manager-service:8083
           predicates:
             - Path=/r/**
           filters:
             - StripPrefix=1
         - id: processor
-          uri: lb://zaplink-processor-service
+          uri: http://zaplink-processor-service:8082
           predicates:
-            - Path=/api/v1/**
+            - Path=/v1/processor/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
 server:
   port: 8090
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://zaplink-service-registry:8761/eureka/
