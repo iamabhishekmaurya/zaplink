@@ -23,7 +23,6 @@ public class UrlShortnerServiceImpl
     private KafkaServiceHelper  kafkaService;
     private static final String BASE_URL   = "http://localhost:8083/";
     private static final int    DAY_IN_SEC = 24 * 60 * 60;
-    private static final String CACHE_NAME = "shortUrls";
     public UrlShortnerServiceImpl( RedisServiceHelper redisService, KafkaServiceHelper kafkaService )
     {
         this.redisService = redisService;
@@ -31,7 +30,6 @@ public class UrlShortnerServiceImpl
     }
 
     @Override
-    // @CachePut(cacheNames = CACHE_NAME, key = "#result.key")
     public ShortnerResponse shortUrl( ShortnerRequest urlRequest )
     {
         logger.info( "Going to short the url." );
@@ -46,19 +44,19 @@ public class UrlShortnerServiceImpl
             shortUrlResponse.setTraceId( urlRequest.getTraceId() );
             shortUrlConsumerRequest.setTraceId( urlRequest.getTraceId() );
             shortUrlConsumerRequest.setShortUrlKey( key );
-            shortUrlConsumerRequest.setOriginalUrl( urlRequest.getLongUrl() );
+            shortUrlConsumerRequest.setOriginalUrl( urlRequest.getOriginalUrl() );
             kafkaService.sendMessage( shortUrlConsumerRequest );
-            redisService.setValue( key, urlRequest.getLongUrl(), DAY_IN_SEC );
+            redisService.setValue( key, urlRequest.getOriginalUrl(), DAY_IN_SEC );
         }
-        catch ( Exception e )
+        catch ( Exception ex )
         {
-            logger.error( "Exception while shorting the url. Error: {}", e.getMessage() );
+            logger.error( "Exception while shorting the url. Error: {}", ex.getMessage() );
+            throw ex;
         }
         return shortUrlResponse;
     }
 
     @Override
-    // @Cacheable(cacheNames = CACHE_NAME, key = "#key")
     public ShortnerResponse getShortUrl( String key )
     {
         ShortnerResponse shortUrlResponse = new ShortnerResponse();

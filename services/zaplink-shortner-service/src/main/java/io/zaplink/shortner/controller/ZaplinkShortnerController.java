@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.zaplink.shortner.dto.request.ShortnerRequest;
 import io.zaplink.shortner.dto.response.ShortnerResponse;
 import io.zaplink.shortner.service.UrlShortnerService;
+import jakarta.validation.Valid;
 
 @RestController @RequestMapping("/shortner")
 public class ZaplinkShortnerController
@@ -21,7 +22,7 @@ public class ZaplinkShortnerController
     }
 
     @PostMapping("/short/url")
-    public ShortnerResponse shortUrl( @RequestBody() ShortnerRequest urlRequest )
+    public ShortnerResponse shortUrl( @Valid @RequestBody ShortnerRequest urlRequest )
     {
         return urlServiceProvider.shortUrl( urlRequest );
     }
