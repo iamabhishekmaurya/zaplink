@@ -1,7 +1,7 @@
 server:
   port: 8084
   servlet:
-    context-path: /v1/auth
+    context-path: /v1
 
 spring:
   application:
@@ -9,9 +9,9 @@ spring:
 
 # DataSource config
   datasource:
-    url: jdbc:postgresql://localhost:5432/
-    username: postgres
-    password: rgbXYZ@09182
+    url: jdbc:postgresql://localhost:5432/zaplink
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:rgbXYZ@9182}
 # JPA config
   jpa:
     hibernate:
@@ -20,3 +20,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:myZaplinkSecretKeyForJWTTokenGenerationAndValidation}
+  expiration: ${JWT_EXPIRATION:1800} # 30 minutes in seconds
