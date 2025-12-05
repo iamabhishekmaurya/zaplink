@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zaplink-auth-service
+  labels:
+    app: zaplink-auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zaplink-auth-service
+  template:
+    metadata:
+      labels:
+        app: zaplink-auth-service
+    spec:
+      containers:
+        - name: zaplink-auth-service
+          image: zaplink-auth-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8084
+          envFrom:
+            - configMapRef:
+                name: zaplink-config
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zaplink-auth-service
+spec:
+  selector:
+    app: zaplink-auth-service
+  type: NodePort
+  ports:
+    - port: 8084
+      targetPort: 8084
+      nodePort: 30084

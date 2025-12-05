@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: zaplink-auth-service
+  main:
+    allow-bean-definition-overriding: true
 
 # DataSource config
   datasource:

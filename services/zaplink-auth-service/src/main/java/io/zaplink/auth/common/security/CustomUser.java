@@ -2,7 +2,6 @@ package io.zaplink.auth.common.security;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Service;
 
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.exception.UserNotFoundException;
@@ -12,7 +11,7 @@ import io.zaplink.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j @Service @RequiredArgsConstructor
+@Slf4j @RequiredArgsConstructor
 public class CustomUser
     implements
     UserDetailsService

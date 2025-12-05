@@ -34,3 +34,18 @@ data:
   spring.data.redis.lettuce.pool.max-active: "8"
   spring.data.redis.lettuce.pool.max-idle: "8"
   spring.data.redis.lettuce.pool.min-idle: "0"
+
+  # JWT Configuration
+  jwt.secret: "myZaplinkSecretKeyForJWTTokenGenerationAndValidation"
+  jwt.expiration: "1800"
+
+  # DataSource Configuration
+  spring.datasource.url: "jdbc:postgresql://localhost:5432/zaplink"
+  spring.datasource.username: "postgres"
+  spring.datasource.password: "rgbXYZ@9182"
+
+  # JPA Configuration
+  spring.jpa.hibernate.ddl-auto: update
+  spring.jpa.show-sql: true
+  spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  spring.jpa.properties.hibernate.format_sql: true
