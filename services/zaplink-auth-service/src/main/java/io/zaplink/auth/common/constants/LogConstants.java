@@ -24,14 +24,14 @@ public final class LogConstants
     public static final String LOG_SAVING_USER_ENTITY                       = "Saving user entity for user ID: {}";
     public static final String LOG_GET_USER_REQUEST                         = "Get user request received for ID: {}";
     public static final String LOG_UPDATE_USER_REQUEST                      = "Update user request received for ID: {}";
-    public static final String LOG_UPDATING_USER_INFORMATION               = "Updating user information for user ID: {}";
+    public static final String LOG_UPDATING_USER_INFORMATION                = "Updating user information for user ID: {}";
     public static final String LOG_USER_UPDATED_SUCCESSFULLY                = "User updated successfully - ID: {}, Email: {}";
     public static final String LOG_DEACTIVATE_USER_REQUEST                  = "Deactivate user request received for ID: {}";
     public static final String LOG_DEACTIVATING_USER_ACCOUNT                = "Deactivating user account for user ID: {}";
     public static final String LOG_USER_DEACTIVATED_SUCCESSFULLY            = "User deactivated successfully - ID: {}, Email: {}";
     public static final String LOG_ACTIVATE_USER_REQUEST                    = "Activate user request received for ID: {}";
-    public static final String LOG_ACTIVATING_USER_ACCOUNT                 = "Activating user account for user ID: {}";
-    public static final String LOG_USER_ACTIVATED_SUCCESSFULLY             = "User activated successfully - ID: {}, Email: {}";
+    public static final String LOG_ACTIVATING_USER_ACCOUNT                  = "Activating user account for user ID: {}";
+    public static final String LOG_USER_ACTIVATED_SUCCESSFULLY              = "User activated successfully - ID: {}, Email: {}";
     public static final String LOG_USER_NOT_FOUND_FOR                       = "User not found for {}: {}";
     public static final String LOG_ATTEMPTED_FOR_DEACTIVATED_USER           = "Attempted {} for deactivated user: {}";
     // ==================== REGISTRATION LOGS ====================
@@ -110,4 +110,21 @@ public final class LogConstants
     public static final String LOG_SPRING_SECURITY_FILTER_CHAIN_CONFIGURED  = "Spring Security filter chain configured successfully";
     public static final String LOG_PUBLIC_ENDPOINTS                         = "Public endpoints: /auth/**, /v1/auth/**, /error";
     public static final String LOG_ALL_OTHER_ENDPOINTS_REQUIRE_AUTH         = "All other endpoints require authentication";
+    // ==================== TRACE ID LOGS ====================
+    public static final String LOG_TRACE_ID_SET_FOR_THREAD                  = "Trace ID set for current thread: {}";
+    public static final String LOG_TRACE_ID_CLEARED_FOR_THREAD              = "Trace ID cleared for current thread: {}";
+    public static final String LOG_TRACE_ID_FOUND_IN_HEADER                 = "Trace ID found in header: {}";
+    public static final String LOG_TRACE_ID_GENERATED_NEW                   = "Generated new trace ID: {}";
+    public static final String LOG_REQUEST_STARTED_WITH_TRACE               = "Request started - Method: {}, URI: {}, TraceId: {}";
+    public static final String LOG_REQUEST_COMPLETED_WITH_TRACE             = "Request completed - Method: {}, URI: {}, TraceId: {}, Status: {}";
+    // ==================== EXCEPTION HANDLING LOGS ====================
+    public static final String LOG_AUTH_EXCEPTION_OCCURRED                  = "AuthException occurred - TraceId: {}, Error: {}, Code: {}";
+    public static final String LOG_USER_ALREADY_EXISTS_EXCEPTION            = "UserAlreadyExistsException occurred - TraceId: {}, Error: {}, Code: {}";
+    public static final String LOG_USER_NOT_FOUND_EXCEPTION                 = "UserNotFoundException occurred - TraceId: {}, Error: {}, Code: {}";
+    public static final String LOG_INVALID_CREDENTIALS_EXCEPTION            = "InvalidCredentialsException occurred - TraceId: {}, Error: {}, Code: {}";
+    public static final String LOG_AUTHENTICATION_EXCEPTION                 = "AuthenticationException occurred - TraceId: {}, Error: {}";
+    public static final String LOG_BAD_CREDENTIALS_EXCEPTION                = "BadCredentialsException occurred - TraceId: {}, Error: {}";
+    public static final String LOG_ACCESS_DENIED_EXCEPTION                  = "AccessDeniedException occurred - TraceId: {}, Error: {}";
+    public static final String LOG_VALIDATION_EXCEPTION_OCCURRED            = "MethodArgumentNotValidException occurred - TraceId: {}, Validation errors: {}";
+    public static final String LOG_UNEXPECTED_EXCEPTION_OCCURRED            = "Unexpected exception occurred - TraceId: {}, Error: {}";
 }

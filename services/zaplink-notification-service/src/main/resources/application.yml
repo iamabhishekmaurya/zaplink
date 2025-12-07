@@ -1,0 +1,18 @@
+server:
+    port: 8085
+    context-path: /v1
+
+spring:
+    application:
+        name: zaplink-notification-service
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: tech.dustbiin@gmail.com
+        password: vouhivqwwjgcbuem
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
