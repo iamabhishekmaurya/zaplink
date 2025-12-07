@@ -17,7 +17,7 @@ public final class LogConstants
     }
     // ==================== REGISTRATION EMAIL HANDLER LOGS ====================
     public static final String LOG_PROCESSING_REGISTRATION_EMAIL_REQUEST = "Processing registration email request for: {}";
-    public static final String LOG_SENDING_EMAIL                         = "Sending registration email to: {}";
+    public static final String LOG_SENDING_EMAIL                         = "Going to Send email: {}";
     public static final String LOG_EMAIL_SENT_SUCCESSFULLY               = "Registration email sent successfully to: {}";
     public static final String LOG_EMAIL_SENDING_FAILED                  = "Failed to send registration email to: {}";
     public static final String LOG_EMAIL_REQUEST_VALIDATION_FAILED       = "Email request validation failed - Error: {}";
