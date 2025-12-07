@@ -96,6 +96,43 @@ services:
         networks:
             - zaplink-net
 
+    # ============================================================
+    # 📥 auth Service
+    # ============================================================
+    zaplink-auth-service:
+        build:
+            context: ./services/zaplink-auth-service
+            dockerfile: Dockerfile
+        container_name: zaplink-auth-service
+        image: zaplink-auth-service:latest
+        ports:
+            - "8084:8084"
+        depends_on:
+            - zaplink-service-registry
+        environment:
+            - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://zaplink-service-registry:8761/eureka/
+            - SPRING_PROFILES_ACTIVE=docker
+        networks:
+            - zaplink-net
+    # ============================================================
+    # 📥 Notification Service
+    # ============================================================
+    zaplink-notification-service:
+        build:
+            context: ./services/zaplink-notification-service
+            dockerfile: Dockerfile
+        container_name: zaplink-notification-service
+        image: zaplink-notification-service:latest
+        ports:
+            - "8085:8085"
+        depends_on:
+            - zaplink-service-registry
+        environment:
+            - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://zaplink-service-registry:8761/eureka/
+            - SPRING_PROFILES_ACTIVE=docker
+        networks:
+            - zaplink-net
+
 # ============================================================
 # 🌐 Shared Network
 # ============================================================

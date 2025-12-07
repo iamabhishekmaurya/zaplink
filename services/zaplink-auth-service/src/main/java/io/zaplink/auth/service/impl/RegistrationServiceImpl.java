@@ -10,12 +10,14 @@ import io.zaplink.auth.common.constants.LogConstants;
 import io.zaplink.auth.common.exception.UserAlreadyExistsException;
 import io.zaplink.auth.common.exception.UserNotFoundException;
 import io.zaplink.auth.common.util.StringUtil;
+import io.zaplink.auth.dto.request.EmailRequest;
 import io.zaplink.auth.dto.request.UserRegistrationRequest;
 import io.zaplink.auth.dto.response.UserRegistrationResponse;
 import io.zaplink.auth.entity.User;
 import io.zaplink.auth.repository.UserRepository;
 import io.zaplink.auth.service.RegistrationService;
 import io.zaplink.auth.service.UserService;
+import io.zaplink.auth.service.helper.KafkaServiceHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,16 +29,14 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j 
-@Service 
-@Transactional 
-@RequiredArgsConstructor
+@Slf4j @Service @Transactional @RequiredArgsConstructor
 public class RegistrationServiceImpl
     implements
     RegistrationService
 {
-    private final UserService    userService;
-    private final UserRepository userRepository;
+    private final UserService        userService;
+    private final UserRepository     userRepository;
+    private final KafkaServiceHelper kafkaServiceHelper;
     /**
      * Registers a new user in the system.
      * Performs validation for existing users and creates user with verification token.
@@ -71,7 +71,9 @@ public class RegistrationServiceImpl
         log.debug( LogConstants.LOG_CREATING_NEW_USER_ACCOUNT );
         User user = userService.createUser( request );
         log.info( LogConstants.LOG_USER_REGISTERED_SUCCESSFULLY, user.getId(), user.getEmail(), user.getUsername() );
-        // TODO: Send verification email
+        EmailRequest emailRequest = EmailRequest.builder().to( user.getEmail() ).subject( "Zaplink Verification Email" )
+                .body( user.getVerificationToken() ).build();
+        kafkaServiceHelper.sendMessage( emailRequest );
         log.debug( LogConstants.LOG_VERIFICATION_EMAIL_SHOULD_BE_SENT, user.getEmail() );
         // Build response using modern SuperBuilder pattern
         UserRegistrationResponse response = UserRegistrationResponse.builder().success( true )

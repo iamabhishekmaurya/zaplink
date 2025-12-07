@@ -2,7 +2,6 @@ package io.zaplink.auth.service.impl;
 
 import java.time.Instant;
 import java.util.Set;
-import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,7 @@ import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
 import io.zaplink.auth.common.constants.SecurityConstants;
 import io.zaplink.auth.common.exception.UserAlreadyExistsException;
+import io.zaplink.auth.common.util.Utility;
 import io.zaplink.auth.dto.request.UserRegistrationRequest;
 import io.zaplink.auth.entity.Role;
 import io.zaplink.auth.entity.User;
@@ -30,10 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j 
-@Service 
-@Transactional
-@RequiredArgsConstructor 
+@Slf4j @Service @Transactional @RequiredArgsConstructor
 public class UserServiceImpl
     implements
     UserService
@@ -41,7 +38,7 @@ public class UserServiceImpl
     private final UserRepository  userRepository;
     private final RoleRepository  roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserHelper     userUtility;
+    private final UserHelper      userUtility;
     /**
      * Finds a user by their email address.
      * 
@@ -84,7 +81,8 @@ public class UserServiceImpl
         User user = User.builder().username( request.getUsername() ).email( request.getEmail() )
                 .password( passwordEncoder.encode( request.getPassword() ) ).firstName( request.getFirstName() )
                 .lastName( request.getLastName() ).phoneNumber( request.getPhoneNumber() ).active( true )
-                .verified( false ).verificationToken( UUID.randomUUID().toString() ).createdAt( Instant.now() ).build();
+                .verified( false ).verificationToken( Utility.grnerateVerificationCode().toString() )
+                .createdAt( Instant.now() ).build();
         // Assign default USER role using Set.of() for immutable sets
         log.debug( LogConstants.LOG_ASSIGNING_DEFAULT_USER_ROLE );
         Role userRole = roleRepository.findByName( SecurityConstants.ROLE_USER ).orElseGet( () -> {

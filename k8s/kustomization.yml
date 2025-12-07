@@ -6,6 +6,8 @@ resources:
   - zaplink-manager-deployment.yaml
   - zaplink-processor-deployment.yaml
   - zaplink-shortner-deployment.yaml
+  - zaplink-auth-deployment.yaml
+  - zaplink-notification-deployment.yaml
   - redis-deployment.yaml
   - kafka-deployment.yaml
   - kafka-ui-deployment.yaml
