@@ -21,10 +21,13 @@ spring:
     kafka:
         bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
         consumer:
-            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-            value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+            group-id: notification-group
             auto-offset-reset: earliest
+            key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
         properties:
-            spring.json.use.type.headers: false
             spring.json.trusted.packages: "*"
             spring.json.value.default.type: "io.zaplink.notification.dto.request.EmailRequest"
+        producer:
+            key-serializer: org.apache.kafka.common.serialization.StringSerializer
+            value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
