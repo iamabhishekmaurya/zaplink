@@ -15,9 +15,9 @@
             <appender-ref ref="CONSOLE"/>
         </root>
 
-        <logger name="io.zaplink.shortner" level="DEBUG"/>
-        <logger name="org.springframework.web" level="DEBUG"/>
-        <logger name="org.springframework.data" level="DEBUG"/>
+        <logger name="io.zaplink.shortner" level="INFO"/>
+        <logger name="org.springframework.web" level="WARN"/>
+        <logger name="org.springframework.data" level="WARN"/>
     </springProfile>
 
     <springProfile name="prod">

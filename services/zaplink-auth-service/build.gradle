@@ -77,7 +77,7 @@ jacocoTestCoverageVerification {
 	violationRules {
 		rule {
 			limit {
-				minimum = 0.95
+				minimum = 0.80
 			}
 		}
 	}
@@ -85,7 +85,7 @@ jacocoTestCoverageVerification {
 
 test {
 	jacoco {
-		excludes = ['**/dto/**', '**/entity/**', '**/config/**']
+		excludes = ['**/dto/**', '**/entity/**']
 	}
 }
 

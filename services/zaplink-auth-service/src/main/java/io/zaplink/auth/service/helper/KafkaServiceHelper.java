@@ -11,7 +11,7 @@ import io.zaplink.auth.dto.request.EmailRequest;
 public class KafkaServiceHelper
 {
     private static Logger                       logger = LoggerFactory.getLogger( KafkaServiceHelper.class );
-    private static final String                 TOPIC  = "topic-email-notification";
+    private static final String                 TOPIC  = "topic-2";
     private final KafkaTemplate<String, Object> kafkaTemplate;
     public KafkaServiceHelper( KafkaTemplate<String, Object> kafkaTemplate )
     {

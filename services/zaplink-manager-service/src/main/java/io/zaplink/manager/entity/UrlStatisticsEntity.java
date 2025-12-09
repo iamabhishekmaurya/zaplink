@@ -3,12 +3,11 @@ package io.zaplink.manager.entity;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 
-import org.springframework.data.annotation.Id;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Data;
 
 @Data @Entity(name = "url_statistics")

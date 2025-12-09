@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: zaplink-notification-service
+  # Disable Kafka for tests
+  kafka:
+    bootstrap-servers: "localhost:9092"
+    consumer:
+      group-id: "test-group"
+      auto-offset-reset: "earliest"
+    # Disable auto-startup for tests
+    listener:
+      auto-startup: false
+  # Mail configuration for tests
+  mail:
+    host: localhost
+    port: 25
+    username: test
+    password: test

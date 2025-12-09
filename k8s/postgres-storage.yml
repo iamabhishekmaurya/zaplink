@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  labels:
+    app: zaplink
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  labels:
+    app: zaplink
+type: Opaque
+data:
+  # Correct base64 encoded values
+  # postgres -> cG9zdGdyZXM=
+  # rgbXYZ@9182 -> cmdiWFlaQDkxODI=
+  postgres-user: cG9zdGdyZXM=
+  postgres-password: cmdiWFlaQDkxODI=

@@ -20,7 +20,7 @@ spring:
             retries: 5
     # DataSource config
     datasource:
-        url: jdbc:postgresql://localhost:5432/zaplink
+        url: jdbc:postgresql://host.docker.internal:5432/zaplink
         username: ${DB_USERNAME:postgres}
         password: ${DB_PASSWORD:rgbXYZ@9182}
     # JPA config

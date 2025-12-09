@@ -43,4 +43,17 @@ public class RegistreationEmailHandlerImpl
             return ServerResponse.badRequest().body( Mono.just( errorResponse ), EmailResponse.class );
         } );
     }
+
+    @Override
+    public void sendVerificationEmail( EmailRequest emailRequest )
+    {
+        Mono.just( emailRequest ).flatMap( request -> {
+            log.info( LogConstants.LOG_PROCESSING_REGISTRATION_EMAIL_REQUEST, request.getTo() );
+            return emailHelper.sendEmail( request.getTo(), request.getSubject(), request.getBody(),
+                                          AppConstants.TEMPLATE_REGISTRATION_VERIFICATION );
+        } ).onErrorResume( ex -> {
+            log.error( LogConstants.LOG_EMAIL_SENDING_FAILED, "unknown", ex.getMessage() );
+            return Mono.error( ex );
+        } ).subscribe();
+    }
 }

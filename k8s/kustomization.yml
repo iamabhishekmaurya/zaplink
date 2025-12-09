@@ -1,6 +1,7 @@
 resources:
   - redis-storage.yml
   - kafka-storage.yml
+  - postgres-storage.yml
   - zaplink-config.yml
   - api-gateway-deployment.yaml
   - zaplink-manager-deployment.yaml
@@ -11,3 +12,4 @@ resources:
   - redis-deployment.yaml
   - kafka-deployment.yaml
   - kafka-ui-deployment.yaml
+  - postgres-deployment.yaml

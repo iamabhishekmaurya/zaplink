@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -28,10 +29,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import io.zaplink.auth.common.exception.UserAlreadyExistsException;
 import io.zaplink.auth.common.exception.UserNotFoundException;
 import io.zaplink.auth.dto.request.UserRegistrationRequest;
+import io.zaplink.auth.dto.request.EmailRequest;
 import io.zaplink.auth.dto.response.UserRegistrationResponse;
 import io.zaplink.auth.entity.User;
 import io.zaplink.auth.repository.UserRepository;
 import io.zaplink.auth.service.UserService;
+import io.zaplink.auth.service.helper.KafkaServiceHelper;
 
 /**
  * Comprehensive test suite for RegistrationServiceImpl.
@@ -44,6 +47,8 @@ class RegistrationServiceImplTest
     private UserService             userService;
     @Mock
     private UserRepository          userRepository;
+    @Mock
+    private KafkaServiceHelper      kafkaServiceHelper;
     @InjectMocks
     private RegistrationServiceImpl registrationService;
     private UserRegistrationRequest registrationRequest;
@@ -86,6 +91,7 @@ class RegistrationServiceImplTest
         verify( userService ).existsByEmail( "test@example.com" );
         verify( userService ).existsByUsername( "testuser" );
         verify( userService ).createUser( registrationRequest );
+        verify( kafkaServiceHelper ).sendMessage( any( EmailRequest.class ) );
     }
 
     @Test @DisplayName("Register user with existing email should throw UserAlreadyExistsException")
@@ -220,6 +226,7 @@ class RegistrationServiceImplTest
         // Then
         assertNotNull( response );
         verify( userService ).createUser( registrationRequest );
+        verify( kafkaServiceHelper ).sendMessage( any( EmailRequest.class ) );
         // Verification token generation is handled in UserService.createUser
     }
 
@@ -237,6 +244,7 @@ class RegistrationServiceImplTest
         assertNotNull( response );
         assertFalse( response.isVerified() );
         verify( userService ).createUser( registrationRequest );
+        verify( kafkaServiceHelper ).sendMessage( any( EmailRequest.class ) );
     }
 
     @Test @DisplayName("Verify email should handle null verification token in user")
