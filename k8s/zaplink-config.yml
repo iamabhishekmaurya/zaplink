@@ -41,7 +41,7 @@ data:
   # DataSource Configuration
   spring.datasource.url: "jdbc:postgresql://postgres:5432/zaplink"
   spring.datasource.username: "postgres"
-  spring.datasource.password: "rgbXYZ@9182"
+  spring.datasource.password: "12345"
 
   # JPA Configuration
   spring.jpa.hibernate.ddl-auto: "update"

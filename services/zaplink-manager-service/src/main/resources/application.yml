@@ -14,9 +14,9 @@ spring:
     
     # Database config
     datasource:
-        url: jdbc:postgresql://localhost:5432/
+        url: jdbc:postgresql://localhost:5432/zaplink
         username: postgres
-        password: rgbXYZ@09182
+        password: 12345
     jpa:
         hibernate:
             ddl-auto: update

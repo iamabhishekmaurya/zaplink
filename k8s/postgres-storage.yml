@@ -21,6 +21,6 @@ type: Opaque
 data:
   # Correct base64 encoded values
   # postgres -> cG9zdGdyZXM=
-  # rgbXYZ@9182 -> cmdiWFlaQDkxODI=
+  # 12345 -> MTIzNDU=
   postgres-user: cG9zdGdyZXM=
-  postgres-password: cmdiWFlaQDkxODI=
+  postgres-password: MTIzNDU=
