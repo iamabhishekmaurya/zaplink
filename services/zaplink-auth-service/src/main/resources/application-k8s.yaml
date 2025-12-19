@@ -1,7 +1,5 @@
 server:
     port: 8084
-    servlet:
-        context-path: /v1
 
 spring:
     application:
@@ -37,3 +35,19 @@ spring:
 jwt:
     secret: ${JWT_SECRET:myZaplinkSecretKeyForJWTTokenGenerationAndValidation}
     expiration: ${JWT_EXPIRATION:1800} # 30 minutes in seconds
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  health:
+    probes:
+      enabled: true
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true

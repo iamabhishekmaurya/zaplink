@@ -1,6 +1,5 @@
 server:
     port: 8085
-    context-path: /v1
 
 spring:
     application:

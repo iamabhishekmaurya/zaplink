@@ -6,6 +6,9 @@ spring:
       discovery:
         locator:
           enabled: false
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 5s
       routes:
         - id: shortner
           uri: http://zaplink-shortner-service:8081
@@ -28,3 +31,24 @@ spring:
 
 server:
   port: 8090
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    redis:
+      enabled: false
+    kafka:
+      enabled: false
+    discoveryComposite:
+      enabled: false

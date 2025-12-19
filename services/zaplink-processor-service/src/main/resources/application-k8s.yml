@@ -35,4 +35,19 @@ spring:
       hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  health:
+    probes:
+      enabled: true
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
 

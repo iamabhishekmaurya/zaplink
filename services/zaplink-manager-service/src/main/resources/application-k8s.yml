@@ -1,8 +1,6 @@
 spring:
   application:
     name: zaplink-manager-service
-  servlet:
-    context-path: /v1
 
   data:
     redis:
@@ -26,3 +24,19 @@ spring:
 
 server:
   port: 8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  health:
+    probes:
+      enabled: true
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true

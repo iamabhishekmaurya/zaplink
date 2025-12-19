@@ -1,6 +1,5 @@
 server:
     port: 8085
-    context-path: /v1
 
 spring:
     application:
@@ -31,3 +30,19 @@ spring:
         producer:
             key-serializer: org.apache.kafka.common.serialization.StringSerializer
             value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  health:
+    probes:
+      enabled: true
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
