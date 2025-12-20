@@ -103,6 +103,7 @@ public class SecurityConfig
                     auth.requestMatchers( ApiConstants.AUTH_BASE_PATH ).permitAll()
                             .requestMatchers( ApiConstants.AUTH_V1_BASE_PATH ).permitAll()
                             .requestMatchers( ApiConstants.ERROR_PATH ).permitAll()
+                            .requestMatchers( ApiConstants.ACTUATER_PATH ).permitAll()
                             // All other endpoints require authentication
                             .anyRequest().authenticated();
                 } )

@@ -4,6 +4,20 @@
 # Load all YAMLs using kustomize
 k8s_yaml(kustomize('k8s'))
 
+# Load Prometheus resources
+k8s_yaml([
+    'k8s/prometheus/prometheus-config.yaml',
+    'k8s/prometheus/prometheus-deployment.yaml',
+    'k8s/prometheus/prometheus-service.yaml'
+])
+
+# Load Grafana resources
+k8s_yaml([
+    'k8s/grafana/grafana-datasources-config.yaml',
+    'k8s/grafana/grafana-deployment.yaml',
+    'k8s/grafana/grafana-service.yaml'
+])
+
 # Define Docker builds for all services
 docker_build("api-gateway-service", "services/api-gateway-service", dockerfile="services/api-gateway-service/Dockerfile")
 docker_build("zaplink-shortner-service", "services/zaplink-shortner-service", dockerfile="services/zaplink-shortner-service/Dockerfile")
@@ -19,9 +33,13 @@ k8s_resource("zaplink-processor-service", port_forwards=8082)
 k8s_resource("zaplink-manager-service", port_forwards=8083)
 k8s_resource("zaplink-auth-service", port_forwards=8084)
 k8s_resource("zaplink-notification-service", port_forwards=8085)
-k8s_resource("postgres", port_forwards=15432, trigger_mode=TRIGGER_MODE_MANUAL)
+k8s_resource("postgres", port_forwards="15432:5432", trigger_mode=TRIGGER_MODE_MANUAL)
 k8s_resource("redis", port_forwards=30093, trigger_mode=TRIGGER_MODE_MANUAL)
 k8s_resource("kafka", port_forwards=30192, trigger_mode=TRIGGER_MODE_MANUAL)
 k8s_resource("kafka-ui", port_forwards=8080, trigger_mode=TRIGGER_MODE_MANUAL)
+
+k8s_resource("prometheus", port_forwards=9090)
+
+k8s_resource("grafana", port_forwards=3000)
 
 print("✅ Tiltfile loaded successfully! Run `tilt up` to start all services 🚀")

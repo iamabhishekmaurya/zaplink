@@ -15,9 +15,9 @@
             <appender-ref ref="CONSOLE"/>
         </root>
 
-        <logger name="io.zaplink.apigateway" level="DEBUG"/>
-        <logger name="org.springframework.cloud.gateway" level="DEBUG"/>
-        <logger name="org.springframework.web.reactive" level="DEBUG"/>
+        <logger name="io.zaplink.apigateway" level="INFO"/>
+        <logger name="org.springframework.cloud.gateway" level="WARN"/>
+        <logger name="org.springframework.web.reactive" level="WARN"/>
     </springProfile>
 
     <springProfile name="prod">

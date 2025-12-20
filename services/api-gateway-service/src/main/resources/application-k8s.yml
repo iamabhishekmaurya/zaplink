@@ -52,3 +52,7 @@ management:
       enabled: false
     discoveryComposite:
       enabled: false
+  metrics:
+    export:
+      prometheus:
+        enabled: true

@@ -19,6 +19,7 @@ public final class ApiConstants
     public static final String AUTH_BASE_PATH                         = "/auth/**";
     public static final String AUTH_V1_BASE_PATH                      = "/v1/auth/**";
     public static final String ERROR_PATH                             = "/error";
+    public static final String ACTUATER_PATH                          = "/actuator/**";
     // ==================== ERROR CODES ====================
     public static final String ERROR_USER_NOT_FOUND                   = "USER_NOT_FOUND";
     public static final String ERROR_USER_ALREADY_EXISTS              = "USER_ALREADY_EXISTS";

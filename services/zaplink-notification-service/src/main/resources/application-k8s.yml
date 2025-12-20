@@ -46,3 +46,7 @@ management:
       enabled: true
     livenessstate:
       enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true

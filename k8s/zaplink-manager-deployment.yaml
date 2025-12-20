@@ -60,7 +60,8 @@ metadata:
 spec:
     selector:
         app: zaplink-manager-service
+    type: NodePort
     ports:
         - port: 8083
           targetPort: 8083
-    type: ClusterIP
+          nodePort: 30083
