@@ -12,12 +12,11 @@ REM ==============================
 REM 🔢 Define service list here
 REM ==============================
 set SERVICE_1=api-gateway-service
-set SERVICE_2=zaplink-service-registry
-set SERVICE_3=zaplink-shortner-service
-set SERVICE_4=zaplink-processor-service
-set SERVICE_5=zaplink-manager-service
-set SERVICE_6=zaplink-auth-service
-set SERVICE_7=zaplink-notification-service
+set SERVICE_2=zaplink-shortner-service
+set SERVICE_3=zaplink-processor-service
+set SERVICE_4=zaplink-manager-service
+set SERVICE_5=zaplink-auth-service
+set SERVICE_6=zaplink-notification-service
 
 REM ==============================
 REM 🧾 Show service menu
@@ -31,7 +30,6 @@ echo [3] %SERVICE_3%
 echo [4] %SERVICE_4%
 echo [5] %SERVICE_5%
 echo [6] %SERVICE_6%
-echo [7] %SERVICE_7%
 echo [all] Build ALL services
 echo ===========================================================
 
@@ -39,7 +37,7 @@ set /p CHOICE="Enter service numbers (e.g., 1 3 5 or all): "
 echo.
 
 if /i "%CHOICE%"=="all" (
-    set BUILD_LIST=1 2 3 4 5 6 7
+    set BUILD_LIST=1 2 3 4 5 6
 ) else (
     set BUILD_LIST=%CHOICE%
 )

@@ -1,36 +1,33 @@
+server:
+  port: 8090
+
 spring:
   application:
     name: api-gateway-service
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: false
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+          routes:
+            - id: shortner
+              uri: http://localhost:8081
+              predicates:
+                - Path=/shortner/**
+                - Method=POST,GET
+            - id: processor
+              uri: http://localhost:8082
+              predicates:
+                - Path=/processor/**
+                - Method=POST,GET
+              filters:
+                - StripPrefix=1
       httpclient:
         connect-timeout: 3000
         response-timeout: 5s
-      routes:
-        - id: shortner
-          uri: http://zaplink-shortner-service:8081
-          predicates:
-            - Path=/v1/shortner/**
-          filters:
-            - StripPrefix=2
-        - id: manager
-          uri: http://zaplink-manager-service:8083
-          predicates:
-            - Path=/r/**
-          filters:
-            - StripPrefix=1
-        - id: processor
-          uri: http://zaplink-processor-service:8082
-          predicates:
-            - Path=/v1/processor/**
-          filters:
-            - StripPrefix=2
 
-server:
-  port: 8090
 
 management:
   endpoints:
@@ -48,11 +45,7 @@ management:
       enabled: true
     redis:
       enabled: false
-    kafka:
-      enabled: false
-    discoveryComposite:
-      enabled: false
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true

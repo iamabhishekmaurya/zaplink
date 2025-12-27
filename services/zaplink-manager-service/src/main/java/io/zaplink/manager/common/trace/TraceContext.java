@@ -8,10 +8,9 @@ import java.util.UUID;
  */
 public final class TraceContext
 {
-    private static final String TRACE_ID_HEADER = "X-Trace-ID";
-    private static final ThreadLocal<String> traceIdHolder = new ThreadLocal<>();
-    public static final String TRACE_ID_KEY = "traceId";
-
+    private static final String              TRACE_ID_HEADER = "traceId";
+    private static final ThreadLocal<String> traceIdHolder   = new ThreadLocal<>();
+    public static final String               TRACE_ID_KEY    = "traceId";
     private TraceContext()
     {
         // Utility class - prevent instantiation

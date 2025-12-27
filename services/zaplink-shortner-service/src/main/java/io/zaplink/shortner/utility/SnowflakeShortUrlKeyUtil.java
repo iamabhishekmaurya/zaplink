@@ -70,9 +70,8 @@ public class SnowflakeShortUrlKeyUtil
         String encoded = sb.reverse().toString();
         return String.format( "%8s", encoded ).replace( ' ', '0' ); // pad to 8 chars
     }
-
     // Example usage
-    public static void main( String[] args )
+    /*  public static void main( String[] args )
     {
         SnowflakeShortUrlKeyUtil generator = new SnowflakeShortUrlKeyUtil( 1 ); // machineId = 1
         Set<String> keySet = new HashSet<>();
@@ -91,5 +90,5 @@ public class SnowflakeShortUrlKeyUtil
             }
         }
         System.out.println( counter );
-    }
+    } */
 }

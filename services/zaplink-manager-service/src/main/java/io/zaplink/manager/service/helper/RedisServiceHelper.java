@@ -2,15 +2,15 @@ package io.zaplink.manager.service.helper;
 
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-@Service
+import io.zaplink.manager.common.constants.LogConstants;
+import lombok.extern.slf4j.Slf4j;
+
+@Service @Slf4j
 public class RedisServiceHelper
 {
-    private Logger                        logger = LoggerFactory.getLogger( RedisServiceHelper.class );
     private RedisTemplate<String, Object> redisTemplate;
     public RedisServiceHelper( RedisTemplate<String, Object> redisTemplate )
     {
@@ -20,7 +20,7 @@ public class RedisServiceHelper
     // Set key-value with TTL
     public void setValue( String key, String value, long timeoutInSeconds )
     {
-        logger.info( "Going to set kay: {} and value: {}", key, value );
+        log.info( LogConstants.LOG_REDIS_SET_KEY, key, value );
         redisTemplate.opsForValue().set( key, value, timeoutInSeconds, TimeUnit.SECONDS );
     }
 

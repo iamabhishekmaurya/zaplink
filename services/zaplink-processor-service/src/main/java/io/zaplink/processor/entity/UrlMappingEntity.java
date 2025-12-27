@@ -1,34 +1,37 @@
 package io.zaplink.processor.entity;
 
-import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import io.zaplink.processor.common.enums.UrlStatusEnum;
 import lombok.Data;
 
-@Data @Entity(name = "url_mapping")
+@Data @Entity @Table(name = "url_mapping")
 public class UrlMappingEntity
 {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id", nullable = false)
-    private BigInteger id;
+    private Long          id;
     @Column(name = "short_url_key", nullable = false, unique = true)
-    private String     shortUrlKey;
-    @Column(name = "original_url", nullable = false)
-    private String     originalUrl;
+    private String        shortUrlKey;
+    @Column(name = "original_url", nullable = false, length = 2048)
+    private String        originalUrl;
     @Column(name = "short_url", nullable = false)
-    private String     shortUrl;
+    private String        shortUrl;
     @Column(name = "trace_id")
-    private String     traceId;
+    private String        traceId;
     @Column(name = "created_at", nullable = false)
-    private Timestamp  createdAt;
+    private LocalDateTime createdAt;
     @Column(name = "expires_at")
-    private Timestamp  expiresAt;
-    @Column(name = "click_count")
-    private Long       clickCount;
-    @Column(name = "status", nullable = false)
-    private String     status;
+    private LocalDateTime expiresAt;
+    @Column(name = "click_count", nullable = false)
+    private Long          clickCount = 0L;
+    @Enumerated(EnumType.STRING) @Column(name = "status", nullable = false)
+    private UrlStatusEnum status;
 }

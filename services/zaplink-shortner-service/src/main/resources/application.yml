@@ -4,23 +4,18 @@ server:
 spring:
     application:
         name: zaplink-shortner-service
-    # Cache config
-    # cache:
-    #     type: redis
-    #     redis:
-    #         time-to-live: 1200000 # 20 minutes
+    # DataSource config
+    datasource:
+        url: jdbc:postgresql://localhost:5432/zaplink_core
+        username: postgres
+        password: 12345
+    # JPA config
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
 
-    # Redis configs
-    data:
-        redis:
-            host: ${SPRING_DATA_REDIS_HOST:redis}
-            port: ${SPRING_DATA_REDIS_PORT:6379}
-    # Kafka config
-    kafka:
-        # bootstrap-servers: localhost:9092
-        bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
-        producer:
-            key-serializer: org.apache.kafka.common.serialization.StringSerializer
-            value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-            acks: all
-            retries: 5
+#Custom properties
+base.url: http://localhost:8083

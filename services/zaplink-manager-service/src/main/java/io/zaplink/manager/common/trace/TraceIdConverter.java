@@ -9,7 +9,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
  * 
  * Example pattern: %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%traceId] %logger{36} - %msg%n
  */
-public class TraceIdConverter extends ClassicConverter
+public class TraceIdConverter
+    extends
+    ClassicConverter
 {
     @Override
     public String convert( ILoggingEvent event )

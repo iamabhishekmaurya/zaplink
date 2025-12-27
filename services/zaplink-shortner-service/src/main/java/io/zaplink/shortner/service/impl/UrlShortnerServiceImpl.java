@@ -1,75 +1,87 @@
 package io.zaplink.shortner.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.time.LocalDateTime;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import io.zaplink.shortner.dto.request.UrlConsumerRequest;
+import io.zaplink.shortner.common.constants.LogConstants;
+import io.zaplink.shortner.common.enums.UrlStatusEnum;
 import io.zaplink.shortner.dto.request.ShortnerRequest;
 import io.zaplink.shortner.dto.response.ShortnerResponse;
+import io.zaplink.shortner.entity.UrlMappingEntity;
+import io.zaplink.shortner.repository.UrlMappingRepository;
 import io.zaplink.shortner.service.UrlShortnerService;
-import io.zaplink.shortner.service.helper.KafkaServiceHelper;
-import io.zaplink.shortner.service.helper.RedisServiceHelper;
 import io.zaplink.shortner.utility.SnowflakeShortKeyGenerator;
 import io.zaplink.shortner.utility.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Service @Slf4j
 public class UrlShortnerServiceImpl
     implements
     UrlShortnerService
 {
-    private static final Logger logger     = LoggerFactory.getLogger( UrlShortnerServiceImpl.class );
-    private RedisServiceHelper  redisService;
-    private KafkaServiceHelper  kafkaService;
-    private static final String BASE_URL   = "http://localhost:8083/";
-    private static final int    DAY_IN_SEC = 24 * 60 * 60;
-    public UrlShortnerServiceImpl( RedisServiceHelper redisService, KafkaServiceHelper kafkaService )
+    @Value("${base.url}")
+    private String               BASE_URL;
+    private UrlMappingRepository urlMappingRepository;
+    public UrlShortnerServiceImpl( UrlMappingRepository urlMappingRepository )
     {
-        this.redisService = redisService;
-        this.kafkaService = kafkaService;
+        this.urlMappingRepository = urlMappingRepository;
     }
 
     @Override
     public ShortnerResponse shortUrl( ShortnerRequest urlRequest )
     {
-        logger.info( "Going to short the url." );
+        log.info( LogConstants.LOG_SHORT_URL_INIT );
         ShortnerResponse shortUrlResponse = new ShortnerResponse();
-        UrlConsumerRequest shortUrlConsumerRequest = new UrlConsumerRequest();
         try
         {
             SnowflakeShortKeyGenerator keyGenerator = new SnowflakeShortKeyGenerator( 0 );
             String key = keyGenerator.generateShortKey();
             String shortUrl = StringUtil.concatStrings( BASE_URL, key );
-            shortUrlResponse.setUrl( shortUrl );
-            shortUrlResponse.setTraceId( urlRequest.getTraceId() );
-            shortUrlConsumerRequest.setTraceId( urlRequest.getTraceId() );
-            shortUrlConsumerRequest.setShortUrlKey( key );
-            shortUrlConsumerRequest.setOriginalUrl( urlRequest.getOriginalUrl() );
-            kafkaService.sendMessage( shortUrlConsumerRequest );
-            redisService.setValue( key, urlRequest.getOriginalUrl(), DAY_IN_SEC );
+            UrlMappingEntity urlMappingEntity = new UrlMappingEntity();
+            createUrlMappingEntity( urlMappingEntity, key, shortUrl, urlRequest );
+            UrlMappingEntity savedUrlMappingEntity = urlMappingRepository.save( urlMappingEntity );
+            if ( savedUrlMappingEntity != null )
+            {
+                log.info( LogConstants.LOG_URL_MAPPING_CREATED );
+                shortUrlResponse.setUrl( savedUrlMappingEntity.getShortUrl() );
+                shortUrlResponse.setTraceId( savedUrlMappingEntity.getTraceId() );
+            }
+            else
+            {
+                log.error( LogConstants.LOG_URL_MAPPING_NOT_CREATED );
+            }
         }
         catch ( Exception ex )
         {
-            logger.error( "Exception while shorting the url. Error: {}", ex.getMessage() );
+            log.error( LogConstants.LOG_URL_SHORTENING_EXCEPTION, ex.getMessage() );
             throw ex;
         }
         return shortUrlResponse;
     }
 
-    @Override
-    public ShortnerResponse getShortUrl( String key )
+    /**
+     * Creates a new URL mapping entity with the provided parameters.
+     * 
+     * @param urlMappingEntity the URL mapping entity to create
+     * @param key              the short URL key
+     * @param shortUrl         the short URL
+     * @param urlRequest       the original URL request
+     */
+    private void createUrlMappingEntity( UrlMappingEntity urlMappingEntity,
+                                         String key,
+                                         String shortUrl,
+                                         ShortnerRequest urlRequest )
     {
-        ShortnerResponse shortUrlResponse = new ShortnerResponse();
-        try
-        {
-            String originalUrl = redisService.getValue( key );
-            shortUrlResponse.setUrl( originalUrl );
-            shortUrlResponse.setTraceId( "skdhfksdhfkhsdkfhksjd" );
-        }
-        catch ( Exception ex )
-        {
-            logger.error( "Exception while fetching url for key: {}. Error: {}", key, ex.getMessage() );
-        }
-        return shortUrlResponse;
+        log.info( LogConstants.LOG_CREATING_URL_MAPPING, key );
+        urlMappingEntity.setShortUrlKey( key );
+        urlMappingEntity.setOriginalUrl( urlRequest.getOriginalUrl() );
+        urlMappingEntity.setShortUrl( shortUrl );
+        urlMappingEntity.setTraceId( urlRequest.getTraceId() );
+        urlMappingEntity.setCreatedAt( LocalDateTime.now() );
+        urlMappingEntity.setExpiresAt( LocalDateTime.now().plusSeconds( 60 * 60 * 24 * 15 ) );
+        urlMappingEntity.setClickCount( 0L );
+        urlMappingEntity.setStatus( UrlStatusEnum.ACTIVE );
     }
 }

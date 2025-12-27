@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+          routes:
+            - id: shortner
+              uri: http://localhost:8081
+              predicates:
+                - Path=/shortner/**
+                - Method=POST,GET
+            - id: processor
+              uri: http://localhost:8082
+              predicates:
+                - Path=/processor/**
+                - Method=POST,GET
+              filters:
+                - StripPrefix=1

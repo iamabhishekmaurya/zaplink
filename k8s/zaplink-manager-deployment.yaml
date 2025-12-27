@@ -26,12 +26,6 @@ spec:
                   env:
                       - name: SPRING_PROFILES_ACTIVE
                         value: "k8s"
-                      
-                      # INTERNAL Redis access (recommended for Kubernetes)
-                      - name: SPRING_DATA_REDIS_HOST
-                        value: "redis"
-                      - name: SPRING_DATA_REDIS_PORT
-                        value: "6379"
                         startupProbe:
                           httpGet:
                             path: /actuator/health/liveness

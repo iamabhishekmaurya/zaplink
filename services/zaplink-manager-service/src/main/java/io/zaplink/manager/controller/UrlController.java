@@ -5,13 +5,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
-import io.zaplink.manager.service.UrlProvider;
+import io.zaplink.manager.service.UrlManagerService;
 
 @RestController
 public class UrlController
 {
-    private UrlProvider urlProvider;
-    public UrlController( UrlProvider urlProvider )
+    private UrlManagerService urlProvider;
+    public UrlController( UrlManagerService urlProvider )
     {
         this.urlProvider = urlProvider;
     }

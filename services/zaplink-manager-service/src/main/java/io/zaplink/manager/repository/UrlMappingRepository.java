@@ -1,7 +1,6 @@
 package io.zaplink.manager.repository;
 
-import java.math.BigInteger;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import io.zaplink.manager.constants.QueryConstants;
+import io.zaplink.manager.common.constants.QueryConstants;
+import io.zaplink.manager.common.enums.UrlStatusEnum;
 import io.zaplink.manager.entity.UrlMappingEntity;
 
 /**
@@ -26,7 +26,7 @@ import io.zaplink.manager.entity.UrlMappingEntity;
 @Repository
 public interface UrlMappingRepository
     extends
-    JpaRepository<UrlMappingEntity, BigInteger>
+    JpaRepository<UrlMappingEntity, Long>
 {
     /**
      * Retrieves a URL mapping by its unique short URL key.
@@ -56,7 +56,7 @@ public interface UrlMappingRepository
      * @return List of URL mappings with the specified status
      * @throws IllegalArgumentException if status is null or empty
      */
-    List<UrlMappingEntity> findByStatus( String status );
+    List<UrlMappingEntity> findByStatus( UrlStatusEnum status );
 
     /**
      * Finds all URL mappings associated with a specific trace ID.
@@ -76,18 +76,18 @@ public interface UrlMappingRepository
      * @return Number of URL mappings with the specified status
      * @throws IllegalArgumentException if status is null or empty
      */
-    long countByStatus( String status );
+    long countByStatus( UrlStatusEnum status );
 
     /**
      * Finds all URL mappings that have expired based on their expiration date.
      * Essential for cleanup operations and expired URL management.
      * 
-     * @param currentTime the current timestamp to compare against expiration dates
+     * @param currentTime the current LocalDateTime to compare against expiration dates
      * @return List of expired URL mappings
      * @throws IllegalArgumentException if currentTime is null
      */
     @Query(QueryConstants.FIND_EXPIRED_URLS)
-    List<UrlMappingEntity> findExpiredUrls( @Param("currentTime") Timestamp currentTime );
+    List<UrlMappingEntity> findExpiredUrls( @Param("currentTime") LocalDateTime currentTime );
 
     /**
      * Increments the click count for a specific URL mapping.
@@ -110,7 +110,7 @@ public interface UrlMappingRepository
      * @throws IllegalArgumentException if shortUrlKey or status is null/empty
      */
     @Modifying @Query(QueryConstants.UPDATE_STATUS)
-    int updateStatus( @Param("shortUrlKey") String shortUrlKey, @Param("status") String status );
+    int updateStatus( @Param("shortUrlKey") String shortUrlKey, @Param("status") UrlStatusEnum status );
 
     /**
      * Finds URL mappings created within a specific date range.
@@ -122,8 +122,8 @@ public interface UrlMappingRepository
      * @throws IllegalArgumentException if startDate or endDate is null
      */
     @Query(QueryConstants.FIND_BY_CREATED_AT_BETWEEN)
-    List<UrlMappingEntity> findByCreatedAtBetween( @Param("startDate") Timestamp startDate,
-                                                   @Param("endDate") Timestamp endDate );
+    List<UrlMappingEntity> findByCreatedAtBetween( @Param("startDate") LocalDateTime startDate,
+                                                   @Param("endDate") LocalDateTime endDate );
 
     /**
      * Retrieves URL mappings ordered by click count in descending order.
@@ -138,12 +138,12 @@ public interface UrlMappingRepository
      * Finds all currently active URL mappings.
      * Returns URLs that are active and not expired based on current time.
      * 
-     * @param currentTime the current timestamp to determine active status
+     * @param currentTime the current LocalDateTime to determine active status
      * @return List of active URL mappings available for redirection
      * @throws IllegalArgumentException if currentTime is null
      */
     @Query(QueryConstants.FIND_ACTIVE_URLS)
-    List<UrlMappingEntity> findActiveUrls( @Param("currentTime") Timestamp currentTime );
+    List<UrlMappingEntity> findActiveUrls( @Param("currentTime") LocalDateTime currentTime );
 
     /**
      * Searches for URL mappings where the original URL contains the specified pattern.

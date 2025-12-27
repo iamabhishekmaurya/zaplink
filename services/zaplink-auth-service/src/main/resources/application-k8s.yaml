@@ -9,7 +9,6 @@ spring:
 
     # Kafka config
     kafka:
-        # bootstrap-servers: localhost:9092
         bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
         producer:
             key-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -18,18 +17,16 @@ spring:
             retries: 5
     # DataSource config
     datasource:
-        url: jdbc:postgresql://host.docker.internal:5432/zaplink
+        url: jdbc:postgresql://host.docker.internal:5432/zaplink_auth
         username: ${DB_USERNAME:postgres}
         password: ${DB_PASSWORD:12345}
     # JPA config
     jpa:
         hibernate:
             ddl-auto: update
-            show-sql: true
         properties:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
-                format_sql: true
 
 # JWT Configuration
 jwt:
@@ -43,15 +40,11 @@ management:
         include: health,info,prometheus
   endpoint:
     prometheus:
-      enabled: true
-  health:
-    probes:
-      enabled: true
-    readinessstate:
-      enabled: true
-    livenessstate:
-      enabled: true
-  metrics:
-    export:
-      prometheus:
+      access: unrestricted
+    health:
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
         enabled: true

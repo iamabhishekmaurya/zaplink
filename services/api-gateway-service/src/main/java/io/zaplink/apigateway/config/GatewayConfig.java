@@ -7,33 +7,34 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDateTime;
+
+/**
+ * Java Configuration for Cloud Gateway Routes (Dynamic/Complex Routes).
+ * Part of the Hybrid Gateway Configuration.
+ */
 @Configuration
-public class GatewayConfig {
-
-    private static final Logger log = LoggerFactory.getLogger(GatewayConfig.class);
-
+public class GatewayConfig
+{
+    private static final Logger log = LoggerFactory.getLogger( GatewayConfig.class );
     @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
-        log.info("Initializing custom routes...");
+    public RouteLocator customRouteLocator( RouteLocatorBuilder builder )
+    {
+        log.info( "🚀 Initializing Hybrid Gateway Java Routes..." );
         return builder.routes()
-                .route("shortner", r -> {
-                    log.info("Configuring shortner route");
-                    return r.path("/v1/shortner/**")
-                            .filters(f -> f.stripPrefix(1))
-                            .uri("http://zaplink-shortner-service:8081");
-                })
-                .route("manager", r -> {
-                    log.info("Configuring manager route");
-                    return r.path("/r/**")
-                            .filters(f -> f.stripPrefix(1))
-                            .uri("http://zaplink-manager-service:8083");
-                })
-                .route("processor", r -> {
-                    log.info("Configuring processor route");
-                    return r.path("/v1/processor/**")
-                            .filters(f -> f.stripPrefix(1))
-                            .uri("http://zaplink-processor-service:8082");
-                })
+                /**
+                 * Manager Service Redirect Route
+                 * Moved to Java to show custom header and logging logic.
+                 */
+                .route( "manager", r -> r.path( "/r/**" )
+                        .filters( f -> f.stripPrefix( 1 )
+                                .addResponseHeader( "X-Zaplink-Processing-Time", LocalDateTime.now().toString() )
+                                .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
+                        .uri( "http://localhost:8083" ) )
+                /* 
+                   NOTE: 'shortner' and 'processor' routes are handled 
+                   via application.yml (Static Routes).
+                */
                 .build();
     }
 }

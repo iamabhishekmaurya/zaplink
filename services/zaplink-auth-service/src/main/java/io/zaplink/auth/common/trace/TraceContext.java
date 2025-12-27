@@ -12,9 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class TraceContext
 {
-    private static final String TRACE_ID_HEADER = "X-Trace-ID";
-    private static final ThreadLocal<String> traceIdHolder = new ThreadLocal<>();
-
+    private static final String              TRACE_ID_HEADER = "traceId";
+    private static final ThreadLocal<String> traceIdHolder   = new ThreadLocal<>();
     private TraceContext()
     {
         // Utility class - prevent instantiation

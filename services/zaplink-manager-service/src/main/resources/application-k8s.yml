@@ -8,19 +8,17 @@ spring:
       port: ${SPRING_DATA_REDIS_PORT}
   
   # DataSource config
-    datasource:
-        url: jdbc:postgresql://host.docker.internal:5432/zaplink
-        username: ${DB_USERNAME:postgres}
-        password: ${DB_PASSWORD:12345}
-    # JPA config
-    jpa:
-        hibernate:
-            ddl-auto: update
-            show-sql: true
-        properties:
-            hibernate:
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-                format_sql: true
+  datasource:
+      url: jdbc:postgresql://host.docker.internal:5432/zaplink_core
+      username: ${DB_USERNAME:postgres}
+      password: ${DB_PASSWORD:12345}
+  # JPA config
+  jpa:
+      hibernate:
+          ddl-auto: update
+      properties:
+          hibernate:
+              dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8083
@@ -32,15 +30,16 @@ management:
         include: health,info,prometheus
   endpoint:
     prometheus:
-      enabled: true
+      access: unrestricted
+    health:
+      probes:
+        enabled: true
   health:
-    probes:
-      enabled: true
     readinessstate:
       enabled: true
     livenessstate:
       enabled: true
-  metrics:
-    export:
-      prometheus:
-        enabled: true
+  prometheus:
+    metrics:
+      export:
+          enabled: true

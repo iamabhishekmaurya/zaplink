@@ -13,3 +13,9 @@ resources:
   - kafka-deployment.yaml
   - kafka-ui-deployment.yaml
   - postgres-deployment.yaml
+  - /prometheus/prometheus-config.yaml
+  - /prometheus/prometheus-deployment.yaml
+  - /prometheus/prometheus-service.yaml
+  - /grafana/grafana-datasources-config.yaml
+  - /grafana/grafana-deployment.yaml
+  - /grafana/grafana-service.yaml

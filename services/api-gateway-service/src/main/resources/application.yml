@@ -1,30 +1,8 @@
+server:
+  port: 8090
+
 spring:
   application:
     name: api-gateway-service
-  cloud:
-    gateway:
-      discovery:
-        locator:
-          enabled: false
-      routes:
-        - id: shortner
-          uri: http://zaplink-shortner-service:8081
-          predicates:
-            - Path=/v1/shortner/**
-          filters:
-            - StripPrefix=2
-        - id: manager
-          uri: http://zaplink-manager-service:8083
-          predicates:
-            - Path=/r/**
-          filters:
-            - StripPrefix=1
-        - id: processor
-          uri: http://zaplink-processor-service:8082
-          predicates:
-            - Path=/v1/processor/**
-          filters:
-            - StripPrefix=2
-
-server:
-  port: 8090
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}

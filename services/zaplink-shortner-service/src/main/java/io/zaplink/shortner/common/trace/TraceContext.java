@@ -8,10 +8,8 @@ import java.util.UUID;
  */
 public final class TraceContext
 {
-    private static final String TRACE_ID_HEADER = "X-Trace-ID";
-    private static final ThreadLocal<String> traceIdHolder = new ThreadLocal<>();
-    public static final String TRACE_ID_KEY = "traceId";
-
+    private static final String              TRACE_ID_HEADER = "traceId";
+    private static final ThreadLocal<String> traceIdHolder   = new ThreadLocal<>();
     private TraceContext()
     {
         // Utility class - prevent instantiation
@@ -25,7 +23,6 @@ public final class TraceContext
     public static void setTraceId( String traceId )
     {
         traceIdHolder.set( traceId );
-        System.out.println( "Set trace ID " + traceId + " for current thread" );
     }
 
     /**
@@ -63,7 +60,6 @@ public final class TraceContext
         String traceId = traceIdHolder.get();
         if ( traceId != null )
         {
-            System.out.println( "Cleared trace ID " + traceId + " for current thread" );
             traceIdHolder.remove();
         }
     }
