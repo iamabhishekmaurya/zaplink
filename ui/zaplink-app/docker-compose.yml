@@ -1,0 +1,15 @@
+services:
+  zaplink-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zaplink-app:latest
+    container_name: zaplink-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    # Add any other environment variables here
+    # e.g., API_URL=http://your-api-domain.com

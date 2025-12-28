@@ -6,16 +6,26 @@ spring:
           discovery:
             locator:
               enabled: false
-          routes:
-            - id: shortner
-              uri: http://localhost:8081
-              predicates:
-                - Path=/shortner/**
-                - Method=POST,GET
-            - id: processor
-              uri: http://localhost:8082
-              predicates:
-                - Path=/processor/**
-                - Method=POST,GET
-              filters:
-                - StripPrefix=1
+      routes:
+        - id: shortner
+          uri: http://localhost:8081
+          predicates:
+            - Path=/shortner/**
+            - Method=POST,GET
+        - id: processor
+          uri: http://localhost:8082
+          predicates:
+            - Path=/processor/**
+            - Method=POST,GET
+          filters:
+            - StripPrefix=1
+        - id: auth-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/auth/**
+            - Method=POST,GET,PUT
+        - id: user-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/users/**
+            - Method=GET,PUT
