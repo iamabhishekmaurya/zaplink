@@ -6,3 +6,8 @@ spring:
     name: api-gateway-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:myZaplinkSecretKeyForJWTTokenGenerationAndValidation}
+  expiration: ${JWT_EXPIRATION:1800} # 30 minutes in seconds

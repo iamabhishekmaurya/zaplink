@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
-import io.zaplink.auth.common.constants.SecurityConstants;
 import io.zaplink.auth.common.util.StringUtil;
 import io.zaplink.auth.entity.User;
 import io.zaplink.auth.repository.UserRepository;
@@ -39,8 +38,7 @@ public class CustomUserDetailsService
         }
         return org.springframework.security.core.userdetails.User.builder().username( user.getEmail() )
                 .password( user.getPassword() )
-                .authorities( Collections.singletonList( new SimpleGrantedAuthority( StringUtil
-                        .createRoleName( SecurityConstants.ROLE_USER ) ) ) )
+                .authorities( Collections.singletonList( new SimpleGrantedAuthority( "ROLE_USER" ) ) )
                 .accountExpired( false ).accountLocked( false ).credentialsExpired( false ).disabled( !user.isActive() )
                 .build();
     }

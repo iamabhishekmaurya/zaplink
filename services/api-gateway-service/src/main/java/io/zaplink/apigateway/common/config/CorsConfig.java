@@ -1,4 +1,4 @@
-package io.zaplink.apigateway.config;
+package io.zaplink.apigateway.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

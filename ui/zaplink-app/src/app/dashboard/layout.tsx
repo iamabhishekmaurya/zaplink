@@ -45,8 +45,13 @@ export default function DashboardLayout({
     router.push('/');
   };
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
+
   if (!isAuthenticated) {
-    router.push('/');
     return null;
   }
 

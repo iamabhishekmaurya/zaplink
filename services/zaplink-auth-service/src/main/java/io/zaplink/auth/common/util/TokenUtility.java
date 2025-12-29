@@ -6,8 +6,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import io.zaplink.auth.common.constants.SecurityConstants;
-
 /**
  * Utility class for common token operations.
  * Provides reusable methods for token generation and validation.
@@ -19,6 +17,13 @@ import io.zaplink.auth.common.constants.SecurityConstants;
 @Component
 public class TokenUtility
 {
+    // ==================== TIME VALUES ====================
+    private static final long REFRESH_TOKEN_EXPIRY_DAYS   = 7;
+    private static final long PASSWORD_RESET_EXPIRY_HOURS = 1;
+    // ==================== TOKEN MASKING ====================
+    private static final int    TOKEN_MASK_LENGTH           = 10;
+    private static final String TOKEN_SUFFIX                = "...";
+    private static final String FULL_TOKEN_MASK             = "***";
     /**
      * Generates a new UUID-based token string.
      * 
@@ -36,7 +41,7 @@ public class TokenUtility
      */
     public Instant generateRefreshTokenExpiry()
     {
-        return Instant.now().plus( SecurityConstants.REFRESH_TOKEN_EXPIRY_DAYS, ChronoUnit.DAYS );
+        return Instant.now().plus( REFRESH_TOKEN_EXPIRY_DAYS, ChronoUnit.DAYS );
     }
 
     /**
@@ -46,7 +51,7 @@ public class TokenUtility
      */
     public Instant generatePasswordResetExpiry()
     {
-        return Instant.now().plus( SecurityConstants.PASSWORD_RESET_EXPIRY_HOURS, ChronoUnit.HOURS );
+        return Instant.now().plus( PASSWORD_RESET_EXPIRY_HOURS, ChronoUnit.HOURS );
     }
 
     /**
@@ -58,12 +63,11 @@ public class TokenUtility
      */
     public String maskToken( String token )
     {
-        if ( token == null || token.length() <= SecurityConstants.TOKEN_MASK_LENGTH )
+        if ( token == null || token.length() <= TOKEN_MASK_LENGTH )
         {
-            return SecurityConstants.FULL_TOKEN_MASK;
+            return FULL_TOKEN_MASK;
         }
-        return StringUtil.createMaskedToken( token, SecurityConstants.TOKEN_MASK_LENGTH,
-                                             SecurityConstants.TOKEN_SUFFIX );
+        return token.substring( 0, TOKEN_MASK_LENGTH ) + TOKEN_SUFFIX;
     }
 
     /**

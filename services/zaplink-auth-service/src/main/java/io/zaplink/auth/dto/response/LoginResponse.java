@@ -1,6 +1,5 @@
 package io.zaplink.auth.dto.response;
 
-import io.zaplink.auth.common.constants.SecurityConstants;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 public class LoginResponse extends BaseResponse {
     private String accessToken;
     private String refreshToken;
-    private final String tokenType = SecurityConstants.TOKEN_TYPE_BEARER;
+    private final String tokenType = "Bearer";
     private Long expiresIn;
     private UserInfo userInfo;
     

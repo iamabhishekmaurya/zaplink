@@ -11,24 +11,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
-import io.zaplink.auth.common.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Spring Security configuration class.
- * Configures authentication, authorization, JWT filtering, and security policies.
+ * Simplified Spring Security configuration class for auth service.
+ * Only handles authentication, JWT validation has been moved to API Gateway.
  * 
  * Features:
- * - JWT-based stateless authentication
- * - Role-based access control
- * - Public endpoints for authentication operations
+ * - Basic authentication for login endpoints
  * - Password encryption with BCrypt
  * - Method-level security enabled
+ * - Public endpoints for authentication operations
  * 
  * @author Zaplink Team
  * @version 1.0
@@ -41,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 @EnableMethodSecurity(prePostEnabled = true) 
 public class SecurityConfig
 {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     /**
      * Configures password encoder for secure password hashing.
      * Uses BCrypt algorithm with default strength (10).
@@ -73,8 +69,7 @@ public class SecurityConfig
 
     /**
      * Configures the main security filter chain.
-     * Sets up CORS, CSRF, session management, and endpoint security.
-     * Uses modern Spring Security 6.x configuration patterns.
+     * Sets up basic security for auth endpoints only.
      * 
      * @param http HttpSecurity configuration object
      * @return Configured SecurityFilterChain
@@ -86,7 +81,7 @@ public class SecurityConfig
     {
         log.debug( LogConstants.LOG_CONFIGURING_SECURITY_FILTER_CHAIN );
         http
-                // Disable CSRF for stateless JWT authentication
+                // Disable CSRF for stateless authentication
                 .csrf( csrf -> {
                     log.debug( LogConstants.LOG_DISABLING_CSRF_PROTECTION );
                     csrf.disable();
@@ -106,9 +101,7 @@ public class SecurityConfig
                             .requestMatchers( ApiConstants.ACTUATER_PATH ).permitAll()
                             // All other endpoints require authentication
                             .anyRequest().authenticated();
-                } )
-                // Add JWT authentication filter
-                .addFilterBefore( jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class );
+                } );
         log.info( LogConstants.LOG_SPRING_SECURITY_FILTER_CHAIN_CONFIGURED );
         log.debug( LogConstants.LOG_PUBLIC_ENDPOINTS );
         log.debug( LogConstants.LOG_ALL_OTHER_ENDPOINTS_REQUIRE_AUTH );

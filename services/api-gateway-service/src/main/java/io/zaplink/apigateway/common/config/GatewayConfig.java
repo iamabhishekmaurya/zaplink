@@ -1,4 +1,4 @@
-package io.zaplink.apigateway.config;
+package io.zaplink.apigateway.common.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -8,13 +8,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.zaplink.auth.common.config.JwtConfig;
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
 import io.zaplink.auth.common.exception.InvalidCredentialsException;
 import io.zaplink.auth.common.exception.UserNotFoundException;
-import io.zaplink.auth.common.util.JwtUtility;
 import io.zaplink.auth.common.util.TokenUtility;
+import io.zaplink.auth.common.util.JwtUtility;
 import io.zaplink.auth.dto.request.LoginRequest;
 import io.zaplink.auth.dto.request.PasswordResetRequest;
 import io.zaplink.auth.dto.response.LoginResponse;
@@ -23,6 +22,7 @@ import io.zaplink.auth.entity.User;
 import io.zaplink.auth.repository.RefreshTokenRepository;
 import io.zaplink.auth.repository.UserRepository;
 import io.zaplink.auth.service.AuthService;
+import io.zaplink.auth.service.helper.AuthHelper;
 import io.zaplink.auth.service.helper.UserHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,10 +47,11 @@ public class AuthServiceImpl
     private final UserRepository         userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder        passwordEncoder;
-    private final JwtConfig              jwtConfig;
     private final UserHelper             userHelper;
     private final TokenUtility           tokenUtility;
-    private final JwtUtility             jwtUtility;
+    private final AuthHelper authHelper;
+    private final JwtUtility jwtUtility;
+
     /**
      * Authenticates a user and generates JWT tokens.
      * 
@@ -81,7 +82,8 @@ public class AuthServiceImpl
             log.info( LogConstants.LOG_LOGIN_SUCCESSFUL, request.getEmail(), user.getId() );
             // Build response using utility
             LoginResponse response = jwtUtility.buildLoginResponse( user, accessToken, refreshToken );
-            log.debug( LogConstants.LOG_LOGIN_RESPONSE_CREATED, jwtConfig.getJwtExpiration() );
+            response.setSuccess(true);
+            log.debug( LogConstants.LOG_LOGIN_RESPONSE_CREATED, jwtUtility.getJwtExpiration() );
             return response;
         }
         catch ( Exception e )

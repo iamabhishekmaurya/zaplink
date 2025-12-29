@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import io.zaplink.auth.common.config.JwtConfig;
 import io.zaplink.auth.common.util.JwtUtility;
 import io.zaplink.auth.common.util.TokenUtility;
 
@@ -24,17 +23,9 @@ public class TestConfig
     }
 
     @Bean @Primary
-    public JwtConfig jwtConfig()
+    public JwtUtility jwtUtility()
     {
-        JwtConfig config = new JwtConfig();
-        // JwtConfig uses @Value annotations, so we don't need setters
-        return config;
-    }
-
-    @Bean @Primary
-    public JwtUtility jwtUtility( JwtConfig jwtConfig )
-    {
-        return new JwtUtility( jwtConfig );
+        return new JwtUtility();
     }
 
     @Bean @Primary

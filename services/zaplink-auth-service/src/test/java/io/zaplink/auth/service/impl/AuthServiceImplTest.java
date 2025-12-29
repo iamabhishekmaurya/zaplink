@@ -26,7 +26,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import io.zaplink.auth.common.config.JwtConfig;
 import io.zaplink.auth.common.exception.InvalidCredentialsException;
 import io.zaplink.auth.common.util.JwtUtility;
 import io.zaplink.auth.common.util.TokenUtility;
@@ -55,8 +54,6 @@ class AuthServiceImplTest
     @Mock
     private PasswordEncoder        passwordEncoder;
     @Mock
-    private JwtConfig              jwtConfig;
-    @Mock
     private UserHelper             userHelper;
     @Mock
     private TokenUtility           tokenUtility;
@@ -81,7 +78,6 @@ class AuthServiceImplTest
         passwordResetRequest = new PasswordResetRequest();
         passwordResetRequest.setEmail( "test@example.com" );
         // Only mock when needed in individual tests
-        lenient().when( jwtConfig.getJwtExpiration() ).thenReturn( 1800L );
     }
 
     @Test @DisplayName("Successful login should return JWT tokens")
