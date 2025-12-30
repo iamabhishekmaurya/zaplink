@@ -30,7 +30,7 @@ public class UrlShortnerServiceImpl
     }
 
     @Override
-    public ShortnerResponse shortUrl( ShortnerRequest urlRequest )
+    public ShortnerResponse shortUrl( ShortnerRequest urlRequest, String userEmail )
     {
         log.info( LogConstants.LOG_SHORT_URL_INIT );
         ShortnerResponse shortUrlResponse = new ShortnerResponse();
@@ -40,7 +40,7 @@ public class UrlShortnerServiceImpl
             String key = keyGenerator.generateShortKey();
             String shortUrl = StringUtil.concatStrings( BASE_URL, key );
             UrlMappingEntity urlMappingEntity = new UrlMappingEntity();
-            createUrlMappingEntity( urlMappingEntity, key, shortUrl, urlRequest );
+            createUrlMappingEntity( urlMappingEntity, key, shortUrl, urlRequest, userEmail );
             UrlMappingEntity savedUrlMappingEntity = urlMappingRepository.save( urlMappingEntity );
             if ( savedUrlMappingEntity != null )
             {
@@ -72,12 +72,14 @@ public class UrlShortnerServiceImpl
     private void createUrlMappingEntity( UrlMappingEntity urlMappingEntity,
                                          String key,
                                          String shortUrl,
-                                         ShortnerRequest urlRequest )
+                                         ShortnerRequest urlRequest,
+                                         String userEmail )
     {
         log.info( LogConstants.LOG_CREATING_URL_MAPPING, key );
         urlMappingEntity.setShortUrlKey( key );
         urlMappingEntity.setOriginalUrl( urlRequest.getOriginalUrl() );
         urlMappingEntity.setShortUrl( shortUrl );
+        urlMappingEntity.setUserEmail( userEmail );
         urlMappingEntity.setTraceId( urlRequest.getTraceId() );
         urlMappingEntity.setCreatedAt( LocalDateTime.now() );
         urlMappingEntity.setExpiresAt( LocalDateTime.now().plusSeconds( 60 * 60 * 24 * 15 ) );

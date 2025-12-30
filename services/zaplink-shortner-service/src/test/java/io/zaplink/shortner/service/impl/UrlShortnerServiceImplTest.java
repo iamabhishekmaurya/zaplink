@@ -47,8 +47,7 @@ class UrlShortnerServiceImplTest
         savedEntity.setShortUrl( "http://localhost:8083/1" );
         savedEntity.setTraceId( traceId );
         when( urlMappingRepository.save( any( UrlMappingEntity.class ) ) ).thenReturn( savedEntity );
-        // Act
-        ShortnerResponse response = urlShortnerService.shortUrl( request );
+        ShortnerResponse response = urlShortnerService.shortUrl( request, "test@example.com" );
         // Assert
         assertNotNull( response );
         assertEquals( savedEntity.getShortUrl(), response.getUrl() );
@@ -68,8 +67,7 @@ class UrlShortnerServiceImplTest
         request.setOriginalUrl( originalUrl );
         request.setTraceId( "trace-123" );
         when( urlMappingRepository.save( any( UrlMappingEntity.class ) ) ).thenReturn( null );
-        // Act
-        ShortnerResponse response = urlShortnerService.shortUrl( request );
+        ShortnerResponse response = urlShortnerService.shortUrl( request, "test@example.com" );
         // Assert
         assertNotNull( response );
         // Current impl: if save returns null, response object uses default initialized values (null url)
@@ -86,6 +84,6 @@ class UrlShortnerServiceImplTest
         when( urlMappingRepository.save( any( UrlMappingEntity.class ) ) )
                 .thenThrow( new RuntimeException( "DB Error" ) );
         // Act & Assert
-        assertThrows( RuntimeException.class, () -> urlShortnerService.shortUrl( request ) );
+        assertThrows( RuntimeException.class, () -> urlShortnerService.shortUrl( request, "test@example.com" ) );
     }
 }

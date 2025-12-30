@@ -39,6 +39,22 @@ public interface UrlMappingRepository
     Optional<UrlMappingEntity> findByShortUrlKey( String shortUrlKey );
 
     /**
+     * Retrieves all URL mappings associated with a specific user email.
+     * 
+     * @param userEmail the email of the link owner
+     * @return List of URL mappings belonging to the user
+     */
+    List<UrlMappingEntity> findByUserEmail( String userEmail );
+
+    /**
+     * Counts all URL mappings associated with a specific user email.
+     * 
+     * @param userEmail
+     * @return count
+     */
+    long countByUserEmail( String userEmail );
+
+    /**
      * Checks if a URL mapping exists for the given short URL key.
      * Useful for validation and duplicate prevention during URL creation.
      * 
@@ -68,15 +84,25 @@ public interface UrlMappingRepository
      */
     List<UrlMappingEntity> findByTraceId( String traceId );
 
-    /**
-     * Counts URL mappings by their status.
-     * Provides quick statistics for dashboard and reporting purposes.
-     * 
-     * @param status the status to count
-     * @return Number of URL mappings with the specified status
-     * @throws IllegalArgumentException if status is null or empty
-     */
     long countByStatus( UrlStatusEnum status );
+
+    /**
+     * Counts URL mappings by status and user email.
+     * 
+     * @param status
+     * @param userEmail
+     * @return count
+     */
+    long countByStatusAndUserEmail( UrlStatusEnum status, String userEmail );
+
+    /**
+     * Retrieves the total click count for a specific user email.
+     * 
+     * @param userEmail the email of the user
+     * @return the total number of clicks across all URLs of the user
+     */
+    @Query("SELECT SUM(u.clickCount) FROM UrlMappingEntity u WHERE u.userEmail = :userEmail")
+    Long getTotalClickCountByUserEmail( @Param("userEmail") String userEmail );
 
     /**
      * Finds all URL mappings that have expired based on their expiration date.

@@ -32,7 +32,7 @@ public class RedisServiceHelper
     }
 
     // Delete a key
-    public void deleteKey( String key )
+    public void deleteValue( String key )
     {
         redisTemplate.delete( key );
     }

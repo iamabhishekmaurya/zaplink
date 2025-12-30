@@ -5,5 +5,5 @@ import io.zaplink.shortner.dto.response.ShortnerResponse;
 
 public interface UrlShortnerService
 {
-    ShortnerResponse shortUrl( ShortnerRequest urlRequest );
+    ShortnerResponse shortUrl( ShortnerRequest urlRequest, String userEmail );
 }

@@ -1,6 +1,9 @@
 package io.zaplink.manager.service;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
+import io.zaplink.manager.dto.response.LinkResponse;
+import io.zaplink.manager.dto.response.StatsResponse;
 
 @Service
 public interface UrlManagerService
@@ -16,4 +19,25 @@ public interface UrlManagerService
      * @return short url
      */
     String getShortUrl( String key );
+
+    /**
+     * Get links by user email
+     * @param userEmail
+     * @return list of links
+     */
+    List<LinkResponse> getLinksByUser( String userEmail );
+
+    /**
+     * Get user statistics
+     * @param userEmail
+     * @return statistics
+     */
+    StatsResponse getUserStats( String userEmail );
+
+    /**
+     * Delete link by id
+     * @param id
+     * @param userEmail
+     */
+    void deleteLink( Long id, String userEmail );
 }

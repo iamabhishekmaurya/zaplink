@@ -24,6 +24,8 @@ public class UrlMappingEntity
     private String        originalUrl;
     @Column(name = "short_url", nullable = false)
     private String        shortUrl;
+    @Column(name = "user_email")
+    private String        userEmail;
     @Column(name = "trace_id")
     private String        traceId;
     @Column(name = "created_at", nullable = false)
