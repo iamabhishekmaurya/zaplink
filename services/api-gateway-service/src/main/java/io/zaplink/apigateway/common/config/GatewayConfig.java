@@ -28,7 +28,8 @@ public class GatewayConfig
                                  * Moved to Java to show custom header and logging logic.
                                  */
                                 .route( "manager",
-                                        r -> r.path( "/r/**" ).filters( f -> f.stripPrefix( 1 )
+                                        r -> r.path( "/r/**" ).filters( f -> f
+                                                        .rewritePath( "/r/(?<segment>.*)", "/manager/${segment}" )
                                                         .addResponseHeader( "X-Zaplink-Processing-Time",
                                                                             LocalDateTime.now().toString() )
                                                         .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )

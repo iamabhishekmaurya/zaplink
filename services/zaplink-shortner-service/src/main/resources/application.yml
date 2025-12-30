@@ -18,4 +18,4 @@ spring:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
 
 #Custom properties
-base.url: http://localhost:8083
+base.url: http://localhost:8090/r/

@@ -3,9 +3,9 @@ spring:
     gateway:
       server:
         webflux:
-      discovery:
-        locator:
-          enabled: false
+          discovery:
+            locator:
+              enabled: false
       routes:
         - id: shortner
           uri: http://localhost:8081
@@ -20,6 +20,11 @@ spring:
           filters:
             - StripPrefix=1
         - id: manager
+          uri: http://localhost:8083
+          predicates:
+            - Path=/manager/**
+            - Method=POST,GET,DELETE
+        - id: manager-short
           uri: http://localhost:8083
           predicates:
             - Path=/m/**

@@ -12,7 +12,7 @@ import java.security.SecureRandom;
 public class Utility
 {
     private static final SecureRandom secureRandom = new SecureRandom();
-    public static Integer grnerateVerificationCode()
+    public static Integer generateVerificationCode()
     {
         return secureRandom.nextInt( 900000 ) + 100000;
     }

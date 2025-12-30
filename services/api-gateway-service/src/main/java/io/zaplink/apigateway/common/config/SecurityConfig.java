@@ -31,8 +31,9 @@ public class SecurityConfig
                         .pathMatchers( "/auth/register", "/auth/login", "/auth/refresh", "/auth/verify-email",
                                        "/auth/resend-verification", "/auth/request-password-reset",
                                        "/auth/reset-password" )
-                        .permitAll().pathMatchers( "/error" ).permitAll().pathMatchers( "/actuator/**" ).permitAll()
-                        .pathMatchers( HttpMethod.OPTIONS, "/**" ).permitAll().anyExchange().authenticated() )
+                        .permitAll().pathMatchers( "/r/**" ).permitAll().pathMatchers( "/error" ).permitAll()
+                        .pathMatchers( "/actuator/**" ).permitAll().pathMatchers( HttpMethod.OPTIONS, "/**" )
+                        .permitAll().anyExchange().authenticated() )
                 .addFilterBefore( jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION ).build();
     }
 

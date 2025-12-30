@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
+import { logout } from '@/store/slices/authSlice';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { Copy, ChevronsUpDown } from 'lucide-react';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
+import api from "@/utils/api";
+import { useAuth } from '@/hooks/useAuth';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -46,13 +51,32 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isAuthenticated, isInitialized, user } = useSelector((state: RootState) => state.auth);
+
+  const { isAuthenticated, isInitialized, user, checkAuth } = useAuth();
+  const dispatch = useDispatch();
   const pathname = usePathname();
   const router = useRouter();
 
   const handleLogout = () => {
-    // Dispatch logout action here
+    dispatch(logout());
     router.push('/');
+  };
+
+  const [isResending, setIsResending] = useState(false);
+
+  const handleResendVerification = async () => {
+    if (!user?.email) return;
+
+    setIsResending(true);
+    try {
+      await api.post(`/auth/resend-verification?email=${user.email}`);
+      toast.success('Verification code sent! Redirecting...');
+      router.push('/verify-email');
+    } catch (error) {
+      toast.error('Failed to send verification email. Please try again.');
+    } finally {
+      setIsResending(false);
+    }
   };
 
   const copyProfileLink = () => {
@@ -60,6 +84,10 @@ export default function DashboardLayout({
     navigator.clipboard.writeText(profileUrl);
     toast.success('Profile link copied to clipboard!');
   };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     if (isInitialized && !isAuthenticated) {
@@ -263,11 +291,39 @@ export default function DashboardLayout({
         </SheetContent>
       </Sheet>
 
+
+
       {/* Main Content */}
       <div className="lg:pl-64 flex flex-col flex-1">
         <main className="flex-1 overflow-y-auto">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+
+
+
+              {user && !user.verified && (
+                <Alert variant="destructive" className="mb-6 bg-destructive/10 border-destructive/20 text-destructive flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle className="ml-2">Verification Required</AlertTitle>
+                    </div>
+                    <AlertDescription className="ml-6 mt-1">
+                      Your email address is not verified. Please check your inbox for the verification link to unlock full features.
+                    </AlertDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-4 border-destructive/30 hover:bg-destructive/10 hover:text-destructive bg-transparent shrink-0"
+                    onClick={handleResendVerification}
+                    disabled={isResending}
+                  >
+                    {isResending ? 'Sending...' : 'Verify Account'}
+                  </Button>
+                </Alert>
+              )}
               {children}
             </div>
           </div>

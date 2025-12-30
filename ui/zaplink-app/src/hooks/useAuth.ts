@@ -78,10 +78,19 @@ export const useAuth = () => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    toast.info('Logged out successfully');
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        await api.post('/auth/logout', null, { params: { refreshToken } });
+      }
+    } catch (err) {
+      console.error('Logout API call failed:', err);
+    } finally {
+      dispatch(logout());
+      toast.info('Logged out successfully');
+      router.push('/login');
+    }
   };
 
   return {

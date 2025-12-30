@@ -64,15 +64,15 @@ export default function Navbar() {
                         {/* Desktop Nav - Modern Design */}
                         <div className="hidden md:flex items-center gap-8">
                             <div className="flex items-center gap-6">
-                                <Link href="/features" className="text-sm font-medium hover:text-primary transition-colors relative group">
+                                <Link href="/features" className="text-sm font-medium transition-colors relative group">
                                     Features
                                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent group-hover:w-full transition-all duration-300" />
                                 </Link>
-                                <Link href="/pricing" className="text-sm font-medium hover:text-primary transition-colors relative group">
+                                <Link href="/pricing" className="text-sm font-medium transition-colors relative group">
                                     Pricing
                                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent group-hover:w-full transition-all duration-300" />
                                 </Link>
-                                <Link href="/resources" className="text-sm font-medium hover:text-primary transition-colors relative group">
+                                <Link href="/resources" className="text-sm font-medium transition-colors relative group">
                                     Resources
                                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent group-hover:w-full transition-all duration-300" />
                                 </Link>
@@ -81,7 +81,7 @@ export default function Navbar() {
                             {isAuthenticated ? (
                                 <div className="flex items-center gap-4">
                                     <Link href="/dashboard">
-                                        <Button variant="ghost" size="sm" className="gap-2 hover:bg-primary/10 hover:text-primary">
+                                        <Button variant="ghost" size="sm" className="rounded-full gap-2 px-4 hover:bg-primary/15 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary border border-transparent hover:border-primary/30">
                                             <LayoutDashboard className="h-4 w-4" />
                                             Dashboard
                                         </Button>
@@ -133,7 +133,7 @@ export default function Navbar() {
                             ) : (
                                 <div className="flex items-center gap-4">
                                     <Link href="/login">
-                                        <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary font-medium">
+                                        <Button variant="ghost" size="sm" className="rounded-full px-6 hover:bg-primary/15 dark:hover:bg-primary/20 hover:text-foreground dark:hover:text-foreground font-medium border border-transparent hover:border-primary/30">
                                             Login
                                         </Button>
                                     </Link>
@@ -174,13 +174,13 @@ export default function Navbar() {
                     >
                         <div className="container mx-auto px-4 py-8 flex flex-col gap-6">
                             <div className="flex flex-col gap-4">
-                                <Link href="/features" className="text-lg font-medium hover:text-primary transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+                                <Link href="/features" className="text-lg font-medium transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
                                     Features
                                 </Link>
-                                <Link href="/pricing" className="text-lg font-medium hover:text-primary transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+                                <Link href="/pricing" className="text-lg font-medium transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
                                     Pricing
                                 </Link>
-                                <Link href="/resources" className="text-lg font-medium hover:text-primary transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
+                                <Link href="/resources" className="text-lg font-medium transition-colors py-2" onClick={() => setMobileMenuOpen(false)}>
                                     Resources
                                 </Link>
                             </div>

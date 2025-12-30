@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { BorderBeam } from "@/components/ui/border-beam";
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Link as LinkIcon, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
 import api from '@/utils/api';
 import axios from 'axios';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft, CheckCircle, Link as LinkIcon, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -66,15 +67,15 @@ export default function ForgotPasswordPage() {
                     <p className="text-muted-foreground font-medium">Reset your password</p>
                 </div>
 
-                <Card className="border-border/50 shadow-2xl backdrop-blur-sm bg-background/95">
+                <Card className="border-border/50 shadow-2xl backdrop-blur-sm bg-background/95 relative overflow-hidden">
                     <CardHeader className="space-y-1 text-center">
                         <CardTitle className="text-2xl font-bold">
                             {isSubmitted ? 'Check your email' : 'Forgot your password?'}
                         </CardTitle>
                         <CardDescription>
                             {isSubmitted
-                                ? 'We&apos;ve sent password reset instructions to your email'
-                                : 'Enter your email address and we&apos;ll send you a link to reset your password'
+                                ? 'We have sent password reset instructions to your email'
+                                : 'Enter your email address and we will send you a link to reset your password'
                             }
                         </CardDescription>
                     </CardHeader>
@@ -176,6 +177,7 @@ export default function ForgotPasswordPage() {
                             </div>
                         )}
                     </CardContent>
+                    <BorderBeam size={250} duration={12} delay={9} />
                 </Card>
 
                 <Link href="/" className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors font-medium">

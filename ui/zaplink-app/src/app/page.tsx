@@ -106,7 +106,7 @@ export default function Home() {
             >
               Transform Your
               <br />
-              <span className="text-gradient bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300 bg-clip-text text-transparent">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300">
                 Digital Links
               </span>
             </motion.h1>
@@ -354,7 +354,7 @@ export default function Home() {
                 className="group"
               >
                 <Card className="h-full glass-card border-0 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-3xl overflow-hidden">
-                  <CardContent className="p-8">
+                  <CardContent className="pt-8 pb-2">
                     <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.gradient} mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                       <feature.icon className="w-8 h-8 text-white" />
                     </div>
@@ -371,7 +371,7 @@ export default function Home() {
                       ))}
                     </div>
 
-                    <Button variant="ghost" className="mt-6 p-0 h-auto font-bold text-primary hover:text-primary/80 group-hover:translate-x-2 transition-all">
+                    <Button variant="ghost" className="mt-6 px-4 py-2 h-auto font-bold text-primary hover:bg-primary/15 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary group-hover:translate-x-1 transition-all rounded-full -ml-4 border border-transparent hover:border-primary/30">
                       Learn more <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   </CardContent>

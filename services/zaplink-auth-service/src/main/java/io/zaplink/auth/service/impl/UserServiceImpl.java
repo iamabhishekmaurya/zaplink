@@ -80,7 +80,7 @@ public class UserServiceImpl
         User user = User.builder().username( request.getUsername() ).email( request.getEmail() )
                 .password( passwordEncoder.encode( request.getPassword() ) ).firstName( request.getFirstName() )
                 .lastName( request.getLastName() ).phoneNumber( request.getPhoneNumber() ).active( true )
-                .verified( false ).verificationToken( Utility.grnerateVerificationCode().toString() )
+                .verified( false ).verificationToken( Utility.generateVerificationCode().toString() )
                 .createdAt( Instant.now() ).build();
         // Assign default USER role using Set.of() for immutable sets
         log.debug( LogConstants.LOG_ASSIGNING_DEFAULT_USER_ROLE );

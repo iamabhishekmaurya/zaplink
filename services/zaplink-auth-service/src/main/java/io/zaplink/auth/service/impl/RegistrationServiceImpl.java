@@ -2,6 +2,7 @@ package io.zaplink.auth.service.impl;
 
 import java.util.UUID;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,9 +72,7 @@ public class RegistrationServiceImpl
         log.debug( LogConstants.LOG_CREATING_NEW_USER_ACCOUNT );
         User user = userService.createUser( request );
         log.info( LogConstants.LOG_USER_REGISTERED_SUCCESSFULLY, user.getId(), user.getEmail(), user.getUsername() );
-        EmailRequest emailRequest = EmailRequest.builder().to( user.getEmail() ).subject( "Zaplink Verification Email" )
-                .body( user.getVerificationToken() ).build();
-        kafkaServiceHelper.sendMessage( emailRequest );
+        sendVerificationEmailEvent( user );
         log.debug( LogConstants.LOG_VERIFICATION_EMAIL_SHOULD_BE_SENT, user.getEmail() );
         // Build response using modern SuperBuilder pattern
         UserRegistrationResponse response = UserRegistrationResponse.builder().success( true )
@@ -139,12 +138,15 @@ public class RegistrationServiceImpl
             log.info( LogConstants.LOG_USER_ALREADY_VERIFIED, email );
             return;
         }
-        // Generate new verification token
-        String verificationToken = UUID.randomUUID().toString();
-        user.setVerificationToken( verificationToken );
-        userRepository.save( user );
-        log.info( LogConstants.LOG_NEW_VERIFICATION_TOKEN_GENERATED, email, user.getId() );
-        // TODO: Send verification email
+        sendVerificationEmailEvent( user );
         log.debug( LogConstants.LOG_VERIFICATION_EMAIL_SHOULD_BE_SENT, email );
+    }
+
+    @Async
+    private void sendVerificationEmailEvent( User user )
+    {
+        EmailRequest emailRequest = EmailRequest.builder().to( user.getEmail() ).subject( "Zaplink Verification Email" )
+                .body( user.getVerificationToken() ).build();
+        kafkaServiceHelper.sendMessage( emailRequest );
     }
 }

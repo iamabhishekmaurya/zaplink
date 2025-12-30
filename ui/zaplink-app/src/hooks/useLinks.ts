@@ -44,7 +44,6 @@ export const useLinks = () => {
     dispatch(setLoading(true));
     dispatch(setError(null));
     try {
-      // Assuming manager service has an endpoint to get user links
       const response = await api.get('/manager/links');
       const data = Array.isArray(response.data) ? response.data : (response.data.links || []);
       dispatch(setLinks(data));
@@ -59,12 +58,29 @@ export const useLinks = () => {
     }
   };
 
+  const deleteLink = async (id: string | number) => {
+    try {
+      await api.delete(`/manager/links/${id}`);
+      dispatch(setLinks(links.filter((link: any) => link.id !== id)));
+      toast.success('Link deleted successfully');
+      return true;
+    } catch (err: unknown) {
+      let message = 'Failed to delete link.';
+      if (axios.isAxiosError(err)) {
+        message = err.response?.data?.message || message;
+      }
+      toast.error(message);
+      return false;
+    }
+  };
+
   return {
     links,
     recentLinks,
     isLoading,
     error,
     shortenUrl,
-    fetchUserLinks
+    fetchUserLinks,
+    deleteLink
   };
 };

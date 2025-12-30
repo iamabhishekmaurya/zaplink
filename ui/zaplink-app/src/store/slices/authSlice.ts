@@ -7,8 +7,8 @@ interface UserInfo {
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
-  isVerified?: boolean;
-  isActive?: boolean;
+  verified: boolean;
+  active?: boolean;
   createdAt?: string;
 }
 

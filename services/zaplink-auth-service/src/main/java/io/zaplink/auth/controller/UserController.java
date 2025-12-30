@@ -22,7 +22,7 @@ public class UserController
 {
     private final UserService userService;
     @GetMapping("/{userId}") @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-    public ResponseEntity<User> getUser( @PathVariable Long userId )
+    public ResponseEntity<User> getUser( @PathVariable("userId") Long userId )
     {
         log.info( LogConstants.LOG_GET_USER_REQUEST, userId );
         User user = userService.findByEmail( "email" ).orElseThrow(); // This needs proper implementation
@@ -30,7 +30,7 @@ public class UserController
     }
 
     @PutMapping("/{userId}") @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
-    public ResponseEntity<BaseResponse> updateUser( @PathVariable Long userId, @RequestBody User updatedUser )
+    public ResponseEntity<BaseResponse> updateUser( @PathVariable("userId") Long userId, @RequestBody User updatedUser )
     {
         log.info( LogConstants.LOG_UPDATE_USER_REQUEST, userId );
         userService.updateUser( userId, updatedUser );
@@ -38,7 +38,7 @@ public class UserController
     }
 
     @PutMapping("/{userId}/deactivate") @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BaseResponse> deactivateUser( @PathVariable Long userId )
+    public ResponseEntity<BaseResponse> deactivateUser( @PathVariable("userId") Long userId )
     {
         log.info( LogConstants.LOG_DEACTIVATE_USER_REQUEST, userId );
         userService.deactivateUser( userId );
@@ -46,7 +46,7 @@ public class UserController
     }
 
     @PutMapping("/{userId}/activate") @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BaseResponse> activateUser( @PathVariable Long userId )
+    public ResponseEntity<BaseResponse> activateUser( @PathVariable("userId") Long userId )
     {
         log.info( LogConstants.LOG_ACTIVATE_USER_REQUEST, userId );
         userService.activateUser( userId );

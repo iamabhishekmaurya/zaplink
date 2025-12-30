@@ -1,16 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { BorderBeam } from "@/components/ui/border-beam";
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Link as LinkIcon, Github, Chrome, ArrowLeft, ShieldCheck, User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Eye, EyeOff, Link as LinkIcon, Lock, Mail, ShieldCheck, User } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { FaGithub, FaGoogle } from "react-icons/fa";
+import { toast } from 'sonner';
 
 export default function SignupPage() {
     const [formData, setFormData] = useState({
@@ -62,7 +64,7 @@ export default function SignupPage() {
                     <p className="text-muted-foreground font-medium">Join 85k+ users worldwide</p>
                 </div>
 
-                <Card className="border-border/50 shadow-2xl backdrop-blur-sm bg-background/95">
+                <Card className="border-border/50 shadow-2xl backdrop-blur-sm bg-background/95 relative overflow-hidden">
                     <CardHeader className="space-y-1 text-center">
                         <CardTitle className="text-2xl font-bold font-display">Create an account</CardTitle>
                         <CardDescription>Get started with your free-tier account today</CardDescription>
@@ -186,15 +188,16 @@ export default function SignupPage() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <Button variant="outline" className="h-11 gap-2 font-medium">
-                                <Chrome className="h-4 w-4" /> Google
+                            <Button variant="outline" className="h-11 gap-2 hover:bg-primary/15 dark:hover:bg-primary/20 hover:text-foreground dark:hover:text-foreground font-medium border-1 hover:border-primary/30">
+                                <FaGoogle className="h-4 w-4" /> Google
                             </Button>
-                            <Button variant="outline" className="h-11 gap-2 font-medium">
-                                <Github className="h-4 w-4" /> GitHub
+                            <Button variant="outline" className="h-11 gap-2 hover:bg-primary/15 dark:hover:bg-primary/20 hover:text-foreground dark:hover:text-foreground font-medium border-1 hover:border-primary/30">
+                                <FaGithub className="h-4 w-4" /> GitHub
                             </Button>
                         </div>
                     </CardContent>
-                    <CardFooter className="flex flex-col gap-4 text-center border-t py-6 bg-muted/20">
+                    <BorderBeam size={250} duration={12} delay={9} />
+                    <CardFooter className="flex flex-col gap-4 text-center border-t py-6">
                         <p className="text-sm text-muted-foreground">
                             Already have an account?{" "}
                             <Link href="/login" className="text-primary hover:underline font-bold">Sign in</Link>

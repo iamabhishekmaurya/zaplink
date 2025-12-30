@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,44 +32,17 @@ import {
     MoreHorizontal
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const clickData = [
-    { name: '01 Dec', clicks: 1200, unique: 800 },
-    { name: '05 Dec', clicks: 1800, unique: 1100 },
-    { name: '10 Dec', clicks: 1400, unique: 950 },
-    { name: '15 Dec', clicks: 2200, unique: 1500 },
-    { name: '20 Dec', clicks: 1900, unique: 1300 },
-    { name: '25 Dec', clicks: 2800, unique: 1900 },
-    { name: '30 Dec', clicks: 2500, unique: 1750 },
-];
-
-const geoData = [
-    { name: 'United States', value: 4500, code: 'US' },
-    { name: 'India', value: 3200, code: 'IN' },
-    { name: 'United Kingdom', value: 2100, code: 'GB' },
-    { name: 'Germany', value: 1800, code: 'DE' },
-    { name: 'France', value: 1200, code: 'FR' },
-    { name: 'Others', value: 1500, code: 'OTH' },
-];
-
-const deviceData = [
-    { name: 'Mobile', value: 65, color: '#3b82f6' },
-    { name: 'Desktop', value: 30, color: '#8b5cf6' },
-    { name: 'Tablet', value: 5, color: '#10b981' },
-];
-
-const referralData = [
-    { name: 'Direct', value: '4,231', percentage: 40, trend: 'up' },
-    { name: 'Twitter', value: '2,154', percentage: 20, trend: 'up' },
-    { name: 'LinkedIn', value: '1,842', percentage: 18, trend: 'down' },
-    { name: 'Facebook', value: '1,245', percentage: 12, trend: 'up' },
-    { name: 'Instagram', value: '1,102', percentage: 10, trend: 'up' },
-];
+import { useStats } from '@/hooks/useStats';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
 
 export default function AnalyticsPage() {
     const [timeRange, setTimeRange] = useState('Last 30 Days');
+    const { stats, fetchStats, isLoading } = useStats();
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
 
     const containerVariants = {
         hidden: { opacity: 0, y: 20 },
@@ -114,10 +87,10 @@ export default function AnalyticsPage() {
             {/* Top Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                    { label: 'Total Clicks', val: '45,232', trend: '+12.5%', icon: MousePointer2, color: 'text-primary' },
-                    { label: 'Unique Visitors', val: '31,842', trend: '+8.2%', icon: TrendingUp, color: 'text-blue-500' },
-                    { label: 'Avg. CTR', val: '4.8%', trend: '-0.4%', icon: Navigation, color: 'text-purple-500', isDown: true },
-                    { label: 'Top Region', val: 'United States', trend: '45%', icon: Globe2, color: 'text-green-500' },
+                    { label: 'Total Clicks', val: stats?.totalClicks?.toLocaleString() || '0', trend: '+12.5%', icon: MousePointer2, color: 'text-primary' },
+                    { label: 'Unique Visitors', val: 'N/A', trend: '+8.2%', icon: TrendingUp, color: 'text-blue-500' },
+                    { label: 'Avg. CTR', val: (stats?.avgCtr || '0') + '%', trend: '-0.4%', icon: Navigation, color: 'text-purple-500', isDown: true },
+                    { label: 'Top Region', val: stats?.topRegion || 'N/A', trend: '45%', icon: Globe2, color: 'text-green-500' },
                 ].map((stat, i) => (
                     <Card key={i} className="glass-card border-0 shadow-lg overflow-hidden group">
                         <CardContent className="p-6 relative">
@@ -148,15 +121,11 @@ export default function AnalyticsPage() {
                 </CardHeader>
                 <CardContent className="h-[400px] pt-4">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={clickData}>
+                        <AreaChart data={stats?.clickTrend || []}>
                             <defs>
                                 <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
                                     <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                                </linearGradient>
-                                <linearGradient id="colorUnique" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted)/0.5)" />
@@ -184,15 +153,6 @@ export default function AnalyticsPage() {
                                 fill="url(#colorClicks)"
                                 animationDuration={2000}
                             />
-                            <Area
-                                type="monotone"
-                                dataKey="unique"
-                                stroke="#8b5cf6"
-                                strokeWidth={4}
-                                fillOpacity={1}
-                                fill="url(#colorUnique)"
-                                animationDuration={2000}
-                            />
                         </AreaChart>
                     </ResponsiveContainer>
                 </CardContent>
@@ -207,7 +167,7 @@ export default function AnalyticsPage() {
                     </CardHeader>
                     <CardContent className="h-[350px] pt-4">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={geoData} layout="vertical">
+                            <BarChart data={stats?.referrers || []} layout="vertical">
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--muted)/0.5)" />
                                 <XAxis type="number" hide />
                                 <YAxis
@@ -223,7 +183,7 @@ export default function AnalyticsPage() {
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                 />
                                 <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                                    {geoData.map((entry, index) => (
+                                    {(stats?.referrers || []).map((entry: any, index: number) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Bar>
@@ -243,13 +203,13 @@ export default function AnalyticsPage() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
-                                        data={deviceData}
+                                        data={stats?.devices || []}
                                         innerRadius={60}
                                         outerRadius={80}
                                         paddingAngle={10}
                                         dataKey="value"
                                     >
-                                        {deviceData.map((entry, index) => (
+                                        {(stats?.devices || []).map((entry: any, index: number) => (
                                             <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
                                         ))}
                                     </Pie>
@@ -258,7 +218,7 @@ export default function AnalyticsPage() {
                             </ResponsiveContainer>
                         </div>
                         <div className="flex gap-6 mt-4 w-full justify-center">
-                            {deviceData.map((device, i) => (
+                            {(stats?.devices || []).map((device: any, i: number) => (
                                 <div key={i} className="flex flex-col items-center gap-1">
                                     <div className="flex items-center gap-2">
                                         <div className="h-3 w-3 rounded-full" style={{ backgroundColor: device.color }} />
@@ -281,7 +241,7 @@ export default function AnalyticsPage() {
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="divide-y divide-border/40">
-                            {referralData.map((ref, i) => (
+                            {(stats?.referrers || []).map((ref: any, i: number) => (
                                 <div key={i} className="flex items-center justify-between p-4 px-6 group hover:bg-muted/30 transition-colors">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center font-bold font-display text-primary">
@@ -301,12 +261,12 @@ export default function AnalyticsPage() {
                                             <div className="h-2 w-full bg-muted/50 rounded-full overflow-hidden">
                                                 <div
                                                     className="h-full bg-primary"
-                                                    style={{ width: `${ref.percentage}%` }}
+                                                    style={{ width: `${ref.percentage || 0}%` }}
                                                 />
                                             </div>
                                         </div>
                                         <div className={`flex items-center gap-1 font-bold ${ref.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-                                            {ref.percentage}%
+                                            {ref.percentage || 0}%
                                         </div>
                                     </div>
                                 </div>
@@ -322,30 +282,30 @@ export default function AnalyticsPage() {
                         <CardDescription className="font-medium">Browser and OS distribution</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-6 pt-4">
-                        {[
-                            { name: 'Chrome', val: 58, icon: Chrome, color: 'text-blue-500' },
-                            { name: 'Safari', val: 24, icon: Laptop, color: 'text-gray-400' },
-                            { name: 'Firefox', val: 12, icon: Globe2, color: 'text-orange-500' },
-                            { name: 'Others', val: 6, icon: Smartphone, color: 'text-primary' },
-                        ].map((item, i) => (
-                            <div key={i} className="flex flex-col gap-2">
-                                <div className="flex justify-between items-center text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <item.icon className={`h-4 w-4 ${item.color}`} />
-                                        <span className="font-bold font-display">{item.name}</span>
+                        {(stats?.browsers || []).map((item: any, i: number) => {
+                            const Icon = (item.name === 'Chrome' ? Chrome :
+                                item.name === 'Safari' ? Laptop :
+                                    item.name === 'Firefox' ? Globe2 : Smartphone);
+                            return (
+                                <div key={i} className="flex flex-col gap-2">
+                                    <div className="flex justify-between items-center text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <Icon className={`h-4 w-4 ${item.color}`} />
+                                            <span className="font-bold font-display">{item.name}</span>
+                                        </div>
+                                        <span className="font-bold">{item.val}%</span>
                                     </div>
-                                    <span className="font-bold">{item.val}%</span>
+                                    <div className="h-2 w-full bg-muted/50 rounded-full overflow-hidden">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${item.val}%` }}
+                                            transition={{ duration: 1, delay: i * 0.1 }}
+                                            className="h-full bg-primary"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="h-2 w-full bg-muted/50 rounded-full overflow-hidden">
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${item.val}%` }}
-                                        transition={{ duration: 1, delay: i * 0.1 }}
-                                        className="h-full bg-primary"
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </CardContent>
                 </Card>
             </div>

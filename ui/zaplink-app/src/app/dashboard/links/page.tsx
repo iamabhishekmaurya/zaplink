@@ -31,7 +31,7 @@ import { useLinks } from '@/hooks/useLinks';
 import { CreateLinkModal } from '@/components/links/CreateLinkModal';
 
 export default function LinksPage() {
-    const { links, fetchUserLinks, isLoading, error } = useLinks();
+    const { links, fetchUserLinks, deleteLink, isLoading, error } = useLinks();
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'archived'>('all');
     const [sortBy, setSortBy] = useState<'date' | 'clicks'>('date');
@@ -245,6 +245,14 @@ export default function LinksPage() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col gap-1 max-w-[350px]">
                                                         <div className="flex items-center gap-2">
+                                                            <img
+                                                                src={`https://www.google.com/s2/favicons?domain=${new URL(link.originalUrl).hostname}&sz=32`}
+                                                                alt=""
+                                                                className="h-4 w-4 rounded flex-shrink-0"
+                                                                onError={(e) => {
+                                                                    e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>';
+                                                                }}
+                                                            />
                                                             <span className="font-bold font-display text-primary truncate">
                                                                 {link.shortUrl}
                                                             </span>
@@ -257,7 +265,7 @@ export default function LinksPage() {
                                                                 <Copy className="h-3.5 w-3.5" />
                                                             </Button>
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground ml-6">
                                                             <span className="truncate">{link.originalUrl}</span>
                                                             <a href={link.originalUrl} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
                                                                 <ExternalLink className="h-3 w-3" />
@@ -304,7 +312,14 @@ export default function LinksPage() {
                                                                 <Copy className="h-4 w-4" /> Edit Link
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator className="bg-border/40" />
-                                                            <DropdownMenuItem className="gap-2 text-destructive focus:text-destructive cursor-pointer">
+                                                            <DropdownMenuItem
+                                                                className="gap-2 text-destructive focus:text-destructive cursor-pointer"
+                                                                onClick={async () => {
+                                                                    if (confirm('Are you sure you want to delete this link?')) {
+                                                                        await deleteLink(link.id);
+                                                                    }
+                                                                }}
+                                                            >
                                                                 <Trash2 className="h-4 w-4" /> Delete Link
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>

@@ -92,7 +92,7 @@ public class JwtAuthenticationFilter
                 || path.equals( "/auth/refresh" ) || path.equals( "/auth/verify-email" )
                 || path.equals( "/auth/resend-verification" ) || path.equals( "/auth/request-password-reset" )
                 || path.equals( "/auth/reset-password" ) );
-        return isAuthPublic || path.equals( "/error" ) || path.startsWith( "/actuator" );
+        return isAuthPublic || path.equals( "/error" ) || path.startsWith( "/actuator" ) || path.startsWith( "/r/" );
     }
 
     private Mono<Void> handleUnauthorized( ServerWebExchange exchange )

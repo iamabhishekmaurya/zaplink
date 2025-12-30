@@ -90,7 +90,7 @@ public class AuthController
      * @return LoginResponse containing new JWT tokens
      */
     @PostMapping("/refresh")
-    public LoginResponse refreshToken( @RequestParam String refreshToken )
+    public LoginResponse refreshToken( @RequestParam("refreshToken") String refreshToken )
     {
         log.info( LogConstants.LOG_PROCESSING_REFRESH_TOKEN_REQUEST );
         LoginResponse response = authService.refreshToken( refreshToken );
@@ -105,7 +105,7 @@ public class AuthController
      * @return BaseResponse indicating logout success
      */
     @PostMapping("/logout")
-    public BaseResponse logout( @RequestParam String refreshToken )
+    public BaseResponse logout( @RequestParam("refreshToken") String refreshToken )
     {
         log.info( LogConstants.LOG_PROCESSING_LOGOUT_REQUEST );
         authService.logout( refreshToken );
@@ -120,7 +120,7 @@ public class AuthController
      * @return BaseResponse indicating verification status
      */
     @PostMapping("/verify-email")
-    public BaseResponse verifyEmail( @RequestParam String token )
+    public BaseResponse verifyEmail( @RequestParam("token") String token )
     {
         log.info( LogConstants.LOG_PROCESSING_EMAIL_VERIFICATION );
         registrationService.verifyEmail( token );
@@ -135,11 +135,9 @@ public class AuthController
      * @return BaseResponse indicating email send status
      */
     @PostMapping("/resend-verification")
-    public BaseResponse resendVerificationEmail( @RequestParam String email )
+    public BaseResponse resendVerificationEmail( @RequestParam("email") String email )
     {
-        log.info( LogConstants.LOG_PROCESSING_RESEND_VERIFICATION, email );
         registrationService.resendVerificationEmail( email );
-        log.info( LogConstants.LOG_VERIFICATION_EMAIL_SHOULD_BE_SENT, email );
         return BaseResponse.success( ApiConstants.MESSAGE_VERIFICATION_EMAIL_SENT );
     }
 
@@ -166,7 +164,8 @@ public class AuthController
      * @return BaseResponse indicating password reset status
      */
     @PostMapping("/reset-password")
-    public BaseResponse resetPassword( @RequestParam String token, @RequestParam String newPassword )
+    public BaseResponse resetPassword( @RequestParam("token") String token,
+                                       @RequestParam("newPassword") String newPassword )
     {
         log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_WITH_TOKEN );
         authService.resetPassword( token, newPassword );

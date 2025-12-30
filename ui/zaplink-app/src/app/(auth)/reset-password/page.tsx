@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { BorderBeam } from "@/components/ui/border-beam";
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Link as LinkIcon, Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { toast } from 'sonner';
 import api from '@/utils/api';
 import axios from 'axios';
+import { motion } from 'framer-motion';
+import { AlertCircle, CheckCircle, Eye, EyeOff, Link as LinkIcon, Lock } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 function ResetPasswordContent() {
     const [password, setPassword] = useState('');
@@ -101,7 +102,7 @@ function ResetPasswordContent() {
     if (tokenValid === false) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-                <Card className="w-full max-w-md border-destructive/50 shadow-2xl">
+                <Card className="w-full max-w-md border-destructive/50 shadow-2xl relative overflow-hidden">
                     <CardContent className="pt-6">
                         <div className="text-center space-y-4">
                             <motion.div
@@ -127,6 +128,7 @@ function ResetPasswordContent() {
                             </div>
                         </div>
                     </CardContent>
+                    <BorderBeam size={250} duration={12} delay={9} />
                 </Card>
             </div>
         );
