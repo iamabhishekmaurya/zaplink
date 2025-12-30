@@ -21,9 +21,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j
-@Component 
-@RequiredArgsConstructor
+@Slf4j @Component @RequiredArgsConstructor
 public class UserHelper
 {
     private final UserRepository userRepository;

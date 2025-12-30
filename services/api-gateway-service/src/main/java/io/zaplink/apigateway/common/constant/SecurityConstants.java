@@ -6,7 +6,7 @@ package io.zaplink.apigateway.common.constant;
  * 
  * @author Zaplink Team
  * @version 1.0
- * @since 2025-11-30
+ * @since 2025-12-30
  */
 public final class SecurityConstants
 {
@@ -15,9 +15,8 @@ public final class SecurityConstants
     {
         throw new UnsupportedOperationException( "Utility class cannot be instantiated" );
     }
-    
     // ==================== AUTHENTICATION HEADERS ====================
-    public static final String AUTH_HEADER           = "Authorization";
-    public static final String BEARER_PREFIX          = "Bearer ";
-    public static final int    BEARER_PREFIX_LENGTH   = 7;
+    public static final String AUTH_HEADER          = "Authorization";
+    public static final String BEARER_PREFIX        = "Bearer ";
+    public static final int    BEARER_PREFIX_LENGTH = 7;
 }

@@ -33,6 +33,7 @@ public final class LogConstants
     public static final String LOG_ACTIVATING_USER_ACCOUNT                  = "Activating user account for user ID: {}";
     public static final String LOG_USER_ACTIVATED_SUCCESSFULLY              = "User activated successfully - ID: {}, Email: {}";
     public static final String LOG_USER_NOT_FOUND_FOR                       = "User not found for {}: {}";
+    public static final String LOG_USER_NOT_FOUND_FOR_EMAIL                 = "User not found for email: {}";
     public static final String LOG_ATTEMPTED_FOR_DEACTIVATED_USER           = "Attempted {} for deactivated user: {}";
     // ==================== REGISTRATION LOGS ====================
     public static final String LOG_STARTING_USER_REGISTRATION               = "Starting user registration process for email: {}";
@@ -89,6 +90,8 @@ public final class LogConstants
     public static final String LOG_PROCESSING_LOGOUT_REQUEST                = "Processing logout request";
     public static final String LOG_LOGOUT_INVALID_REFRESH_TOKEN             = "Logout attempt with invalid refresh token: {}";
     public static final String LOG_USER_LOGGED_OUT_SUCCESSFULLY             = "User logged out successfully: {}";
+    public static final String LOG_PROCESSING_GET_CURRENT_USER_REQUEST      = "Processing get current user request";
+    public static final String LOG_GET_CURRENT_USER_SUCCESSFUL              = "Successfully retrieved current user information: {}";
     // ==================== PASSWORD RESET LOGS ====================
     public static final String LOG_PROCESSING_PASSWORD_RESET_REQUEST        = "Processing password reset request for email: {}";
     public static final String LOG_PASSWORD_RESET_NON_EXISTENT_EMAIL        = "Password reset requested for non-existent email: {}";

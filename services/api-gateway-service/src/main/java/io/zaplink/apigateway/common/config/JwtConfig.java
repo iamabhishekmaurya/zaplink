@@ -24,10 +24,9 @@ import lombok.extern.slf4j.Slf4j;
  * 
  * @author Zaplink Team
  * @version 1.0
- * @since 2025-11-30
+ * @since 2025-12-30
  */
-@Slf4j
-@Component 
+@Slf4j @Component
 public class JwtConfig
 {
     @Value("${jwt.secret:mySecretKey}")

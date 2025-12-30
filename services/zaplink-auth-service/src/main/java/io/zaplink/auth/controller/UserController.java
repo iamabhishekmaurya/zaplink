@@ -17,16 +17,11 @@ import io.zaplink.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@RestController 
-@RequestMapping("/users") 
-@RequiredArgsConstructor 
+@Slf4j @RestController @RequestMapping("/users") @RequiredArgsConstructor
 public class UserController
 {
     private final UserService userService;
-    
-    @GetMapping("/{userId}") 
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    @GetMapping("/{userId}") @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<User> getUser( @PathVariable Long userId )
     {
         log.info( LogConstants.LOG_GET_USER_REQUEST, userId );
@@ -34,8 +29,7 @@ public class UserController
         return ResponseEntity.ok( user );
     }
 
-    @PutMapping("/{userId}") 
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    @PutMapping("/{userId}") @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<BaseResponse> updateUser( @PathVariable Long userId, @RequestBody User updatedUser )
     {
         log.info( LogConstants.LOG_UPDATE_USER_REQUEST, userId );
@@ -43,8 +37,7 @@ public class UserController
         return ResponseEntity.ok( BaseResponse.success( ApiConstants.MESSAGE_USER_UPDATED_SUCCESSFULLY ) );
     }
 
-    @PutMapping("/{userId}/deactivate") 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{userId}/deactivate") @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BaseResponse> deactivateUser( @PathVariable Long userId )
     {
         log.info( LogConstants.LOG_DEACTIVATE_USER_REQUEST, userId );
@@ -52,8 +45,7 @@ public class UserController
         return ResponseEntity.ok( BaseResponse.success( ApiConstants.MESSAGE_USER_DEACTIVATED_SUCCESSFULLY ) );
     }
 
-    @PutMapping("/{userId}/activate") 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{userId}/activate") @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BaseResponse> activateUser( @PathVariable Long userId )
     {
         log.info( LogConstants.LOG_ACTIVATE_USER_REQUEST, userId );

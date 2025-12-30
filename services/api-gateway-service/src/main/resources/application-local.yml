@@ -1,11 +1,9 @@
 spring:
   cloud:
     gateway:
-      server:
-        webflux:
-          discovery:
-            locator:
-              enabled: false
+      discovery:
+        locator:
+          enabled: false
       routes:
         - id: shortner
           uri: http://localhost:8081

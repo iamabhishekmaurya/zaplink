@@ -6,9 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class PasswordResetRequest {
-    
-    @NotBlank(message = ValidationConstants.VALIDATION_EMAIL_REQUIRED)
-    @Email(message = ValidationConstants.VALIDATION_EMAIL_VALID)
+public class PasswordResetRequest
+{
+    @NotBlank(message = ValidationConstants.VALIDATION_EMAIL_REQUIRED) @Email(message = ValidationConstants.VALIDATION_EMAIL_VALID)
     private String email;
 }

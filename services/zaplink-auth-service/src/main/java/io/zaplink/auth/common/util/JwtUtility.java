@@ -24,20 +24,16 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j
-@Component
+@Slf4j @Component
 public class JwtUtility
 {
     @Value("${jwt.secret:mySecretKey}")
-    private String secret;
-    
+    private String              secret;
     @Value("${jwt.expiration:1800}")
-    private Long jwtExpiration;
-    
+    private Long                jwtExpiration;
     // JWT Claims constants
-    private static final String JWT_CLAIM_USER_ID = "userId";
+    private static final String JWT_CLAIM_USER_ID  = "userId";
     private static final String JWT_CLAIM_USERNAME = "username";
-
     /**
      * Gets the signing key for JWT tokens.
      */
@@ -54,8 +50,7 @@ public class JwtUtility
      */
     public Map<String, Object> generateJwtClaims( User user )
     {
-        return Map.of( JWT_CLAIM_USER_ID, user.getId(), JWT_CLAIM_USERNAME,
-                       user.getUsername() );
+        return Map.of( JWT_CLAIM_USER_ID, user.getId(), JWT_CLAIM_USERNAME, user.getUsername() );
     }
 
     /**
@@ -93,14 +88,8 @@ public class JwtUtility
     {
         Instant now = Instant.now();
         Instant expiryDate = now.plus( jwtExpiration, ChronoUnit.SECONDS );
-        
-        return Jwts.builder()
-                .setClaims( extraClaims )
-                .setSubject( username )
-                .setIssuedAt( Date.from( now ) )
-                .setExpiration( Date.from( expiryDate ) )
-                .signWith( getSigningKey() )
-                .compact();
+        return Jwts.builder().setClaims( extraClaims ).setSubject( username ).setIssuedAt( Date.from( now ) )
+                .setExpiration( Date.from( expiryDate ) ).signWith( getSigningKey() ).compact();
     }
 
     /**

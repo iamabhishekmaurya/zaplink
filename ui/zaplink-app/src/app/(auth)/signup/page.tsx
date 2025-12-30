@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +21,14 @@ export default function SignupPage() {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const { signup, isLoading } = useAuth();
+    const { signup, isLoading, isAuthenticated, isInitialized } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (isInitialized && isAuthenticated) {
+            router.push('/dashboard');
+        }
+    }, [isInitialized, isAuthenticated, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

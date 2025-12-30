@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 public class TokenUtility
 {
     // ==================== TIME VALUES ====================
-    private static final long REFRESH_TOKEN_EXPIRY_DAYS   = 7;
-    private static final long PASSWORD_RESET_EXPIRY_HOURS = 1;
+    private static final long   REFRESH_TOKEN_EXPIRY_DAYS   = 7;
+    private static final long   PASSWORD_RESET_EXPIRY_HOURS = 1;
     // ==================== TOKEN MASKING ====================
     private static final int    TOKEN_MASK_LENGTH           = 10;
     private static final String TOKEN_SUFFIX                = "...";

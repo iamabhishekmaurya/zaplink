@@ -6,12 +6,12 @@ import { RootState } from '@/store';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { 
-  LayoutDashboard, 
-  Link as LinkIcon, 
-  User, 
-  Settings, 
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
+import {
+  LayoutDashboard,
+  Link as LinkIcon,
+  User,
+  Settings,
   Menu,
   LogOut,
   BarChart3,
@@ -21,13 +21,23 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from 'sonner';
+import { Copy, ChevronsUpDown } from 'lucide-react';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Links', href: '/dashboard/links', icon: LinkIcon },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'Profile', href: '/dashboard/profile', icon: User },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
 export default function DashboardLayout({
@@ -36,7 +46,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, isInitialized, user } = useSelector((state: RootState) => state.auth);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -45,13 +55,19 @@ export default function DashboardLayout({
     router.push('/');
   };
 
+  const copyProfileLink = () => {
+    const profileUrl = `${window.location.origin}/u/${user?.username}`;
+    navigator.clipboard.writeText(profileUrl);
+    toast.success('Profile link copied to clipboard!');
+  };
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (isInitialized && !isAuthenticated) {
       router.push('/');
     }
-  }, [isAuthenticated, router]);
+  }, [isInitialized, isAuthenticated, router]);
 
-  if (!isAuthenticated) {
+  if (!isInitialized || !isAuthenticated) {
     return null;
   }
 
@@ -60,10 +76,11 @@ export default function DashboardLayout({
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
         <div className="flex flex-col flex-grow bg-card border-r border-border pt-5 pb-4 overflow-y-auto">
-          <div className="flex items-center flex-shrink-0 px-4">
-            <Link href="/dashboard" className="text-2xl font-bold text-primary">
+          <div className="flex items-center justify-between flex-shrink-0 px-4">
+            <Link href="/dashboard" className="text-2xl font-bold font-display text-primary tracking-tight">
               Zaplink
             </Link>
+            <ThemeToggle />
           </div>
           <nav className="mt-8 flex-1 px-2 space-y-1">
             {navigation.map((item) => {
@@ -73,7 +90,7 @@ export default function DashboardLayout({
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors',
+                    'group flex items-center px-2 py-2 text-sm font-bold font-display rounded-md transition-colors',
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-accent'
@@ -86,14 +103,55 @@ export default function DashboardLayout({
             })}
           </nav>
           <div className="flex-shrink-0 flex border-t border-border p-4">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-muted-foreground hover:text-foreground"
-              onClick={handleLogout}
-            >
-              <LogOut className="mr-3 h-5 w-5" />
-              Logout
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full flex items-center gap-3 px-2 py-6 hover:bg-accent transition-all group"
+                >
+                  <Avatar className="h-9 w-9 border-2 border-primary/20 group-hover:border-primary/50 transition-colors">
+                    <AvatarImage src={`https://avatar.vercel.sh/${user?.username}`} />
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                      {user?.username?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col items-start flex-1 overflow-hidden">
+                    <span className="text-sm font-bold font-display text-foreground truncate w-full text-left">
+                      {user?.username}
+                    </span>
+                    <span className="text-xs text-muted-foreground truncate w-full text-left">
+                      {user?.email}
+                    </span>
+                  </div>
+                  <ChevronsUpDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 mb-2" side="right" align="end">
+                <DropdownMenuLabel className="font-bold font-display">My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer font-medium">
+                    <User className="h-4 w-4" />
+                    <span>View Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings" className="flex items-center gap-2 cursor-pointer font-medium">
+                    <Settings className="h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={copyProfileLink} className="flex items-center gap-2 cursor-pointer font-medium">
+                  <Copy className="h-4 w-4" />
+                  <span>Copy Profile Link</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer font-bold text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
@@ -110,11 +168,18 @@ export default function DashboardLayout({
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="p-0 w-64">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+            <SheetDescription>
+              Access your dashboard, links, analytics, and settings.
+            </SheetDescription>
+          </SheetHeader>
           <div className="flex flex-col h-full bg-card">
-            <div className="flex items-center flex-shrink-0 px-4 pt-5 pb-4">
-              <Link href="/dashboard" className="text-2xl font-bold text-primary">
+            <div className="flex items-center justify-between flex-shrink-0 px-4 pt-5 pb-4">
+              <Link href="/dashboard" className="text-2xl font-bold font-display text-primary tracking-tight">
                 Zaplink
               </Link>
+              <ThemeToggle />
             </div>
             <nav className="flex-1 px-2 space-y-1">
               {navigation.map((item) => {
@@ -124,7 +189,7 @@ export default function DashboardLayout({
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors',
+                      'group flex items-center px-2 py-2 text-sm font-bold font-display rounded-md transition-colors',
                       isActive
                         ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground hover:bg-accent'
@@ -138,14 +203,61 @@ export default function DashboardLayout({
               })}
             </nav>
             <div className="flex-shrink-0 flex border-t border-border p-4">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-muted-foreground hover:text-foreground"
-                onClick={handleLogout}
-              >
-                <LogOut className="mr-3 h-5 w-5" />
-                Logout
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full flex items-center gap-3 px-2 py-6 hover:bg-accent transition-all group"
+                  >
+                    <Avatar className="h-9 w-9 border-2 border-primary/20">
+                      <AvatarImage src={`https://avatar.vercel.sh/${user?.username}`} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                        {user?.username?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col items-start flex-1 overflow-hidden">
+                      <span className="text-sm font-bold font-display text-foreground truncate w-full text-left">
+                        {user?.username}
+                      </span>
+                      <span className="text-xs text-muted-foreground truncate w-full text-left">
+                        {user?.email}
+                      </span>
+                    </div>
+                    <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[calc(100vw-2rem)] md:w-56 mb-2" side="top" align="center">
+                  <DropdownMenuLabel className="font-bold font-display">My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild onClick={() => setSidebarOpen(false)}>
+                    <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer font-medium">
+                      <User className="h-4 w-4" />
+                      <span>View Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild onClick={() => setSidebarOpen(false)}>
+                    <Link href="/dashboard/settings" className="flex items-center gap-2 cursor-pointer font-medium">
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={copyProfileLink} className="flex items-center gap-2 cursor-pointer font-medium">
+                    <Copy className="h-4 w-4" />
+                    <span>Copy Profile Link</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSidebarOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex items-center gap-2 cursor-pointer font-bold text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </SheetContent>

@@ -31,9 +31,14 @@ public final class ValidationConstants
     public static final String VALIDATION_EMAIL_VALID       = "Email should be valid";
     public static final String VALIDATION_PASSWORD_REQUIRED = "Password is required";
     public static final String VALIDATION_USERNAME_REQUIRED = "Username is required";
-    public static final String VALIDATION_USERNAME_SIZE     = "Username must be between " + USERNAME_MIN_LENGTH + " and " + USERNAME_MAX_LENGTH + " characters";
-    public static final String VALIDATION_PASSWORD_SIZE     = "Password must be between " + PASSWORD_MIN_LENGTH + " and " + PASSWORD_MAX_LENGTH + " characters";
-    public static final String VALIDATION_FIRST_NAME_SIZE   = "First name must not exceed " + FIRST_NAME_MAX_LENGTH + " characters";
-    public static final String VALIDATION_LAST_NAME_SIZE    = "Last name must not exceed " + LAST_NAME_MAX_LENGTH + " characters";
-    public static final String VALIDATION_PHONE_NUMBER_SIZE = "Phone number must not exceed " + PHONE_NUMBER_MAX_LENGTH + " characters";
+    public static final String VALIDATION_USERNAME_SIZE     = "Username must be between " + USERNAME_MIN_LENGTH
+            + " and " + USERNAME_MAX_LENGTH + " characters";
+    public static final String VALIDATION_PASSWORD_SIZE     = "Password must be between " + PASSWORD_MIN_LENGTH
+            + " and " + PASSWORD_MAX_LENGTH + " characters";
+    public static final String VALIDATION_FIRST_NAME_SIZE   = "First name must not exceed " + FIRST_NAME_MAX_LENGTH
+            + " characters";
+    public static final String VALIDATION_LAST_NAME_SIZE    = "Last name must not exceed " + LAST_NAME_MAX_LENGTH
+            + " characters";
+    public static final String VALIDATION_PHONE_NUMBER_SIZE = "Phone number must not exceed " + PHONE_NUMBER_MAX_LENGTH
+            + " characters";
 }

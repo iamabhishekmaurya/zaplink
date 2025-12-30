@@ -12,6 +12,8 @@ public interface AuthService
 
     void logout( String refreshToken );
 
+    LoginResponse.UserInfo getCurrentUser();
+
     void requestPasswordReset( PasswordResetRequest request );
 
     void resetPassword( String token, String newPassword );

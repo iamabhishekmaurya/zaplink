@@ -14,32 +14,28 @@ import lombok.experimental.SuperBuilder;
  * @version 1.0
  * @since 2025-11-30
  */
-@Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class LoginResponse extends BaseResponse {
-    private String accessToken;
-    private String refreshToken;
+@Data @SuperBuilder @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode(callSuper = false)
+public class LoginResponse
+    extends
+    BaseResponse
+{
+    private String       accessToken;
+    private String       refreshToken;
     private final String tokenType = "Bearer";
-    private Long expiresIn;
-    private UserInfo userInfo;
-    
+    private Long         expiresIn;
+    private UserInfo     userInfo;
     /**
      * User information record using modern Java 17 record pattern.
      * Immutable data carrier for user details.
      */
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = false)
-    public static class UserInfo {
-        private Long id;
-        private String username;
-        private String email;
-        private String firstName;
-        private String lastName;
+    @Data @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode(callSuper = false)
+    public static class UserInfo
+    {
+        private Long    id;
+        private String  username;
+        private String  email;
+        private String  firstName;
+        private String  lastName;
         private boolean verified;
     }
 }

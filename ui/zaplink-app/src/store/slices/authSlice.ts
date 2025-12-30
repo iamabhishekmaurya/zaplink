@@ -18,6 +18,7 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
 }
 
@@ -27,6 +28,7 @@ const initialState: AuthState = {
   refreshToken: typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null,
   isAuthenticated: false,
   isLoading: false,
+  isInitialized: false,
   error: null,
 };
 
@@ -63,9 +65,18 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<UserInfo | null>) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
+    },
+    setInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
+    },
+    setAuthData: (state, action: PayloadAction<{ user: UserInfo; token: string; refreshToken: string }>) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
+      state.isAuthenticated = true;
     }
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, setUser } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setUser, setInitialized, setAuthData } = authSlice.actions;
 export default authSlice.reducer;

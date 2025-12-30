@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
+import io.zaplink.auth.common.security.GatewayAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,13 +32,10 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j
-@Configuration 
-@EnableWebSecurity 
-@RequiredArgsConstructor 
-@EnableMethodSecurity(prePostEnabled = true) 
+@Slf4j @Configuration @EnableWebSecurity @RequiredArgsConstructor @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig
 {
+    private final GatewayAuthenticationFilter gatewayAuthenticationFilter;
     /**
      * Configures password encoder for secure password hashing.
      * Uses BCrypt algorithm with default strength (10).
@@ -95,13 +93,17 @@ public class SecurityConfig
                 .authorizeHttpRequests( auth -> {
                     log.debug( LogConstants.LOG_CONFIGURING_ENDPOINT_AUTHORIZATION_RULES );
                     // Public endpoints - no authentication required
-                    auth.requestMatchers( ApiConstants.AUTH_BASE_PATH ).permitAll()
-                            .requestMatchers( ApiConstants.AUTH_V1_BASE_PATH ).permitAll()
+                    auth.requestMatchers( "/auth/register", "/auth/login", "/auth/refresh", "/auth/verify-email",
+                                          "/auth/resend-verification", "/auth/request-password-reset",
+                                          "/auth/reset-password" )
+                            .permitAll().requestMatchers( ApiConstants.AUTH_V1_BASE_PATH ).permitAll()
                             .requestMatchers( ApiConstants.ERROR_PATH ).permitAll()
                             .requestMatchers( ApiConstants.ACTUATER_PATH ).permitAll()
                             // All other endpoints require authentication
                             .anyRequest().authenticated();
-                } );
+                } )
+                .addFilterBefore( gatewayAuthenticationFilter,
+                                  org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class );
         log.info( LogConstants.LOG_SPRING_SECURITY_FILTER_CHAIN_CONFIGURED );
         log.debug( LogConstants.LOG_PUBLIC_ENDPOINTS );
         log.debug( LogConstants.LOG_ALL_OTHER_ENDPOINTS_REQUIRE_AUTH );

@@ -86,8 +86,7 @@ public class UserServiceImpl
         log.debug( LogConstants.LOG_ASSIGNING_DEFAULT_USER_ROLE );
         Role userRole = roleRepository.findByName( "USER" ).orElseGet( () -> {
             log.info( LogConstants.LOG_DEFAULT_USER_ROLE_NOT_FOUND );
-            Role role = Role.builder().name( "USER" )
-                    .description( "Standard user role" ).build();
+            Role role = Role.builder().name( "USER" ).description( "Standard user role" ).build();
             return roleRepository.save( role );
         } );
         user.setRoles( Set.of( userRole ) );

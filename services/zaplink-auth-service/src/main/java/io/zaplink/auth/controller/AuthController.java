@@ -1,6 +1,7 @@
 package io.zaplink.auth.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,10 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j
-@RestController 
-@RequestMapping("/auth")
-@RequiredArgsConstructor 
+@Slf4j @RestController @RequestMapping("/auth") @RequiredArgsConstructor
 public class AuthController
 {
     private final RegistrationService registrationService;
@@ -46,8 +44,7 @@ public class AuthController
      * @param request The user registration request with user details
      * @return UserRegistrationResponse with created user information
      */
-    @PostMapping("/register") 
-    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/register") @ResponseStatus(HttpStatus.CREATED)
     public UserRegistrationResponse registerUser( @Valid @RequestBody UserRegistrationRequest request )
     {
         log.info( LogConstants.LOG_CREATING_NEW_USER_ACCOUNT, request.getEmail() );
@@ -71,6 +68,18 @@ public class AuthController
         log.info( LogConstants.LOG_LOGIN_SUCCESSFUL, response.getUserInfo().getEmail(),
                   response.getUserInfo().getId() );
         return response;
+    }
+
+    /**
+     * Retrieves the current authenticated user's information.
+     * 
+     * @return UserInfo containing current user details
+     */
+    @GetMapping("/me")
+    public LoginResponse.UserInfo getCurrentUser()
+    {
+        log.info( LogConstants.LOG_PROCESSING_GET_CURRENT_USER_REQUEST );
+        return authService.getCurrentUser();
     }
 
     /**

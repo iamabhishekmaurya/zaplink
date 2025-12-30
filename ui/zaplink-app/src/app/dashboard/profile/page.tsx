@@ -74,8 +74,8 @@ export default function ProfilePage() {
             className="container mx-auto px-4 py-8 max-w-4xl"
         >
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-foreground mb-2">Profile</h1>
-                <p className="text-muted-foreground">Manage your personal information and account details</p>
+                <h1 className="text-3xl font-bold font-display tracking-tight text-foreground mb-2">Profile</h1>
+                <p className="text-muted-foreground font-medium">Manage your personal information and account details</p>
             </div>
 
             <div className="grid gap-6">
@@ -92,8 +92,8 @@ export default function ProfilePage() {
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <CardTitle className="text-2xl">{user?.username}</CardTitle>
-                                        <CardDescription className="flex items-center gap-2 mt-1">
+                                        <CardTitle className="text-2xl font-bold font-display tracking-tight">{user?.username}</CardTitle>
+                                        <CardDescription className="flex items-center gap-2 mt-1 font-medium">
                                             <Mail className="h-4 w-4" />
                                             {user?.email}
                                         </CardDescription>
@@ -111,7 +111,7 @@ export default function ProfilePage() {
                                     onClick={() => setIsEditing(!isEditing)}
                                     variant="outline"
                                     size="sm"
-                                    className="gap-2"
+                                    className="gap-2 font-bold font-display"
                                 >
                                     {isEditing ? <X className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}
                                     {isEditing ? 'Cancel' : 'Edit Profile'}
@@ -183,10 +183,10 @@ export default function ProfilePage() {
                             </div>
                             {isEditing && (
                                 <div className="flex justify-end gap-2 mt-6">
-                                    <Button onClick={handleCancel} variant="outline">
+                                    <Button onClick={handleCancel} variant="outline" className="font-bold font-display">
                                         Cancel
                                     </Button>
-                                    <Button onClick={handleSave} className="gap-2">
+                                    <Button onClick={handleSave} className="gap-2 font-bold font-display shadow-lg shadow-primary/20">
                                         <Save className="h-4 w-4" />
                                         Save Changes
                                     </Button>
@@ -200,11 +200,11 @@ export default function ProfilePage() {
                 <motion.div variants={itemVariants}>
                     <Card className="glass-card border-0 shadow-xl">
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Shield className="h-5 w-5" />
+                            <CardTitle className="flex items-center gap-2 font-bold font-display tracking-tight">
+                                <Shield className="h-5 w-5 text-primary" />
                                 Account Information
                             </CardTitle>
-                            <CardDescription>View your account status and security details</CardDescription>
+                            <CardDescription className="font-medium">View your account status and security details</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid md:grid-cols-2 gap-4">

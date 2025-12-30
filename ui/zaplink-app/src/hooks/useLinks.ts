@@ -13,8 +13,9 @@ export const useLinks = () => {
 
   const shortenUrl = async (originalUrl: string) => {
     dispatch(setLoading(true));
+    dispatch(setError(null));
     try {
-      const response = await api.post('/shortener/short/url', { originalUrl });
+      const response = await api.post('/shortner/short/url', { originalUrl });
       const newLink = {
         id: response.data.id || Math.random().toString(36).substr(2, 9),
         originalUrl: response.data.originalUrl,
@@ -41,6 +42,7 @@ export const useLinks = () => {
 
   const fetchUserLinks = async () => {
     dispatch(setLoading(true));
+    dispatch(setError(null));
     try {
       // Assuming manager service has an endpoint to get user links
       const response = await api.get('/manager/links');

@@ -22,16 +22,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role {
-    
+public class Role
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
+    private Long   id;
     @Column(nullable = false, unique = true)
     @Size(min = 3, max = 50)
     private String name;
-    
     @Column(name = DatabaseConstants.COLUMN_DESCRIPTION)
     @Size(max = 200)
     private String description;

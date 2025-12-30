@@ -12,7 +12,7 @@ api.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
-      if (token) {
+      if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
@@ -45,7 +45,7 @@ api.interceptors.response.use(
           localStorage.setItem('refreshToken', newRefreshToken);
           
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          return axios(originalRequest);
+          return api(originalRequest);
         }
       } catch {
         // Refresh token failed, logout user

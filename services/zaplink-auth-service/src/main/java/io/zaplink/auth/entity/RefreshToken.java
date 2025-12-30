@@ -21,30 +21,27 @@ import java.time.Instant;
  * @version 1.0
  * @since 2025-11-30
  */
-@Entity
-@Table(name = DatabaseConstants.TABLE_REFRESH_TOKENS)
-@EntityListeners(AuditingEntityListener.class)
 @Data
+@Entity
 @Builder
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = DatabaseConstants.TABLE_REFRESH_TOKENS)
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"user"})
-public class RefreshToken {
-    
+@EqualsAndHashCode(exclude =
+{ "user" })
+public class RefreshToken
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
+    private Long    id;
     @Column(nullable = false)
-    private String token;
-    
+    private String  token;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = DatabaseConstants.COLUMN_USER_ID, nullable = false)
-    private User user;
-    
+    private User    user;
     @Column(name = DatabaseConstants.COLUMN_EXPIRY_DATE, nullable = false)
     private Instant expiryDate;
-    
     @CreatedDate
     @Column(name = DatabaseConstants.COLUMN_CREATED_AT, nullable = false, updatable = false)
     private Instant createdAt;

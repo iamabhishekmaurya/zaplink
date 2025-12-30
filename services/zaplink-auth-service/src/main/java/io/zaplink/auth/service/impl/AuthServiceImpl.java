@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +13,8 @@ import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
 import io.zaplink.auth.common.exception.InvalidCredentialsException;
 import io.zaplink.auth.common.exception.UserNotFoundException;
-import io.zaplink.auth.common.util.TokenUtility;
 import io.zaplink.auth.common.util.JwtUtility;
+import io.zaplink.auth.common.util.TokenUtility;
 import io.zaplink.auth.dto.request.LoginRequest;
 import io.zaplink.auth.dto.request.PasswordResetRequest;
 import io.zaplink.auth.dto.response.LoginResponse;
@@ -22,7 +23,6 @@ import io.zaplink.auth.entity.User;
 import io.zaplink.auth.repository.RefreshTokenRepository;
 import io.zaplink.auth.repository.UserRepository;
 import io.zaplink.auth.service.AuthService;
-import io.zaplink.auth.service.helper.AuthHelper;
 import io.zaplink.auth.service.helper.UserHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,10 +35,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j 
-@Service 
-@Transactional 
-@RequiredArgsConstructor 
+@Slf4j @Service @Transactional @RequiredArgsConstructor
 public class AuthServiceImpl
     implements
     AuthService
@@ -49,9 +46,7 @@ public class AuthServiceImpl
     private final PasswordEncoder        passwordEncoder;
     private final UserHelper             userHelper;
     private final TokenUtility           tokenUtility;
-    private final AuthHelper authHelper;
-    private final JwtUtility jwtUtility;
-
+    private final JwtUtility             jwtUtility;
     /**
      * Authenticates a user and generates JWT tokens.
      * 
@@ -59,8 +54,7 @@ public class AuthServiceImpl
      * @return LoginResponse containing JWT tokens and user information
      * @throws InvalidCredentialsException if authentication fails
      */
-    @Override 
-    @Transactional
+    @Override @Transactional
     public LoginResponse login( LoginRequest request )
     {
         log.info( LogConstants.LOG_ATTEMPTING_LOGIN, request.getEmail() );
@@ -82,13 +76,13 @@ public class AuthServiceImpl
             log.info( LogConstants.LOG_LOGIN_SUCCESSFUL, request.getEmail(), user.getId() );
             // Build response using utility
             LoginResponse response = jwtUtility.buildLoginResponse( user, accessToken, refreshToken );
-            response.setSuccess(true);
+            response.setSuccess( true );
             log.debug( LogConstants.LOG_LOGIN_RESPONSE_CREATED, jwtUtility.getJwtExpiration() );
             return response;
         }
-        catch ( Exception e )
+        catch ( Exception ex )
         {
-            log.error( LogConstants.LOG_LOGIN_FAILED, request.getEmail(), e.getMessage() );
+            log.error( LogConstants.LOG_LOGIN_FAILED, request.getEmail(), ex.getMessage() );
             throw new InvalidCredentialsException( ApiConstants.MESSAGE_INVALID_EMAIL_OR_PASSWORD );
         }
     }
@@ -148,6 +142,20 @@ public class AuthServiceImpl
         String userEmail = token.getUser().getEmail();
         refreshTokenRepository.delete( token );
         log.info( LogConstants.LOG_USER_LOGGED_OUT_SUCCESSFULLY, userEmail );
+    }
+
+    @Override
+    public LoginResponse.UserInfo getCurrentUser()
+    {
+        log.info( LogConstants.LOG_PROCESSING_GET_CURRENT_USER_REQUEST );
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userHelper.findUserByEmailOrThrow( email, "get current user" );
+        return new LoginResponse.UserInfo( user.getId(),
+                                           user.getUsername(),
+                                           user.getEmail(),
+                                           user.getFirstName(),
+                                           user.getLastName(),
+                                           user.getVerified() );
     }
 
     /**
