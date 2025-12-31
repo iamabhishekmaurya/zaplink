@@ -1,6 +1,7 @@
 package io.zaplink.manager.controller;
 
 import java.util.List;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,8 +42,12 @@ public class UrlController
     }
 
     @GetMapping("/{key}")
-    public RedirectView getValue( @PathVariable("key") String key )
+    public RedirectView getValue( @PathVariable("key") String key, HttpServletRequest request )
     {
-        return new RedirectView( urlProvider.getShortUrl( key ) );
+        io.zaplink.manager.dto.request.AnalyticsEvent analyticsEvent = io.zaplink.manager.dto.request.AnalyticsEvent
+                .builder().urlKey( key ).ipAddress( request.getRemoteAddr() )
+                .userAgent( request.getHeader( "User-Agent" ) ).referrer( request.getHeader( "Referer" ) )
+                .timestamp( java.time.LocalDateTime.now() ).build();
+        return new RedirectView( urlProvider.getShortUrl( analyticsEvent ) );
     }
 }

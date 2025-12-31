@@ -22,6 +22,10 @@ public final class QueryConstants
     public static final String FIND_HOURLY_CLICK_COUNTS                     = "SELECT EXTRACT(HOUR FROM u.accessedAt), COUNT(u) FROM UrlAnalyticsEntity u WHERE u.shortUrlKey = :shortUrlKey GROUP BY EXTRACT(HOUR FROM u.accessedAt) ORDER BY EXTRACT(HOUR FROM u.accessedAt)";
     public static final String FIND_TOP_REFERRERS_BY_CLICKS                 = "SELECT u.referrer, COUNT(u) as clickCount FROM UrlAnalyticsEntity u WHERE u.referrer IS NOT NULL GROUP BY u.referrer ORDER BY clickCount DESC";
     public static final String FIND_TOP_USER_AGENTS_BY_CLICKS               = "SELECT u.userAgent, COUNT(u) as clickCount FROM UrlAnalyticsEntity u WHERE u.userAgent IS NOT NULL GROUP BY u.userAgent ORDER BY clickCount DESC";
+    // User Stats Queries
+    public static final String FIND_CLICK_TREND_BY_USER                     = "SELECT DATE(a.accessedAt), COUNT(a) FROM UrlAnalyticsEntity a, UrlMappingEntity m WHERE a.shortUrlKey = m.shortUrlKey AND m.userEmail = :userEmail GROUP BY DATE(a.accessedAt) ORDER BY DATE(a.accessedAt)";
+    public static final String FIND_TOP_REFERRERS_BY_USER                   = "SELECT a.referrer, COUNT(a) as clickCount FROM UrlAnalyticsEntity a, UrlMappingEntity m WHERE a.shortUrlKey = m.shortUrlKey AND m.userEmail = :userEmail AND a.referrer IS NOT NULL GROUP BY a.referrer ORDER BY clickCount DESC";
+    public static final String FIND_TOP_REGIONS_BY_USER                     = "SELECT a.country, COUNT(a) as clickCount FROM UrlAnalyticsEntity a, UrlMappingEntity m WHERE a.shortUrlKey = m.shortUrlKey AND m.userEmail = :userEmail AND a.country IS NOT NULL GROUP BY a.country ORDER BY clickCount DESC";
     // UrlStatisticsEntity Queries
     public static final String INCREMENT_TOTAL_CLICKS                       = "UPDATE UrlStatisticsEntity u SET u.totalClicks = u.totalClicks + 1 WHERE u.shortUrlKey = :shortUrlKey";
     public static final String INCREMENT_TODAY_CLICKS                       = "UPDATE UrlStatisticsEntity u SET u.todayClicks = u.todayClicks + 1 WHERE u.shortUrlKey = :shortUrlKey";

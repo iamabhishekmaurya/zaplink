@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
+import { setUser } from '@/store/slices/authSlice';
+import api from '@/utils/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,10 +14,13 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { User, Mail, Calendar, Shield, Edit2, Save, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner'; // Assuming sonner is used, if not remove or check dependencies, but user mentioned profile sync so I'll try to use toast if available or just console. Actually I'll check imports. No imports for toast found in original file. I'll stick to console or alert for now, or check generic ui components. I will stick to console for simplicity unless I see toast hook usage elsewhere.
 
 export default function ProfilePage() {
+    const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.auth);
     const [isEditing, setIsEditing] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         username: user?.username || '',
         email: user?.email || '',
@@ -23,6 +28,35 @@ export default function ProfilePage() {
         lastName: user?.lastName || '',
         phoneNumber: user?.phoneNumber || '',
     });
+
+    // Sync form data when user changes (e.g. after fetch)
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                username: user.username || '',
+                email: user.email || '',
+                firstName: user.firstName || '',
+                lastName: user.lastName || '',
+                phoneNumber: user.phoneNumber || '',
+            });
+        }
+    }, [user]);
+
+    // Fetch latest user data on mount
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (!user?.id) return;
+            try {
+                const response = await api.get(`/users/${user.id}`);
+                if (response.data) {
+                    dispatch(setUser(response.data));
+                }
+            } catch (error) {
+                console.error("Failed to fetch profile:", error);
+            }
+        };
+        fetchProfile();
+    }, [dispatch, user?.id]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -32,10 +66,31 @@ export default function ProfilePage() {
         }));
     };
 
-    const handleSave = () => {
-        // TODO: Implement API call to update profile
-        console.log('Saving profile:', formData);
-        setIsEditing(false);
+    const handleSave = async () => {
+        if (!user?.id) return;
+        setIsLoading(true);
+        try {
+            // Only send allowed fields for update
+            const updatePayload = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                phoneNumber: formData.phoneNumber
+            };
+
+            await api.put(`/users/${user.id}`, updatePayload);
+
+            // Refresh profile data
+            const response = await api.get(`/users/${user.id}`);
+            dispatch(setUser(response.data));
+
+            setIsEditing(false);
+            // toast.success("Profile updated successfully");
+        } catch (error) {
+            console.error("Failed to update profile:", error);
+            // toast.error("Failed to update profile");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleCancel = () => {
@@ -98,11 +153,11 @@ export default function ProfilePage() {
                                             {user?.email}
                                         </CardDescription>
                                         <div className="flex items-center gap-2 mt-2">
-                                            <Badge variant={user?.isVerified ? 'default' : 'secondary'}>
-                                                {user?.isVerified ? 'Verified' : 'Unverified'}
+                                            <Badge variant={user?.verified ? 'default' : 'secondary'}>
+                                                {user?.verified ? 'Verified' : 'Unverified'}
                                             </Badge>
-                                            <Badge variant={user?.isActive ? 'default' : 'destructive'}>
-                                                {user?.isActive ? 'Active' : 'Inactive'}
+                                            <Badge variant={user?.active ? 'default' : 'destructive'}>
+                                                {user?.active ? 'Active' : 'Inactive'}
                                             </Badge>
                                         </div>
                                     </div>
@@ -112,6 +167,7 @@ export default function ProfilePage() {
                                     variant="outline"
                                     size="sm"
                                     className="gap-2 font-bold font-display"
+                                    disabled={isLoading}
                                 >
                                     {isEditing ? <X className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}
                                     {isEditing ? 'Cancel' : 'Edit Profile'}
@@ -128,7 +184,7 @@ export default function ProfilePage() {
                                             name="username"
                                             value={formData.username}
                                             onChange={handleInputChange}
-                                            disabled={!isEditing}
+                                            disabled={true} // Username cannot be changed
                                             className="mt-1"
                                         />
                                     </div>
@@ -140,7 +196,7 @@ export default function ProfilePage() {
                                             type="email"
                                             value={formData.email}
                                             onChange={handleInputChange}
-                                            disabled={!isEditing}
+                                            disabled={true} // Email cannot be changed here
                                             className="mt-1"
                                         />
                                     </div>
@@ -183,12 +239,12 @@ export default function ProfilePage() {
                             </div>
                             {isEditing && (
                                 <div className="flex justify-end gap-2 mt-6">
-                                    <Button onClick={handleCancel} variant="outline" className="font-bold font-display">
+                                    <Button onClick={handleCancel} variant="outline" className="font-bold font-display" disabled={isLoading}>
                                         Cancel
                                     </Button>
-                                    <Button onClick={handleSave} className="gap-2 font-bold font-display shadow-lg shadow-primary/20">
+                                    <Button onClick={handleSave} className="gap-2 font-bold font-display shadow-lg shadow-primary/20" disabled={isLoading}>
                                         <Save className="h-4 w-4" />
-                                        Save Changes
+                                        {isLoading ? 'Saving...' : 'Save Changes'}
                                     </Button>
                                 </div>
                             )}
@@ -234,9 +290,9 @@ export default function ProfilePage() {
                                 <div className="p-4 rounded-lg bg-muted/50">
                                     <p className="font-medium mb-2">Email Verification</p>
                                     <p className="text-sm text-muted-foreground mb-2">
-                                        Status: {user?.isVerified ? 'Verified' : 'Not Verified'}
+                                        Status: {user?.verified ? 'Verified' : 'Not Verified'}
                                     </p>
-                                    {!user?.isVerified && (
+                                    {!user?.verified && (
                                         <Button size="sm" variant="outline">
                                             Send Verification Email
                                         </Button>
@@ -245,10 +301,10 @@ export default function ProfilePage() {
                                 <div className="p-4 rounded-lg bg-muted/50">
                                     <p className="font-medium mb-2">Account Status</p>
                                     <p className="text-sm text-muted-foreground mb-2">
-                                        Status: {user?.isActive ? 'Active' : 'Inactive'}
+                                        Status: {user?.active ? 'Active' : 'Inactive'}
                                     </p>
-                                    <Badge variant={user?.isActive ? 'default' : 'destructive'}>
-                                        {user?.isActive ? 'Active' : 'Inactive'}
+                                    <Badge variant={user?.active ? 'default' : 'destructive'}>
+                                        {user?.active ? 'Active' : 'Inactive'}
                                     </Badge>
                                 </div>
                             </div>

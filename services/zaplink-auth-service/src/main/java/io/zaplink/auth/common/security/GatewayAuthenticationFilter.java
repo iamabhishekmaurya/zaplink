@@ -46,6 +46,12 @@ public class GatewayAuthenticationFilter
                 authToken.setDetails( new WebAuthenticationDetailsSource().buildDetails( request ) );
                 SecurityContextHolder.getContext().setAuthentication( authToken );
                 log.debug( "Authentication successful for user: {}", userEmail );
+                if ( userDetails instanceof CustomUserDetails )
+                {
+                    System.out.println( "DEBUG: Authentication Filter: Authenticated User ID: "
+                            + ( (CustomUserDetails) userDetails ).getId() );
+                    log.info( "Authenticated User ID: {}", ( (CustomUserDetails) userDetails ).getId() );
+                }
             }
             catch ( Exception e )
             {

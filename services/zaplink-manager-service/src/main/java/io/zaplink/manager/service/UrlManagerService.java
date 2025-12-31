@@ -2,6 +2,8 @@ package io.zaplink.manager.service;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
+
+import io.zaplink.manager.dto.request.AnalyticsEvent;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
 
@@ -18,7 +20,7 @@ public interface UrlManagerService
      * @param key
      * @return short url
      */
-    String getShortUrl( String key );
+    String getShortUrl( AnalyticsEvent analyticsEvent );
 
     /**
      * Get links by user email

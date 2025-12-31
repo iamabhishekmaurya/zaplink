@@ -64,6 +64,13 @@ public class UserServiceImpl
         return userRepository.findByUsername( username );
     }
 
+    @Override @Transactional(readOnly = true)
+    public java.util.Optional<User> findById( Long id )
+    {
+        log.debug( "Searching user by id: {}", id );
+        return userRepository.findById( id );
+    }
+
     /**
      * Creates a new user from registration request.
      * Sets up user details, encodes password, assigns default USER role, and generates verification token.

@@ -62,4 +62,13 @@ public interface UrlAnalyticsRepository
 
     @Query(QueryConstants.FIND_TOP_USER_AGENTS_BY_CLICKS)
     List<Object[]> findTopUserAgentsByClicks();
+
+    @Query(QueryConstants.FIND_CLICK_TREND_BY_USER)
+    List<Object[]> findClickTrendByUser( @Param("userEmail") String userEmail );
+
+    @Query(QueryConstants.FIND_TOP_REFERRERS_BY_USER)
+    List<Object[]> findTopReferrersByUser( @Param("userEmail") String userEmail );
+
+    @Query(QueryConstants.FIND_TOP_REGIONS_BY_USER)
+    List<Object[]> findTopRegionsByUser( @Param("userEmail") String userEmail );
 }

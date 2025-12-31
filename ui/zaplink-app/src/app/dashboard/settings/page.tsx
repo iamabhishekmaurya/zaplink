@@ -392,11 +392,11 @@ export default function SettingsPage() {
                                     <div className="space-y-4">
                                         <h4 className="text-sm font-medium">Password Management</h4>
                                         <div className="flex gap-2">
-                                            <Button variant="outline" className="gap-2">
+                                            <Button variant="outline" className="gap-2 hover:bg-gray-100 hover:text-primary">
                                                 <Lock className="h-4 w-4" />
                                                 Change Password
                                             </Button>
-                                            <Button variant="outline" className="gap-2">
+                                            <Button variant="outline" className="gap-2 hover:bg-gray-100 hover:text-primary">
                                                 <RotateCcw className="h-4 w-4" />
                                                 Reset Password
                                             </Button>

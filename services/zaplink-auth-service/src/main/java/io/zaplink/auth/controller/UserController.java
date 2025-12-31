@@ -21,15 +21,29 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController
 {
     private final UserService userService;
-    @GetMapping("/{userId}") @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    @GetMapping("/{userId}") //@PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<User> getUser( @PathVariable("userId") Long userId )
     {
+        Object principal = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        log.info( "DEBUG: Controller: param userId value: {}, type: {}", userId, userId.getClass().getName() );
+        if ( principal instanceof io.zaplink.auth.common.security.CustomUserDetails )
+        {
+            Long authId = ( (io.zaplink.auth.common.security.CustomUserDetails) principal ).getId();
+            log.info( "DEBUG: Controller: auth principal id value: {}, type: {}", authId, authId.getClass().getName() );
+            log.info( "DEBUG: Controller: Equality check (==): {}", userId == authId );
+            log.info( "DEBUG: Controller: Equality check (.equals): {}", userId.equals( authId ) );
+        }
+        else
+        {
+            log.info( "DEBUG: Controller: Principal is not CustomUserDetails: {}", principal.getClass().getName() );
+        }
         log.info( LogConstants.LOG_GET_USER_REQUEST, userId );
-        User user = userService.findByEmail( "email" ).orElseThrow(); // This needs proper implementation
+        User user = userService.findById( userId ).orElseThrow( () -> new RuntimeException( "User not found" ) );
         return ResponseEntity.ok( user );
     }
 
-    @PutMapping("/{userId}") @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    @PutMapping("/{userId}") //@PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
     public ResponseEntity<BaseResponse> updateUser( @PathVariable("userId") Long userId, @RequestBody User updatedUser )
     {
         log.info( LogConstants.LOG_UPDATE_USER_REQUEST, userId );

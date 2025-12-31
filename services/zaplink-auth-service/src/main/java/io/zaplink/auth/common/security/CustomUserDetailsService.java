@@ -34,10 +34,13 @@ public class CustomUserDetailsService
             throw new UsernameNotFoundException( StringUtil
                     .appendValue( ApiConstants.MESSAGE_USER_ACCOUNT_DEACTIVATED_EMAIL, email ) );
         }
-        return org.springframework.security.core.userdetails.User.builder().username( user.getEmail() )
-                .password( user.getPassword() )
-                .authorities( Collections.singletonList( new SimpleGrantedAuthority( "ROLE_USER" ) ) )
-                .accountExpired( false ).accountLocked( false ).credentialsExpired( false ).disabled( !user.isActive() )
-                .build();
+        return new CustomUserDetails( user.getId(),
+                                      user.getEmail(),
+                                      user.getPassword(),
+                                      user.isActive(),
+                                      true, // accountNonExpired
+                                      true, // credentialsNonExpired
+                                      true, // accountNonLocked
+                                      Collections.singletonList( new SimpleGrantedAuthority( "ROLE_USER" ) ) );
     }
 }
