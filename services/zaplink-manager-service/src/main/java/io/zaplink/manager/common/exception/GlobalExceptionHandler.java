@@ -1,4 +1,4 @@
-package io.zaplink.shortner.common.exception;
+package io.zaplink.manager.common.exception;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import io.zaplink.shortner.dto.error.ErrorResponse;
-import io.zaplink.shortner.dto.error.FieldError;
+import io.zaplink.manager.dto.error.ErrorResponse;
+import io.zaplink.manager.dto.error.FieldError;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler
                                 .status( HttpStatus.BAD_REQUEST.name() ).message( "Validation failed" )
                                 .path( request.getDescription( false ).replace( "uri=", "" ) )
                                 .fieldErrors( fieldErrors ).build();
-                return ResponseEntity.badRequest().contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
+                return ResponseEntity.badRequest().body( errorResponse );
         }
 
         @ExceptionHandler(Exception.class)
@@ -61,7 +61,6 @@ public class GlobalExceptionHandler
                                 .fieldErrors( List.of( FieldError.builder().field( "global" ).message( ex.getMessage() )
                                                 .rejectedValue( null ).build() ) )
                                 .build();
-                return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR )
-                                .contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
+                return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).body( errorResponse );
         }
 }

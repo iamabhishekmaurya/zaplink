@@ -9,7 +9,8 @@ import lombok.Data;
 public class LoginRequest
 {
     @NotBlank(message = ValidationConstants.VALIDATION_EMAIL_REQUIRED) @Email(message = ValidationConstants.VALIDATION_EMAIL_VALID)
-    private String email;
+    private String  email;
     @NotBlank(message = ValidationConstants.VALIDATION_PASSWORD_REQUIRED)
-    private String password;
+    private String  password;
+    private Boolean rememberMe;
 }

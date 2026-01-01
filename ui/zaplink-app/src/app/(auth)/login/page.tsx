@@ -17,13 +17,14 @@ import { FaGithub, FaGoogle } from "react-icons/fa";
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const { login, isLoading, isAuthenticated, isInitialized } = useAuth();
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await login({ email, password });
+        await login({ email, password, rememberMe });
     };
 
     useEffect(() => {
@@ -110,7 +111,11 @@ export default function LoginPage() {
                                 </div>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <Checkbox id="remember" />
+                                <Checkbox
+                                    id="remember"
+                                    checked={rememberMe}
+                                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                                />
                                 <Label htmlFor="remember" className="text-sm font-normal text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                     Stay logged in for 30 days
                                 </Label>
@@ -144,13 +149,16 @@ export default function LoginPage() {
                                 <FaGithub className="h-4 w-4" /> GitHub
                             </Button>
                         </div>
-                    </CardContent>
-                    <CardFooter className="flex flex-col gap-4 text-center border-t py-6">
-                        <p className="text-sm text-muted-foreground">
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t" />
+                            </div>
+                        </div>
+                        <p className="pt-6 text-center text-sm text-muted-foreground">
                             Don't have an account?{" "}
                             <Link href="/signup" className="text-primary hover:underline font-bold">Sign up for free</Link>
                         </p>
-                    </CardFooter>
+                    </CardContent>
                     <BorderBeam size={250} duration={12} delay={9} />
                 </Card>
 

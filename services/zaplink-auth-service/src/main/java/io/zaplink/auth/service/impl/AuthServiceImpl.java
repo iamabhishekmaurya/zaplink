@@ -72,7 +72,7 @@ public class AuthServiceImpl
             // Generate JWT tokens using utility
             log.debug( LogConstants.LOG_GENERATING_JWT_TOKENS, user.getEmail() );
             String accessToken = jwtUtility.generateAccessToken( user );
-            String refreshToken = generateAndSaveRefreshToken( user );
+            String refreshToken = generateAndSaveRefreshToken( user, Boolean.TRUE.equals( request.getRememberMe() ) );
             log.info( LogConstants.LOG_LOGIN_SUCCESSFUL, request.getEmail(), user.getId() );
             // Build response using utility
             LoginResponse response = jwtUtility.buildLoginResponse( user, accessToken, refreshToken );
@@ -118,7 +118,17 @@ public class AuthServiceImpl
         log.debug( LogConstants.LOG_OLD_REFRESH_TOKEN_REMOVED, user.getEmail() );
         // Generate new tokens using utility
         String newAccessToken = jwtUtility.generateAccessToken( user );
-        String newRefreshToken = generateAndSaveRefreshToken( user );
+        // For refresh token rotation, we maintain the same session duration policy
+        // Since we don't store "rememberMe" state in DB, we'll default to standard expiry for rotated tokens
+        // OR we could check if the old token had > 7 days remaining, but simpler to just standard refresh
+        // Improvement: Can pass rememberMe state in token or DB if needed strictly.
+        // For now, let's keep it simple: refreshed tokens get standard 7 days unless we change policy.
+        // Actually, if a user selected 30 days, they expect it to stay.
+        // Let's stick to standard refresh for rotation to avoid infinite 30-day chains without re-login?
+        // Standard practice: Refresh token rotation often resets the clock.
+        // Let's assume standard expiry for rotated tokens for security, or maybe 30 days if we want to be nice.
+        // Given we don't have the flag, we'll use default (false).
+        String newRefreshToken = generateAndSaveRefreshToken( user, false );
         log.info( LogConstants.LOG_TOKEN_REFRESH_SUCCESSFUL, user.getEmail() );
         // Build response using utility
         return jwtUtility.buildLoginResponse( user, newAccessToken, newRefreshToken );
@@ -221,13 +231,14 @@ public class AuthServiceImpl
      * Generates and saves a refresh token for the user.
      * 
      * @param user The user to generate refresh token for
+     * @param rememberMe Whether to assign long-lived expiry
      * @return The generated refresh token string
      */
-    private String generateAndSaveRefreshToken( User user )
+    private String generateAndSaveRefreshToken( User user, boolean rememberMe )
     {
         log.debug( LogConstants.LOG_GENERATING_REFRESH_TOKEN, user.getEmail() );
         String token = tokenUtility.generateToken();
-        Instant expiryDate = tokenUtility.generateRefreshTokenExpiry();
+        Instant expiryDate = tokenUtility.generateRefreshTokenExpiry( rememberMe );
         RefreshToken refreshToken = RefreshToken.builder().token( token ).user( user ).expiryDate( expiryDate ).build();
         refreshTokenRepository.save( refreshToken );
         log.debug( LogConstants.LOG_REFRESH_TOKEN_CREATED, user.getEmail(), expiryDate );

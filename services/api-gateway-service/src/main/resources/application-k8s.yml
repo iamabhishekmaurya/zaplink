@@ -13,24 +13,36 @@ spring:
               enabled: false
           routes:
             - id: shortner
-              uri: http://shortner-service:8081
+              uri: lb://zaplink-shortner-service
               predicates:
                 - Path=/shortner/**
                 - Method=POST,GET
             - id: processor
-              uri: http://processor-service:8082
+              uri: lb://zaplink-processor-service
               predicates:
                 - Path=/processor/**
                 - Method=POST,GET
               filters:
                 - StripPrefix=1
+            - id: manager
+              uri: lb://zaplink-manager-service
+              predicates:
+                - Path=/manager/**
+                - Method=POST,GET,DELETE
+            - id: manager-short
+              uri: lb://zaplink-manager-service
+              predicates:
+                - Path=/m/**
+                - Method=POST,GET,DELETE
+              filters:
+                - RewritePath=/m/(?<segment>.*), /manager/${segment}
             - id: auth-service
-              uri: http://zaplink-auth-service:8084
+              uri: lb://zaplink-auth-service
               predicates:
                 - Path=/auth/**
                 - Method=POST,GET,PUT
             - id: user-service
-              uri: http://zaplink-auth-service:8084
+              uri: lb://zaplink-auth-service
               predicates:
                 - Path=/users/**
                 - Method=GET,PUT

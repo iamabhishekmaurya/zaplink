@@ -27,9 +27,6 @@ spring:
         properties:
             spring.json.trusted.packages: "*"
             spring.json.value.default.type: "io.zaplink.notification.dto.request.EmailRequest"
-        producer:
-            key-serializer: org.apache.kafka.common.serialization.StringSerializer
-            value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
 
 management:
   endpoints:
@@ -38,15 +35,16 @@ management:
         include: health,info,prometheus
   endpoint:
     prometheus:
-      enabled: true
+      access: unrestricted
+    health:
+      probes:
+        enabled: true
   health:
-    probes:
-      enabled: true
     readinessstate:
       enabled: true
     livenessstate:
       enabled: true
-  metrics:
-    export:
-      prometheus:
-        enabled: true
+  prometheus:
+    metrics:
+      export:
+          enabled: true

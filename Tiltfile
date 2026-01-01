@@ -38,6 +38,6 @@ k8s_resource("redis", port_forwards=30093, trigger_mode=TRIGGER_MODE_MANUAL)
 k8s_resource("kafka", port_forwards=30192, trigger_mode=TRIGGER_MODE_MANUAL)
 k8s_resource("kafka-ui", port_forwards=8080, trigger_mode=TRIGGER_MODE_MANUAL)
 k8s_resource("prometheus", port_forwards=9090)
-k8s_resource("grafana", port_forwards=3000)
+k8s_resource("grafana", port_forwards="3001")
 
 print("✅ Tiltfile loaded successfully! Run `tilt up` to start all services 🚀")

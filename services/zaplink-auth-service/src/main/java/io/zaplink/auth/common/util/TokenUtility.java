@@ -18,12 +18,13 @@ import org.springframework.stereotype.Component;
 public class TokenUtility
 {
     // ==================== TIME VALUES ====================
-    private static final long   REFRESH_TOKEN_EXPIRY_DAYS   = 7;
-    private static final long   PASSWORD_RESET_EXPIRY_HOURS = 1;
+    private static final long   REFRESH_TOKEN_EXPIRY_DAYS             = 7;
+    private static final long   REFRESH_TOKEN_EXPIRY_DAYS_REMEMBER_ME = 30;
+    private static final long   PASSWORD_RESET_EXPIRY_HOURS           = 1;
     // ==================== TOKEN MASKING ====================
-    private static final int    TOKEN_MASK_LENGTH           = 10;
-    private static final String TOKEN_SUFFIX                = "...";
-    private static final String FULL_TOKEN_MASK             = "***";
+    private static final int    TOKEN_MASK_LENGTH                     = 10;
+    private static final String TOKEN_SUFFIX                          = "...";
+    private static final String FULL_TOKEN_MASK                       = "***";
     /**
      * Generates a new UUID-based token string.
      * 
@@ -37,11 +38,23 @@ public class TokenUtility
     /**
      * Generates a refresh token expiry time.
      * 
-     * @return The expiry time for refresh token
+     * @return The expiry time for refresh token (default 7 days)
      */
     public Instant generateRefreshTokenExpiry()
     {
-        return Instant.now().plus( REFRESH_TOKEN_EXPIRY_DAYS, ChronoUnit.DAYS );
+        return generateRefreshTokenExpiry( false );
+    }
+
+    /**
+     * Generates a refresh token expiry time.
+     * 
+     * @param rememberMe Whether to use extended expiry
+     * @return The expiry time for refresh token
+     */
+    public Instant generateRefreshTokenExpiry( boolean rememberMe )
+    {
+        long days = rememberMe ? REFRESH_TOKEN_EXPIRY_DAYS_REMEMBER_ME : REFRESH_TOKEN_EXPIRY_DAYS;
+        return Instant.now().plus( days, ChronoUnit.DAYS );
     }
 
     /**

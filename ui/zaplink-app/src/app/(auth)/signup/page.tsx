@@ -195,14 +195,19 @@ export default function SignupPage() {
                                 <FaGithub className="h-4 w-4" /> GitHub
                             </Button>
                         </div>
-                    </CardContent>
-                    <BorderBeam size={250} duration={12} delay={9} />
-                    <CardFooter className="flex flex-col gap-4 text-center border-t py-6">
-                        <p className="text-sm text-muted-foreground">
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t" />
+                            </div>
+                        </div>
+                        <p className="pt-6 text-center text-sm text-muted-foreground">
                             Already have an account?{" "}
                             <Link href="/login" className="text-primary hover:underline font-bold">Sign in</Link>
                         </p>
-                    </CardFooter>
+                    </CardContent>
+                    <BorderBeam size={250} duration={12} delay={9} />
+                    {/* <CardFooter className="flex flex-col gap-4 text-center border-t py-6">
+                    </CardFooter> */}
                 </Card>
 
                 <Link href="/" className="mt-8 flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors font-medium">

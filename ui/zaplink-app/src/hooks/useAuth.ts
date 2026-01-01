@@ -38,7 +38,7 @@ export const useAuth = () => {
     }
   };
 
-  const login = async (credentials: Record<string, string>) => {
+  const login = async (credentials: { email: string; password: string; rememberMe?: boolean }) => {
     dispatch(loginStart());
     try {
       const response = await api.post('/auth/login', credentials);
