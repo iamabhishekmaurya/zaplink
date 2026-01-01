@@ -12,7 +12,7 @@ REM ==============================
 REM 🔢 Define service list here
 REM ==============================
 set SERVICE_1=api-gateway-service
-set SERVICE_2=zaplink-shortner-service
+set SERVICE_2=zaplink-core-service
 set SERVICE_3=zaplink-processor-service
 set SERVICE_4=zaplink-manager-service
 set SERVICE_5=zaplink-auth-service

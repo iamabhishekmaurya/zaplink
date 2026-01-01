@@ -41,7 +41,7 @@ public class UrlController
     }
 
     @GetMapping("/{key}")
-    public RedirectView getValue( @PathVariable String key, HttpServletRequest request )
+    public RedirectView getValue( @PathVariable("key") String key, HttpServletRequest request )
     {
         AnalyticsEvent analyticsEvent = AnalyticsEvent.builder().urlKey( key ).ipAddress( request.getRemoteAddr() )
                 .userAgent( request.getHeader( "User-Agent" ) ).referrer( request.getHeader( "Referer" ) )

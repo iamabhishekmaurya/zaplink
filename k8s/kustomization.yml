@@ -6,7 +6,7 @@ resources:
   - api-gateway-deployment.yaml
   - zaplink-manager-deployment.yaml
   - zaplink-processor-deployment.yaml
-  - zaplink-shortner-deployment.yaml
+  - zaplink-core-deployment.yaml
   - zaplink-auth-deployment.yaml
   - zaplink-notification-deployment.yaml
   - redis-deployment.yaml

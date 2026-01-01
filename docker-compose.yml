@@ -59,14 +59,14 @@ services:
             - zaplink-net
 
     # ============================================================
-    # 📦 shortner Service
+    # 📦 core Service
     # ============================================================
-    zaplink-shortner-service:
+    zaplink-core-service:
         build:
-            context: ./services/zaplink-shortner-service
+            context: ./services/zaplink-core-service
             dockerfile: Dockerfile
-        container_name: zaplink-shortner-service
-        image: zaplink-shortner-service:latest
+        container_name: zaplink-core-service
+        image: zaplink-core-service:latest
         ports:
             - "8081:8081"
         depends_on:

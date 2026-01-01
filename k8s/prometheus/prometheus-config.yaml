@@ -13,7 +13,7 @@ data:
         static_configs:
           - targets:
               - api-gateway-service:8090
-              - zaplink-shortner-service:8081
+              - zaplink-core-service:8081
               - zaplink-processor-service:8082
               - zaplink-manager-service:8083
               - zaplink-auth-service:8084

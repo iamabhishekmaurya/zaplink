@@ -103,7 +103,7 @@ export default function DashboardLayout({
     <div className="flex h-screen bg-background">
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0">
-        <div className="flex flex-col flex-grow bg-card border-r border-border pt-5 pb-4 overflow-y-auto">
+        <div className="flex flex-col flex-grow bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 pt-5 pb-4 overflow-y-auto">
           <div className="flex items-center justify-between flex-shrink-0 px-4">
             <Link href="/dashboard" className="text-2xl font-bold font-display text-primary tracking-tight">
               Zaplink
@@ -118,40 +118,45 @@ export default function DashboardLayout({
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'group flex items-center px-2 py-2 text-sm font-bold font-display rounded-md transition-colors',
+                    'group flex items-center px-3 py-2 text-sm font-bold font-display rounded-md transition-colors duration-200',
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
                   )}
                 >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
+                  <item.icon className={cn(
+                    'mr-3 h-5 w-5 transition-colors duration-200',
+                    isActive 
+                      ? 'text-blue-600 dark:text-blue-400' 
+                      : 'text-gray-500 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                  )} />
+                  <span>{item.name}</span>
                 </Link>
               );
             })}
           </nav>
-          <div className="flex-shrink-0 flex border-t border-border p-4">
+          <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full flex items-center gap-3 px-2 py-6 hover:bg-accent transition-all group"
+                  className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 group"
                 >
-                  <Avatar className="h-9 w-9 border-2 border-primary/20 group-hover:border-primary/50 transition-colors">
+                  <Avatar className="h-9 w-9 border-2 border-primary/20 group-hover:border-primary/40 transition-colors duration-200">
                     <AvatarImage src={`https://avatar.vercel.sh/${user?.username}`} />
                     <AvatarFallback className="bg-primary/10 text-primary font-bold">
                       {user?.username?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start flex-1 overflow-hidden">
-                    <span className="text-sm font-bold font-display text-foreground truncate w-full text-left">
+                    <span className="text-sm font-bold font-display text-foreground truncate w-full text-left group-hover:text-primary transition-colors duration-200">
                       {user?.username}
                     </span>
                     <span className="text-xs text-muted-foreground truncate w-full text-left">
                       {user?.email}
                     </span>
                   </div>
-                  <ChevronsUpDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <ChevronsUpDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 mb-2" side="right" align="end">
@@ -202,7 +207,7 @@ export default function DashboardLayout({
               Access your dashboard, links, analytics, and settings.
             </SheetDescription>
           </SheetHeader>
-          <div className="flex flex-col h-full bg-card">
+          <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
             <div className="flex items-center justify-between flex-shrink-0 px-4 pt-5 pb-4">
               <Link href="/dashboard" className="text-2xl font-bold font-display text-primary tracking-tight">
                 Zaplink
@@ -217,41 +222,46 @@ export default function DashboardLayout({
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'group flex items-center px-2 py-2 text-sm font-bold font-display rounded-md transition-colors',
+                      'group flex items-center px-3 py-2 text-sm font-bold font-display rounded-md transition-colors duration-200',
                       isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
                     )}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
+                    <item.icon className={cn(
+                      'mr-3 h-5 w-5 transition-colors duration-200',
+                      isActive 
+                        ? 'text-blue-600 dark:text-blue-400' 
+                        : 'text-gray-500 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                    )} />
+                    <span>{item.name}</span>
                   </Link>
                 );
               })}
             </nav>
-            <div className="flex-shrink-0 flex border-t border-border p-4">
+            <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full flex items-center gap-3 px-2 py-6 hover:bg-accent transition-all group"
+                    className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 group"
                   >
-                    <Avatar className="h-9 w-9 border-2 border-primary/20">
+                    <Avatar className="h-9 w-9 border-2 border-primary/20 group-hover:border-primary/40 transition-colors duration-200">
                       <AvatarImage src={`https://avatar.vercel.sh/${user?.username}`} />
                       <AvatarFallback className="bg-primary/10 text-primary font-bold">
                         {user?.username?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col items-start flex-1 overflow-hidden">
-                      <span className="text-sm font-bold font-display text-foreground truncate w-full text-left">
+                      <span className="text-sm font-bold font-display text-foreground truncate w-full text-left group-hover:text-primary transition-colors duration-200">
                         {user?.username}
                       </span>
                       <span className="text-xs text-muted-foreground truncate w-full text-left">
                         {user?.email}
                       </span>
                     </div>
-                    <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
+                    <ChevronsUpDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[calc(100vw-2rem)] md:w-56 mb-2" side="top" align="center">

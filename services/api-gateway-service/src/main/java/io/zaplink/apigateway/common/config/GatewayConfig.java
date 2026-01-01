@@ -31,9 +31,10 @@ public class GatewayConfig
                                                         .addResponseHeader( "X-Zaplink-Processing-Time",
                                                                             LocalDateTime.now().toString() )
                                                         .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
-                                                        .uri( "lb://zaplink-manager-service" ) )
+                                                        // .uri("lb://zaplink-manager-service")
+                                                        .uri( "http://localhost:8083" ) )
                                 /* 
-                                   NOTE: 'shortner' and 'processor' routes are handled 
+                                   NOTE: 'core' and 'processor' routes are handled 
                                    via application.yml (Static Routes).
                                 */
                                 .build();

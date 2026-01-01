@@ -14,7 +14,7 @@ Zaplink is a microservices-based URL shortening platform built with Spring Boot,
 - [Repository Structure](#repository-structure)
 - [Service Details](#service-details)
   - [API Gateway Service](#api-gateway-service)
-  - [Shortner Service](#shortner-service)
+  - [core Service](#core-service)
   - [Processor Service](#processor-service)
   - [Manager Service](#manager-service)
   - [Service Registry](#service-registry)
@@ -25,7 +25,7 @@ Zaplink is a microservices-based URL shortening platform built with Spring Boot,
   - [Build and Test](#build-and-test)
 - [Configuration](#configuration)
 - [API Reference](#api-reference)
-  - [Shortner API](#shortner-api)
+  - [core API](#core-api)
   - [Processor API](#processor-api)
   - [Manager API](#manager-api)
   - [Gateway Endpoints](#gateway-endpoints)
@@ -45,7 +45,7 @@ Zaplink is a microservices-based URL shortening platform built with Spring Boot,
 
 ## High-Level Overview
 
-Zaplink provides a short URL for a given long URL. The request is accepted by the shortner service, which publishes a message to Kafka. The processor service processes the message and coordinates with the Manager service to persist/cache mappings and return/serve the shortened URLs. The API Gateway routes requests to underlying services and centralizes external API access.
+Zaplink provides a short URL for a given long URL. The request is accepted by the core service, which publishes a message to Kafka. The processor service processes the message and coordinates with the Manager service to persist/cache mappings and return/serve the shortened URLs. The API Gateway routes requests to underlying services and centralizes external API access.
 
 
 ## Architecture
@@ -53,15 +53,15 @@ Zaplink provides a short URL for a given long URL. The request is accepted by th
 ### Services
 
 - api-gateway-service: Routes external requests to internal services (edge service).
-- zaplink-shortner-service: Accepts requests to create short URLs and emits Kafka events.
+- zaplink-core-service: Accepts requests to create short URLs and emits Kafka events.
 - zaplink-processor-service: Listens to Kafka topics and processes short URL creation events.
 - zaplink-manager-service: Business logic for URL storage/lookup, Redis integration.
 - zaplink-service-registry: Eureka service registry for service discovery.
 
 ### Data Flow
 
-1. Client POSTs a long URL to shortner.
-2. shortner validates/transforms and publishes a Kafka message.
+1. Client POSTs a long URL to core.
+2. core validates/transforms and publishes a Kafka message.
 3. processor listens to Kafka topic and triggers Manager to generate/store short URL mapping.
 4. Manager stores mapping (e.g., in Redis) and responds with details.
 5. API Gateway can expose unified endpoints or redirect traffic accordingly.
@@ -83,7 +83,7 @@ Zaplink provides a short URL for a given long URL. The request is accepted by th
 zaplink/
 ├─ services/
 │  ├─ api-gateway-service/
-│  ├─ zaplink-shortner-service/
+│  ├─ zaplink-core-service/
 │  ├─ zaplink-processor-service/
 │  ├─ zaplink-manager-service/
 │  └─ zaplink-service-registry/
@@ -99,7 +99,7 @@ zaplink/
 │  ├─ zaplink-manager-deployment.yaml
 │  ├─ zaplink-processor-deployment.yaml
 │  ├─ zaplink-service-registry-deployment.yaml
-│  └─ zaplink-shortner-deployment.yaml
+│  └─ zaplink-core-deployment.yaml
 ├─ tools/
 │  ├─ kafka/
 │  │  └─ docker-compose.yml
@@ -123,15 +123,15 @@ Each service is a standalone Spring Boot project with its own build.gradle, Dock
 - Entrypoint: `ApiGatewayServiceApplication.java`
 - Example Controller: `ApiGatewayController.java` (can forward or provide simple status endpoint)
 
-### Shortner Service
+### core Service
 
-- Path: `services/zaplink-shortner-service`
+- Path: `services/zaplink-core-service`
 - Purpose: Accept short URL creation requests and publish events to Kafka.
-- Controller: `ZaplinkShortnerController` (POST `/producers/short/url`)
-- Services: `UrlShortnerService`
-- DTOs: `ShortnerRequest`, `ShortnerResponse`
-- Tests: `ZaplinkShortnerControllerTest` (WebMvcTest)
-- Entrypoint: `ZaplinkShortnerApplication.java`
+- Controller: `ZaplinkcoreController` (POST `/producers/short/url`)
+- Services: `UrlcoreService`
+- DTOs: `coreRequest`, `coreResponse`
+- Tests: `ZaplinkcoreControllerTest` (WebMvcTest)
+- Entrypoint: `ZaplinkcoreApplication.java`
 
 ### Processor Service
 
@@ -171,7 +171,7 @@ Each service is a standalone Spring Boot project with its own build.gradle, Dock
 
 Option A: Individual Gradle runs per service
 
-- From each service folder (e.g., `services/zaplink-shortner-service`):
+- From each service folder (e.g., `services/zaplink-core-service`):
   - Windows: `gradlew.bat bootRun`
   - Linux/Mac: `./gradlew bootRun`
 
@@ -182,7 +182,7 @@ Option B: Build all with a script (Windows)
 Option C: Docker Compose (includes all services)
 
 - Path: `docker-compose.yml`
-- Includes all Zaplink microservices (service registry, gateway, shortner, processor, manager)
+- Includes all Zaplink microservices (service registry, gateway, core, processor, manager)
 - Run:
   - `docker compose up -d`
 - Note: External dependencies (Kafka, Redis) need to be started separately
@@ -192,7 +192,7 @@ Option C: Docker Compose (includes all services)
 Option A: Root Docker Compose (multi-service)
 
 - Path: `docker-compose.yml`
-- Includes Zaplink microservices only (service registry, gateway, shortner, processor, manager)
+- Includes Zaplink microservices only (service registry, gateway, core, processor, manager)
 - Run:
   - `docker compose up -d`
 
@@ -230,10 +230,10 @@ Ensure environment variables and `application.yml` match the advertised host/por
   - Windows: `gradlew.bat test`
   - Linux/Mac: `./gradlew test`
 
-Example (shortner Service):
+Example (core Service):
 
 ```
-cd services/zaplink-shortner-service
+cd services/zaplink-core-service
 # Windows
 gradlew.bat clean test
 # Linux/Mac
@@ -258,7 +258,7 @@ Adjust local `.yml` files to your environment. Example configuration files are p
 
 Note: API Gateway can proxy to downstream services. The following lists primary service-level endpoints.
 
-### shortner API
+### core API
 
 - POST `/producers/short/url`
   - Request Body (JSON):
@@ -292,13 +292,13 @@ Note: API Gateway can proxy to downstream services. The following lists primary 
 
 ### Gateway Endpoints
 
-- API Gateway may expose a unified path (e.g., `/api/**`) routing to shortner/Manager/processor.
+- API Gateway may expose a unified path (e.g., `/api/**`) routing to core/Manager/processor.
 - Check `services/api-gateway-service/src/main/resources/application.yml` for route definitions.
 
 
 ## Messaging (Kafka)
 
-- shortner publishes events/messages when short URL creation is requested.
+- core publishes events/messages when short URL creation is requested.
 - processor listens to a topic (defined in application.yml) and triggers processing.
 - Topics, partitions, and replication factors are configured in Kafka compose and application properties.
 - Ensure the Kafka bootstrap server address matches the Docker network or localhost depending on where services run.
@@ -306,15 +306,15 @@ Note: API Gateway can proxy to downstream services. The following lists primary 
 
 ## Data Model
 
-- ShortnerRequest (shortner): `{ longUrl: string }`
-- ShortnerResponse (shortner): `{ url: string }`
+- coreRequest (core): `{ longUrl: string }`
+- coreResponse (core): `{ url: string }`
 - ShortUrlprocessorRequest (processor): message structure consumed from Kafka for processing
 - Manager persists mappings of `shortKey -> longUrl` (likely via Redis)
 
 
 ## Short URL Generation
 
-- Utilities under `zaplink-shortner-service`:
+- Utilities under `zaplink-core-service`:
   - `SnowflakeShortUrlKeyUtil` and `SnowflakeShortKeyGenerator` suggest time-based unique ID generation
   - `StringUtil`, `CommonUtil` for normalization/validation
 - Manager service coordinates final key assignment and storage, ensuring uniqueness and quick lookup.
@@ -339,9 +339,9 @@ Note: API Gateway can proxy to downstream services. The following lists primary 
 ## Testing Strategy
 
 - Unit tests: JUnit 5, Mockito, Spring MVC Test (MockMvc)
-  - Example: `ZaplinkshortnerControllerTest` uses `@WebMvcTest` and mocks `UrlServiceProvider`
+  - Example: `ZaplinkcoreControllerTest` uses `@WebMvcTest` and mocks `UrlServiceProvider`
 - Integration tests (recommended):
-  - With embedded Kafka for processor/shortner flows
+  - With embedded Kafka for processor/core flows
   - Testcontainers for Kafka and Redis
 - Contract tests between services (optional): Pact/REST Docs
 
@@ -372,7 +372,7 @@ tilt up
 - Sets up port forwarding for easy local access:
   - API Gateway: localhost:8090
   - Service Registry: localhost:8761
-  - Shortner Service: localhost:8081
+  - core Service: localhost:8081
   - Processor Service: localhost:8082
   - Manager Service: localhost:8083
   - Redis: localhost:30093
@@ -440,7 +440,7 @@ The `k8s/` folder contains Kubernetes manifests for deploying all services and d
 ### Deployment Files
 - `api-gateway-deployment.yaml` - API Gateway service deployment
 - `zaplink-service-registry-deployment.yaml` - Eureka service registry
-- `zaplink-shortner-deployment.yaml` - Shortner service deployment
+- `zaplink-core-deployment.yaml` - core service deployment
 - `zaplink-processor-deployment.yaml` - Processor service deployment
 - `zaplink-manager-deployment.yaml` - Manager service deployment
 - `kafka-deployment.yaml` - Kafka cluster deployment
@@ -475,7 +475,7 @@ kubectl apply -f k8s/redis-deployment.yaml
 kubectl apply -f k8s/zaplink-service-registry-deployment.yaml
 kubectl apply -f k8s/zaplink-manager-deployment.yaml
 kubectl apply -f k8s/zaplink-processor-deployment.yaml
-kubectl apply -f k8s/zaplink-shortner-deployment.yaml
+kubectl apply -f k8s/zaplink-core-deployment.yaml
 kubectl apply -f k8s/api-gateway-deployment.yaml
 kubectl apply -f k8s/kafka-ui-deployment.yaml
 ```
@@ -483,7 +483,7 @@ kubectl apply -f k8s/kafka-ui-deployment.yaml
 ### Service Ports
 - API Gateway: 8090
 - Service Registry: 8761
-- Shortner Service: 8081
+- core Service: 8081
 - Processor Service: 8082
 - Manager Service: 8083
 - Kafka: 30192
@@ -522,7 +522,7 @@ kubectl apply -f k8s/kafka-ui-deployment.yaml
   - Confirm `defaultZone` URL is correct
 - Tests failing to run on Windows shells:
   - Use `gradlew.bat` directly in each service directory
-  - Example: `cd services\zaplink-shortner-service && gradlew.bat test`
+  - Example: `cd services\zaplink-core-service && gradlew.bat test`
 - Port conflicts:
   - Adjust `server.port` in each service’s `application.yml`
 

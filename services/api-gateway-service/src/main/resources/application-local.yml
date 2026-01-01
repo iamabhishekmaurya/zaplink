@@ -7,10 +7,10 @@ spring:
             locator:
               enabled: false
       routes:
-        - id: shortner
+        - id: core
           uri: http://localhost:8081
           predicates:
-            - Path=/shortner/**
+            - Path=/core/**
             - Method=POST,GET
         - id: processor
           uri: http://localhost:8082

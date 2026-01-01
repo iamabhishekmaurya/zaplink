@@ -12,10 +12,10 @@ spring:
             locator:
               enabled: false
           routes:
-            - id: shortner
-              uri: lb://zaplink-shortner-service
+            - id: core
+              uri: lb://zaplink-core-service
               predicates:
-                - Path=/shortner/**
+                - Path=/core/**
                 - Method=POST,GET
             - id: processor
               uri: lb://zaplink-processor-service
