@@ -23,7 +23,7 @@ export const useAuth = () => {
     }
 
     try {
-      const response = await api.get('/auth/me');
+      const response = await api.get('/v1/api/auth/me');
       dispatch(setAuthData({
         user: response.data,
         token: token,
@@ -41,7 +41,7 @@ export const useAuth = () => {
   const login = async (credentials: { email: string; password: string; rememberMe?: boolean }) => {
     dispatch(loginStart());
     try {
-      const response = await api.post('/auth/login', credentials);
+      const response = await api.post('/v1/api/auth/login', credentials);
       const { userInfo, accessToken, refreshToken } = response.data;
       
       dispatch(loginSuccess({ 
@@ -65,7 +65,7 @@ export const useAuth = () => {
   const signup = async (userData: Record<string, string>) => {
     dispatch(loginStart());
     try {
-      await api.post('/auth/register', userData);
+      await api.post('/v1/api/auth/register', userData);
       toast.success('Account created! Please verify your email.');
       router.push('/login');
     } catch (err: unknown) {
@@ -82,7 +82,7 @@ export const useAuth = () => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
-        await api.post('/auth/logout', null, { params: { refreshToken } });
+        await api.post('/v1/api/auth/logout', null, { params: { refreshToken } });
       }
     } catch (err) {
       console.error('Logout API call failed:', err);

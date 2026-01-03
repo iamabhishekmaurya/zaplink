@@ -6,38 +6,4 @@ spring:
           discovery:
             locator:
               enabled: false
-      routes:
-        - id: core
-          uri: http://localhost:8081
-          predicates:
-            - Path=/core/**
-            - Method=POST,GET
-        - id: processor
-          uri: http://localhost:8082
-          predicates:
-            - Path=/processor/**
-            - Method=POST,GET
-          filters:
-            - StripPrefix=1
-        - id: manager
-          uri: http://localhost:8083
-          predicates:
-            - Path=/manager/**
-            - Method=POST,GET,DELETE
-        - id: manager-short
-          uri: http://localhost:8083
-          predicates:
-            - Path=/m/**
-            - Method=POST,GET,DELETE
-          filters:
-            - RewritePath=/m/(?<segment>.*), /manager/${segment}
-        - id: auth-service
-          uri: http://localhost:8084
-          predicates:
-            - Path=/auth/**
-            - Method=POST,GET,PUT
-        - id: user-service
-          uri: http://localhost:8084
-          predicates:
-            - Path=/users/**
-            - Method=GET,PUT
+          routes: []

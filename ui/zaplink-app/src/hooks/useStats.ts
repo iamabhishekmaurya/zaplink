@@ -24,7 +24,7 @@ export const useStats = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await api.get('/manager/stats');
+      const response = await api.get('/v1/api/manager/stats');
       setStats(response.data);
     } catch (err: unknown) {
       let message = 'Failed to fetch statistics.';

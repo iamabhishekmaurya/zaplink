@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Filter that extracts user identity from Gateway headers.
  * Trusts the X-User-Email header passed by the API Gateway.
+ * Skips authentication for public endpoints.
  */
 @Slf4j @Component @RequiredArgsConstructor
 public class GatewayAuthenticationFilter
@@ -27,6 +28,22 @@ public class GatewayAuthenticationFilter
 {
     private final CustomUserDetailsService userDetailsService;
     private static final String            X_USER_EMAIL = "X-User-Email";
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        // Skip authentication for public endpoints (after gateway strips prefix)
+        return path.startsWith("/auth/login") ||
+               path.startsWith("/auth/register") ||
+               path.startsWith("/auth/refresh") ||
+               path.startsWith("/auth/verify-email") ||
+               path.startsWith("/auth/resend-verification") ||
+               path.startsWith("/auth/request-password-reset") ||
+               path.startsWith("/auth/reset-password") ||
+               path.startsWith("/error") ||
+               path.startsWith("/actuator");
+    }
+    
     @Override
     protected void doFilterInternal( HttpServletRequest request, HttpServletResponse response, FilterChain filterChain )
         throws ServletException,

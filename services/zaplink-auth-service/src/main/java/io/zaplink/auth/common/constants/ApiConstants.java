@@ -17,7 +17,7 @@ public final class ApiConstants
     }
     // ==================== ENDPOINT PATHS ====================
     public static final String AUTH_BASE_PATH                         = "/auth/**";
-    public static final String AUTH_V1_BASE_PATH                      = "/v1/auth/**";
+    public static final String AUTH_V1_BASE_PATH                      = "/v1/api/auth/**";
     public static final String ERROR_PATH                             = "/error";
     public static final String ACTUATER_PATH                          = "/actuator/**";
     // ==================== ERROR CODES ====================

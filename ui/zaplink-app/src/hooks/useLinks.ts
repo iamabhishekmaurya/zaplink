@@ -15,7 +15,7 @@ export const useLinks = () => {
     dispatch(setLoading(true));
     dispatch(setError(null));
     try {
-      const response = await api.post('/shortner/short/url', { originalUrl });
+      const response = await api.post('/v1/api/shortner/short/url', { originalUrl });
       const newLink = {
         id: response.data.id || Math.random().toString(36).substr(2, 9),
         originalUrl: response.data.originalUrl,
@@ -44,7 +44,7 @@ export const useLinks = () => {
     dispatch(setLoading(true));
     dispatch(setError(null));
     try {
-      const response = await api.get('/manager/links');
+      const response = await api.get('/v1/api/manager/links');
       const data = Array.isArray(response.data) ? response.data : (response.data.links || []);
       dispatch(setLinks(data));
     } catch (err: unknown) {
@@ -60,7 +60,7 @@ export const useLinks = () => {
 
   const deleteLink = async (id: string | number) => {
     try {
-      await api.delete(`/manager/links/${id}`);
+      await api.delete(`/v1/api/manager/links/${id}`);
       dispatch(setLinks(links.filter((link: any) => link.id !== id)));
       toast.success('Link deleted successfully');
       return true;

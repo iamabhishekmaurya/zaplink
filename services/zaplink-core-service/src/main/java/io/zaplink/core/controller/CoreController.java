@@ -11,7 +11,7 @@ import io.zaplink.core.dto.response.ShortnerResponse;
 import io.zaplink.core.service.UrlShortnerService;
 import jakarta.validation.Valid;
 
-@RestController @RequestMapping("/shortner")
+@RestController @RequestMapping("${api.base-path}/shortner")
 public class CoreController
 {
     private final UrlShortnerService urlServiceProvider;

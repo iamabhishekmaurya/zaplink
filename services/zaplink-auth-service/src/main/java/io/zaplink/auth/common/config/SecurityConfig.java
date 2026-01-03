@@ -93,12 +93,17 @@ public class SecurityConfig
                 .authorizeHttpRequests( auth -> {
                     log.debug( LogConstants.LOG_CONFIGURING_ENDPOINT_AUTHORIZATION_RULES );
                     // Public endpoints - no authentication required
-                    auth.requestMatchers( "/auth/register", "/auth/login", "/auth/refresh", "/auth/verify-email",
-                                          "/auth/resend-verification", "/auth/request-password-reset",
-                                          "/auth/reset-password" )
+                    auth.requestMatchers( "/v1/api/auth/register", "/v1/api/auth/login", "/v1/api/auth/refresh", "/v1/api/auth/verify-email",
+                                          "/v1/api/auth/resend-verification", "/v1/api/auth/request-password-reset",
+                                          "/v1/api/auth/reset-password" )
                             .permitAll().requestMatchers( ApiConstants.AUTH_V1_BASE_PATH ).permitAll()
                             .requestMatchers( ApiConstants.ERROR_PATH ).permitAll()
                             .requestMatchers( ApiConstants.ACTUATER_PATH ).permitAll()
+                            // Also add the stripped paths for direct access
+                            .requestMatchers( "/auth/register", "/auth/login", "/auth/refresh", "/auth/verify-email",
+                                          "/auth/resend-verification", "/auth/request-password-reset",
+                                          "/auth/reset-password" )
+                            .permitAll()
                             // All other endpoints require authentication
                             .anyRequest().authenticated();
                 } )

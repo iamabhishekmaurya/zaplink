@@ -33,9 +33,12 @@ public class JwtAuthenticationFilter
     {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().value();
+        log.info( "JWT Filter: Processing request path: {}", path );
+        
         // Skip authentication for OPTIONS requests (CORS preflight) and public endpoints
         if ( request.getMethod().name().equals( "OPTIONS" ) || isPublicEndpoint( path ) )
         {
+            log.info( "JWT Filter: Skipping authentication for public endpoint: {}", path );
             return chain.filter( exchange );
         }
         log.debug( LogConstants.LOG_GATEWAY_FILTER_PROCESSING_REQUEST, request.getMethod(), path );
@@ -88,11 +91,13 @@ public class JwtAuthenticationFilter
     private boolean isPublicEndpoint( String path )
     {
         // Whitelist only specific public auth endpoints
-        boolean isAuthPublic = ( path.equals( "/auth/register" ) || path.equals( "/auth/login" )
-                || path.equals( "/auth/refresh" ) || path.equals( "/auth/verify-email" )
-                || path.equals( "/auth/resend-verification" ) || path.equals( "/auth/request-password-reset" )
-                || path.equals( "/auth/reset-password" ) );
-        return isAuthPublic || path.equals( "/error" ) || path.startsWith( "/actuator" ) || path.startsWith( "/r/" );
+        boolean isAuthPublic = ( path.equals( "/v1/api/auth/register" ) || path.equals( "/v1/api/auth/login" )
+                || path.equals( "/v1/api/auth/refresh" ) || path.equals( "/v1/api/auth/verify-email" )
+                || path.equals( "/v1/api/auth/resend-verification" ) || path.equals( "/v1/api/auth/request-password-reset" )
+                || path.equals( "/v1/api/auth/reset-password" ) );
+        boolean isPublic = isAuthPublic || path.equals( "/error" ) || path.startsWith( "/actuator" ) || path.startsWith( "/r/" );
+        log.info( "JWT Filter: isPublicEndpoint check - path: {}, isAuthPublic: {}, isPublic: {}", path, isAuthPublic, isPublic );
+        return isPublic;
     }
 
     private Mono<Void> handleUnauthorized( ServerWebExchange exchange )

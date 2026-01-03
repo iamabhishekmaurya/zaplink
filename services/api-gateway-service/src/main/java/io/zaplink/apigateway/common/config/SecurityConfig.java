@@ -28,9 +28,9 @@ public class SecurityConfig
         return http.csrf( ServerHttpSecurity.CsrfSpec::disable )
                 .cors( cors -> cors.configurationSource( corsConfigurationSource() ) )
                 .authorizeExchange( exchanges -> exchanges
-                        .pathMatchers( "/auth/register", "/auth/login", "/auth/refresh", "/auth/verify-email",
-                                       "/auth/resend-verification", "/auth/request-password-reset",
-                                       "/auth/reset-password" )
+                        .pathMatchers( "/v1/api/auth/register", "/v1/api/auth/login", "/v1/api/auth/refresh", "/v1/api/auth/verify-email",
+                                       "/v1/api/auth/resend-verification", "/v1/api/auth/request-password-reset",
+                                       "/v1/api/auth/reset-password" )
                         .permitAll().pathMatchers( "/r/**" ).permitAll().pathMatchers( "/error" ).permitAll()
                         .pathMatchers( "/actuator/**" ).permitAll().pathMatchers( HttpMethod.OPTIONS, "/**" )
                         .permitAll().anyExchange().authenticated() )

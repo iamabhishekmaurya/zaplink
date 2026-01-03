@@ -88,35 +88,35 @@ export default function Navbar() {
                                     </Link>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="outline" size="sm" className={`rounded-full gap-2 px-4 hover:bg-white/10`}>
-                                                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center">
+                                            <Button variant="outline" size="sm" className="rounded-full gap-2 px-4 hover:bg-accent hover:text-accent-foreground transition-all duration-300">
+                                                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-accent-cyan flex items-center justify-center">
                                                     <User className="h-3 w-3 text-white" />
                                                 </div>
-                                                <span className={`hidden lg:inline font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{user?.username}</span>
+                                                <span className="hidden lg:inline font-bold font-display text-foreground">{user?.username}</span>
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-56 glass-card border-0 shadow-2xl">
-                                            <DropdownMenuLabel className="text-foreground">My Account</DropdownMenuLabel>
-                                            <DropdownMenuSeparator className="bg-white/10" />
-                                            <DropdownMenuItem asChild className="hover:bg-white/10 cursor-pointer">
+                                        <DropdownMenuContent align="end" className="w-56 glass-card border">
+                                            <DropdownMenuLabel className="text-foreground font-bold font-display">My Account</DropdownMenuLabel>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem asChild className="cursor-pointer">
                                                 <Link href="/dashboard" className="cursor-pointer">
                                                     <LayoutDashboard className="mr-2 h-4 w-4" />
                                                     Dashboard
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="hover:bg-white/10 cursor-pointer">
+                                            <DropdownMenuItem asChild className="cursor-pointer">
                                                 <Link href="/dashboard/links" className="cursor-pointer">
                                                     <LinkIcon className="mr-2 h-4 w-4" />
                                                     Manage Links
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="hover:bg-white/10 cursor-pointer">
+                                            <DropdownMenuItem asChild className="cursor-pointer">
                                                 <Link href="/dashboard/profile" className="cursor-pointer">
                                                     <User className="mr-2 h-4 w-4" />
                                                     Profile
                                                 </Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="hover:bg-white/10 cursor-pointer">
+                                            <DropdownMenuItem asChild className="cursor-pointer">
                                                 <Link href="/dashboard/settings" className="cursor-pointer">
                                                     <Settings className="mr-2 h-4 w-4" />
                                                     Settings

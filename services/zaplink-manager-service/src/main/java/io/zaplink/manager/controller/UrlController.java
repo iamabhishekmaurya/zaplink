@@ -17,7 +17,7 @@ import io.zaplink.manager.service.UrlManagerService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
-@RestController @RequiredArgsConstructor @RequestMapping("/manager")
+@RestController @RequiredArgsConstructor @RequestMapping("${api.base-path}/manager")
 public class UrlController
 {
     private final UrlManagerService urlProvider;

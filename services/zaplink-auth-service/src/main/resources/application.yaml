@@ -4,6 +4,10 @@ server:
 spring:
     application:
         name: zaplink-auth-service
+    profiles:
+        active: ${SPRING_PROFILES_ACTIVE:local}
+    config:
+        import: application-api.yml
     main:
         allow-bean-definition-overriding: true
 

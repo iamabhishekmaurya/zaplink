@@ -37,7 +37,7 @@ function ResetPasswordContent() {
         // Validate token
         const validateToken = async () => {
             try {
-                await api.get(`/auth/validate-reset-token?token=${token}`);
+                await api.get(`/v1/api/auth/validate-reset-token?token=${token}`);
                 setTokenValid(true);
             } catch {
                 setTokenValid(false);
@@ -68,7 +68,7 @@ function ResetPasswordContent() {
 
         setIsLoading(true);
         try {
-            await api.post('/auth/reset-password', { token, password });
+            await api.post('/v1/api/auth/reset-password', { token, password });
             setIsSuccess(true);
             toast.success('Password reset successfully');
 

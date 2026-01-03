@@ -2,20 +2,36 @@ server:
     port: 8081
 
 spring:
-    application:
-        name: zaplink-core-service
-    # DataSource config
-    datasource:
-        url: jdbc:postgresql://localhost:5432/zaplink_core
-        username: postgres
-        password: 12345
-    # JPA config
-    jpa:
-        hibernate:
-            ddl-auto: update
-        properties:
-            hibernate:
-                dialect: org.hibernate.dialect.PostgreSQLDialect
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  config:
+    import: application-api.yml
+  application:
+    name: zaplink-core-service
+  # DataSource config
+  datasource:
+    url: jdbc:postgresql://localhost:5432/zaplink_core
+    username: postgres
+    password: 12345
+  # JPA config
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 #Custom properties
 base.url: http://localhost:8090/r/
+
+springdoc:
+  packages-to-scan: io.zaplink.core.controller
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+  show-actuator: true

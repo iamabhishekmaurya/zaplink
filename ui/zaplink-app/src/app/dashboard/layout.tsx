@@ -18,7 +18,8 @@ import {
   BarChart3,
   Users,
   Shield,
-  Palette
+  Palette,
+  QrCode
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -42,6 +43,7 @@ import { useAuth } from '@/hooks/useAuth';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Links', href: '/dashboard/links', icon: LinkIcon },
+  { name: 'QR Generator', href: '/dashboard/qr', icon: QrCode },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
 ];
 
@@ -69,7 +71,7 @@ export default function DashboardLayout({
 
     setIsResending(true);
     try {
-      await api.post(`/auth/resend-verification?email=${user.email}`);
+      await api.post(`/v1/api/auth/resend-verification?email=${user.email}`);
       toast.success('Verification code sent! Redirecting...');
       router.push('/verify-email');
     } catch (error) {
@@ -118,17 +120,17 @@ export default function DashboardLayout({
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'group flex items-center px-3 py-2 text-sm font-bold font-display rounded-md transition-colors duration-200',
+                    'group flex items-center px-4 py-2.5 text-sm font-bold font-display rounded-xl transition-all duration-200 mb-1',
                     isActive
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'bg-primary/15 text-primary border-l-4 border-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   )}
                 >
                   <item.icon className={cn(
                     'mr-3 h-5 w-5 transition-colors duration-200',
-                    isActive 
-                      ? 'text-blue-600 dark:text-blue-400' 
-                      : 'text-gray-500 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                    isActive
+                      ? 'text-primary'
+                      : 'text-muted-foreground group-hover:text-primary'
                   )} />
                   <span>{item.name}</span>
                 </Link>
@@ -140,7 +142,7 @@ export default function DashboardLayout({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 group"
+                  className="w-full flex items-center gap-3 px-3 py-3 hover:bg-primary/10 transition-colors duration-200 group rounded-xl"
                 >
                   <Avatar className="h-9 w-9 border-2 border-primary/20 group-hover:border-primary/40 transition-colors duration-200">
                     <AvatarImage src={`https://avatar.vercel.sh/${user?.username}`} />
@@ -222,18 +224,18 @@ export default function DashboardLayout({
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'group flex items-center px-3 py-2 text-sm font-bold font-display rounded-md transition-colors duration-200',
+                      'group flex items-center px-4 py-3 text-base font-bold font-display rounded-xl transition-all duration-200 mb-2',
                       isActive
-                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        ? 'bg-primary/15 text-primary border-l-4 border-primary'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     )}
                     onClick={() => setSidebarOpen(false)}
                   >
                     <item.icon className={cn(
                       'mr-3 h-5 w-5 transition-colors duration-200',
-                      isActive 
-                        ? 'text-blue-600 dark:text-blue-400' 
-                        : 'text-gray-500 dark:text-gray-500 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                      isActive
+                        ? 'text-primary'
+                        : 'text-muted-foreground group-hover:text-primary'
                     )} />
                     <span>{item.name}</span>
                   </Link>
@@ -245,7 +247,7 @@ export default function DashboardLayout({
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full flex items-center gap-3 px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 group"
+                    className="w-full flex items-center gap-3 px-3 py-3 hover:bg-primary/10 transition-colors duration-200 group rounded-xl"
                   >
                     <Avatar className="h-9 w-9 border-2 border-primary/20 group-hover:border-primary/40 transition-colors duration-200">
                       <AvatarImage src={`https://avatar.vercel.sh/${user?.username}`} />

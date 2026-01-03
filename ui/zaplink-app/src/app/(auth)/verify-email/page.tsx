@@ -48,7 +48,7 @@ function VerifyEmailContent() {
         }
 
         try {
-            await api.post(`/auth/resend-verification?email=${user.email}`);
+            await api.post(`/v1/api/auth/resend-verification?email=${user.email}`);
             toast.success("Verification code resent! Please check your inbox.");
             setResendCooldown(60);
         } catch (error) {
@@ -60,7 +60,7 @@ function VerifyEmailContent() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await api.post(`/auth/verify-email?token=${token}`);
+            await api.post(`/v1/api/auth/verify-email?token=${token}`);
             setIsVerified(true);
             toast.success('Email verified successfully!');
             setTimeout(() => {

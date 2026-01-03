@@ -47,7 +47,7 @@ export default function ProfilePage() {
         const fetchProfile = async () => {
             if (!user?.id) return;
             try {
-                const response = await api.get(`/users/${user.id}`);
+                const response = await api.get(`/v1/api/users/${user.id}`);
                 if (response.data) {
                     dispatch(setUser(response.data));
                 }
@@ -77,10 +77,10 @@ export default function ProfilePage() {
                 phoneNumber: formData.phoneNumber
             };
 
-            await api.put(`/users/${user.id}`, updatePayload);
+            await api.put(`/v1/api/users/${user.id}`, updatePayload);
 
             // Refresh profile data
-            const response = await api.get(`/users/${user.id}`);
+            const response = await api.get(`/v1/api/users/${user.id}`);
             dispatch(setUser(response.data));
 
             setIsEditing(false);

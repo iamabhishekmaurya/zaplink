@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: api-gateway-service
+    name: api-gateway-spring
   cloud:
     gateway:
       server:
@@ -11,45 +11,10 @@ spring:
           discovery:
             locator:
               enabled: false
-          routes:
-            - id: core
-              uri: lb://zaplink-core-service
-              predicates:
-                - Path=/core/**
-                - Method=POST,GET
-            - id: processor
-              uri: lb://zaplink-processor-service
-              predicates:
-                - Path=/processor/**
-                - Method=POST,GET
-              filters:
-                - StripPrefix=1
-            - id: manager
-              uri: lb://zaplink-manager-service
-              predicates:
-                - Path=/manager/**
-                - Method=POST,GET,DELETE
-            - id: manager-short
-              uri: lb://zaplink-manager-service
-              predicates:
-                - Path=/m/**
-                - Method=POST,GET,DELETE
-              filters:
-                - RewritePath=/m/(?<segment>.*), /manager/${segment}
-            - id: auth-service
-              uri: lb://zaplink-auth-service
-              predicates:
-                - Path=/auth/**
-                - Method=POST,GET,PUT
-            - id: user-service
-              uri: lb://zaplink-auth-service
-              predicates:
-                - Path=/users/**
-                - Method=GET,PUT
+          routes: []
       httpclient:
         connect-timeout: 3000
         response-timeout: 5s
-
 
 management:
   endpoints:

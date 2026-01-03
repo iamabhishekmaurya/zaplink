@@ -1,0 +1,5 @@
+# API Configuration
+api:
+  base-path: /v1/api
+  version: v1
+  context: /api

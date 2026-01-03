@@ -24,7 +24,8 @@ import {
     Link as LinkIcon,
     TrendingUp,
     Clock,
-    Globe2
+    Globe2,
+    QrCode
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -35,11 +36,13 @@ import {
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { CreateLinkModal } from '@/components/links/CreateLinkModal';
+import { QRLinkModal } from '@/components/links/QRLinkModal';
 import { useLinks } from '@/hooks/useLinks';
 import { useStats } from '@/hooks/useStats';
 
 export default function DashboardPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [selectedLinkForQR, setSelectedLinkForQR] = useState<{ url: string, alias: string } | null>(null);
     const { links, fetchUserLinks, isLoading: linksLoading } = useLinks();
     const { stats, fetchStats, isLoading: statsLoading } = useStats();
 
@@ -70,14 +73,22 @@ export default function DashboardPage() {
                     <Plus className="h-5 w-5" /> Create New Link
                 </Button>
                 <CreateLinkModal open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} />
+                {selectedLinkForQR && (
+                    <QRLinkModal
+                        isOpen={!!selectedLinkForQR}
+                        onClose={() => setSelectedLinkForQR(null)}
+                        url={selectedLinkForQR.url}
+                        alias={selectedLinkForQR.alias}
+                    />
+                )}
             </div>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                     <CardContent className="p-6 flex items-center gap-4">
-                        <div className="bg-primary/10 p-3 rounded-xl rotate-12 transition-transform hover:rotate-0">
-                            <MousePointer2 className="h-6 w-6 text-primary" />
+                        <div className="bg-primary/10 p-3 lg:p-4 rounded-xl rotate-12 transition-transform hover:rotate-0">
+                            <MousePointer2 className="h-6 w-6 lg:h-8 lg:w-8 text-primary" />
                         </div>
                         <div>
                             <p className="text-sm font-bold font-display text-muted-foreground uppercase tracking-wider">Total Clicks</p>
@@ -90,8 +101,8 @@ export default function DashboardPage() {
                 </Card>
                 <Card>
                     <CardContent className="p-6 flex items-center gap-4">
-                        <div className="bg-blue-500/10 p-3 rounded-xl rotate-12 transition-transform hover:rotate-0">
-                            <LinkIcon className="h-6 w-6 text-blue-500" />
+                        <div className="bg-blue-500/10 p-3 lg:p-4 rounded-xl rotate-12 transition-transform hover:rotate-0">
+                            <LinkIcon className="h-6 w-6 lg:h-8 lg:w-8 text-blue-500" />
                         </div>
                         <div>
                             <p className="text-sm font-bold font-display text-muted-foreground uppercase tracking-wider">Active Links</p>
@@ -102,8 +113,8 @@ export default function DashboardPage() {
                 </Card>
                 <Card>
                     <CardContent className="p-6 flex items-center gap-4">
-                        <div className="bg-purple-500/10 p-3 rounded-xl rotate-12 transition-transform hover:rotate-0">
-                            <Clock className="h-6 w-6 text-purple-500" />
+                        <div className="bg-purple-500/10 p-3 lg:p-4 rounded-xl rotate-12 transition-transform hover:rotate-0">
+                            <Clock className="h-6 w-6 lg:h-8 lg:w-8 text-purple-500" />
                         </div>
                         <div>
                             <p className="text-sm font-bold font-display text-muted-foreground uppercase tracking-wider">Avg. CTR</p>
@@ -116,8 +127,8 @@ export default function DashboardPage() {
                 </Card>
                 <Card>
                     <CardContent className="p-6 flex items-center gap-4">
-                        <div className="bg-green-500/10 p-3 rounded-xl rotate-12 transition-transform hover:rotate-0">
-                            <Globe2 className="h-6 w-6 text-green-500" />
+                        <div className="bg-green-500/10 p-3 lg:p-4 rounded-xl rotate-12 transition-transform hover:rotate-0">
+                            <Globe2 className="h-6 w-6 lg:h-8 lg:w-8 text-green-500" />
                         </div>
                         <div>
                             <p className="text-sm font-bold font-display text-muted-foreground uppercase tracking-wider">Unique Geo</p>
@@ -140,8 +151,8 @@ export default function DashboardPage() {
                             <AreaChart data={stats?.clickTrend || []}>
                                 <defs>
                                     <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted)/0.5)" />
@@ -149,12 +160,12 @@ export default function DashboardPage() {
                                     dataKey="name"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                                    tick={{ fill: 'currentColor', opacity: 0.6, fontSize: 12 }}
                                 />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                                    tick={{ fill: 'currentColor', opacity: 0.6, fontSize: 12 }}
                                 />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
@@ -162,7 +173,7 @@ export default function DashboardPage() {
                                 <Area
                                     type="monotone"
                                     dataKey="clicks"
-                                    stroke="hsl(var(--primary))"
+                                    stroke="#818cf8"
                                     strokeWidth={3}
                                     fillOpacity={1}
                                     fill="url(#colorClicks)"
@@ -240,6 +251,15 @@ export default function DashboardPage() {
                                         <td className="py-4 text-sm text-muted-foreground">{new Date(link.createdAt).toLocaleDateString()}</td>
                                         <td className="py-4 text-right pr-2">
                                             <div className="flex justify-end gap-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 rounded-full"
+                                                    title="Generate QR Code"
+                                                    onClick={() => setSelectedLinkForQR({ url: link.shortUrl, alias: link.shortUrl })}
+                                                >
+                                                    <QrCode className="h-4 w-4" />
+                                                </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"

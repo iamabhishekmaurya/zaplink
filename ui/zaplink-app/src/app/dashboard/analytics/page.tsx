@@ -124,8 +124,8 @@ export default function AnalyticsPage() {
                         <AreaChart data={stats?.clickTrend || []}>
                             <defs>
                                 <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                                    <stop offset="5%" stopColor="#818cf8" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted)/0.5)" />
@@ -133,12 +133,12 @@ export default function AnalyticsPage() {
                                 dataKey="name"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-space-grotesk)' }}
+                                tick={{ fill: 'currentColor', opacity: 0.7, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-space-grotesk)' }}
                             />
                             <YAxis
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-space-grotesk)' }}
+                                tick={{ fill: 'currentColor', opacity: 0.7, fontSize: 12, fontWeight: 600, fontFamily: 'var(--font-space-grotesk)' }}
                             />
                             <Tooltip
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: 'hsl(var(--card))' }}
@@ -147,7 +147,7 @@ export default function AnalyticsPage() {
                             <Area
                                 type="monotone"
                                 dataKey="clicks"
-                                stroke="hsl(var(--primary))"
+                                stroke="#818cf8"
                                 strokeWidth={4}
                                 fillOpacity={1}
                                 fill="url(#colorClicks)"
@@ -176,7 +176,7 @@ export default function AnalyticsPage() {
                                     axisLine={false}
                                     tickLine={false}
                                     width={120}
-                                    tick={{ fill: 'hsl(var(--foreground))', fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-space-grotesk)' }}
+                                    tick={{ fill: 'currentColor', opacity: 0.8, fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-space-grotesk)' }}
                                 />
                                 <Tooltip
                                     cursor={{ fill: 'hsl(var(--muted)/0.3)' }}
