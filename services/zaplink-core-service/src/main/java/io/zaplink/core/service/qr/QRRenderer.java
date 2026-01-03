@@ -1,4 +1,4 @@
-package io.zaplink.core.service.qr.engine;
+package io.zaplink.core.service.qr;
 
 import com.google.zxing.common.BitMatrix;
 

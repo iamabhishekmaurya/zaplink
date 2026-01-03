@@ -31,7 +31,7 @@ public class GatewayConfig
                  * Core Service Routes
                  */
                 .route( "core",
-                        r -> r.path( basePath + "/shortner/**" )
+                        r -> r.path( basePath + "/short/**" )
                                 .filters( f -> f.stripPrefix(0) ) // Don't strip anything, keep full path
                                 .uri( "http://localhost:8081" ) )
                 .route( "core-qr",

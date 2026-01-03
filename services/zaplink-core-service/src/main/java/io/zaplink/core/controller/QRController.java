@@ -13,24 +13,27 @@ import org.springframework.web.bind.annotation.RestController;
 import io.zaplink.core.common.enums.QRBodyShapeEnum;
 import io.zaplink.core.common.enums.QREyeShapeEnum;
 import io.zaplink.core.dto.request.qr.QRConfig;
-import io.zaplink.core.service.impl.AdvancedQRServiceImpl;
+import io.zaplink.core.service.qr.QRService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@RestController
-@RequestMapping("${api.base-path}/qr/advanced")
-@RequiredArgsConstructor
-@Slf4j
-public class AdvancedQRController {
-    private final AdvancedQRServiceImpl advancedQRService;
-    
+@Slf4j @RestController @RequiredArgsConstructor @RequestMapping("/v1/api/qr")
+public class QRController
+{
+    private final QRService qrService;
+    @GetMapping("/test")
+    public String test()
+    {
+        return "QR Controller is working";
+    }
+
     @PostMapping(value = "/styled", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> generateStyledQR( @RequestBody QRConfig config )
     {
         try
         {
             log.info( "Received styled QR request with margin: {}", config.getMargin() );
-            byte[] qrImage = advancedQRService.generateStyledQrCode( config );
+            byte[] qrImage = qrService.generateStyledQrCode( config );
             return ResponseEntity.ok().contentType( MediaType.IMAGE_PNG ).body( qrImage );
         }
         catch ( Exception e )

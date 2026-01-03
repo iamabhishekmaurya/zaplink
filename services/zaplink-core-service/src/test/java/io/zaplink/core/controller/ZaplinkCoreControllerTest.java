@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.zaplink.core.dto.request.ShortnerRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
-import io.zaplink.core.service.UrlShortnerService;
+import io.zaplink.core.service.shortner.UrlShortnerService;
 
 @WebMvcTest(CoreController.class)
 class ZaplinkCoreControllerTest

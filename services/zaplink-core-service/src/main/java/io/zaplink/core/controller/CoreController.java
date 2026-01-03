@@ -8,19 +8,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.zaplink.core.dto.request.ShortnerRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
-import io.zaplink.core.service.UrlShortnerService;
+import io.zaplink.core.service.shortner.UrlShortnerService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
-@RestController @RequestMapping("${api.base-path}/shortner")
+@RestController 
+@RequiredArgsConstructor 
+@RequestMapping("${api.base-path}/short")
 public class CoreController
 {
     private final UrlShortnerService urlServiceProvider;
-    public CoreController( UrlShortnerService urlServiceProvider )
-    {
-        this.urlServiceProvider = urlServiceProvider;
-    }
-
-    @PostMapping("/short/url")
+    @PostMapping("/url")
     public ShortnerResponse shortUrl( @Valid @RequestBody ShortnerRequest urlRequest,
                                       @RequestHeader(value = "X-User-Email", required = false) String userEmail )
     {

@@ -1,4 +1,4 @@
-package io.zaplink.core.service.impl;
+package io.zaplink.core.service.shortner.impl;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ import io.zaplink.core.dto.request.ShortnerRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
 import io.zaplink.core.entity.UrlMappingEntity;
 import io.zaplink.core.repository.UrlMappingRepository;
-import io.zaplink.core.service.UrlShortnerService;
+import io.zaplink.core.service.shortner.UrlShortnerService;
 import io.zaplink.core.utility.SnowflakeShortKeyGenerator;
 import io.zaplink.core.utility.StringUtil;
 import lombok.extern.slf4j.Slf4j;

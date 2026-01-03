@@ -1,4 +1,4 @@
-package io.zaplink.core.service.qr.engine;
+package io.zaplink.core.service.qr.impl;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
@@ -7,6 +7,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import io.zaplink.core.dto.request.qr.QRConfig;
+import io.zaplink.core.service.qr.QRRenderer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

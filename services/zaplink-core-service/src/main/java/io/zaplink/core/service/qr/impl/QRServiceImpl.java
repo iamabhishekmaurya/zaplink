@@ -1,7 +1,7 @@
-package io.zaplink.core.service.impl;
+package io.zaplink.core.service.qr.impl;
 
 import io.zaplink.core.dto.request.qr.*;
-import io.zaplink.core.service.qr.engine.ZapQrEngine;
+import io.zaplink.core.service.qr.QRService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -13,11 +13,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @Service @RequiredArgsConstructor @Slf4j @Primary
-public class AdvancedQRServiceImpl
+public class QRServiceImpl implements QRService
 {
     private final ZapQrEngine zapQrEngine;
     
     // Main method for generating styled QR codes with custom configurations
+    @Override
     public byte[] generateStyledQrCode( QRConfig config )
     {
         try

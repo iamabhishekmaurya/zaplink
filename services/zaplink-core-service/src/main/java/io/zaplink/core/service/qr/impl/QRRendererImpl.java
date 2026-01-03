@@ -1,4 +1,4 @@
-package io.zaplink.core.service.qr.engine;
+package io.zaplink.core.service.qr.impl;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -25,12 +25,13 @@ import io.zaplink.core.dto.request.qr.QRBodyConfig;
 import io.zaplink.core.dto.request.qr.QRConfig;
 import io.zaplink.core.dto.request.qr.QREyeConfig;
 import io.zaplink.core.dto.request.qr.QRLogoConfig;
+import io.zaplink.core.service.qr.QRRenderer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 @Slf4j @Component @Primary
-public class AdvancedQRRenderer
+public class QRRendererImpl
     implements
     QRRenderer
 {
