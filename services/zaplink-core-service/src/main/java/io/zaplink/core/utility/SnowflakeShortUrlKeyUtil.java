@@ -55,8 +55,17 @@ public class SnowflakeShortUrlKeyUtil
         return ( ( timestamp - EPOCH ) << TIMESTAMP_SHIFT ) | ( machineId << MACHINE_ID_SHIFT ) | sequence;
     }
 
+    // Static instance for convenience
+    private static final SnowflakeShortUrlKeyUtil INSTANCE = new SnowflakeShortUrlKeyUtil(1);
+    
+    // Static method for convenience
+    public static String generateShortKey()
+    {
+        return INSTANCE.generateShortKeyInstance();
+    }
+    
     // Encode Snowflake ID into Base62 and trim/pad to 8 chars
-    public String generateShortKey()
+    public String generateShortKeyInstance()
     {
         long id = nextId();
         long space = (long) Math.pow( 62, 8 ); // total possible 8-char combos

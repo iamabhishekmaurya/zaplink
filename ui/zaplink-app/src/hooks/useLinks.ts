@@ -2,14 +2,14 @@
 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { addLink, setLinks, setLoading, setError } from '@/store/slices/linkSlice';
+import { addLink, setLinks, setLoading, setError, removeLink, setSelectedLink, ShortLink } from '@/store/slices/linkSlice';
 import axios from 'axios';
 import api from '@/utils/api';
 import { toast } from 'sonner';
 
 export const useLinks = () => {
   const dispatch = useDispatch();
-  const { links, recentLinks, isLoading, error } = useSelector((state: RootState) => state.links);
+  const { links, recentLinks, selectedLink, isLoading, error } = useSelector((state: RootState) => state.links);
 
   const shortenUrl = async (originalUrl: string) => {
     dispatch(setLoading(true));
@@ -58,10 +58,10 @@ export const useLinks = () => {
     }
   };
 
-  const deleteLink = async (id: string | number) => {
+  const deleteLink = async (id: string) => {
     try {
       await api.delete(`/v1/api/manager/links/${id}`);
-      dispatch(setLinks(links.filter((link: any) => link.id !== id)));
+      dispatch(removeLink(id));
       toast.success('Link deleted successfully');
       return true;
     } catch (err: unknown) {
@@ -74,13 +74,19 @@ export const useLinks = () => {
     }
   };
 
+  const selectLink = (link: ShortLink | null) => {
+    dispatch(setSelectedLink(link));
+  };
+
   return {
     links,
     recentLinks,
+    selectedLink,
     isLoading,
     error,
     shortenUrl,
     fetchUserLinks,
-    deleteLink
+    deleteLink,
+    selectLink
   };
 };

@@ -26,8 +26,8 @@ public class QRDebugController
 {
     private final ZapQrEngine zapQrEngine;
     @GetMapping(value = "/simple", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> generateSimpleQR( @RequestParam(defaultValue = "https://zaplink.io") String data,
-                                                    @RequestParam(defaultValue = "512") int size )
+    public ResponseEntity<byte[]> generateSimpleQR( @RequestParam(name = "data", defaultValue = "https://zaplink.io") String data,
+                                                    @RequestParam(name = "size", defaultValue = "512") int size )
     {
         try
         {
@@ -66,10 +66,10 @@ public class QRDebugController
     }
 
     @GetMapping(value = "/styled", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> generateStyledQR( @RequestParam(defaultValue = "https://zaplink.io") String data,
-                                                    @RequestParam(defaultValue = "512") int size,
-                                                    @RequestParam(defaultValue = "ROUNDED") String bodyShape,
-                                                    @RequestParam(defaultValue = "#0066FF") String color )
+    public ResponseEntity<byte[]> generateStyledQR( @RequestParam(name = "data", defaultValue = "https://zaplink.io") String data,
+                                                    @RequestParam(name = "size", defaultValue = "512") int size,
+                                                    @RequestParam(name = "bodyShape", defaultValue = "ROUNDED") String bodyShape,
+                                                    @RequestParam(name = "color", defaultValue = "#0066FF") String color )
     {
         try
         {

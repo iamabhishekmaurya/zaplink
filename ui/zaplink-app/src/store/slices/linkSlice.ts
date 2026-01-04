@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface ShortLink {
+export interface ShortLink {
   id: string;
   originalUrl: string;
   shortUrl: string;

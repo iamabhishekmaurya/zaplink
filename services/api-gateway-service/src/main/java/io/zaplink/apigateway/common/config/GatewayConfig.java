@@ -38,6 +38,10 @@ public class GatewayConfig
                         r -> r.path( basePath + "/qr/**" )
                                 .filters( f -> f.stripPrefix(0) ) // Don't strip anything, keep full path
                                 .uri( "http://localhost:8081" ) )
+                .route( "core-dynamic-qr",
+                        r -> r.path( basePath + "/dynamic-qr/**" )
+                                .filters( f -> f.stripPrefix(0) ) // Don't strip anything, keep full path
+                                .uri( "http://localhost:8081" ) )
                 /**
                  * Processor Service Route
                  */
@@ -55,11 +59,11 @@ public class GatewayConfig
                 .route( "manager-short",
                         r -> r.path( "/r/**" )
                                 .filters( f -> f
-                                        .rewritePath( "/r/(?<segment>.*)", "/manager/${segment}" )
+                                        .rewritePath( "/r/(?<segment>.*)", "/r/${segment}" )
                                         .addResponseHeader( "X-Zaplink-Processing-Time",
                                                             LocalDateTime.now().toString() )
                                         .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
-                                .uri( "http://localhost:8083" ) )
+                                .uri( "http://localhost:8081" ) )
                 /**
                  * Auth Service Routes
                  */
