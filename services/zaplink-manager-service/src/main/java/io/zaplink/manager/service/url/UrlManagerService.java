@@ -1,4 +1,4 @@
-package io.zaplink.manager.service;
+package io.zaplink.manager.service.url;
 
 import java.util.List;
 import org.springframework.stereotype.Service;

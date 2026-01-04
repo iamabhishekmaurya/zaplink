@@ -12,9 +12,7 @@ import io.zaplink.core.service.shortner.UrlShortnerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@RestController 
-@RequiredArgsConstructor 
-@RequestMapping("${api.base-path}/short")
+@RestController @RequiredArgsConstructor @RequestMapping("${api.base-path}/short")
 public class CoreController
 {
     private final UrlShortnerService urlServiceProvider;

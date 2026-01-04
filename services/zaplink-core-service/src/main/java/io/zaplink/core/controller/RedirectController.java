@@ -36,9 +36,9 @@ public class RedirectController
                 return ResponseEntity.notFound().build();
             }
         }
-        catch ( Exception e )
+        catch ( Exception ex )
         {
-            log.error( "Error handling redirect for QR key: {}", qrKey, e );
+            log.error( "Error handling redirect for QR key: {}", qrKey, ex );
             return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).build();
         }
     }

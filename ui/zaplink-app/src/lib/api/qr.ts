@@ -31,7 +31,7 @@ export interface QRConfigType {
     };
 }
 
-const API_BASE_URL = '/v1/api/qr';
+const API_BASE_URL = '/v1/api/wr/qr';
 
 export const QRApi = {
     generateStyledQR: async (config: QRConfigType): Promise<string> => {

@@ -1,4 +1,4 @@
-package io.zaplink.manager.service.impl;
+package io.zaplink.manager.service.url.impl;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,9 +17,9 @@ import io.zaplink.manager.dto.response.StatsResponse;
 import io.zaplink.manager.entity.UrlMappingEntity;
 import io.zaplink.manager.repository.UrlAnalyticsRepository;
 import io.zaplink.manager.repository.UrlMappingRepository;
-import io.zaplink.manager.service.UrlManagerService;
 import io.zaplink.manager.service.helper.KafkaServiceHelper;
 import io.zaplink.manager.service.helper.RedisServiceHelper;
+import io.zaplink.manager.service.url.UrlManagerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

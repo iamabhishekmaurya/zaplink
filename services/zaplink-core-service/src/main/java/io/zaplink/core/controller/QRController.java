@@ -17,7 +17,7 @@ import io.zaplink.core.service.qr.QRService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j @RestController @RequiredArgsConstructor @RequestMapping("/v1/api/qr")
+@Slf4j @RestController @RequiredArgsConstructor @RequestMapping("${api.base-path}/qr")
 public class QRController
 {
     private final QRService qrService;
