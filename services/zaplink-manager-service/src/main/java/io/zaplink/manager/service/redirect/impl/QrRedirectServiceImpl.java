@@ -12,6 +12,7 @@ import io.zaplink.manager.entity.DynamicQrCodeEntity;
 import io.zaplink.manager.entity.QrScanAnalyticsEntity;
 import io.zaplink.manager.repository.DynamicQrCodeRepository;
 import io.zaplink.manager.repository.QrScanAnalyticsRepository;
+import io.zaplink.manager.service.GeoIpService;
 import io.zaplink.manager.service.redirect.QrRedirectService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ public class QrRedirectServiceImpl
     private final DynamicQrCodeRepository   dynamicQrCodeRepository;
     private final QrScanAnalyticsRepository qrScanAnalyticsRepository;
     private final ObjectMapper              objectMapper;
+    private final GeoIpService              geoIpService;
     @Override @Transactional
     public boolean handleQrRedirect( String qrKey, HttpServletRequest request, HttpServletResponse response )
     {
@@ -112,9 +114,10 @@ public class QrRedirectServiceImpl
             // Extract device and browser info from user agent
             String deviceType = extractDeviceType( userAgent );
             String browser = extractBrowser( userAgent );
-            // TODO: Implement geolocation service to get country and city
-            String country = "Unknown";
-            String city = "Unknown";
+            // Resolve location using GeoIpService
+            java.util.Map<String, String> location = geoIpService.resolveLocation( ipAddress );
+            String country = location.getOrDefault( "country", "Unknown" );
+            String city = location.getOrDefault( "city", "Unknown" );
             QrScanAnalyticsEntity analytics = QrScanAnalyticsEntity.builder().qrKey( qrKey ).ipAddress( ipAddress )
                     .userAgent( userAgent ).referrer( referrer ).country( country ).city( city )
                     .deviceType( deviceType ).browser( browser ).scannedAt( LocalDateTime.now() ).build();
