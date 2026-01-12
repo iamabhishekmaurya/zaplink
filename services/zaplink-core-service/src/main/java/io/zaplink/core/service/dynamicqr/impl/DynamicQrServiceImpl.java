@@ -34,10 +34,18 @@ public class DynamicQrServiceImpl
             String qrKey = SnowflakeShortUrlKeyUtil.generateShortKey();
             // Convert QR config to JSON string
             String qrConfigJson = objectMapper.writeValueAsString( request.getQrConfig() );
+            LocalDateTime expirationDate = null;
+            if ( request.getExpirationDays() != null && request.getExpirationDays() > 0 )
+            {
+                expirationDate = LocalDateTime.now().plusDays( request.getExpirationDays() );
+            }
             DynamicQrCodeEntity entity = DynamicQrCodeEntity.builder().qrKey( qrKey ).qrName( request.getQrName() )
                     .currentDestinationUrl( request.getDestinationUrl() ).qrConfig( qrConfigJson )
                     .userEmail( userEmail ).campaignId( request.getCampaignId() ).isActive( true )
-                    .createdAt( LocalDateTime.now() ).updatedAt( LocalDateTime.now() ).totalScans( 0L ).build();
+                    .createdAt( LocalDateTime.now() ).updatedAt( LocalDateTime.now() ).totalScans( 0L )
+                    .expirationDate( expirationDate ).password( request.getPassword() )
+                    .scanLimit( request.getScanLimit() ).allowedDomains( request.getAllowedDomains() )
+                    .trackAnalytics( request.getTrackAnalytics() != null ? request.getTrackAnalytics() : true ).build();
             entity = dynamicQrCodeRepository.save( entity );
             log.info( "Created dynamic QR with key: {} for user: {}", qrKey, userEmail );
             return convertToResponse( entity );
@@ -114,6 +122,6 @@ public class DynamicQrServiceImpl
     private String generateRedirectUrl( String qrKey )
     {
         // This should be configurable based on your domain
-        return "https://zaplink.app/r/" + qrKey;
+        return "https://zaplink.app/s/" + qrKey;
     }
 }

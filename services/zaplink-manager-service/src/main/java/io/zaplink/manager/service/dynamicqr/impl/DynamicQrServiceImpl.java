@@ -185,7 +185,7 @@ public class DynamicQrServiceImpl
         response.setQrKey( entity.getQrKey() );
         response.setQrName( entity.getQrName() );
         response.setCurrentDestinationUrl( entity.getCurrentDestinationUrl() );
-        response.setQrImageUrl( "/api/v1/dynamic-qr/" + entity.getQrKey() + "/image" );
+        response.setQrImageUrl( "/v1/api/rd/dyqr/" + entity.getQrKey() + "/image" );
         response.setRedirectUrl( generateRedirectUrl( entity.getQrKey() ) );
         response.setCampaignId( entity.getCampaignId() );
         response.setUserEmail( entity.getUserEmail() );

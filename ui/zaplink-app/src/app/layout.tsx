@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Arimo, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const arimo = Arimo({
+  variable: "--font-arimo",
   subsets: ["latin"],
   display: "swap",
 });
@@ -37,7 +31,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased selection:bg-primary/20`}
+        className={`${arimo.variable} ${jetbrainsMono.variable} antialiased selection:bg-primary/20 font-sans`}
       >
         <StoreProvider>
           <ThemeProvider

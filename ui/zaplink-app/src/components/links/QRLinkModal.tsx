@@ -17,7 +17,7 @@ interface QRLinkModalProps {
 export function QRLinkModal({ isOpen, onClose, url, alias }: QRLinkModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-6 overflow-hidden">
+            <DialogContent className="max-w-6xl flex flex-col p-6 overflow-hidden">
                 <DialogHeader className="pb-4 border-b">
                     <DialogTitle>QR Code Studio</DialogTitle>
                     <DialogDescription>

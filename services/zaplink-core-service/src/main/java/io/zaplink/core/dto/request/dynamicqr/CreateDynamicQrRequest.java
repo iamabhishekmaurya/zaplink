@@ -8,18 +8,19 @@ import lombok.Data;
 import io.zaplink.core.dto.request.qr.QRConfig;
 
 @Data
-public class CreateDynamicQrRequest {
-    
-    @NotBlank(message = "QR name is required")
-    @Size(max = 255, message = "QR name must not exceed 255 characters")
-    private String qrName;
-    
-    @NotBlank(message = "Destination URL is required")
-    @Size(max = 2048, message = "Destination URL must not exceed 2048 characters")
-    private String destinationUrl;
-    
-    private String campaignId;
-    
+public class CreateDynamicQrRequest
+{
+    @NotBlank(message = "QR name is required") @Size(max = 255, message = "QR name must not exceed 255 characters")
+    private String   qrName;
+    @NotBlank(message = "Destination URL is required") @Size(max = 2048, message = "Destination URL must not exceed 2048 characters")
+    private String   destinationUrl;
+    private String   campaignId;
     @NotNull(message = "QR configuration is required")
     private QRConfig qrConfig;
+    // Advanced Features
+    private Integer  expirationDays;
+    private String   password;
+    private Integer  scanLimit;
+    private String   allowedDomains;       // Comma separated or JSON
+    private Boolean  trackAnalytics = true;
 }

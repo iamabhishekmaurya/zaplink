@@ -20,7 +20,7 @@ const PRESET_COLORS = [
 export function ColorPicker({ color, onChange, label, className }: ColorPickerProps) {
     return (
         <div className={cn("flex flex-col gap-2", className)}>
-            {label && <Label className="text-xs font-semibold uppercase text-muted-foreground">{label}</Label>}
+            {label && <Label className="text-xs text-muted-foreground">{label}</Label>}
             <Popover>
                 <PopoverTrigger asChild>
                     <Button

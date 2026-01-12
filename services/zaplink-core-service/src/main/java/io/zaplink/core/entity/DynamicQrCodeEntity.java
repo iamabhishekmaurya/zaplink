@@ -35,13 +35,24 @@ public class DynamicQrCodeEntity
     @Column(name = "campaign_id")
     private String        campaignId;
     @Column(name = "is_active", nullable = false) @Default
-    private Boolean       isActive   = true;
+    private Boolean       isActive       = true;
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     @Column(name = "total_scans", nullable = false) @Default
-    private Long          totalScans = 0L;
+    private Long          totalScans     = 0L;
     @Column(name = "last_scanned")
     private LocalDateTime lastScanned;
+    // Advanced Features
+    @Column(name = "expiration_date")
+    private LocalDateTime expirationDate;
+    @Column(name = "password")
+    private String        password;
+    @Column(name = "scan_limit")
+    private Integer       scanLimit;
+    @JdbcTypeCode(SqlTypes.JSON) @Column(name = "allowed_domains", columnDefinition = "JSONB")
+    private String        allowedDomains;
+    @Column(name = "track_analytics", nullable = false) @Default
+    private Boolean       trackAnalytics = true;
 }

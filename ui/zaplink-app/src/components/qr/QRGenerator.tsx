@@ -67,20 +67,20 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
     const [config, setConfig] = useState<QRConfigType>({ ...DEFAULT_CONFIG, data: defaultUrl || DEFAULT_CONFIG.data });
     const [qrImage, setQrImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const debouncedConfig = useDebounceValue(config, 500);
 
     const generateQR = useCallback(async () => {
         setIsLoading(true);
         try {
-            const url = await QRApi.generateStyledQR(debouncedConfig);
+            const url = await QRApi.generateStyledQR(config);
+            console.log(url);
             setQrImage(url);
         } catch (error) {
             console.error('Failed to generate QR', error);
-            // toast.error('Failed to update QR preview'); // Avoid spamming toasts on debounce
+            toast.error('Failed to generate QR code');
         } finally {
             setIsLoading(false);
         }
-    }, [debouncedConfig]);
+    }, [config]);
 
     useEffect(() => {
         generateQR();
@@ -184,7 +184,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                             {/* CONTENT TAB */}
                             <TabsContent value="content" className="space-y-6">
                                 <div className="space-y-3">
-                                    <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">QR Code Content</Label>
+                                    <Label className="text-sm  ml-1">QR Code Content</Label>
                                     <Input
                                         placeholder="Enter URL or text to encode"
                                         value={config.data}
@@ -199,7 +199,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                             <TabsContent value="design" className="space-y-6">
                                 {/* Presets */}
                                 <div className="space-y-3">
-                                    <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Quick Styles</Label>
+                                    <Label className="text-sm  ml-1">Quick Styles</Label>
                                     <div className="grid grid-cols-3 gap-2">
                                         <Button variant="outline" size="sm" onClick={() => applyPreset('zap')} className="h-11 rounded-xl font-medium border-border/40 hover:border-primary/30 hover:bg-primary/10 transition-all text-muted-foreground">Zap</Button>
                                         <Button variant="outline" size="sm" onClick={() => applyPreset('modern')} className="h-11 rounded-xl font-medium border-border/40 hover:border-primary/30 hover:bg-primary/10 transition-all text-muted-foreground">Modern</Button>
@@ -209,7 +209,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
 
                                 <div className="space-y-4">
                                     <div className="space-y-3">
-                                        <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Body Shape</Label>
+                                        <Label className="text-sm  ml-1">Body Shape</Label>
                                         <Select
                                             value={config.body.shape}
                                             onValueChange={(val) => updateBody('shape', val)}
@@ -228,7 +228,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                     </div>
 
                                     <div className="space-y-3">
-                                        <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Eye Shape</Label>
+                                        <Label className="text-sm  ml-1">Eye Shape</Label>
                                         <Select
                                             value={config.eye.shape}
                                             onValueChange={(val) => updateEye('shape', val)}
@@ -247,7 +247,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
 
                                     <div className="space-y-3">
                                         <div className="flex justify-between">
-                                            <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">QR Margin</Label>
+                                            <Label className="text-sm  ml-1">QR Margin</Label>
                                             <span className="text-xs text-muted-foreground">{config.margin} modules</span>
                                         </div>
                                         <Slider
@@ -268,7 +268,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                             {/* COLORS TAB */}
                             <TabsContent value="colors" className="space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Transparent Background</Label>
+                                    <Label className="text-sm  ml-1">Transparent Background</Label>
                                     <Switch
                                         checked={config.transparentBackground}
                                         onCheckedChange={(checked) => setConfig(prev => ({ ...prev, transparentBackground: checked }))}
@@ -284,7 +284,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                 )}
 
                                 <div className="space-y-4">
-                                    <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Body Color</Label>
+                                    <Label className="text-sm  ml-1">Body Color</Label>
                                     <ColorPicker
                                         label="Primary Color"
                                         color={config.body.color}
@@ -297,7 +297,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                             checked={config.body.colorDark !== undefined && config.body.colorDark !== config.body.color}
                                             onCheckedChange={(checked) => updateBody('colorDark', checked ? '#000000' : undefined)}
                                         />
-                                        <Label htmlFor="gradient" className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Enable Gradient</Label>
+                                        <Label htmlFor="gradient" className="text-sm  ml-1">Enable Gradient</Label>
                                     </div>
 
                                     {config.body.colorDark !== undefined && config.body.colorDark !== config.body.color && (
@@ -308,7 +308,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                                 onChange={(c) => updateBody('colorDark', c)}
                                             />
                                             <div className="flex items-center justify-between">
-                                                <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Linear Gradient</Label>
+                                                <Label className="text-sm  ml-1">Linear Gradient</Label>
                                                 <Switch
                                                     checked={config.body.gradientLinear}
                                                     onCheckedChange={(checked) => updateBody('gradientLinear', checked)}
@@ -319,7 +319,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Eye Color</Label>
+                                    <Label className="text-sm  ml-1">Eye Color</Label>
                                     <div className="grid grid-cols-2 gap-4">
                                         <ColorPicker
                                             label="Outer Frame"
@@ -339,7 +339,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                             <TabsContent value="logo" className="space-y-6">
                                 <div className="flex items-center justify-between">
                                     <div className="space-y-0.5">
-                                        <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Enable Logo</Label>
+                                        <Label className="text-sm  ml-1">Enable Logo</Label>
                                         <p className="text-xs text-muted-foreground ml-1">Add a logo to center of your QR code</p>
                                     </div>
                                     <Switch
@@ -405,7 +405,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
 
                                         {/* Popular Logos Section */}
                                         <div className="space-y-3">
-                                            <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Popular Logos</Label>
+                                            <Label className="text-sm  ml-1">Popular Logos</Label>
                                             <div className="grid grid-cols-4 gap-2">
                                                 {[
                                                     { name: 'GitHub', url: 'https://cdn-icons-png.flaticon.com/512/3291/3291695.png' },
@@ -451,7 +451,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                         <div className="space-y-4">
                                             <div className="space-y-2">
                                                 <div className="flex justify-between">
-                                                    <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Size Ratio</Label>
+                                                    <Label className="text-sm  ml-1">Size Ratio</Label>
                                                     <span className="text-xs text-muted-foreground">{Math.round((config.logo?.sizeRatio || 0.2) * 100)}%</span>
                                                 </div>
                                                 <Slider
@@ -464,7 +464,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between">
-                                                    <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Padding</Label>
+                                                    <Label className="text-sm  ml-1">Padding</Label>
                                                     <span className="text-xs text-muted-foreground">{config.logo?.padding}px</span>
                                                 </div>
                                                 <Slider
@@ -480,7 +480,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between">
-                                                    <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">QR Module Margin</Label>
+                                                    <Label className="text-sm  ml-1">QR Module Margin</Label>
                                                     <span className="text-xs text-muted-foreground">{config.logo?.marginSize || 0} modules</span>
                                                 </div>
                                                 <Slider
@@ -498,7 +498,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
 
                                         <div className="space-y-4 pt-4 border-t">
                                             <div className="flex items-center justify-between">
-                                                <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Logo Background</Label>
+                                                <Label className="text-sm  ml-1">Logo Background</Label>
                                                 <Switch
                                                     checked={config.logo?.backgroundEnabled}
                                                     onCheckedChange={(checked) => updateLogo('backgroundEnabled', checked)}
@@ -513,7 +513,7 @@ export function QRGenerator({ defaultUrl }: QRGeneratorProps) {
                                                         onChange={(c) => updateLogo('backgroundColor', c)}
                                                     />
                                                     <div className="flex items-center justify-between">
-                                                        <Label className="text-sm font-semibold font-display uppercase tracking-wider text-muted-foreground ml-1">Rounded Corners</Label>
+                                                        <Label className="text-sm  ml-1">Rounded Corners</Label>
                                                         <Switch
                                                             checked={config.logo?.backgroundRounded}
                                                             onCheckedChange={(checked) => updateLogo('backgroundRounded', checked)}
