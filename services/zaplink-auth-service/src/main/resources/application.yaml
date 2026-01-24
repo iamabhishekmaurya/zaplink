@@ -9,6 +9,11 @@ spring:
     main:
         allow-bean-definition-overriding: true
     
+    # Enable Virtual Threads (Project Loom)
+    threads:
+        virtual:
+            enabled: true
+    
     # Cache config
     cache:
         type: redis
