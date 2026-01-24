@@ -113,6 +113,7 @@ public final class LogConstants
     public static final String LOG_SPRING_SECURITY_FILTER_CHAIN_CONFIGURED  = "Spring Security filter chain configured successfully";
     public static final String LOG_PUBLIC_ENDPOINTS                         = "Public endpoints: /auth/**, /v1/auth/**, /error";
     public static final String LOG_ALL_OTHER_ENDPOINTS_REQUIRE_AUTH         = "All other endpoints require authentication";
+    public static final String LOG_CONFIGURING_REDIS_CACHE                  = "Configuring Redis cache with default TTL";
     // ==================== TRACE ID LOGS ====================
     public static final String LOG_TRACE_ID_SET_FOR_THREAD                  = "Trace ID set for current thread: {}";
     public static final String LOG_TRACE_ID_CLEARED_FOR_THREAD              = "Trace ID cleared for current thread: {}";

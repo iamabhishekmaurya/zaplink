@@ -1,4 +1,4 @@
-package io.zaplink.auth.config;
+package io.zaplink.auth.common.config;
 
 import java.util.HashMap;
 import java.util.Map;

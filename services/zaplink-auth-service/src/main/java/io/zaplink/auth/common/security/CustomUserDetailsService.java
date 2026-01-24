@@ -1,5 +1,6 @@
 package io.zaplink.auth.common.security;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +21,7 @@ public class CustomUserDetailsService
     UserDetailsService
 {
     private final UserRepository userRepository;
-    @Override
+    @Override @Cacheable(value = "auth:user_details", key = "#root.args[0]")
     public UserDetails loadUserByUsername( String email )
         throws UsernameNotFoundException
     {
