@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from "../constant/apiConstant";
 import { QRConfigType } from "../types/apiRequestType";
-import api from "../util/api";
+import api from "@/lib/api/client";
 
 export class QRApiService {
 	/**

@@ -9,8 +9,45 @@ import { Button } from '@/components/ui/button'
 import { FormValues } from '../../constants'
 import { Settings, Zap, Globe, Shield, Clock } from 'lucide-react'
 
-export const AdvancedTab = () => {
+import { toast } from 'sonner'
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
+
+interface AdvancedTabProps {
+    onSave: (name: string) => Promise<void>
+}
+
+export const AdvancedTab = ({ onSave }: AdvancedTabProps) => {
     const form = useFormContext<FormValues>()
+    const [isSaving, setIsSaving] = useState(false)
+
+    const handleCreate = async () => {
+        const isValid = await form.trigger()
+        if (!isValid) {
+            toast.error("Please fix form errors before creating")
+            return
+        }
+
+        // TODO: Replace with proper Dialog/Modal for name input
+        const name = prompt("Enter a name for your QR Code:", "My Advanced QR")
+        if (!name) return
+
+        setIsSaving(true)
+        try {
+            await onSave(name)
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    const handleTest = async () => {
+        const isValid = await form.trigger()
+        if (isValid) {
+            toast.success("Configuration is valid and ready to deploy!")
+        } else {
+            toast.error("Invalid configuration. Please check fields.")
+        }
+    }
 
     return (
         <div className="space-y-6">
@@ -102,19 +139,38 @@ export const AdvancedTab = () => {
                         control={form.control}
                         name="passwordProtection"
                         render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                                <div className="space-y-0.5">
-                                    <FormLabel>Password Protection</FormLabel>
-                                    <p className="text-xs text-muted-foreground">
-                                        Require password to access QR content
-                                    </p>
+                            <FormItem className="flex flex-col gap-3 rounded-lg border p-3">
+                                <div className="flex flex-row items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <FormLabel>Password Protection</FormLabel>
+                                        <p className="text-xs text-muted-foreground">
+                                            Require password to access QR content
+                                        </p>
+                                    </div>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
                                 </div>
-                                <FormControl>
-                                    <Switch
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
+                                {field.value && (
+                                    <FormField
+                                        control={form.control}
+                                        name="password"
+                                        render={({ field: passField }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input
+                                                        type="password"
+                                                        placeholder="Enter password"
+                                                        {...passField}
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
                                     />
-                                </FormControl>
+                                )}
                             </FormItem>
                         )}
                     />
@@ -180,7 +236,7 @@ export const AdvancedTab = () => {
                         control={form.control}
                         name="domainRestriction"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="space-y-3">
                                 <FormLabel>Domain Restriction</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <SelectTrigger className="h-10">
@@ -192,6 +248,25 @@ export const AdvancedTab = () => {
                                         <SelectItem value="blocked">Block Specific Domains</SelectItem>
                                     </SelectContent>
                                 </Select>
+                                {(field.value === 'allowed' || field.value === 'blocked') && (
+                                    <FormField
+                                        control={form.control}
+                                        name="allowedDomains"
+                                        render={({ field: domainField }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input
+                                                        placeholder="example.com, my-site.com"
+                                                        {...domainField}
+                                                    />
+                                                </FormControl>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Comma separated list of domains
+                                                </p>
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
                             </FormItem>
                         )}
                     />
@@ -228,22 +303,16 @@ export const AdvancedTab = () => {
                 <div className="flex gap-4">
                     <Button
                         className="flex-1"
-                        onClick={() => {
-                            const values = form.getValues()
-                            // Create dynamic QR with current settings
-                            console.log('Creating dynamic QR with advanced settings:', values)
-                        }}
+                        onClick={handleCreate}
+                        disabled={isSaving}
                     >
-                        <Clock className="mr-2 h-4 w-4" />
+                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Clock className="mr-2 h-4 w-4" />}
                         Create Dynamic QR
                     </Button>
 
                     <Button
                         variant="outline"
-                        onClick={() => {
-                            // Test configuration before deployment
-                            console.log('Testing QR configuration...')
-                        }}
+                        onClick={handleTest}
                     >
                         <Settings className="mr-2 h-4 w-4" />
                         Test Configuration

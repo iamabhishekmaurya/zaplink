@@ -1,21 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import api from '@/lib/util/api'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DynamicQrResponse } from '@/lib/types/apiRequestType'
+import api from "@/lib/api/client";
 import {
+    BarChart3,
     Calendar,
     Download,
+    ExternalLink,
     MoreHorizontal,
     QrCode,
     ScanLine,
-    Trash2,
-    ExternalLink
+    Trash2
 } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { DynamicQrResponse } from '@/lib/types/apiRequestType'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface QrCodeCardProps {
     qr: DynamicQrResponse
@@ -29,6 +31,7 @@ export const QrCodeCard = ({
     onDownload
 }: QrCodeCardProps) => {
     const [imageUrl, setImageUrl] = useState<string | null>(null)
+    const router = useRouter()
 
     useEffect(() => {
         const fetchImage = async () => {
@@ -63,90 +66,101 @@ export const QrCodeCard = ({
     }
 
     return (
-        <Card className="p-4 hover:shadow-md transition-shadow duration-200">
-            <div className="flex gap-4 items-start">
+        <Card className="hover:shadow-md transition-shadow duration-200 overflow-hidden p-2">
+            <div className="flex">
                 {/* QR Image Preview */}
-                <div className="hidden md:flex flex-shrink-0 w-24 h-24 bg-white rounded-lg border p-2 items-center justify-center">
-                    {/* Using Blob URL for image */}
+                <div className="hidden md:flex flex-shrink-0 w-32 bg-muted/20 items-center justify-center border-r p-4">
                     {imageUrl ? (
-                        <img
-                            src={imageUrl}
-                            alt={qr.qrName}
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                                // Fallback if image fails to load
-                                (e.target as HTMLImageElement).style.display = 'none';
-                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                            }}
-                        />
+                        <div className="relative w-24 h-24 bg-white rounded-lg border p-2 shadow-sm">
+                            <img
+                                src={imageUrl}
+                                alt={qr.qrName}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                }}
+                            />
+                            <div className="hidden absolute inset-0 items-center justify-center text-muted-foreground">
+                                <QrCode className="w-8 h-8 opacity-20" />
+                            </div>
+                        </div>
                     ) : (
-                        <div className="animate-pulse w-full h-full bg-muted rounded" />
+                        <div className="w-24 h-24 bg-muted rounded animate-pulse" />
                     )}
-                    <div className="hidden text-muted-foreground">
-                        <QrCode className="w-8 h-8 opacity-20" />
-                    </div>
                 </div>
 
-                <div className="flex-1 min-w-0 space-y-2">
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                            <h3 className="font-semibold text-lg leading-tight truncate">
-                                {qr.qrName}
-                            </h3>
-                            <a
-                                href={qr.redirectUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mt-1 truncate"
-                            >
-                                <span className="truncate">{qr.redirectUrl}</span>
-                                <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                            </a>
-                        </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDownload(qr)}>
-                                <Download className="h-4 w-4" />
-                            </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                        className="text-destructive focus:text-destructive"
-                                        onClick={() => onDelete(qr.qrKey)}
-                                    >
-                                        <Trash2 className="h-4 w-4 mr-2" />
-                                        Delete
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    </div>
+                <div className="flex-1 min-w-0 flex flex-col">
+                    <CardHeader className="p-4 pb-2 space-y-0">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0 space-y-1">
+                                <CardTitle className="font-semibold text-lg leading-tight truncate">
+                                    {qr.qrName}
+                                </CardTitle>
+                                <a
+                                    href={qr.redirectUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 truncate"
+                                    title={qr.redirectUrl}
+                                >
+                                    <span className="truncate">{qr.redirectUrl}</span>
+                                    <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                                </a>
+                            </div>
 
-                    <a
-                        href={qr.currentDestinationUrl}
-                        target="_blank"
-                        rel="noreferrer" className="text-xs text-muted-foreground truncate">
-                        {qr.currentDestinationUrl}
-                    </a>
-                    {/* Stats & Info */}
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <Badge variant={qr.isActive ? "default" : "secondary"} className="text-xs">
-                            {qr.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {formatDate(qr.createdAt)}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs flex items-center gap-1">
-                            <ScanLine className="h-3 w-3" />
-                            {qr.totalScans} scans
-                        </Badge>
-                    </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => router.push(`/dashboard/analytics/${qr.qrKey}?type=qr`)}>
+                                            <BarChart3 className="h-4 w-4 mr-2" />
+                                            Analytics
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => onDownload(qr)}>
+                                            <Download className="h-4 w-4 mr-2" />
+                                            Download
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="text-destructive focus:text-destructive"
+                                            onClick={() => onDelete(qr.qrKey)}
+                                        >
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            Delete
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        </div>
+                    </CardHeader>
+
+                    <CardContent className="p-4 py-2">
+                        <div className="w-full min-w-0">
+                            <p className="text-xs text-muted-foreground truncate w-full select-all" title={qr.currentDestinationUrl}>
+                                <span className="font-medium">Target: </span>{qr.currentDestinationUrl}
+                            </p>
+                        </div>
+                    </CardContent>
+
+                    <CardFooter className="p-4 pt-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant={qr.isActive ? "default" : "secondary"} className="text-xs">
+                                {qr.isActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {formatDate(qr.createdAt)}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                <ScanLine className="h-3 w-3" />
+                                {qr.totalScans} scans
+                            </Badge>
+                        </div>
+                    </CardFooter>
                 </div>
             </div>
         </Card>

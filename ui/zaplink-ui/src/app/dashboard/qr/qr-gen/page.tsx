@@ -185,7 +185,12 @@ const QrGeneratorContent = () => {
             await DynamicQrService.createDynamicQr({
                 qrName: name,
                 destinationUrl: values.data,
-                qrConfig: config
+                qrConfig: config,
+                expirationDays: values.expirationDays,
+                password: values.passwordProtection ? values.password : undefined,
+                scanLimit: values.scanLimit === 0 ? undefined : values.scanLimit, // 0 usually means unlimited in UI but backend treats >0 as limit.
+                allowedDomains: (values.domainRestriction === 'allowed' || values.domainRestriction === 'blocked') ? values.allowedDomains : undefined,
+                trackAnalytics: values.trackAnalytics
             })
             toast.success('QR Code saved successfully and is now active!')
         } catch (error) {
@@ -323,7 +328,7 @@ const QrGeneratorContent = () => {
                                             </TabsContent>
 
                                             <TabsContent value="advanced">
-                                                <AdvancedTab />
+                                                <AdvancedTab onSave={handleSave} />
                                             </TabsContent>
                                         </Tabs>
                                     </CardContent>

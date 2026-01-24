@@ -1,28 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { ShareDropdown } from '@/components/share-dropdown'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { ShortLink } from '@/lib/types/apiRequestType'
+import { getPlatformColor, getPlatformIcon } from '@/components/common/platformIcons'
 import {
     BarChart3,
     Calendar,
-    Copy,
     Check,
+    Copy,
     Edit3,
     Lock,
     MoreHorizontal,
-    Share2,
-    Tag,
-    Trash2,
     Power,
-    PowerOff
+    PowerOff,
+    Trash2
 } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ShortLink } from '@/lib/types/apiRequestType'
-import { getPlatformIcon, getPlatformColor } from '@/lib/utils/platformIcons'
-import { ShareDropdown } from '@/components/share-dropdown'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 interface ShortLinkCardProps {
     link: ShortLink
@@ -44,6 +43,7 @@ export const ShortLinkCard = ({
     onEdit
 }: ShortLinkCardProps) => {
     const [copied, setCopied] = useState(false)
+    const router = useRouter()
     const Icon = getPlatformIcon(link.platform)
     const platformColor = getPlatformColor(link.platform)
 
@@ -52,7 +52,7 @@ export const ShortLinkCard = ({
             await navigator.clipboard.writeText(shortlink)
             setCopied(true)
             onCopy(shortlink)
-            
+
             // Reset after 2 seconds
             setTimeout(() => setCopied(false), 2000)
         } catch (error) {
@@ -63,7 +63,7 @@ export const ShortLinkCard = ({
             textArea.select()
             document.execCommand('copy')
             document.body.removeChild(textArea)
-            
+
             setCopied(true)
             onCopy(shortlink)
             setTimeout(() => setCopied(false), 2000)
@@ -100,19 +100,29 @@ export const ShortLinkCard = ({
                         </div>
                     </div>
                     <div className="flex items-center gap-1">
-                        <ShareDropdown 
-                            url={link.shortlink} 
+                        <ShareDropdown
+                            url={link.shortlink}
                             title={link.title}
                             description={`Check out this ${link.platform} link: ${link.originalUrl}`}
                         />
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => {
+                                if (link.shortUrlKey) {
+                                    router.push(`/dashboard/analytics/${link.shortUrlKey}?type=link`)
+                                }
+                            }}
+                            disabled={!link.shortUrlKey}
+                        >
                             <BarChart3 className="h-4 w-4" />
                         </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm" 
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
                                     className="h-8 w-8 p-0"
                                 >
                                     <MoreHorizontal className="h-4 w-4" />
@@ -136,7 +146,7 @@ export const ShortLinkCard = ({
                                         </>
                                     )}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                     className="text-destructive focus:text-destructive"
                                     onClick={() => onDelete(link.id)}
                                 >
@@ -157,9 +167,8 @@ export const ShortLinkCard = ({
                         <Button
                             variant="ghost"
                             size="sm"
-                            className={`h-6 w-6 p-0 hover:bg-muted transition-all duration-200 ${
-                                copied ? 'text-green-600 hover:text-green-700' : 'hover:text-primary'
-                            }`}
+                            className={`h-6 w-6 p-0 hover:bg-muted transition-all duration-200 ${copied ? 'text-green-600 hover:text-green-700' : 'hover:text-primary'
+                                }`}
                             onClick={() => handleCopy(link.shortlink)}
                         >
                             <div className={`transition-transform duration-200 ${copied ? 'scale-110' : 'scale-100'}`}>

@@ -10,7 +10,7 @@ import {
     UserRegistrationResponse,
     VerifyEmailResponse
 } from "../types/apiRequestType";
-import api from "../util/api";
+import api from "@/lib/api/client";
 
 export const AuthApi = {
     login: async (data: LoginRequest): Promise<LoginResponse> => {

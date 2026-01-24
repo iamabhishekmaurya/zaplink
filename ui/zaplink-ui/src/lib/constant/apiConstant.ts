@@ -4,7 +4,10 @@ export const API_BASE_URLS = {
   AUTH: '/v1/api/auth',
   LINKS: '/v1/api/wr/short/url',
   STATS: '/v1/api/rd/short/stats',
-  USER_LINKS: '/v1/api/rd/short/links'
+  USER_LINKS: '/v1/api/rd/short/links',
+  DYNAMIC_QR: '/v1/api/wr/dyqr',
+  DYNAMIC_QR_READ: '/v1/api/rd/dyqr',
+  DYNAMIC_QR_IMAGE: '/v1/api/rd/dyqr'
 } as const
 
 // API Endpoints
@@ -31,8 +34,13 @@ export const API_ENDPOINTS = {
   GET_USER_LINKS: API_BASE_URLS.USER_LINKS,
 
   // Dynamic QR endpoints
-  DYNAMIC_QR: '/v1/api/wr/dyqr',
-  DYNAMIC_QR_READ: '/v1/api/rd/dyqr'
+  DYNAMIC_QR_CREATE: `${API_BASE_URLS.DYNAMIC_QR}`,
+  DYNAMIC_QR_READ: API_BASE_URLS.DYNAMIC_QR_READ,
+  DYNAMIC_QR_IMAGE: (qrKey: string) => `${API_BASE_URLS.DYNAMIC_QR_IMAGE}/${qrKey}`,
+  DYNAMIC_QR_ANALYTICS: (qrKey: string) => `${API_BASE_URLS.DYNAMIC_QR_READ}/${qrKey}/analytics`,
+
+  // Analytics
+  ANALYTICS_LINK: (shortUrlKey: string) => `/v1/api/rd/short/${shortUrlKey}/analytics`
 } as const
 
 // Default configurations

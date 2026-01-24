@@ -1,4 +1,4 @@
-import api from '../util/api'
+import api from "@/lib/api/client";
 import { API_ENDPOINTS } from '../constant/apiConstant'
 import { DynamicQrResponse, PageResponse, QRConfigType } from '../types/apiRequestType'
 
@@ -7,11 +7,17 @@ interface CreateDynamicQrRequest {
     destinationUrl: string
     qrConfig: QRConfigType
     campaignId?: string
+    // Advanced Features
+    expirationDays?: number
+    password?: string
+    scanLimit?: number
+    allowedDomains?: string
+    trackAnalytics?: boolean
 }
 
 export const DynamicQrService = {
     createDynamicQr: async (data: CreateDynamicQrRequest) => {
-        const response = await api.post<DynamicQrResponse>(API_ENDPOINTS.DYNAMIC_QR, data)
+        const response = await api.post<DynamicQrResponse>(API_ENDPOINTS.DYNAMIC_QR_CREATE, data)
         return response.data
     },
 
@@ -21,6 +27,6 @@ export const DynamicQrService = {
     },
 
     deleteDynamicQr: async (qrKey: string) => {
-        await api.delete(`${API_ENDPOINTS.DYNAMIC_QR}/${qrKey}`)
+        await api.delete(`${API_ENDPOINTS.DYNAMIC_QR_CREATE}/${qrKey}`)
     }
 }

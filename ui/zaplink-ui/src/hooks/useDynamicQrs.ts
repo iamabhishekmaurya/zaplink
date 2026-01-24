@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { DynamicQrService } from '@/lib/api/dynamicQr'
 import { DynamicQrResponse } from '@/lib/types/apiRequestType'
 import { toast } from 'sonner'
-import api from '@/lib/util/api'
+import api from "@/lib/api/client";
 
 export const useDynamicQrs = () => {
     const [qrs, setQrs] = useState<DynamicQrResponse[]>([])

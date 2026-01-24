@@ -2,21 +2,16 @@
 
 import {
   AudioWaveform,
-  BookOpen,
   Command,
-  Frame,
   GalleryVerticalEnd,
   LayoutDashboard,
   Link2,
-  Map,
-  PieChart,
   ScanLine,
   Settings2
 } from "lucide-react"
 import * as React from "react"
 
 import { NavMain } from "@/components/(nav)/nav-main"
-import { NavProjects } from "@/components/(nav)/nav-projects"
 import { NavUser } from "@/components/(nav)/nav-user"
 import { TeamSwitcher } from "@/components/team-switcher"
 import { Separator } from "@/components/ui/separator"
@@ -28,7 +23,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { NavGeneral } from "./(nav)/nav-general"
-import { ToastDemo } from "./demo/ToastDemo"
 
 // This is sample data.
 const data = {
@@ -64,64 +58,33 @@ const data = {
   ],
   navMain: [
     {
-      title: "Link",
+      title: "Links",
       url: "#",
       icon: Link2,
       isActive: true,
       items: [
         {
-          title: "Short Link",
+          title: "My Links",
           url: "/dashboard/link/short-link",
         },
         {
-          title: "Dynamic Short Link",
-          url: "/dashboard/link/dynamic-short-link",
+          title: "Create Link",
+          url: "/dashboard/link/create-short-link",
         },
         {
-          title: "Analytic",
-          url: "#",
+          title: "Dynamic Links",
+          url: "/dashboard/link/dynamic-short-link",
         },
       ],
     },
     {
-      title: "QR",
+      title: "QR Codes",
       url: "#",
       icon: ScanLine,
       items: [
         {
           title: "QR Generator",
           url: "/dashboard/qr/qr-gen",
-        },
-        {
-          title: "Dynamic QR Generator",
-          url: "/dashboard/qr/dynamic-qr-gen",
-        },
-        {
-          title: "Analytic",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
         },
       ],
     },
@@ -132,38 +95,9 @@ const data = {
       items: [
         {
           title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          url: "/dashboard/settings",
         },
       ],
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
     },
   ],
 }
@@ -177,7 +111,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavGeneral general={data.general} />
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
       <Separator
         orientation="horizontal"

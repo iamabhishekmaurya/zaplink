@@ -81,9 +81,11 @@ export const formSchema = z.object({
     trackAnalytics: z.boolean().optional(),
     expirationDays: z.number().min(0).max(365).optional(),
     passwordProtection: z.boolean().optional(),
+    password: z.string().optional(), // Actual password value
     apiGateway: z.string().optional(),
     customRedirect: z.string().optional(),
     domainRestriction: z.string().optional(),
+    allowedDomains: z.string().optional(), // Comma separated domains
     scanLimit: z.number().min(0).max(10000).optional(),
 })
 
@@ -117,8 +119,10 @@ export const Defaults: FormValues = {
     trackAnalytics: false,
     expirationDays: 0,
     passwordProtection: false,
+    password: '',
     apiGateway: 'api-gateway',
     customRedirect: '',
     domainRestriction: 'none',
+    allowedDomains: '',
     scanLimit: 1000,
 }

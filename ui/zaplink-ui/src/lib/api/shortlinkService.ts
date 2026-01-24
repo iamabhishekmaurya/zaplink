@@ -1,4 +1,4 @@
-import api from '@/lib/util/api';
+import api from "@/lib/api/client";
 import { API_ENDPOINTS } from '@/lib/constant/apiConstant';
 import { ShortLink, GetUserLinksResponse } from '@/lib/types/apiRequestType';
 
@@ -89,7 +89,8 @@ export const shortlinkService = {
         createdAt: item.createdAt,
         updatedAt: item.updatedAt || item.createdAt,
         userId: item.userId || 'current-user',
-        clicks: item.clickCount || item.clicks || 0
+        clicks: item.clickCount || item.clicks || 0,
+        shortUrlKey: item.shortUrlKey
       }));
 
       return transformedLinks;

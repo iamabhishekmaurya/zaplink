@@ -115,6 +115,7 @@ export interface ShortLink {
   updatedAt: string;
   userId: string;
   clicks?: number;
+  shortUrlKey?: string;
 }
 
 export interface GetUserLinksResponse extends BaseResponse {

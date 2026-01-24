@@ -35,7 +35,7 @@ const historyChartConfig = {
 
 export function CreationHistoryChart({ data }: { data: DashboardStats['creationHistory'] }) {
     return (
-        <Card className="h-full flex flex-col">
+        <Card className="h-full flex flex-col glass-card hover:border-primary/20 transition-colors">
             <CardHeader>
                 <CardTitle>Creation History</CardTitle>
                 <CardDescription>New content created over the last 7 days</CardDescription>
@@ -79,7 +79,7 @@ export function PlatformDistributionChart({ data }: { data: DashboardStats['plat
     }, [data])
 
     return (
-        <Card className="h-full flex flex-col">
+        <Card className="h-full flex flex-col glass-card hover:border-primary/20 transition-colors">
             <CardHeader className="items-center pb-0">
                 <CardTitle>Link Platforms</CardTitle>
                 <CardDescription>Distribution of link destinations</CardDescription>

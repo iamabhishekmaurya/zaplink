@@ -172,7 +172,7 @@ export function ChartAreaInteractive({ data }: { data: { date: string; visitors:
   }, [data, timeRange]);
 
   return (
-    <Card className="@container/card">
+    <Card className="@container/card glass-card hover:border-primary/20 transition-colors">
       <CardHeader>
         <CardTitle>Total Visitors</CardTitle>
         <CardDescription>
