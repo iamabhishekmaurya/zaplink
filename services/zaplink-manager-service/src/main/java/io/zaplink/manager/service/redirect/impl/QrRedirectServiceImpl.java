@@ -1,12 +1,11 @@
 package io.zaplink.manager.service.redirect.impl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.zaplink.manager.entity.DynamicQrCodeEntity;
 import io.zaplink.manager.entity.QrScanAnalyticsEntity;
@@ -18,6 +17,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Service @RequiredArgsConstructor @Slf4j
 public class QrRedirectServiceImpl
@@ -136,10 +137,8 @@ public class QrRedirectServiceImpl
         try
         {
             // Try parsing as JSON array
-            java.util.List<String> domains = objectMapper
-                    .readValue( allowedDomainsJson,
-                                new com.fasterxml.jackson.core.type.TypeReference<java.util.List<String>>()
-                                {} );
+            List<String> domains = objectMapper.readValue( allowedDomainsJson, new TypeReference<List<String>>()
+            {} );
             return domains.stream().anyMatch( referer::contains );
         }
         catch ( Exception e )

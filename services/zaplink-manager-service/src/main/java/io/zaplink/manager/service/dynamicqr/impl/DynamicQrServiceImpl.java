@@ -10,9 +10,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.zaplink.manager.dto.request.qr.QRConfig;
 import io.zaplink.manager.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.manager.dto.response.dynamicqr.DynamicQrResponse;
@@ -24,6 +21,8 @@ import io.zaplink.manager.client.CoreServiceClient;
 import io.zaplink.manager.service.dynamicqr.DynamicQrService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j @Service @RequiredArgsConstructor
 public class DynamicQrServiceImpl
@@ -166,7 +165,7 @@ public class DynamicQrServiceImpl
             qrConfig.setData( redirectUrl );
             return coreServiceClient.generateStyledQr( qrConfig ).getBody();
         }
-        catch ( JsonProcessingException e )
+        catch ( JacksonException e )
         {
             log.error( "Error parsing QR config from JSON", e );
             throw new RuntimeException( "Failed to parse QR configuration", e );
@@ -210,7 +209,7 @@ public class DynamicQrServiceImpl
             DynamicQrCodeEntity saved = dynamicQrCodeRepository.save( entity );
             return convertToResponse( saved );
         }
-        catch ( JsonProcessingException e )
+        catch ( JacksonException e )
         {
             log.error( "Error processing JSON for create dynamic QR", e );
             throw new RuntimeException( "Failed to create dynamic QR", e );

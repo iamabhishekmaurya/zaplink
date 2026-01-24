@@ -1,7 +1,18 @@
 spring:
   application:
     name: zaplink-manager-service
-
+  # API versioning
+  mvc:
+    apiversion:
+      required: true
+      use:
+        header: X-API-Version
+      supported:
+      - 1
+  # Enable Virtual Threads (Project Loom)
+  threads:
+      virtual:
+          enabled: true
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST}

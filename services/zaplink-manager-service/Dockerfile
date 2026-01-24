@@ -1,7 +1,7 @@
 # ---------------------------------------------------
 # STEP 1: Use official OpenJDK 17 base image
 # ---------------------------------------------------
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine
 
 # ---------------------------------------------------
 # STEP 2: Set a working directory inside the container

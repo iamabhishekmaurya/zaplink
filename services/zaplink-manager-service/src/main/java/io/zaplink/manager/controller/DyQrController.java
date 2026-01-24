@@ -24,7 +24,7 @@ import io.zaplink.manager.service.dynamicqr.DynamicQrService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j @RestController @RequiredArgsConstructor @RequestMapping("${api.base-path}/dyqr")
+@Slf4j @RestController @RequiredArgsConstructor @RequestMapping("/dyqr")
 public class DyQrController
 {
     private final DynamicQrService dynamicQrService;

@@ -4,10 +4,20 @@ server:
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
-  config:
-    import: application-api.yml
   application:
     name: zaplink-manager-service
+  # API versioning
+  mvc:
+    apiversion:
+      required: true
+      use:
+        header: X-API-Version
+      supported:
+      - 1
+  # Enable Virtual Threads (Project Loom)
+  threads:
+      virtual:
+          enabled: true
   # Kafka config
   kafka:
     bootstrap-servers: localhost:9092
