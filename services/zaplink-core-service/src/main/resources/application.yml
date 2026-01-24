@@ -13,7 +13,6 @@ spring:
         header: X-API-Version
       supported:
       - 1
-      default: 1    
   # DataSource config
   datasource:
     url: jdbc:postgresql://localhost:5432/zaplink_core

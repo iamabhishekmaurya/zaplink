@@ -21,7 +21,7 @@ import io.zaplink.core.service.qr.impl.ZapQrEngine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@RestController @RequestMapping("${api.base-path}/qr/debug") @RequiredArgsConstructor @Slf4j
+@RestController @RequestMapping("/qr/debug") @RequiredArgsConstructor @Slf4j
 public class QRDebugController
 {
     private final ZapQrEngine zapQrEngine;
