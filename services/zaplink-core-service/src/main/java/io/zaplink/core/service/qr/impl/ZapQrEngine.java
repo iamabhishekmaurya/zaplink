@@ -16,7 +16,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service @Slf4j @RequiredArgsConstructor
+@Slf4j @Service @RequiredArgsConstructor
 public class ZapQrEngine
 {
     private final QRRenderer renderer;
@@ -35,19 +35,22 @@ public class ZapQrEngine
                                                                   hints );
             log.info( "Generated QR matrix: {}x{} for data: {}", bitMatrix.getWidth(), bitMatrix.getHeight(),
                       config.getData() );
-            
-            // Check if ZXing added its own margin despite our hint
-            int actualMatrixSize = bitMatrix.getWidth();
-            int expectedDataSize = 29; // Approximate for our test data
-            if (actualMatrixSize > expectedDataSize) {
-                int zxingMargin = (actualMatrixSize - expectedDataSize) / 2;
-                log.warn( "ZXing enforced additional margin: {} modules (matrix size: {})", zxingMargin, actualMatrixSize );
-                
-                // If margin is 0, try to crop the matrix to remove ZXing's enforced quiet zone
-                if (config.getMargin() == 0 && zxingMargin > 0) {
-                    log.info( "Cropping matrix to remove ZXing enforced margin..." );
-                    bitMatrix = cropMatrix(bitMatrix, zxingMargin);
-                    log.info( "Cropped matrix size: {}x{}", bitMatrix.getWidth(), bitMatrix.getHeight() );
+            // Dynamic detection of ZXing's enforced margin
+            int[] topLeft = bitMatrix.getTopLeftOnBit();
+            if ( topLeft != null )
+            {
+                int zxingMargin = topLeft[0];
+                if ( zxingMargin > config.getMargin() )
+                {
+                    log.info( "ZXing enforced additional margin: {} (requested: {})", zxingMargin, config.getMargin() );
+                    // If we requested 0 (or less than what we got) and got more, crop IF user wanted 0
+                    // The original logic was specifically targeting config.getMargin() == 0
+                    if ( config.getMargin() == 0 && zxingMargin > 0 )
+                    {
+                        log.info( "Cropping matrix to remove ZXing enforced margin..." );
+                        bitMatrix = cropMatrix( bitMatrix, zxingMargin );
+                        log.info( "Cropped matrix size: {}x{}", bitMatrix.getWidth(), bitMatrix.getHeight() );
+                    }
                 }
             }
             return renderer.render( bitMatrix, config );
@@ -58,27 +61,29 @@ public class ZapQrEngine
             throw new RuntimeException( "Adv QR Generation failed", e );
         }
     }
-    
+
     // Helper method to crop BitMatrix to remove enforced margin
-    private BitMatrix cropMatrix(BitMatrix matrix, int marginToRemove) {
+    private BitMatrix cropMatrix( BitMatrix matrix, int marginToRemove )
+    {
         int originalSize = matrix.getWidth();
-        int newSize = originalSize - (marginToRemove * 2);
-        
-        if (newSize <= 0) {
+        int newSize = originalSize - ( marginToRemove * 2 );
+        if ( newSize <= 0 )
+        {
             log.warn( "Cannot crop matrix - new size would be {}x{}", newSize, newSize );
             return matrix;
         }
-        
-        BitMatrix cropped = new BitMatrix(newSize);
-        for (int y = 0; y < newSize; y++) {
-            for (int x = 0; x < newSize; x++) {
+        BitMatrix cropped = new BitMatrix( newSize );
+        for ( int y = 0; y < newSize; y++ )
+        {
+            for ( int x = 0; x < newSize; x++ )
+            {
                 // Copy from original matrix with offset
-                if (matrix.get(x + marginToRemove, y + marginToRemove)) {
-                    cropped.set(x, y);
+                if ( matrix.get( x + marginToRemove, y + marginToRemove ) )
+                {
+                    cropped.set( x, y );
                 }
             }
         }
-        
         return cropped;
     }
 }

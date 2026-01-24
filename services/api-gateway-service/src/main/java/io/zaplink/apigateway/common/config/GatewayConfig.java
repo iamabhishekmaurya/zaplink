@@ -34,14 +34,20 @@ public class GatewayConfig
                                  * Port: 8081
                                  */
                                 .route( "core-short-write",
-                                        r -> r.path( writePath + "/short/**" ).filters( f -> f.stripPrefix( 0 ) )
+                                        r -> r.path( writePath + "/short/url" )
+                                                        .filters( f -> f.rewritePath( "/v1/api/wr/(?<segment>.*)",
+                                                                                      "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8081" ) )
                                 .route( "core-qr-write",
-                                        r -> r.path( writePath + "/qr/**" ).filters( f -> f.stripPrefix( 0 ) )
+                                        r -> r.path( writePath + "/qr/**" )
+                                                        .filters( f -> f.rewritePath( "/v1/api/wr/(?<segment>.*)",
+                                                                                      "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8081" ) )
-                                .route( "core-dynamic-qr-write",
-                                        r -> r.path( writePath + "/dyqr/**" ).filters( f -> f.stripPrefix( 0 ) )
-                                                        .uri( "http://localhost:8081" ) )
+                                .route( "manager-dynamic-qr-write",
+                                        r -> r.path( writePath + "/dyqr/**" )
+                                                        .filters( f -> f.rewritePath( "/v1/api/wr/(?<segment>.*)",
+                                                                                      "/v1/api/${segment}" ) )
+                                                        .uri( "http://localhost:8083" ) )
                                 /**
                                  * Processor Service Route
                                  * Port: 8082
@@ -54,10 +60,14 @@ public class GatewayConfig
                                  * Port: 8083
                                  */
                                 .route( "manager-short-read",
-                                        r -> r.path( readPath + "/short/**" ).filters( f -> f.stripPrefix( 0 ) )
+                                        r -> r.path( readPath + "/short/**" )
+                                                        .filters( f -> f.rewritePath( "/v1/api/rd/(?<segment>.*)",
+                                                                                      "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 .route( "manager-dynamic-qr-read",
-                                        r -> r.path( readPath + "/dyqr/**" ).filters( f -> f.stripPrefix( 0 ) )
+                                        r -> r.path( readPath + "/dyqr/**" )
+                                                        .filters( f -> f.rewritePath( "/v1/api/rd/(?<segment>.*)",
+                                                                                      "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 /**
                                  * Redirect Route (Handled by Manager)

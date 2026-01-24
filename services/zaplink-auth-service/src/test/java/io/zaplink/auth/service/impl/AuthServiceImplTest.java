@@ -87,7 +87,7 @@ class AuthServiceImplTest
         when( userHelper.findUserByEmailOrThrow( eq( "test@example.com" ), anyString() ) ).thenReturn( testUser );
         when( jwtUtility.generateAccessToken( testUser ) ).thenReturn( "access-token" );
         when( tokenUtility.generateToken() ).thenReturn( "refresh-token" );
-        when( tokenUtility.generateRefreshTokenExpiry() ).thenReturn( Instant.now().plusSeconds( 3600 ) );
+        when( tokenUtility.generateRefreshTokenExpiry( eq( false ) ) ).thenReturn( Instant.now().plusSeconds( 3600 ) );
         when( refreshTokenRepository.save( any( RefreshToken.class ) ) ).thenReturn( testRefreshToken );
         when( jwtUtility.buildLoginResponse( eq( testUser ), eq( "access-token" ), eq( "refresh-token" ) ) )
                 .thenReturn( LoginResponse.builder().accessToken( "access-token" ).refreshToken( "refresh-token" )
@@ -141,7 +141,7 @@ class AuthServiceImplTest
         // Given
         when( refreshTokenRepository.findByToken( "refresh-token-123" ) ).thenReturn( Optional.of( testRefreshToken ) );
         when( tokenUtility.generateToken() ).thenReturn( "new-refresh-token" );
-        when( tokenUtility.generateRefreshTokenExpiry() ).thenReturn( Instant.now().plusSeconds( 3600 ) );
+        when( tokenUtility.generateRefreshTokenExpiry( eq( false ) ) ).thenReturn( Instant.now().plusSeconds( 3600 ) );
         when( jwtUtility.generateAccessToken( testUser ) ).thenReturn( "new-access-token" );
         when( jwtUtility.buildLoginResponse( eq( testUser ), eq( "new-access-token" ), eq( "new-refresh-token" ) ) )
                 .thenReturn( LoginResponse.builder().accessToken( "new-access-token" )
@@ -275,18 +275,18 @@ class AuthServiceImplTest
     {
         // Given
         when( tokenUtility.generateToken() ).thenReturn( "new-refresh-token" );
-        when( tokenUtility.generateRefreshTokenExpiry() ).thenReturn( Instant.now().plusSeconds( 3600 ) );
+        when( tokenUtility.generateRefreshTokenExpiry( eq( false ) ) ).thenReturn( Instant.now().plusSeconds( 3600 ) );
         when( refreshTokenRepository.save( any( RefreshToken.class ) ) ).thenReturn( testRefreshToken );
         // Use reflection to test private method
         java.lang.reflect.Method method = AuthServiceImpl.class.getDeclaredMethod( "generateAndSaveRefreshToken",
-                                                                                   User.class );
+                                                                                   User.class, boolean.class );
         method.setAccessible( true );
         // When
-        String result = (String) method.invoke( authService, testUser );
+        String result = (String) method.invoke( authService, testUser, false );
         // Then
         assertEquals( "new-refresh-token", result );
         verify( tokenUtility ).generateToken();
-        verify( tokenUtility ).generateRefreshTokenExpiry();
+        verify( tokenUtility ).generateRefreshTokenExpiry( eq( false ) );
         verify( refreshTokenRepository ).save( any( RefreshToken.class ) );
     }
 }

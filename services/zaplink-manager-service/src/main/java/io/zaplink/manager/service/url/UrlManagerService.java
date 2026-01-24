@@ -1,9 +1,11 @@
 package io.zaplink.manager.service.url;
 
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import io.zaplink.manager.dto.request.AnalyticsEvent;
+import io.zaplink.manager.dto.response.LinkAnalyticsResponse;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
 
@@ -42,4 +44,12 @@ public interface UrlManagerService
      * @param userEmail
      */
     void deleteLink( Long id, String userEmail );
+
+    /**
+     * Get analytics for a specific link
+     * @param shortUrlKey
+     * @param userEmail
+     * @return LinkAnalyticsResponse
+     */
+    LinkAnalyticsResponse getLinkAnalytics( String shortUrlKey, String userEmail );
 }

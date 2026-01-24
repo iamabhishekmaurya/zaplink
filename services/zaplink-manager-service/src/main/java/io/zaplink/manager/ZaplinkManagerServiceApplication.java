@@ -3,11 +3,13 @@ package io.zaplink.manager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
-public class ZaplinkManagerServiceApplication {
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
-	public static void main(String[] args) {
-		SpringApplication.run(ZaplinkManagerServiceApplication.class, args);
+@SpringBootApplication @EnableFeignClients
+public class ZaplinkManagerServiceApplication
+{
+	public static void main( String[] args )
+	{
+		SpringApplication.run( ZaplinkManagerServiceApplication.class, args );
 	}
-
 }

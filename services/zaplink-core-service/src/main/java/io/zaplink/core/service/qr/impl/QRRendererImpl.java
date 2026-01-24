@@ -17,6 +17,9 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+
 import com.google.zxing.common.BitMatrix;
 
 import io.zaplink.core.common.enums.QRBodyShapeEnum;
@@ -27,8 +30,6 @@ import io.zaplink.core.dto.request.qr.QREyeConfig;
 import io.zaplink.core.dto.request.qr.QRLogoConfig;
 import io.zaplink.core.service.qr.QRRenderer;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 
 @Slf4j @Component @Primary
 public class QRRendererImpl
@@ -45,11 +46,11 @@ public class QRRendererImpl
         int moduleSize = imageSize / matrixSize;
         // Recalculate actual image size to fit modules exactly
         int actualImageSize = moduleSize * matrixSize;
-        
         // If we lost pixels due to integer division, add them back to achieve exact size
         int offsetX = 0;
         int offsetY = 0;
-        if (actualImageSize < imageSize) {
+        if ( actualImageSize < imageSize )
+        {
             int extraPixels = imageSize - actualImageSize;
             // Distribute extra pixels evenly around the QR
             offsetX = extraPixels / 2;
@@ -57,9 +58,8 @@ public class QRRendererImpl
             log.info( "Adding {} extra pixels ({} each side) to achieve exact size", extraPixels, offsetX );
             actualImageSize = imageSize;
         }
-        
-        log.info( "Matrix size: {}, Image size: {}, Module size: {} (integer), Offset: X={}, Y={}", 
-                  matrixSize, actualImageSize, moduleSize, offsetX, offsetY );
+        log.info( "Matrix size: {}, Image size: {}, Module size: {} (integer), Offset: X={}, Y={}", matrixSize,
+                  actualImageSize, moduleSize, offsetX, offsetY );
         // Pre-load logo to determine if we should apply logo logic
         BufferedImage logoConfigured = null;
         if ( config.getLogo() != null && config.getLogo().getLogoPath() != null
@@ -298,7 +298,12 @@ public class QRRendererImpl
     }
 
     // Integer-based eye drawing
-    private void drawEyesInteger( Graphics2D g2d, BitMatrix matrix, QRConfig config, int moduleSize, int offsetX, int offsetY )
+    private void drawEyesInteger( Graphics2D g2d,
+                                  BitMatrix matrix,
+                                  QRConfig config,
+                                  int moduleSize,
+                                  int offsetX,
+                                  int offsetY )
     {
         int matrixSize = matrix.getWidth();
         int margin = config.getMargin();
@@ -309,7 +314,13 @@ public class QRRendererImpl
         drawEyeInteger( g2d, margin, matrixSize - margin - 7, eyeConfig, moduleSize, offsetX, offsetY );
     }
 
-    private void drawEyeInteger( Graphics2D g2d, int startX, int startY, QREyeConfig eyeConfig, int moduleSize, int offsetX, int offsetY )
+    private void drawEyeInteger( Graphics2D g2d,
+                                 int startX,
+                                 int startY,
+                                 QREyeConfig eyeConfig,
+                                 int moduleSize,
+                                 int offsetX,
+                                 int offsetY )
     {
         int px = startX * moduleSize + offsetX;
         int py = startY * moduleSize + offsetY;

@@ -138,6 +138,9 @@ public class RegistrationServiceImpl
             log.info( LogConstants.LOG_USER_ALREADY_VERIFIED, email );
             return;
         }
+        // Generate new token
+        user.setVerificationToken( UUID.randomUUID().toString() );
+        userRepository.save( user );
         sendVerificationEmailEvent( user );
         log.debug( LogConstants.LOG_VERIFICATION_EMAIL_SHOULD_BE_SENT, email );
     }

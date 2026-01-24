@@ -14,23 +14,20 @@ import io.zaplink.core.repository.UrlMappingRepository;
 import io.zaplink.core.service.shortner.UrlShortnerService;
 import io.zaplink.core.utility.SnowflakeShortKeyGenerator;
 import io.zaplink.core.utility.StringUtil;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Service @Slf4j
+@Service @Slf4j @RequiredArgsConstructor
 public class UrlShortnerServiceImpl
     implements
     UrlShortnerService
 {
-    @Value("${base.url}")
-    private String               BASE_URL;
-    private UrlMappingRepository urlMappingRepository;
-    public UrlShortnerServiceImpl( UrlMappingRepository urlMappingRepository )
-    {
-        this.urlMappingRepository = urlMappingRepository;
-    }
-
+    @Value("${redirect.base.url}")
+    private String                     BASE_URL;
+    private final UrlMappingRepository urlMappingRepository;
     @Override
-    public ShortnerResponse shortUrl( ShortnerRequest urlRequest, String userEmail )
+    public ShortnerResponse createShortUrl( ShortnerRequest urlRequest, String userEmail )
     {
         log.info( LogConstants.LOG_SHORT_URL_INIT );
         ShortnerResponse shortUrlResponse = new ShortnerResponse();

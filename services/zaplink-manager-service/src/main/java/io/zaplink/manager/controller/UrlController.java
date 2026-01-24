@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
 import io.zaplink.manager.dto.request.AnalyticsEvent;
+import io.zaplink.manager.dto.response.LinkAnalyticsResponse;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
 import io.zaplink.manager.service.url.UrlManagerService;
@@ -38,6 +39,13 @@ public class UrlController
                             @RequestHeader(value = "X-User-Email", required = false) String userEmail )
     {
         urlProvider.deleteLink( id, userEmail );
+    }
+
+    @GetMapping("/{key}/analytics")
+    public LinkAnalyticsResponse getLinkAnalytics( @PathVariable("key") String key,
+                                                   @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        return urlProvider.getLinkAnalytics( key, userEmail );
     }
 
     @GetMapping("/{key}")

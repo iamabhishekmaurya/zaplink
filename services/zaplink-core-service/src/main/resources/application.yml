@@ -4,10 +4,16 @@ server:
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
-  config:
-    import: application-api.yml
   application:
     name: zaplink-core-service
+  mvc:
+    apiversion:
+      required: true
+      use:
+        header: X-API-Version
+      supported:
+      - 1
+      default: 1    
   # DataSource config
   datasource:
     url: jdbc:postgresql://localhost:5432/zaplink_core
@@ -22,7 +28,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 #Custom properties
-base.url: http://localhost:8090/r/
+redirect:
+  base:
+    url: http://localhost:8090/r/
 
 springdoc:
   packages-to-scan: io.zaplink.core.controller

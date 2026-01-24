@@ -26,4 +26,7 @@ public interface DynamicQrService
     List<DynamicQrResponse> getQrCodesByCampaign( String campaignId, String userEmail );
 
     long countAllQrCodes();
+
+    DynamicQrResponse createDynamicQr( io.zaplink.manager.dto.request.dynamicqr.CreateDynamicQrRequest request,
+                                       String userEmail );
 }

@@ -12,6 +12,7 @@ import io.zaplink.manager.common.constants.RedisConstants;
 import io.zaplink.manager.common.enums.UrlStatusEnum;
 import io.zaplink.manager.common.trace.TraceContext;
 import io.zaplink.manager.dto.request.AnalyticsEvent;
+import io.zaplink.manager.dto.response.LinkAnalyticsResponse;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
 import io.zaplink.manager.entity.UrlMappingEntity;
@@ -131,6 +132,57 @@ public class UrlManagerServiceImpl
                 .originalUrl( entity.getOriginalUrl() ).shortUrl( entity.getShortUrl() )
                 .createdAt( entity.getCreatedAt() ).clickCount( entity.getClickCount() ).status( entity.getStatus() )
                 .build();
+    }
+
+    @Override
+    public LinkAnalyticsResponse getLinkAnalytics( String shortUrlKey, String userEmail )
+    {
+        // 1. Verify link ownership
+        // 1. Verify link ownership
+        UrlMappingEntity link = urlMappingRepository.findByShortUrlKey( shortUrlKey )
+                .orElseThrow( () -> new RuntimeException( "Link not found" ) );
+        if ( !link.getUserEmail().equals( userEmail ) )
+        {
+            throw new RuntimeException( "Unauthorized access to link analytics" );
+        }
+        log.info( "Fetching analytics for key: {}", shortUrlKey );
+        try
+        {
+            // 2. Fetch Aggregated Stats
+            List<Object[]> countryStats = urlAnalyticsRepository.findTopCountriesByShortUrlKey( shortUrlKey );
+            List<Object[]> browserStats = urlAnalyticsRepository.findTopBrowsersByShortUrlKey( shortUrlKey );
+            List<Object[]> referrerStats = urlAnalyticsRepository.findTopReferrersByShortUrlKey( shortUrlKey );
+            List<Object[]> dailyStats = urlAnalyticsRepository.findDailyClickCounts( shortUrlKey );
+            // 3. Transform to DTO entries
+            List<LinkAnalyticsResponse.Entry> countries = mapToEntries( countryStats, link.getClickCount() );
+            List<LinkAnalyticsResponse.Entry> browsers = mapToEntries( browserStats, link.getClickCount() );
+            List<LinkAnalyticsResponse.Entry> referrers = mapToEntries( referrerStats, link.getClickCount() );
+            List<LinkAnalyticsResponse.Entry> dailyClicks = dailyStats.stream().map( obj -> {
+                String dateStr = obj[0] != null ? obj[0].toString() : "Unknown";
+                Long adCount = obj[1] instanceof Number ? ( (Number) obj[1] ).longValue() : 0L;
+                return LinkAnalyticsResponse.Entry.builder().name( dateStr ).value( adCount ).build();
+            } ).collect( Collectors.toList() );
+            // 4. Build Response
+            return LinkAnalyticsResponse.builder().shortUrlKey( link.getShortUrlKey() )
+                    .originalUrl( link.getOriginalUrl() ).totalClicks( link.getClickCount() ).clicksToday( 0L )
+                    .lastAccessed( null ).topCountries( countries ).topBrowsers( browsers ).topReferrers( referrers )
+                    .dailyClicks( dailyClicks ).build();
+        }
+        catch ( Exception e )
+        {
+            log.error( "Error processing analytics for key: {}", shortUrlKey, e );
+            throw e;
+        }
+    }
+
+    private List<LinkAnalyticsResponse.Entry> mapToEntries( List<Object[]> data, Long total )
+    {
+        return data.stream().limit( 5 ).map( obj -> {
+            String name = obj[0] != null ? String.valueOf( obj[0] ) : "Unknown";
+            Long count = obj[1] instanceof Number ? ( (Number) obj[1] ).longValue() : 0L;
+            return LinkAnalyticsResponse.Entry.builder().name( name ).value( count )
+                    .percentage( (double) calculatePercentage( count, total ) ).build();
+        } ).collect( Collectors.toList() );
     }
 
     /**

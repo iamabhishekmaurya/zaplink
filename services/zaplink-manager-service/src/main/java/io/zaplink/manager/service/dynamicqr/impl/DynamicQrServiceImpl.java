@@ -14,13 +14,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.zaplink.manager.dto.request.qr.QRConfig;
+import io.zaplink.manager.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.manager.dto.response.dynamicqr.DynamicQrResponse;
 import io.zaplink.manager.dto.response.dynamicqr.QrAnalyticsResponse;
 import io.zaplink.manager.entity.DynamicQrCodeEntity;
 import io.zaplink.manager.repository.DynamicQrCodeRepository;
 import io.zaplink.manager.repository.QrScanAnalyticsRepository;
+import io.zaplink.manager.client.CoreServiceClient;
 import io.zaplink.manager.service.dynamicqr.DynamicQrService;
-import io.zaplink.manager.service.qr.QRService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +31,7 @@ public class DynamicQrServiceImpl
     DynamicQrService
 {
     private final DynamicQrCodeRepository   dynamicQrCodeRepository;
-    private final QRService                 qrService;
+    private final CoreServiceClient         coreServiceClient;
     private final ObjectMapper              objectMapper;
     private final QrScanAnalyticsRepository qrScanAnalyticsRepository;
     @Override
@@ -163,7 +164,7 @@ public class DynamicQrServiceImpl
             // Parse QR config from JSON
             QRConfig qrConfig = objectMapper.readValue( entity.getQrConfig(), QRConfig.class );
             qrConfig.setData( redirectUrl );
-            return qrService.generateStyledQrCode( qrConfig );
+            return coreServiceClient.generateStyledQr( qrConfig ).getBody();
         }
         catch ( JsonProcessingException e )
         {
@@ -176,6 +177,49 @@ public class DynamicQrServiceImpl
     public long countAllQrCodes()
     {
         return dynamicQrCodeRepository.count();
+    }
+
+    @Override
+    public DynamicQrResponse createDynamicQr( CreateDynamicQrRequest request, String userEmail )
+    {
+        try
+        {
+            DynamicQrCodeEntity entity = new DynamicQrCodeEntity();
+            entity.setQrKey( generateUniqueKey() );
+            entity.setQrName( request.getQrName() );
+            entity.setCurrentDestinationUrl( request.getDestinationUrl() );
+            entity.setUserEmail( userEmail );
+            entity.setCampaignId( request.getCampaignId() );
+            entity.setIsActive( true );
+            entity.setCreatedAt( LocalDateTime.now() );
+            entity.setUpdatedAt( LocalDateTime.now() );
+            entity.setTotalScans( 0L );
+            // Advanced features
+            entity.setPassword( request.getPassword() );
+            entity.setScanLimit( request.getScanLimit() );
+            entity.setExpirationDate( request.getExpirationDate() );
+            if ( request.getAllowedDomains() != null )
+            {
+                entity.setAllowedDomains( objectMapper.writeValueAsString( request.getAllowedDomains() ) );
+            }
+            // Save Config
+            if ( request.getQrConfig() != null )
+            {
+                entity.setQrConfig( objectMapper.writeValueAsString( request.getQrConfig() ) );
+            }
+            DynamicQrCodeEntity saved = dynamicQrCodeRepository.save( entity );
+            return convertToResponse( saved );
+        }
+        catch ( JsonProcessingException e )
+        {
+            log.error( "Error processing JSON for create dynamic QR", e );
+            throw new RuntimeException( "Failed to create dynamic QR", e );
+        }
+    }
+
+    private String generateUniqueKey()
+    {
+        return java.util.UUID.randomUUID().toString().substring( 0, 8 );
     }
 
     private DynamicQrResponse convertToResponse( DynamicQrCodeEntity entity )

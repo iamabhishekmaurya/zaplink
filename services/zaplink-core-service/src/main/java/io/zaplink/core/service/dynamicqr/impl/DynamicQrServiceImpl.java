@@ -1,7 +1,10 @@
 package io.zaplink.core.service.dynamicqr.impl;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,12 +42,20 @@ public class DynamicQrServiceImpl
             {
                 expirationDate = LocalDateTime.now().plusDays( request.getExpirationDays() );
             }
+            String allowedDomainsJson = null;
+            if ( request.getAllowedDomains() != null && !request.getAllowedDomains().isEmpty() )
+            {
+                // Convert CSV to JSON Array
+                List<String> domains = Arrays.stream( request.getAllowedDomains().split( "," ) ).map( String::trim )
+                        .filter( s -> !s.isEmpty() ).collect( Collectors.toList() );
+                allowedDomainsJson = objectMapper.writeValueAsString( domains );
+            }
             DynamicQrCodeEntity entity = DynamicQrCodeEntity.builder().qrKey( qrKey ).qrName( request.getQrName() )
                     .currentDestinationUrl( request.getDestinationUrl() ).qrConfig( qrConfigJson )
                     .userEmail( userEmail ).campaignId( request.getCampaignId() ).isActive( true )
                     .createdAt( LocalDateTime.now() ).updatedAt( LocalDateTime.now() ).totalScans( 0L )
                     .expirationDate( expirationDate ).password( request.getPassword() )
-                    .scanLimit( request.getScanLimit() ).allowedDomains( request.getAllowedDomains() )
+                    .scanLimit( request.getScanLimit() ).allowedDomains( allowedDomainsJson )
                     .trackAnalytics( request.getTrackAnalytics() != null ? request.getTrackAnalytics() : true ).build();
             entity = dynamicQrCodeRepository.save( entity );
             log.info( "Created dynamic QR with key: {} for user: {}", qrKey, userEmail );

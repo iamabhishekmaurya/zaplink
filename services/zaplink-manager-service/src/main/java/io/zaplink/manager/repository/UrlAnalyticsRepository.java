@@ -2,10 +2,12 @@ package io.zaplink.manager.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import io.zaplink.manager.common.constants.QueryConstants;
 import io.zaplink.manager.entity.UrlAnalyticsEntity;
 
@@ -62,6 +64,15 @@ public interface UrlAnalyticsRepository
 
     @Query(QueryConstants.FIND_TOP_USER_AGENTS_BY_CLICKS)
     List<Object[]> findTopUserAgentsByClicks();
+
+    @Query(QueryConstants.FIND_TOP_COUNTRIES_BY_SHORT_URL_KEY)
+    List<Object[]> findTopCountriesByShortUrlKey( @Param("shortUrlKey") String shortUrlKey );
+
+    @Query(QueryConstants.FIND_TOP_BROWSERS_BY_SHORT_URL_KEY)
+    List<Object[]> findTopBrowsersByShortUrlKey( @Param("shortUrlKey") String shortUrlKey );
+
+    @Query(QueryConstants.FIND_TOP_REFERRERS_BY_SHORT_URL_KEY)
+    List<Object[]> findTopReferrersByShortUrlKey( @Param("shortUrlKey") String shortUrlKey );
 
     @Query(QueryConstants.FIND_CLICK_TREND_BY_USER)
     List<Object[]> findClickTrendByUser( @Param("userEmail") String userEmail );
