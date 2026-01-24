@@ -5,8 +5,17 @@ spring:
     application:
         name: zaplink-auth-service
     main:
-        allow-bean-definition-overriding: true
-
+        allow-bean-definition-overriding: true           
+    # API Version
+    mvc:
+        apiversion:
+            detect-supported: true
+            required: true
+            supported: 
+            - 1
+            use:
+                header: X-API-Version
+    
     # Kafka config
     kafka:
         bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}

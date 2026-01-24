@@ -1,7 +1,5 @@
 package io.zaplink.auth.common.security;
 
-import java.util.Collections;
-
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -41,6 +39,10 @@ public class CustomUserDetailsService
                                       true, // accountNonExpired
                                       true, // credentialsNonExpired
                                       true, // accountNonLocked
-                                      Collections.singletonList( new SimpleGrantedAuthority( "ROLE_USER" ) ) );
+                                      user.getRoles().stream()
+                                              .map( role -> role.getName().startsWith( "ROLE_" ) ? role.getName()
+                                                                                                 : "ROLE_" + role
+                                                                                                         .getName() )
+                                              .map( SimpleGrantedAuthority::new ).toList() );
     }
 }

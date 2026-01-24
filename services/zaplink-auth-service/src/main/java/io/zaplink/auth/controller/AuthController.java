@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j @RestController @RequestMapping("${api.base-path}/auth") @RequiredArgsConstructor
+@Slf4j @RestController @RequiredArgsConstructor @RequestMapping("/auth")
 public class AuthController
 {
     private final RegistrationService registrationService;

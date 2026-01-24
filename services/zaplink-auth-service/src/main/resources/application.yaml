@@ -6,10 +6,18 @@ spring:
         name: zaplink-auth-service
     profiles:
         active: ${SPRING_PROFILES_ACTIVE:local}
-    config:
-        import: application-api.yml
     main:
         allow-bean-definition-overriding: true
+
+    # API Version
+    mvc:
+        apiversion:
+            detect-supported: true
+            required: true
+            supported: 
+            - 1
+            use:
+                header: X-API-Version
 
     # Kafka config
     kafka:
