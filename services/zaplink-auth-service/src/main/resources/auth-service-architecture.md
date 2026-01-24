@@ -323,3 +323,60 @@ flowchart TD
     class N,O,P,Q,R,S,T response
     class V success
 ```
+
+## GetUserById Flow
+sequenceDiagram
+    autonumber
+    participant Client
+    participant Tomcat as Tomcat Container
+    participant Filters as Filter Chain
+    participant Cache as Redis Cache
+    participant Dispatcher as DispatcherServlet
+    participant Security as Spring Security (AOP)
+    participant Controller as UserController
+    participant Service as UserService
+    participant Repo as UserRepository
+    participant DB as Database
+
+    Client->>Tomcat: GET /users/1 (Header: X-User-Email)
+    Tomcat->>Filters: HttpServletRequest
+
+    Note right of Filters: 1. TraceIdFilter (Start)<br/>2. GatewayAuthFilter
+
+    rect rgb(240, 248, 255)
+        note right of Filters: AUTHENTICATION PHASE
+        Filters->>Filters: Extract Email
+        Filters->>Cache: GET auth:user_details::{email}
+        alt Cache Hit
+            Cache-->>Filters: UserDetails (JSON)
+        else Cache Miss
+            Filters->>DB: Find User by Email
+            DB-->>Filters: User Entity
+            Filters->>Cache: SET auth:user_details::{email}
+        end
+        Filters->>Filters: Set SecurityContext
+    end
+
+    Filters->>Dispatcher: Request (Authenticated)
+    Dispatcher->>Dispatcher: HandlerMapping (Find Controller)
+
+    rect rgb(255, 240, 245)
+        note right of Security: AUTHORIZATION PHASE
+        Dispatcher->>Security: Pre-Handle Check
+        Security->>Security: @PreAuthorize Pass?
+    end
+
+    Security->>Controller: getUser(1)
+    Controller->>Service: findById(1)
+    
+    Service->>Repo: findById(1)
+    Repo->>DB: SQL Query
+    DB-->>Repo: User Entity
+    Repo-->>Service: User Entity
+    Service-->>Controller: User Entity
+    
+    Controller-->>Dispatcher: User Object
+    Dispatcher->>Dispatcher: Jackson Serialization (JSON)
+    Dispatcher-->>Filters: Response (JSON)
+    Filters-->>Tomcat: Response
+    Tomcat-->>Client: 200 OK
