@@ -119,7 +119,7 @@ export const shortlinkService = {
   // Delete a short link
   deleteShortLink: async (id: string) => {
     try {
-      await api.delete(`${API_ENDPOINTS.GET_USER_LINKS}/${id}`);
+      await api.delete(API_ENDPOINTS.DELETE_LINK(id));
     } catch (error) {
       console.error('Error deleting short link:', error);
       throw error;

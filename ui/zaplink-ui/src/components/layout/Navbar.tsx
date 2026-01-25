@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -11,16 +9,21 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { User, LogOut, LayoutDashboard, Settings, Menu, X, Link as LinkIcon } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '@/store/slices/authSlice';
+import { AnimatePresence, motion } from 'framer-motion';
+import { LayoutDashboard, LogOut, Menu, Settings, User, X } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { ThemeToggle } from '../common/ThemeToggle';
+
+import { RootState } from '@/store';
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { isAuthenticated, user } = useSelector((state: any) => state.auth);
+    const { isAuthenticated, user, isInitialized } = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -51,10 +54,9 @@ export default function Navbar() {
                     <div className="flex items-center justify-between h-14 px-6">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                                <LinkIcon className="h-3.5 w-3.5 text-white" />
-                            </div>
-                            <span className="text-base font-semibold text-foreground">Zaplink</span>
+                            <Image src="/logo-light.png" alt="Logo" width={24} height={24} className="block dark:hidden" />
+                            <Image src="/logo-dark.png" alt="Logo" width={24} height={24} className="hidden dark:block" />
+                            <span className="text-base font-semibold text-foreground">Zaipme</span>
                         </Link>
 
                         {/* Desktop Nav - Center */}
@@ -72,7 +74,9 @@ export default function Navbar() {
 
                         {/* Right side - Auth buttons */}
                         <div className="hidden md:flex items-center gap-2">
-                            {isAuthenticated ? (
+                            {!isInitialized ? (
+                                <div className="h-9 w-20 bg-muted/20 animate-pulse rounded-md" />
+                            ) : isAuthenticated ? (
                                 <>
                                     <Link href="/dashboard">
                                         <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm font-medium">

@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
 import io.zaplink.manager.dto.error.ErrorResponse;
 import io.zaplink.manager.dto.error.FieldError;
 
-@RestControllerAdvice
+@Slf4j @RestControllerAdvice
 public class GlobalExceptionHandler
 {
         @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -46,6 +48,7 @@ public class GlobalExceptionHandler
         @ExceptionHandler(Exception.class)
         public ResponseEntity<Object> handleGlobalException( Exception ex, WebRequest request )
         {
+                log.error( "Unhandled exception occurred at path: {}", request.getDescription( false ), ex );
                 // Check if request wants OpenMetrics format (for Prometheus)
                 String acceptHeader = request.getHeader( HttpHeaders.ACCEPT );
                 if ( acceptHeader != null && acceptHeader.contains( "application/openmetrics-text" ) )

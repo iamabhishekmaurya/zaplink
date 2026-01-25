@@ -1,34 +1,33 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
     Field,
     FieldGroup,
-    FieldLabel,
-    FieldSeparator, // Not typically used but kept for consistency if needed
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { useDispatch, useSelector } from 'react-redux';
-import { resetPassword } from '@/store/slices/authSlice';
-import { AppDispatch, RootState } from '@/store';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useRouter, useSearchParams } from 'next/navigation';
+    FieldLabel
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Particles } from "@/components/ui/particles";
-import { GalleryVerticalEnd } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { AppDispatch, RootState } from '@/store';
+import { resetPassword } from '@/store/slices/authSlice';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react';
 import { useTheme } from "next-themes";
+import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from "react";
+import { useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'sonner';
+import * as z from 'zod';
 
 const resetPasswordSchema = z.object({
     newPassword: z.string().min(8, { message: "Password must be at least 8 characters" }),
@@ -84,10 +83,9 @@ export default function ResetPasswordPage() {
         <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
             <div className="flex flex-col w-full gap-6 max-w-sm md:max-w-4xl z-10">
                 <a href="/" className="flex items-center gap-2 self-center font-medium">
-                    <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                        <GalleryVerticalEnd className="size-4" />
-                    </div>
-                    Acme Inc.
+                    <Image src="/logo-light.png" alt="Logo" width={24} height={24} className="block dark:hidden" />
+                    <Image src="/logo-dark.png" alt="Logo" width={24} height={24} className="hidden dark:block" />
+                    <span className="text-base font-semibold text-foreground">zaipme</span>
                 </a>
 
                 <div className={cn("flex flex-col gap-6")}>

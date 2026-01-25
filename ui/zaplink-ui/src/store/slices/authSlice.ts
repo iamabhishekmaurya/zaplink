@@ -13,11 +13,8 @@ import Cookies from "js-cookie";
 
 const initialState: AuthState = {
 	user: null,
-	token: typeof window !== "undefined" ? localStorage.getItem("token") : null,
-	refreshToken:
-		typeof window !== "undefined"
-			? localStorage.getItem("refreshToken")
-			: null,
+	token: null,
+	refreshToken: null,
 	isAuthenticated: false,
 	isLoading: false,
 	isInitialized: false,
@@ -114,6 +111,11 @@ export const resendVerification = createAsyncThunk(
 export const checkAuth = createAsyncThunk(
 	"auth/checkAuth",
 	async (_, { rejectWithValue }) => {
+		// Prevent calling API if no token exists locally
+		if (typeof window !== 'undefined' && !localStorage.getItem("token")) {
+			return rejectWithValue("No token found");
+		}
+
 		try {
 			const user = await AuthApi.getCurrentUser();
 			return user;

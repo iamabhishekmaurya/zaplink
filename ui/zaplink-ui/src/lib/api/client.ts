@@ -5,6 +5,7 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8090',
   headers: {
     'Content-Type': 'application/json',
+    'X-API-Version': '1',
   },
   withCredentials: true, // Enable cookies
 });
@@ -28,8 +29,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
-    // Handle 401 Unauthorized errors - immediate redirect
+
+    // Handle 401 Unauthorized errors
     if (error.response?.status === 401) {
       // Clear tokens from both localStorage and cookies
       if (typeof window !== 'undefined') {
@@ -37,15 +38,19 @@ api.interceptors.response.use(
         localStorage.removeItem('refreshToken');
         Cookies.remove('token', { path: '/' });
         Cookies.remove('refreshToken', { path: '/' });
-        window.location.replace('/login');
+
+        // Only redirect if not already on login page and not a checkAuth call failing silently
+        if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+          window.location.replace('/login');
+        }
       }
       return Promise.reject(error);
     }
-    
+
     // Handle other errors that might need token refresh
     if (error.response?.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
@@ -53,12 +58,12 @@ api.interceptors.response.use(
           const response = await axios.post(`${api.defaults.baseURL}/auth/refresh`, null, {
             params: { refreshToken },
           });
-          
+
           const { accessToken, refreshToken: newRefreshToken } = response.data;
-          
+
           localStorage.setItem('token', accessToken);
           localStorage.setItem('refreshToken', newRefreshToken);
-          
+
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return api(originalRequest);
         }
@@ -73,7 +78,7 @@ api.interceptors.response.use(
         }
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

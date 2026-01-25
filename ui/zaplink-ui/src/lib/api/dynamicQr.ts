@@ -22,11 +22,14 @@ export const DynamicQrService = {
     },
 
     getDynamicQrs: async (page = 0, size = 10) => {
-        const response = await api.get<PageResponse<DynamicQrResponse>>(`${API_ENDPOINTS.DYNAMIC_QR_READ}?page=${page}&size=${size}`)
+        const response = await api.get<PageResponse<DynamicQrResponse>>(`${API_ENDPOINTS.DYNAMIC_QR_LIST}`, {
+            params: { page, size }
+        })
         return response.data
     },
 
     deleteDynamicQr: async (qrKey: string) => {
-        await api.delete(`${API_ENDPOINTS.DYNAMIC_QR_CREATE}/${qrKey}`)
+        await api.delete(API_ENDPOINTS.DYNAMIC_QR_DELETE(qrKey))
     }
 }
+

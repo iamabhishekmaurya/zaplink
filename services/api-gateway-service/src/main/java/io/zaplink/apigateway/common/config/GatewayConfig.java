@@ -33,20 +33,19 @@ public class GatewayConfig
                                  * Core Service Routes (Write Operations)
                                  * Port: 8081
                                  */
-                                .route( "core-short-write",
-                                        r -> r.path( writePath + "/short/url" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.rewritePath( "/api/wr/(?<segment>.*)",
-                                                                                      "/v1/api/${segment}" ) )
-                                                        .uri( "http://localhost:8081" ) )
+                                .route( "core-short-write", r -> r.path( writePath + "/short/url" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( "/api/wr/short/url", "/core/url" ) )
+                                                .uri( "http://localhost:8081" ) )
                                 .route( "core-qr-write",
                                         r -> r.path( writePath + "/qr/**" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.rewritePath( "/api/wr/(?<segment>.*)",
-                                                                                      "/v1/api/${segment}" ) )
+                                                        .filters( f -> f.rewritePath( "/api/wr/qr/(?<segment>.*)",
+                                                                                      "/core/qr/${segment}" ) )
                                                         .uri( "http://localhost:8081" ) )
                                 .route( "manager-dynamic-qr-write",
                                         r -> r.path( writePath + "/dyqr/**" ).and().header( "X-API-Version", "1" )
                                                         .filters( f -> f.rewritePath( "/api/wr/(?<segment>.*)",
-                                                                                      "/v1/api/${segment}" ) )
+                                                                                      "/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 /**
                                  * Processor Service Route
@@ -62,12 +61,12 @@ public class GatewayConfig
                                 .route( "manager-short-read",
                                         r -> r.path( readPath + "/short/**" ).and().header( "X-API-Version", "1" )
                                                         .filters( f -> f.rewritePath( "/api/rd/(?<segment>.*)",
-                                                                                      "/v1/api/${segment}" ) )
+                                                                                      "/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 .route( "manager-dynamic-qr-read",
                                         r -> r.path( readPath + "/dyqr/**" ).and().header( "X-API-Version", "1" )
                                                         .filters( f -> f.rewritePath( "/api/rd/(?<segment>.*)",
-                                                                                      "/v1/api/${segment}" ) )
+                                                                                      "/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 /**
                                  * Redirect Route (Handled by Manager)
@@ -94,7 +93,7 @@ public class GatewayConfig
                                                         .uri( "http://localhost:8084" ) )
                                 .route( "user-service",
                                         r -> r.path( basePath + "/users/**" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.stripPrefix( 0 ) )
+                                                        .filters( f -> f.stripPrefix( 1 ) ) // Changed from 0 to 1 assuming /api/users -> /users
                                                         .uri( "http://localhost:8084" ) )
                                 .build();
         }

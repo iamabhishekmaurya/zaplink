@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Facebook, Instagram, Linkedin, Twitter, Zap } from "lucide-react";
+import Image from "next/image";
 import Link from 'next/link';
 
 export const FooterSection = () => {
@@ -11,10 +12,9 @@ export const FooterSection = () => {
                 <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 mb-12">
                     <div className="lg:w-1/3">
                         <Link href="/" className="flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                                <Zap className="w-4 h-4 text-white" />
-                            </div>
-                            <span className="text-lg font-semibold text-foreground">Zaplink</span>
+                            <Image src="/logo-light.png" alt="Logo" width={24} height={24} className="block dark:hidden" />
+                            <Image src="/logo-dark.png" alt="Logo" width={24} height={24} className="hidden dark:block" />
+                            <span className="text-lg font-semibold text-foreground">Zaipme</span>
                         </Link>
                         <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
                             The advanced URL shortener for modern marketing teams.
