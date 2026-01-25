@@ -12,28 +12,40 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function ThemeToggle() {
-    const { setTheme } = useTheme();
+    // const { setTheme } = useTheme();
+    const { setTheme, resolvedTheme } = useTheme();
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 cursor-pointer hover:bg-primary/15 dark:hover:bg-primary/20 hover:text-foreground dark:hover:text-foreground border border-transparent hover:border-primary/30">
-                    <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                    <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                    <span className="sr-only">Toggle theme</span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme('light')} className="gap-2 cursor-pointer focus:bg-primary/15 dark:focus:bg-primary/20 focus:text-foreground">
-                    <Sun className="h-4 w-4" /> Light
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('dark')} className="gap-2 cursor-pointer focus:bg-primary/15 dark:focus:bg-primary/20 focus:text-foreground">
-                    <Moon className="h-4 w-4" /> Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('system')} className="gap-2 cursor-pointer focus:bg-primary/15 dark:focus:bg-primary/20 focus:text-foreground">
-                    <Monitor className="h-4 w-4" /> System
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full w-9 h-9 cursor-pointer hover:bg-primary/15 dark:hover:bg-primary/20 hover:text-foreground dark:hover:text-foreground border border-transparent hover:border-primary/30"
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            suppressHydrationWarning
+        >
+            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+        </Button>
+        // <DropdownMenu>
+        //     <DropdownMenuTrigger asChild>
+        //         <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 cursor-pointer hover:bg-primary/15 dark:hover:bg-primary/20 hover:text-foreground dark:hover:text-foreground border border-transparent hover:border-primary/30" suppressHydrationWarning>
+        //             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+        //             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        //             <span className="sr-only">Toggle theme</span>
+        //         </Button>
+        //     </DropdownMenuTrigger>
+        //     <DropdownMenuContent align="end">
+        //         <DropdownMenuItem onClick={() => setTheme('light')} className="gap-2 cursor-pointer focus:bg-primary/15 dark:focus:bg-primary/20 focus:text-foreground">
+        //             <Sun className="h-4 w-4" /> Light
+        //         </DropdownMenuItem>
+        //         <DropdownMenuItem onClick={() => setTheme('dark')} className="gap-2 cursor-pointer focus:bg-primary/15 dark:focus:bg-primary/20 focus:text-foreground">
+        //             <Moon className="h-4 w-4" /> Dark
+        //         </DropdownMenuItem>
+        //         <DropdownMenuItem onClick={() => setTheme('system')} className="gap-2 cursor-pointer focus:bg-primary/15 dark:focus:bg-primary/20 focus:text-foreground">
+        //             <Monitor className="h-4 w-4" /> System
+        //         </DropdownMenuItem>
+        //     </DropdownMenuContent>
+        // </DropdownMenu>
     );
 }
