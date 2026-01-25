@@ -36,11 +36,14 @@ public class SecurityConfig
         log.debug( LogConstants.LOG_CONFIGURING_SECURITY_FILTER_CHAIN );
         return http.csrf( ServerHttpSecurity.CsrfSpec::disable )
                 .cors( cors -> cors.configurationSource( corsConfigurationSource() ) )
+                .httpBasic( ServerHttpSecurity.HttpBasicSpec::disable )
+                .formLogin( ServerHttpSecurity.FormLoginSpec::disable )
                 .authorizeExchange( exchanges -> exchanges
                         .pathMatchers( "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
                                        "/api/auth/verify-email", "/api/auth/resend-verification",
                                        "/api/auth/request-password-reset", "/api/auth/reset-password" )
                         .permitAll().pathMatchers( "/r/**" ).permitAll().pathMatchers( "/error" ).permitAll()
+                        .pathMatchers( "/favicon.ico" ).permitAll().pathMatchers( "/.well-known/**" ).permitAll()
                         .pathMatchers( "/actuator/**" ).permitAll().pathMatchers( HttpMethod.OPTIONS, "/**" )
                         .permitAll().anyExchange().authenticated() )
                 .addFilterBefore( jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION ).build();

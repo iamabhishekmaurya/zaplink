@@ -36,7 +36,9 @@ public class RedirectController
      * Path: /r/{urlKey}
      */
     @GetMapping("r/{urlKey}")
-    public void redirectUrl( @PathVariable String urlKey, HttpServletRequest request, HttpServletResponse response )
+    public void redirectUrl( @PathVariable("urlKey") String urlKey,
+                             HttpServletRequest request,
+                             HttpServletResponse response )
         throws IOException
     {
         log.debug( "URL redirect request for key: {}", urlKey );
@@ -70,7 +72,9 @@ public class RedirectController
      * - Domain restrictions
      */
     @GetMapping("s/{qrKey}")
-    public void redirectQr( @PathVariable String qrKey, HttpServletRequest request, HttpServletResponse response )
+    public void redirectQr( @PathVariable("qrKey") String qrKey,
+                            HttpServletRequest request,
+                            HttpServletResponse response )
         throws IOException
     {
         log.debug( "QR redirect request for key: {}", qrKey );

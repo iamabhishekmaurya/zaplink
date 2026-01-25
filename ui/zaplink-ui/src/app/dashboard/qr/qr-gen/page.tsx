@@ -187,14 +187,28 @@ const QrGeneratorContent = () => {
 
         try {
             const config = mapToApiConfig(values)
+            // Calculate expiration date
+            let expirationDate: string | undefined
+            if (values.expirationDays && values.expirationDays > 0) {
+                const date = new Date()
+                date.setDate(date.getDate() + values.expirationDays)
+                expirationDate = date.toISOString()
+            }
+
+            // Parse allowed domains
+            let allowedDomains: string[] | undefined
+            if ((values.domainRestriction === 'allowed' || values.domainRestriction === 'blocked') && values.allowedDomains) {
+                allowedDomains = values.allowedDomains.split(/[,\n]+/).map(d => d.trim()).filter(Boolean)
+            }
+
             await DynamicQrService.createDynamicQr({
                 qrName: name,
                 destinationUrl: values.data,
                 qrConfig: config,
-                expirationDays: values.expirationDays,
+                expirationDate: expirationDate,
                 password: values.passwordProtection ? values.password : undefined,
                 scanLimit: values.scanLimit === 0 ? undefined : values.scanLimit, // 0 usually means unlimited in UI but backend treats >0 as limit.
-                allowedDomains: (values.domainRestriction === 'allowed' || values.domainRestriction === 'blocked') ? values.allowedDomains : undefined,
+                allowedDomains: allowedDomains,
                 trackAnalytics: values.trackAnalytics
             })
             toast.success('QR Code saved successfully and is now active!')

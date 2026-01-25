@@ -8,10 +8,10 @@ interface CreateDynamicQrRequest {
     qrConfig: QRConfigType
     campaignId?: string
     // Advanced Features
-    expirationDays?: number
+    expirationDate?: string // ISO date string
     password?: string
     scanLimit?: number
-    allowedDomains?: string
+    allowedDomains?: string[]
     trackAnalytics?: boolean
 }
 

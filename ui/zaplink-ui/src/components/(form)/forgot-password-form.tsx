@@ -90,7 +90,7 @@ export function ForgotPasswordForm({
                 or
               </FieldSeparator>
               <FieldDescription className="text-center">
-                Don&apos;t have an account? <a href="/signup" className="underline underline-offset-2">Sign up</a>
+                Don&apos;t have an account? <a href="/login" className="underline underline-offset-2">Sign In</a>
               </FieldDescription>
             </FieldGroup>
           </form>

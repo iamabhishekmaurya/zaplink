@@ -21,8 +21,8 @@ import io.zaplink.manager.client.CoreServiceClient;
 import io.zaplink.manager.service.dynamicqr.DynamicQrService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j @Service @RequiredArgsConstructor
 public class DynamicQrServiceImpl
@@ -165,7 +165,7 @@ public class DynamicQrServiceImpl
             qrConfig.setData( redirectUrl );
             return coreServiceClient.generateStyledQr( qrConfig ).getBody();
         }
-        catch ( JacksonException e )
+        catch ( JsonProcessingException e )
         {
             log.error( "Error parsing QR config from JSON", e );
             throw new RuntimeException( "Failed to parse QR configuration", e );
@@ -209,7 +209,7 @@ public class DynamicQrServiceImpl
             DynamicQrCodeEntity saved = dynamicQrCodeRepository.save( entity );
             return convertToResponse( saved );
         }
-        catch ( JacksonException e )
+        catch ( JsonProcessingException e )
         {
             log.error( "Error processing JSON for create dynamic QR", e );
             throw new RuntimeException( "Failed to create dynamic QR", e );
