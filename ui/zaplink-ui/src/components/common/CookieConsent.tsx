@@ -11,7 +11,7 @@ export const CookieConsent = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        const consent = Cookies.get('zaipmecookie-consent');
+        const consent = Cookies.get('zaipme-cookie-consent');
         if (!consent) {
             const timer = setTimeout(() => setIsVisible(true), 1000);
             return () => clearTimeout(timer);

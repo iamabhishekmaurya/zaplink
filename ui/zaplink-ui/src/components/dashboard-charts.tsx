@@ -25,17 +25,17 @@ import { DashboardStats } from "@/hooks/useDashboardData"
 const historyChartConfig = {
     links: {
         label: "Links",
-        color: "var(--chart-1)",
+        color: "hsl(var(--chart-1))",
     },
     qrs: {
         label: "QR Codes",
-        color: "var(--chart-2)",
+        color: "hsl(var(--chart-2))",
     },
 } satisfies ChartConfig
 
 export function CreationHistoryChart({ data }: { data: DashboardStats['creationHistory'] }) {
     return (
-        <Card className="h-full flex flex-col glass-card hover:border-primary/20 transition-colors">
+        <Card className="h-full flex flex-col border-border/50 bg-background/50 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_0_20px_-12px_var(--color-primary)] transition-all duration-300">
             <CardHeader>
                 <CardTitle>Creation History</CardTitle>
                 <CardDescription>New content created over the last 7 days</CardDescription>
@@ -43,7 +43,7 @@ export function CreationHistoryChart({ data }: { data: DashboardStats['creationH
             <CardContent className="flex-1">
                 <ChartContainer config={historyChartConfig} className="h-[300px] w-full">
                     <BarChart accessibilityLayer data={data}>
-                        <CartesianGrid vertical={false} />
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted/30" />
                         <XAxis
                             dataKey="date"
                             tickLine={false}
@@ -54,7 +54,7 @@ export function CreationHistoryChart({ data }: { data: DashboardStats['creationH
                                 return date.toLocaleDateString("en-US", { weekday: 'short', day: 'numeric' });
                             }}
                         />
-                        <ChartTooltip content={<ChartTooltipContent indicator="dashed" />} />
+                        <ChartTooltip content={<ChartTooltipContent indicator="dashed" className="bg-background/80 backdrop-blur-md border-border/50" />} />
                         <ChartLegend content={<ChartLegendContent />} />
                         <Bar dataKey="links" fill="var(--color-links)" radius={[4, 4, 0, 0]} />
                         <Bar dataKey="qrs" fill="var(--color-qrs)" radius={[4, 4, 0, 0]} />
@@ -79,7 +79,7 @@ export function PlatformDistributionChart({ data }: { data: DashboardStats['plat
     }, [data])
 
     return (
-        <Card className="h-full flex flex-col glass-card hover:border-primary/20 transition-colors">
+        <Card className="h-full flex flex-col border-border/50 bg-background/50 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_0_20px_-12px_var(--color-primary)] transition-all duration-300">
             <CardHeader className="items-center pb-0">
                 <CardTitle>Link Platforms</CardTitle>
                 <CardDescription>Distribution of link destinations</CardDescription>
@@ -92,7 +92,7 @@ export function PlatformDistributionChart({ data }: { data: DashboardStats['plat
                     <PieChart>
                         <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
+                            content={<ChartTooltipContent hideLabel className="bg-background/80 backdrop-blur-md border-border/50" />}
                         />
                         <Pie
                             data={data}

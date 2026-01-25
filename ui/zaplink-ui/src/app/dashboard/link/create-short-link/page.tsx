@@ -8,7 +8,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Loader2, Link2, Globe, Tag, Sparkles, Youtube, Github, Twitter, Linkedin, Instagram, Facebook, Link } from 'lucide-react'
+import { ArrowLeft, Loader2, Link2, Globe, Tag, Sparkles, Youtube, Github, Twitter, Linkedin, Instagram, Facebook, Link, RefreshCw } from 'lucide-react'
 import { IconBrandYoutube } from '@tabler/icons-react'
 import { useShortlinks } from '@/hooks/useShortlinks'
 import { extractTitleFromUrl, extractPlatformFromUrl } from '@/lib/api/shortlinkService'
@@ -29,7 +29,7 @@ const CreateShortLink = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { createShortlink, getShortlink, updateShortlink } = useShortlinks()
-    
+
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [isEditMode, setIsEditMode] = useState(false)
@@ -48,7 +48,7 @@ const CreateShortLink = () => {
     useEffect(() => {
         const editMode = searchParams.get('edit') === 'true'
         const linkId = searchParams.get('id')
-        
+
         if (editMode && linkId) {
             setIsEditMode(true)
             loadLinkData(linkId)
@@ -76,13 +76,13 @@ const CreateShortLink = () => {
 
     const handleUrlChange = (value: string) => {
         form.setValue('originalUrl', value)
-        
+
         // Auto-extract title and platform when URL changes
         if (value) {
             try {
                 const title = extractTitleFromUrl(value)
                 const platform = extractPlatformFromUrl(value)
-                
+
                 // Only set if fields are empty
                 if (!form.getValues('title')) {
                     form.setValue('title', title)
@@ -100,18 +100,18 @@ const CreateShortLink = () => {
         try {
             setLoading(true)
             setError(null)
-            
+
             const tagsArray = values.tags
                 ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
                 : []
-            
+
             const linkData = {
                 title: values.title || extractTitleFromUrl(values.originalUrl),
                 originalUrl: values.originalUrl,
                 platform: values.platform || extractPlatformFromUrl(values.originalUrl),
                 tags: tagsArray
             }
-            
+
             if (isEditMode) {
                 const linkId = searchParams.get('id')
                 if (linkId) {
@@ -120,7 +120,7 @@ const CreateShortLink = () => {
             } else {
                 await createShortlink(linkData)
             }
-            
+
             // Navigate back to short links page after successful operation
             router.push('/dashboard/link/short-link')
         } catch (err: any) {
@@ -163,51 +163,44 @@ const CreateShortLink = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="min-h-screen bg-background p-4 lg:p-8">
+            <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="mb-8">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleBack}
-                        className="mb-4"
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Short Links
-                    </Button>
-                    
-                    <div className="text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-2xl mb-4">
-                            <Link2 className="h-8 w-8 text-primary-foreground" />
-                        </div>
-                        <h1 className="text-4xl font-bold tracking-tight mb-2">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">
                             {isEditMode ? 'Edit Short Link' : 'Create Short Link'}
                         </h1>
-                        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                            {isEditMode 
-                                ? 'Update your short link details and settings'
-                                : 'Transform your long URLs into short, memorable links that are easy to share and track'
+                        <p className="text-muted-foreground mt-1">
+                            {isEditMode
+                                ? 'Update your short link details and settings.'
+                                : 'Transform long URLs into memorable short links.'
                             }
                         </p>
                     </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={handleBack} className="flex items-center gap-2">
+                            <ArrowLeft className="h-4 w-4" /> Back to Links
+                        </Button>
+                        <Button variant="outline" onClick={() => form.reset()} className="flex items-center gap-2">
+                            <RefreshCw className="h-4 w-4" /> Reset
+                        </Button>
+                    </div>
                 </div>
 
-                {/* Main Content */}
-                <div className="grid lg:grid-cols-3 gap-8">
-                    {/* Form Section */}
-                    <div className="lg:col-span-2">
-                        <Card className="shadow-lg">
-                            <CardHeader className="pb-4">
-                                <CardTitle className="flex items-center gap-2 text-xl">
-                                    <Sparkles className="h-5 w-5 text-primary" />
-                                    Link Details
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <Form {...form}>
-                                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                                        {/* Original URL - Main Field */}
+                <div className="grid lg:grid-cols-12 gap-8 items-start">
+                    {/* Left Panel: Form */}
+                    <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <Card className="border-border/50 bg-background/50 backdrop-blur-sm shadow-sm">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Link2 className="h-5 w-5 text-primary" /> Link Details
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        {/* Original URL */}
                                         <FormField
                                             control={form.control}
                                             name="originalUrl"
@@ -219,21 +212,17 @@ const CreateShortLink = () => {
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Input
-                                                            placeholder="https://example.com/your-very-long-url-that-needs-shortening"
-                                                            className="h-12 text-base border-2 focus:border-primary focus:ring-primary/20"
+                                                            placeholder="https://example.com/long-url"
+                                                            className="h-12 text-base border-input/50 focus:border-primary/50 bg-background/50"
                                                             {...field}
                                                             onChange={(e) => handleUrlChange(e.target.value)}
                                                         />
                                                     </FormControl>
-                                                    <FormDescription className="text-sm">
-                                                        Enter the full URL you want to shorten
-                                                    </FormDescription>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
 
-                                        {/* Title and Platform in Grid */}
                                         <div className="grid md:grid-cols-2 gap-6">
                                             {/* Title */}
                                             <FormField
@@ -241,19 +230,14 @@ const CreateShortLink = () => {
                                                 name="title"
                                                 render={({ field }) => (
                                                     <FormItem className="space-y-3">
-                                                        <FormLabel className="text-base font-semibold">
-                                                            Title
-                                                        </FormLabel>
+                                                        <FormLabel className="text-base font-semibold">Title</FormLabel>
                                                         <FormControl>
                                                             <Input
                                                                 placeholder="My Awesome Link"
-                                                                className="h-11 border-2 focus:border-primary focus:ring-primary/20"
+                                                                className="h-12 border-input/50 focus:border-primary/50 bg-background/50"
                                                                 {...field}
                                                             />
                                                         </FormControl>
-                                                        <FormDescription className="text-sm">
-                                                            Auto-populated from URL
-                                                        </FormDescription>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
@@ -265,20 +249,18 @@ const CreateShortLink = () => {
                                                 name="platform"
                                                 render={({ field }) => (
                                                     <FormItem className="space-y-3">
-                                                        <FormLabel className="text-base font-semibold">
-                                                            Platform
-                                                        </FormLabel>
+                                                        <FormLabel className="text-base font-semibold">Platform</FormLabel>
                                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                             <FormControl>
-                                                                <SelectTrigger className="h-11 border-2 focus:border-primary focus:ring-primary/20">
+                                                                <SelectTrigger className="w-full h-12 border-input/50 focus:border-primary/50 bg-background/50 data-[placeholder]:text-muted-foreground">
                                                                     <SelectValue placeholder="Select platform" />
                                                                 </SelectTrigger>
                                                             </FormControl>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-background/95 backdrop-blur-xl border-border/50">
                                                                 {platforms.map((platform) => {
                                                                     const Icon = platform.icon
                                                                     return (
-                                                                        <SelectItem key={platform.value} value={platform.value}>
+                                                                        <SelectItem key={platform.value} value={platform.value} className="focus:bg-primary/10">
                                                                             <div className="flex items-center gap-2">
                                                                                 <Icon className="h-4 w-4" />
                                                                                 <span>{platform.label}</span>
@@ -288,9 +270,6 @@ const CreateShortLink = () => {
                                                                 })}
                                                             </SelectContent>
                                                         </Select>
-                                                        <FormDescription className="text-sm">
-                                                            Auto-detected from URL
-                                                        </FormDescription>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
@@ -304,46 +283,31 @@ const CreateShortLink = () => {
                                             render={({ field }) => (
                                                 <FormItem className="space-y-3">
                                                     <FormLabel className="text-base font-semibold flex items-center gap-2">
-                                                        <Tag className="h-4 w-4" />
-                                                        Tags
+                                                        <Tag className="h-4 w-4" /> Tags
                                                     </FormLabel>
                                                     <FormControl>
                                                         <Textarea
-                                                            placeholder="marketing, social, campaign, summer2024"
-                                                            className="min-h-[100px] resize-none border-2 focus:border-primary focus:ring-primary/20"
+                                                            placeholder="marketing, social, campaign"
+                                                            className="min-h-[100px] resize-none border-input/50 focus:border-primary/50 bg-background/50"
                                                             {...field}
                                                         />
                                                     </FormControl>
-                                                    <FormDescription className="text-sm">
-                                                        Add tags to organize your links (separate with commas)
-                                                    </FormDescription>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
 
-                                        {/* Error Message */}
                                         {error && (
                                             <div className="p-4 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
                                                 {error}
                                             </div>
                                         )}
 
-                                        {/* Action Buttons */}
-                                        <div className="flex gap-4 pt-6">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={handleBack}
-                                                disabled={loading}
-                                                className="h-12 px-8 border-2"
-                                            >
-                                                Cancel
-                                            </Button>
+                                        <div className="flex gap-4 pt-4 justify-end">
                                             <Button
                                                 type="submit"
                                                 disabled={loading}
-                                                className="h-12 px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                                                className="h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300"
                                             >
                                                 {loading ? (
                                                     <>
@@ -358,59 +322,36 @@ const CreateShortLink = () => {
                                                 )}
                                             </Button>
                                         </div>
-                                    </form>
-                                </Form>
-                            </CardContent>
-                        </Card>
+                                    </CardContent>
+                                </Card>
+                            </form>
+                        </Form>
                     </div>
 
-                    {/* Side Panel */}
-                    <div className="lg:col-span-1 space-y-6">
-                        {/* Features Card */}
-                        <Card className="shadow-lg bg-muted/50">
+                    {/* Right Panel: Info */}
+                    <div className="lg:col-span-5 xl:col-span-4 space-y-6 lg:sticky lg:top-8">
+                        <Card className="shadow-lg border-2 border-primary/10 bg-primary/5 backdrop-blur-sm">
                             <CardContent className="p-6">
-                                <h3 className="font-semibold text-lg mb-4">
-                                    ✨ Why Short Links?
+                                <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+                                    <Sparkles className="h-5 w-5 text-primary" />
+                                    Why Short Links?
                                 </h3>
-                                <div className="space-y-3 text-sm text-muted-foreground">
-                                    <div className="flex items-start gap-3">
+                                <div className="space-y-4 text-sm text-muted-foreground">
+                                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
                                         <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                                         <p>Share memorable links that are easy to remember</p>
                                     </div>
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-2 h-2 bg-chart-2 rounded-full mt-1.5 flex-shrink-0"></div>
+                                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                                        <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                                         <p>Track clicks and analyze performance</p>
                                     </div>
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-2 h-2 bg-chart-3 rounded-full mt-1.5 flex-shrink-0"></div>
+                                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                                        <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                                         <p>Custom branding with your domain</p>
                                     </div>
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-2 h-2 bg-chart-4 rounded-full mt-1.5 flex-shrink-0"></div>
+                                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/50">
+                                        <div className="w-2 h-2 bg-primary rounded-full mt-1.5 flex-shrink-0"></div>
                                         <p>Organize with tags and categories</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Tips Card */}
-                        <Card className="shadow-lg bg-muted/30">
-                            <CardContent className="p-6">
-                                <h3 className="font-semibold text-lg mb-4">
-                                    💡 Pro Tips
-                                </h3>
-                                <div className="space-y-3 text-sm text-muted-foreground">
-                                    <div className="flex items-start gap-3">
-                                        <span className="text-lg">🎯</span>
-                                        <p>Use descriptive titles for easy identification</p>
-                                    </div>
-                                    <div className="flex items-start gap-3">
-                                        <span className="text-lg">🏷️</span>
-                                        <p>Add relevant tags for better organization</p>
-                                    </div>
-                                    <div className="flex items-start gap-3">
-                                        <span className="text-lg">📊</span>
-                                        <p>Enable analytics to track performance</p>
                                     </div>
                                 </div>
                             </CardContent>

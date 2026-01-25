@@ -73,6 +73,11 @@ const QrGeneratorContent = () => {
     const [isGenerating, setIsGenerating] = useState(false)
     const [lastGeneratedValues, setLastGeneratedValues] = useState<FormValues | null>(null)
     const isGeneratingRef = useRef(false)
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -243,6 +248,10 @@ const QrGeneratorContent = () => {
         form.reset(newValues)
         // Trigger generation immediately after preset
         setTimeout(() => generateQR(newValues), 100)
+    }
+
+    if (!mounted) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>
     }
 
     return (
