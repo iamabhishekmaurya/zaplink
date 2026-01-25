@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
+import io.zaplink.auth.common.constants.SecurityConstants;
 import io.zaplink.auth.common.util.StringUtil;
 import io.zaplink.auth.entity.User;
 import io.zaplink.auth.repository.UserRepository;
@@ -40,10 +41,10 @@ public class CustomUserDetailsService
                                       true, // accountNonExpired
                                       true, // credentialsNonExpired
                                       true, // accountNonLocked
-                                      user.getRoles().stream()
-                                              .map( role -> role.getName().startsWith( "ROLE_" ) ? role.getName()
-                                                                                                 : "ROLE_" + role
-                                                                                                         .getName() )
+                                      user.getRoles().stream().map( role -> role.getName()
+                                              .startsWith( SecurityConstants.ROLE_PREFIX ) ? role.getName()
+                                                                                           : SecurityConstants.ROLE_PREFIX
+                                                                                                   + role.getName() )
                                               .map( SimpleGrantedAuthority::new ).toList() );
     }
 }

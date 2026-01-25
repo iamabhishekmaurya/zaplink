@@ -2,7 +2,6 @@ package io.zaplink.auth.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +26,8 @@ public class UserController
     public ResponseEntity<User> getUser( @PathVariable("userId") @P("userId") Long userId )
     {
         log.info( LogConstants.LOG_GET_USER_REQUEST, userId );
-        User user = userService.findById( userId ).orElseThrow( () -> new RuntimeException( "User not found" ) );
+        User user = userService.findById( userId )
+                .orElseThrow( () -> new RuntimeException( ApiConstants.MESSAGE_USER_NOT_FOUND ) );
         return ResponseEntity.ok( user );
     }
 

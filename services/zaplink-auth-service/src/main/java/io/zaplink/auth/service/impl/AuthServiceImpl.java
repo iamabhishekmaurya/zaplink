@@ -159,7 +159,7 @@ public class AuthServiceImpl
     {
         log.info( LogConstants.LOG_PROCESSING_GET_CURRENT_USER_REQUEST );
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userHelper.findUserByEmailOrThrow( email, "get current user" );
+        User user = userHelper.findUserByEmailOrThrow( email, ApiConstants.OPERATION_GET_CURRENT_USER );
         return new LoginResponse.UserInfo( user.getId(),
                                            user.getUsername(),
                                            user.getEmail(),
@@ -179,7 +179,7 @@ public class AuthServiceImpl
     {
         log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_REQUEST, request.email() );
         // Find user by email using utility
-        User user = userHelper.findUserByEmailOrThrow( request.email(), "password reset" );
+        User user = userHelper.findUserByEmailOrThrow( request.email(), ApiConstants.OPERATION_PASSWORD_RESET );
         // Generate reset token using utility
         String resetToken = tokenUtility.generateToken();
         Instant expiryTime = tokenUtility.generatePasswordResetExpiry();

@@ -6,7 +6,7 @@ package io.zaplink.auth.common.constants;
  * 
  * @author Zaplink Team
  * @version 1.0
- * @since 2025-11-30
+ * @since 2026-01-25
  */
 public final class ApiConstants
 {
@@ -59,11 +59,28 @@ public final class ApiConstants
     public static final String MESSAGE_ACCESS_DENIED                  = "Access denied";
     public static final String MESSAGE_VALIDATION_FAILED              = "Validation failed";
     public static final String MESSAGE_UNEXPECTED_ERROR               = "An unexpected error occurred";
+    // ==================== PROBLEM DETAILS ====================
+    public static final String PROBLEM_TYPE_DEFAULT                   = "about:blank";
+    public static final String PROBLEM_TITLE_AUTH_ERROR               = "Authentication Error";
+    public static final String PROBLEM_TITLE_USER_ALREADY_EXISTS      = "User Already Exists";
+    public static final String PROBLEM_TITLE_USER_NOT_FOUND           = "User Not Found";
+    public static final String PROBLEM_TITLE_INVALID_CREDENTIALS      = "Invalid Credentials";
+    public static final String PROBLEM_TITLE_AUTH_FAILED              = "Authentication Failed";
+    public static final String PROBLEM_TITLE_BAD_CREDENTIALS          = "Bad Credentials";
+    public static final String PROBLEM_TITLE_ACCESS_DENIED            = "Access Denied";
+    public static final String PROBLEM_TITLE_VALIDATION_FAILED        = "Validation Failed";
+    public static final String PROBLEM_TITLE_INTERNAL_ERROR           = "Internal Server Error";
+    public static final String PROBLEM_PROPERTY_ERROR_CODE            = "errorCode";
+    public static final String PROBLEM_PROPERTY_TRACE_ID              = "traceId";
+    public static final String PROBLEM_PROPERTY_ERRORS                = "errors";
     // ==================== OPERATIONS ====================
     public static final String OPERATION_UPDATE                       = "update";
     public static final String OPERATION_DEACTIVATION                 = "deactivation";
     public static final String OPERATION_ACTIVATION                   = "activation";
     public static final String OPERATION_LOGIN                        = "login";
     public static final String OPERATION_PASSWORD_RESET               = "password reset";
+    public static final String OPERATION_GET_CURRENT_USER             = "get current user";
     public static final String OPERATION_AUTHENTICATION               = "authentication";
+    // ==================== EMAIL SUBJECTS ====================
+    public static final String SUBJECT_VERIFICATION_EMAIL             = "Zaplink Verification Email";
 }

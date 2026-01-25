@@ -9,6 +9,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.zaplink.auth.common.constants.LogConstants;
+import io.zaplink.auth.common.constants.SecurityConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +29,6 @@ public class GatewayAuthenticationFilter
     OncePerRequestFilter
 {
     private final CustomUserDetailsService userDetailsService;
-    private static final String            X_USER_EMAIL = "X-User-Email";
     @Override
     protected boolean shouldNotFilter( HttpServletRequest request )
         throws ServletException
@@ -46,10 +47,10 @@ public class GatewayAuthenticationFilter
         throws ServletException,
         IOException
     {
-        String userEmail = request.getHeader( X_USER_EMAIL );
+        String userEmail = request.getHeader( SecurityConstants.HEADER_X_USER_EMAIL );
         if ( userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null )
         {
-            log.debug( "Processing authentication for user: {}", userEmail );
+            log.debug( LogConstants.LOG_PROCESSING_AUTH_FOR_USER, userEmail );
             try
             {
                 UserDetails userDetails = userDetailsService.loadUserByUsername( userEmail );
@@ -59,17 +60,15 @@ public class GatewayAuthenticationFilter
                                                                                                                  .getAuthorities() );
                 authToken.setDetails( new WebAuthenticationDetailsSource().buildDetails( request ) );
                 SecurityContextHolder.getContext().setAuthentication( authToken );
-                log.debug( "Authentication successful for user: {}", userEmail );
+                log.debug( LogConstants.LOG_AUTH_SUCCESSFUL_FOR_USER, userEmail );
                 if ( userDetails instanceof CustomUserDetails customUserDetails )
                 {
-                    System.out.println( "DEBUG: Authentication Filter: Authenticated User ID: "
-                            + customUserDetails.getId() );
-                    log.info( "Authenticated User ID: {}", customUserDetails.getId() );
+                    log.info( LogConstants.LOG_AUTHENTICATED_USER_ID, customUserDetails.getId() );
                 }
             }
             catch ( Exception e )
             {
-                log.error( "Authentication failed for user: {}", userEmail, e );
+                log.error( LogConstants.LOG_AUTH_FAILED_FOR_USER, userEmail, e );
             }
         }
         filterChain.doFilter( request, response );

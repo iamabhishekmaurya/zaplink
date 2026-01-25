@@ -148,8 +148,8 @@ public class RegistrationServiceImpl
     @Async
     private void sendVerificationEmailEvent( User user )
     {
-        EmailRequest emailRequest = EmailRequest.builder().to( user.getEmail() ).subject( "Zaplink Verification Email" )
-                .body( user.getVerificationToken() ).build();
+        EmailRequest emailRequest = EmailRequest.builder().to( user.getEmail() )
+                .subject( ApiConstants.SUBJECT_VERIFICATION_EMAIL ).body( user.getVerificationToken() ).build();
         kafkaServiceHelper.sendMessage( emailRequest );
     }
 }

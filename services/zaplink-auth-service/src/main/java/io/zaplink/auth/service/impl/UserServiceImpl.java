@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
+import io.zaplink.auth.common.constants.SecurityConstants;
 import io.zaplink.auth.common.exception.UserAlreadyExistsException;
 import io.zaplink.auth.common.util.Utility;
 import io.zaplink.auth.dto.request.UserRegistrationRequest;
@@ -67,7 +68,7 @@ public class UserServiceImpl
     @Override @Transactional(readOnly = true)
     public java.util.Optional<User> findById( Long id )
     {
-        log.debug( "Searching user by id: {}", id );
+        log.debug( LogConstants.LOG_SEARCHING_USER_BY_ID, id );
         return userRepository.findById( id );
     }
 
@@ -90,9 +91,9 @@ public class UserServiceImpl
                 .verificationToken( Utility.generateVerificationCode().toString() ).createdAt( Instant.now() ).build();
         // Assign default USER role using Set.of() for immutable sets
         log.debug( LogConstants.LOG_ASSIGNING_DEFAULT_USER_ROLE );
-        Role userRole = roleRepository.findByName( "USER" ).orElseGet( () -> {
+        Role userRole = roleRepository.findByName( SecurityConstants.ROLE_USER ).orElseGet( () -> {
             log.info( LogConstants.LOG_DEFAULT_USER_ROLE_NOT_FOUND );
-            Role role = Role.builder().name( "USER" ).description( "Standard user role" ).build();
+            Role role = Role.builder().name( SecurityConstants.ROLE_USER ).description( "Standard user role" ).build();
             return roleRepository.save( role );
         } );
         user.setRoles( Set.of( userRole ) );

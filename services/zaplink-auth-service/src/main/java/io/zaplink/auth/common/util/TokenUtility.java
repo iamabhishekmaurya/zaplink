@@ -6,13 +6,15 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
+import io.zaplink.auth.common.constants.ApiConstants;
+
 /**
  * Utility class for common token operations.
  * Provides reusable methods for token generation and validation.
  * 
  * @author Zaplink Team
  * @version 1.0
- * @since 2025-11-30
+ * @since 2026-01-25
  */
 @Component
 public class TokenUtility
@@ -23,7 +25,6 @@ public class TokenUtility
     private static final long   PASSWORD_RESET_EXPIRY_HOURS           = 1;
     // ==================== TOKEN MASKING ====================
     private static final int    TOKEN_MASK_LENGTH                     = 10;
-    private static final String TOKEN_SUFFIX                          = "...";
     private static final String FULL_TOKEN_MASK                       = "***";
     /**
      * Generates a new UUID-based token string.
@@ -80,7 +81,7 @@ public class TokenUtility
         {
             return FULL_TOKEN_MASK;
         }
-        return token.substring( 0, TOKEN_MASK_LENGTH ) + TOKEN_SUFFIX;
+        return token.substring( 0, TOKEN_MASK_LENGTH ) + ApiConstants.MESSAGE_TOKEN_TRUNCATED_SUFFIX;
     }
 
     /**

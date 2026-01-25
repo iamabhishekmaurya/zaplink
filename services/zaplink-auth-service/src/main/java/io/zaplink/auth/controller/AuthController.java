@@ -109,7 +109,7 @@ public class AuthController
     {
         log.info( LogConstants.LOG_PROCESSING_LOGOUT_REQUEST );
         authService.logout( refreshToken );
-        log.info( LogConstants.LOG_USER_LOGGED_OUT_SUCCESSFULLY, "user" );
+        log.info( LogConstants.LOG_USER_LOGGED_OUT_SUCCESSFULLY, LogConstants.PARAM_USER );
         return BaseResponse.success( ApiConstants.MESSAGE_LOGOUT_SUCCESSFUL );
     }
 
@@ -124,7 +124,7 @@ public class AuthController
     {
         log.info( LogConstants.LOG_PROCESSING_EMAIL_VERIFICATION );
         registrationService.verifyEmail( token );
-        log.info( LogConstants.LOG_EMAIL_VERIFIED_SUCCESSFULLY, "user", "ID" );
+        log.info( LogConstants.LOG_EMAIL_VERIFIED_SUCCESSFULLY, LogConstants.PARAM_USER, LogConstants.PARAM_ID );
         return BaseResponse.success( ApiConstants.MESSAGE_EMAIL_VERIFIED_SUCCESSFULLY );
     }
 
@@ -169,7 +169,7 @@ public class AuthController
     {
         log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_WITH_TOKEN );
         authService.resetPassword( token, newPassword );
-        log.info( LogConstants.LOG_PASSWORD_RESET_SUCCESSFUL, "user" );
+        log.info( LogConstants.LOG_PASSWORD_RESET_SUCCESSFUL, LogConstants.PARAM_USER );
         return BaseResponse.success( ApiConstants.MESSAGE_PASSWORD_RESET_SUCCESSFULLY );
     }
 }

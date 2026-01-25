@@ -6,7 +6,7 @@ package io.zaplink.auth.common.constants;
  * 
  * @author Zaplink Team
  * @version 1.0
- * @since 2025-11-30
+ * @since 2026-01-25
  */
 public final class LogConstants
 {
@@ -22,6 +22,7 @@ public final class LogConstants
     public static final String LOG_DEFAULT_USER_ROLE_NOT_FOUND              = "Default USER role not found, creating new role";
     public static final String LOG_USER_CREATED_SUCCESSFULLY                = "User created successfully - ID: {}, Email: {}, Username: {}";
     public static final String LOG_SAVING_USER_ENTITY                       = "Saving user entity for user ID: {}";
+    public static final String LOG_SEARCHING_USER_BY_ID                     = "Searching user by id: {}";
     public static final String LOG_GET_USER_REQUEST                         = "Get user request received for ID: {}";
     public static final String LOG_UPDATE_USER_REQUEST                      = "Update user request received for ID: {}";
     public static final String LOG_UPDATING_USER_INFORMATION                = "Updating user information for user ID: {}";
@@ -131,4 +132,12 @@ public final class LogConstants
     public static final String LOG_ACCESS_DENIED_EXCEPTION                  = "AccessDeniedException occurred - TraceId: {}, Error: {}";
     public static final String LOG_VALIDATION_EXCEPTION_OCCURRED            = "MethodArgumentNotValidException occurred - TraceId: {}, Validation errors: {}";
     public static final String LOG_UNEXPECTED_EXCEPTION_OCCURRED            = "Unexpected exception occurred - TraceId: {}, Error: {}";
+    public static final String LOG_PROCESSING_AUTH_FOR_USER                 = "Processing authentication for user: {}";
+    public static final String LOG_AUTH_SUCCESSFUL_FOR_USER                 = "Authentication successful for user: {}";
+    public static final String LOG_AUTH_FILTER_DEBUG_USER_ID                = "DEBUG: Authentication Filter: Authenticated User ID: {}";
+    public static final String LOG_AUTHENTICATED_USER_ID                    = "Authenticated User ID: {}";
+    public static final String LOG_AUTH_FAILED_FOR_USER                     = "Authentication failed for user: {}";
+    // ==================== PARAMETERS ====================
+    public static final String PARAM_USER                                   = "user";
+    public static final String PARAM_ID                                     = "ID";
 }
