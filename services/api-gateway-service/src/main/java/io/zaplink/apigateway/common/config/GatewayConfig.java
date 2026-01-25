@@ -69,20 +69,21 @@ public class GatewayConfig
                                                                                       "/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 /**
-                                 * Redirect Route (Handled by Manager)
+                                 * Redirect Service Routes (High-performance redirects)
+                                 * Port: 8085
                                  */
-                                .route( "redirect-link-manager", r -> r.path( "/r/**" )
+                                .route( "redirect-link", r -> r.path( "/r/**" )
                                                 .filters( f -> f.rewritePath( "/r/(?<segment>.*)", "/r/${segment}" )
                                                                 .addResponseHeader( "X-Zaplink-Processing-Time",
                                                                                     LocalDateTime.now().toString() )
                                                                 .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
-                                                .uri( "http://localhost:8083" ) )
-                                .route( "redirect-qr-manager", r -> r.path( "/s/**" )
+                                                .uri( "http://localhost:8085" ) )
+                                .route( "redirect-qr", r -> r.path( "/s/**" )
                                                 .filters( f -> f.rewritePath( "/s/(?<segment>.*)", "/s/${segment}" )
                                                                 .addResponseHeader( "X-Zaplink-Processing-Time",
                                                                                     LocalDateTime.now().toString() )
                                                                 .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
-                                                .uri( "http://localhost:8083" ) )
+                                                .uri( "http://localhost:8085" ) )
                                 /**
                                  * Auth Service Routes
                                  * Port: 8084

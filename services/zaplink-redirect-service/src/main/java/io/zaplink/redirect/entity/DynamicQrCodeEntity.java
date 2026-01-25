@@ -1,0 +1,61 @@
+package io.zaplink.redirect.entity;
+
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Dynamic QR code entity for QR redirect lookups.
+ * Read-only in redirect service context.
+ */
+@Data @Entity @Table(name = "dynamic_qr_codes") @Builder @NoArgsConstructor @AllArgsConstructor
+public class DynamicQrCodeEntity
+{
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id", nullable = false)
+    private Long          id;
+    @Column(name = "qr_key", nullable = false, unique = true)
+    private String        qrKey;
+    @Column(name = "qr_name")
+    private String        qrName;
+    @Column(name = "current_destination_url", nullable = false, length = 2048)
+    private String        currentDestinationUrl;
+    @JdbcTypeCode(SqlTypes.JSON) @Column(name = "qr_config", columnDefinition = "JSONB")
+    private String        qrConfig;
+    @Column(name = "user_email")
+    private String        userEmail;
+    @Column(name = "campaign_id")
+    private String        campaignId;
+    @Column(name = "is_active", nullable = false)
+    private Boolean       isActive;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+    @Column(name = "total_scans", nullable = false)
+    private Long          totalScans;
+    @Column(name = "last_scanned")
+    private LocalDateTime lastScanned;
+    // Advanced Features
+    @Column(name = "expiration_date")
+    private LocalDateTime expirationDate;
+    @Column(name = "password")
+    private String        password;
+    @Column(name = "scan_limit")
+    private Integer       scanLimit;
+    @JdbcTypeCode(SqlTypes.JSON) @Column(name = "allowed_domains", columnDefinition = "JSONB")
+    private String        allowedDomains;
+    @Column(name = "track_analytics", nullable = false)
+    private Boolean       trackAnalytics;
+}

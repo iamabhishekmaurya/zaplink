@@ -1,0 +1,81 @@
+server:
+  port: 8085
+
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  application:
+    name: zaplink-redirect-service
+  
+  # Enable Virtual Threads (Project Loom - Java 21)
+  threads:
+    virtual:
+      enabled: true
+  
+  # Database config (read-optimized)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/zaplink_core
+    username: postgres
+    password: 12345
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+  
+  jpa:
+    hibernate:
+      ddl-auto: none  # Read-only, no schema changes
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  
+  # Redis config
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+  
+  # Kafka producer config
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        "[enable.idempotence]": true
+        "[max.in.flight.requests.per.connection]": 5
+    properties:
+      "[spring.json.add.type.headers]": false
+
+# Redirect configuration
+redirect:
+  error:
+    base-url: https://zaplink.app/error
+  password-protect:
+    base-url: https://zaplink.app/password-protect
+
+# Kafka topics
+kafka:
+  topics:
+    url-click-events: url-click-events
+    qr-scan-events: qr-scan-events
+
+# GeoIP configuration
+geoip:
+  api-url: http://ip-api.com/json/{ip}
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized

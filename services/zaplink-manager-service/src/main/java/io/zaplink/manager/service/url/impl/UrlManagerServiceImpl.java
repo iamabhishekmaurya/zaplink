@@ -1,24 +1,17 @@
 package io.zaplink.manager.service.url.impl;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import io.zaplink.manager.common.constants.LogConstants;
-import io.zaplink.manager.common.constants.RedisConstants;
 import io.zaplink.manager.common.enums.UrlStatusEnum;
-import io.zaplink.manager.common.trace.TraceContext;
-import io.zaplink.manager.dto.request.AnalyticsEvent;
 import io.zaplink.manager.dto.response.LinkAnalyticsResponse;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
 import io.zaplink.manager.entity.UrlMappingEntity;
 import io.zaplink.manager.repository.UrlAnalyticsRepository;
 import io.zaplink.manager.repository.UrlMappingRepository;
-import io.zaplink.manager.service.helper.KafkaServiceHelper;
 import io.zaplink.manager.service.helper.RedisServiceHelper;
 import io.zaplink.manager.service.url.UrlManagerService;
 import lombok.RequiredArgsConstructor;
@@ -30,53 +23,8 @@ public class UrlManagerServiceImpl
     UrlManagerService
 {
     private final RedisServiceHelper     redisService;
-    private final KafkaServiceHelper     kafkaService;
     private final UrlMappingRepository   urlMappingRepository;
     private final UrlAnalyticsRepository urlAnalyticsRepository;
-    @Override
-    public String getShortUrl( AnalyticsEvent analyticsEvent )
-    {
-        String key = analyticsEvent.getUrlKey();
-        try
-        {
-            String originalUrl = redisService.getValue( key );
-            if ( originalUrl != null && !originalUrl.isEmpty() )
-            {
-                log.info( LogConstants.LOG_URL_FOUND_IN_REDIS, key );
-                // Async: Publish click event (fire-and-forget)
-                publishAnalyticsEventAsync( analyticsEvent );
-                return originalUrl;
-            }
-            else
-            {
-                log.info( LogConstants.LOG_URL_NOT_FOUND_IN_REDIS, key );
-                Optional<UrlMappingEntity> optionalUrlMappingEntity = urlMappingRepository.findByShortUrlKey( key );
-                if ( optionalUrlMappingEntity.isPresent() )
-                {
-                    UrlMappingEntity urlMappingEntity = optionalUrlMappingEntity.get();
-                    if ( urlMappingEntity.getStatus().equals( UrlStatusEnum.ACTIVE ) )
-                    {
-                        log.info( LogConstants.LOG_URL_FOUND_IN_DB, key );
-                        redisService.setValue( key, urlMappingEntity.getOriginalUrl(), RedisConstants.URL_CACHE_TTL );
-                        // Async: Publish click event (fire-and-forget)
-                        publishAnalyticsEventAsync( analyticsEvent );
-                        return urlMappingEntity.getOriginalUrl();
-                    }
-                }
-                else
-                {
-                    log.info( LogConstants.LOG_URL_NOT_FOUND_IN_DB, key );
-                    return null;
-                }
-            }
-        }
-        catch ( Exception ex )
-        {
-            log.error( LogConstants.LOG_EXCEPTION_FETCHING_URL, key, ex.getMessage() );
-        }
-        return null;
-    }
-
     @Override
     public List<LinkResponse> getLinksByUser( String userEmail )
     {
@@ -183,24 +131,5 @@ public class UrlManagerServiceImpl
             return LinkAnalyticsResponse.Entry.builder().name( name ).value( count )
                     .percentage( (double) calculatePercentage( count, total ) ).build();
         } ).collect( Collectors.toList() );
-    }
-
-    /**
-     * Publish analytics event (fire-and-forget)
-     * @param analyticsEvent
-     */
-    @Async
-    private void publishAnalyticsEventAsync( AnalyticsEvent analyticsEvent )
-    {
-        log.info( LogConstants.LOG_CLICK_EVENT_PUBLISHED, analyticsEvent.getUrlKey() );
-        try
-        {
-            analyticsEvent.setTraceId( TraceContext.getTraceId() );
-            kafkaService.sendMessage( analyticsEvent );
-        }
-        catch ( Exception ex )
-        {
-            log.error( LogConstants.LOG_EXCEPTION_PUBLISHING_CLICK_EVENT, analyticsEvent.getUrlKey(), ex.getMessage() );
-        }
     }
 }
