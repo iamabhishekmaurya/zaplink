@@ -18,8 +18,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '@/store/slices/authSlice';
 import { useRouter } from 'next/navigation';
 import { AppDispatch, RootState } from '@/store';
-import { Loader2, Lock, Mail, User } from 'lucide-react';
+import { Loader2, Lock, Mail, User, Eye, EyeOff } from 'lucide-react';
 import { showSuccessToast, showErrorToast } from '@/lib/toast';
+import { useState } from "react";
 
 const signupSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters" }),
@@ -40,6 +41,8 @@ export function SignupForm({
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
@@ -110,9 +113,22 @@ export function SignupForm({
                     <FieldLabel htmlFor="password">Password</FieldLabel>
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       startIcon={<Lock className="size-4" />}
+                      endIcon={
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="flex items-center justify-center text-muted-foreground hover:text-foreground focus:outline-none"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="size-4" />
+                          ) : (
+                            <Eye className="size-4" />
+                          )}
+                        </button>
+                      }
                       {...register("password")}
                     />
                     {errors.password && (
@@ -125,9 +141,22 @@ export function SignupForm({
                     </FieldLabel>
                     <Input
                       id="confirm-password"
-                      type="password"
+                      type={showConfirmPassword ? "text" : "password"}
                       placeholder="••••••••"
                       startIcon={<Lock className="size-4" />}
+                      endIcon={
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="flex items-center justify-center text-muted-foreground hover:text-foreground focus:outline-none"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="size-4" />
+                          ) : (
+                            <Eye className="size-4" />
+                          )}
+                        </button>
+                      }
                       {...register("confirmPassword")}
                     />
                     {errors.confirmPassword && (

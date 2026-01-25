@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { AppDispatch, RootState } from '@/store';
 import { resetPassword } from '@/store/slices/authSlice';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useTheme } from "next-themes";
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -47,6 +47,8 @@ export default function ResetPasswordPage() {
     const { isLoading } = useSelector((state: RootState) => state.auth);
     const { resolvedTheme } = useTheme();
     const [color, setColor] = useState("#ffffff");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
         setColor(resolvedTheme === "dark" ? "#ffffff" : "#000000");
@@ -101,7 +103,20 @@ export default function ResetPasswordPage() {
                                         <FieldLabel htmlFor="newPassword">New Password</FieldLabel>
                                         <Input
                                             id="newPassword"
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
+                                            endIcon={
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="flex items-center justify-center text-muted-foreground hover:text-foreground focus:outline-none"
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="size-4" />
+                                                    ) : (
+                                                        <Eye className="size-4" />
+                                                    )}
+                                                </button>
+                                            }
                                             {...register("newPassword")}
                                         />
                                         {errors.newPassword && (
@@ -112,7 +127,20 @@ export default function ResetPasswordPage() {
                                         <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
                                         <Input
                                             id="confirmPassword"
-                                            type="password"
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            endIcon={
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="flex items-center justify-center text-muted-foreground hover:text-foreground focus:outline-none"
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="size-4" />
+                                                    ) : (
+                                                        <Eye className="size-4" />
+                                                    )}
+                                                </button>
+                                            }
                                             {...register("confirmPassword")}
                                         />
                                         {errors.confirmPassword && (

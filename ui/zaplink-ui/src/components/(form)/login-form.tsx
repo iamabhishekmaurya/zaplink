@@ -15,12 +15,13 @@ import { AppDispatch, RootState } from '@/store';
 import { loginUser } from '@/store/slices/authSlice';
 import { AuthState } from '@/lib/types/apiRequestType';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Mail, Lock } from 'lucide-react';
+import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import { useForm } from 'react-hook-form';
 import { showSuccessToast, showErrorToast } from '@/lib/toast';
 import * as z from 'zod';
+import { useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -36,6 +37,7 @@ export function LoginForm({
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { isLoading, error } = useSelector((state: RootState): AuthState => state.auth);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -44,7 +46,7 @@ export function LoginForm({
   const onSubmit = async (data: LoginSchema) => {
     try {
       const resultAction = await dispatch(loginUser(data));
-      
+
       if (resultAction.meta.requestStatus === 'fulfilled') {
         showSuccessToast("Login successful!");
         router.push('/dashboard');
@@ -93,9 +95,22 @@ export function LoginForm({
                 </div>
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   startIcon={<Lock className="size-4" />}
+                  endIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="flex items-center justify-center text-muted-foreground hover:text-foreground focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  }
                   {...register("password")}
                 />
                 {errors.password && (
