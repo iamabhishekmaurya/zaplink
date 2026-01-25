@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!-- Custom converter for trace ID -->
-    <conversionRule conversionWord="traceId" converterClass="io.zaplink.auth.common.trace.TraceIdConverter" />
+    <conversionRule conversionWord="traceId" class="io.zaplink.auth.common.trace.TraceIdConverter" />
 
     <springProfile name="!prod">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
