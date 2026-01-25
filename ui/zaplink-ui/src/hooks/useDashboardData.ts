@@ -15,6 +15,9 @@ export interface DashboardStats {
     platformDistribution: { platform: string; count: number; fill: string }[];
     creationHistory: { date: string; links: number; qrs: number }[];
     visitorTrend: { date: string; visitors: number }[];
+    avgCtr: number;
+    topRegion: string;
+    referrers: { name: string; value: number }[];
 }
 
 export function useDashboardData() {
@@ -29,7 +32,10 @@ export function useDashboardData() {
         recentActivity: [],
         platformDistribution: [],
         creationHistory: [],
-        visitorTrend: []
+        visitorTrend: [],
+        avgCtr: 0,
+        topRegion: '-',
+        referrers: []
     });
 
     useEffect(() => {
@@ -126,6 +132,12 @@ export function useDashboardData() {
                     visitors: item.value
                 }));
 
+                // 6. Detailed Stats
+                const referrers = (statsData.referrers || []).map((item: { name: string; value: number | string }) => ({
+                    name: item.name,
+                    value: Number(item.value)
+                }));
+
                 setStats({
                     totalLinks,
                     activeLinks,
@@ -137,7 +149,10 @@ export function useDashboardData() {
                     recentActivity,
                     platformDistribution,
                     creationHistory,
-                    visitorTrend
+                    visitorTrend,
+                    avgCtr: statsData.avgCtr || 0,
+                    topRegion: statsData.topRegion || 'Unknown',
+                    referrers
                 });
 
             } catch (err) {
