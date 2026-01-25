@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { shortlinkService, StatsResponse } from '@/lib/api/shortlinkService';
 import { DynamicQrService } from '@/lib/api/dynamicQr';
 import { ShortLink, DynamicQrResponse } from '@/lib/types/apiRequestType';
@@ -11,6 +11,7 @@ export interface DashboardStats {
     totalScans: number;
     isLoading: boolean;
     error: string | null;
+    isNetworkError: boolean;
     recentActivity: ((ShortLink & { type: 'LINK' }) | (DynamicQrResponse & { type: 'QR' }))[];
     platformDistribution: { platform: string; count: number; fill: string }[];
     creationHistory: { date: string; links: number; qrs: number }[];
@@ -18,9 +19,11 @@ export interface DashboardStats {
     avgCtr: number;
     topRegion: string;
     referrers: { name: string; value: number }[];
+    refetch: () => void;
 }
 
 export function useDashboardData() {
+    const [refreshKey, setRefreshKey] = useState(0);
     const [stats, setStats] = useState<DashboardStats>({
         totalLinks: 0,
         activeLinks: 0,
@@ -29,14 +32,21 @@ export function useDashboardData() {
         totalScans: 0,
         isLoading: true,
         error: null,
+        isNetworkError: false,
         recentActivity: [],
         platformDistribution: [],
         creationHistory: [],
         visitorTrend: [],
         avgCtr: 0,
         topRegion: '-',
-        referrers: []
+        referrers: [],
+        refetch: () => { }
     });
+
+    const refetch = useCallback(() => {
+        setStats(prev => ({ ...prev, isLoading: true, error: null, isNetworkError: false }));
+        setRefreshKey(prev => prev + 1);
+    }, []);
 
     useEffect(() => {
         async function fetchData() {
@@ -146,23 +156,41 @@ export function useDashboardData() {
                     totalScans,
                     isLoading: false,
                     error: null,
+                    isNetworkError: false,
                     recentActivity,
                     platformDistribution,
                     creationHistory,
                     visitorTrend,
                     avgCtr: statsData.avgCtr || 0,
                     topRegion: statsData.topRegion || 'Unknown',
-                    referrers
+                    referrers,
+                    refetch
                 });
 
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Failed to fetch dashboard data", err);
-                setStats(prev => ({ ...prev, isLoading: false, error: 'Failed to load dashboard data. Please try again.' }));
+
+                // Detect network errors vs other errors
+                const isNetworkError = err?.code === 'ERR_NETWORK' ||
+                    err?.message?.toLowerCase().includes('network') ||
+                    !navigator.onLine;
+
+                const errorMessage = isNetworkError
+                    ? 'Unable to connect to the server. Please check if the backend services are running.'
+                    : 'Failed to load dashboard data. Please try again.';
+
+                setStats(prev => ({
+                    ...prev,
+                    isLoading: false,
+                    error: errorMessage,
+                    isNetworkError,
+                    refetch
+                }));
             }
         }
 
         fetchData();
-    }, []);
+    }, [refreshKey, refetch]);
 
     return stats;
 }

@@ -1,10 +1,11 @@
 "use client"
 import { SectionCards } from "@/components/section-cards"
-import { Loader2 } from "lucide-react"
+import { Loader2, AlertCircle, WifiOff, RefreshCw } from "lucide-react"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { CreationHistoryChart, PlatformDistributionChart } from "@/components/dashboard-charts"
 import { RecentActivityTable } from "@/components/recent-activity-table"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
+import { Button } from "@/components/ui/button"
 
 export default function Page() {
   const stats = useDashboardData()
@@ -23,7 +24,40 @@ export default function Page() {
   if (stats.error) {
     return (
       <div className="flex flex-1 items-center justify-center h-[50vh]">
-        <p className="text-destructive font-medium">{stats.error}</p>
+        <div className="flex flex-col items-center gap-4 max-w-md text-center px-4">
+          {stats.isNetworkError ? (
+            <div className="rounded-full bg-orange-100 dark:bg-orange-900/20 p-4">
+              <WifiOff className="h-10 w-10 text-orange-600 dark:text-orange-400" />
+            </div>
+          ) : (
+            <div className="rounded-full bg-destructive/10 p-4">
+              <AlertCircle className="h-10 w-10 text-destructive" />
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">
+              {stats.isNetworkError ? "Connection Failed" : "Something went wrong"}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {stats.error}
+            </p>
+            {stats.isNetworkError && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Make sure your backend services are running and try again.
+              </p>
+            )}
+          </div>
+
+          <Button
+            onClick={stats.refetch}
+            variant="outline"
+            className="gap-2 mt-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Try Again
+          </Button>
+        </div>
       </div>
     )
   }

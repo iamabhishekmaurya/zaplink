@@ -22,7 +22,8 @@ const ShortLink = () => {
         setSelectedLinks,
         copyToClipboard,
         deleteShortlink,
-        toggleActive
+        toggleActive,
+        refetch
     } = useShortlinks()
 
     // Search and filter states
@@ -42,7 +43,7 @@ const ShortLink = () => {
     // Filter shortlinks based on search and filters
     const filteredShortlinks = shortlinks.filter(link => {
         // Search filter
-        const matchesSearch = searchQuery === '' || 
+        const matchesSearch = searchQuery === '' ||
             link.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             link.shortlink.toLowerCase().includes(searchQuery.toLowerCase()) ||
             link.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -54,10 +55,10 @@ const ShortLink = () => {
         // Date range filter
         const matchesDateRange = () => {
             if (selectedDateRange === 'all') return true
-            
+
             const linkDate = new Date(link.createdAt)
             const now = new Date()
-            
+
             switch (selectedDateRange) {
                 case 'today':
                     return linkDate.toDateString() === now.toDateString()
@@ -126,9 +127,9 @@ const ShortLink = () => {
                         <h1 className="text-3xl font-bold tracking-tight">Short Links</h1>
                         <p className="text-muted-foreground">Manage and track your shortened links</p>
                     </div>
-                    <ShortLinkError 
-                        error={error} 
-                        onRetry={() => window.location.reload()} 
+                    <ShortLinkError
+                        error={error}
+                        onRetry={refetch}
                     />
                 </div>
             </div>

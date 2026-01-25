@@ -20,7 +20,17 @@ export const useShortlinks = () => {
         // Let the API interceptor handle the redirect
         return;
       }
-      setError(err.response?.data?.message || 'Failed to fetch shortlinks');
+
+      // Detect network errors
+      const isNetworkError = err?.code === 'ERR_NETWORK' ||
+        err?.message?.toLowerCase().includes('network') ||
+        !navigator.onLine;
+
+      const errorMessage = isNetworkError
+        ? 'Unable to connect to the server. Please check if the backend services are running.'
+        : err.response?.data?.message || 'Failed to fetch shortlinks. Please try again.';
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
