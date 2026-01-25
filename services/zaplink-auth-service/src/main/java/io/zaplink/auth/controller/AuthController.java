@@ -47,7 +47,7 @@ public class AuthController
     @PostMapping("/register") @ResponseStatus(HttpStatus.CREATED)
     public UserRegistrationResponse registerUser( @Valid @RequestBody UserRegistrationRequest request )
     {
-        log.info( LogConstants.LOG_CREATING_NEW_USER_ACCOUNT, request.getEmail() );
+        log.info( LogConstants.LOG_CREATING_NEW_USER_ACCOUNT, request.email() );
         UserRegistrationResponse response = registrationService.registerUser( request );
         log.info( LogConstants.LOG_USER_REGISTERED_SUCCESSFULLY, response.getUserId(), response.getEmail(),
                   response.getUsername() );
@@ -63,7 +63,7 @@ public class AuthController
     @PostMapping("/login")
     public LoginResponse login( @Valid @RequestBody LoginRequest request )
     {
-        log.info( LogConstants.LOG_ATTEMPTING_LOGIN, request.getEmail() );
+        log.info( LogConstants.LOG_ATTEMPTING_LOGIN, request.email() );
         LoginResponse response = authService.login( request );
         log.info( LogConstants.LOG_LOGIN_SUCCESSFUL, response.getUserInfo().getEmail(),
                   response.getUserInfo().getId() );
@@ -150,9 +150,9 @@ public class AuthController
     @PostMapping("/request-password-reset")
     public BaseResponse requestPasswordReset( @Valid @RequestBody PasswordResetRequest request )
     {
-        log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_REQUEST, request.getEmail() );
+        log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_REQUEST, request.email() );
         authService.requestPasswordReset( request );
-        log.info( LogConstants.LOG_PASSWORD_RESET_EMAIL_SHOULD_BE_SENT, request.getEmail() );
+        log.info( LogConstants.LOG_PASSWORD_RESET_EMAIL_SHOULD_BE_SENT, request.email() );
         return BaseResponse.success( ApiConstants.MESSAGE_PASSWORD_RESET_EMAIL_SENT );
     }
 

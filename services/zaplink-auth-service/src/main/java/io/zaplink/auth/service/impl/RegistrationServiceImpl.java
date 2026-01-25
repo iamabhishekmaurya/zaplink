@@ -49,23 +49,23 @@ public class RegistrationServiceImpl
     @Override
     public UserRegistrationResponse registerUser( UserRegistrationRequest request )
     {
-        log.info( LogConstants.LOG_STARTING_USER_REGISTRATION, request.getEmail() );
+        log.info( LogConstants.LOG_STARTING_USER_REGISTRATION, request.email() );
         // Validate email uniqueness
-        log.debug( LogConstants.LOG_CHECKING_EMAIL_EXISTS, request.getEmail() );
-        if ( userService.existsByEmail( request.getEmail() ) )
+        log.debug( LogConstants.LOG_CHECKING_EMAIL_EXISTS, request.email() );
+        if ( userService.existsByEmail( request.email() ) )
         {
-            log.warn( LogConstants.LOG_REGISTRATION_ATTEMPT_EXISTING_EMAIL, request.getEmail() );
+            log.warn( LogConstants.LOG_REGISTRATION_ATTEMPT_EXISTING_EMAIL, request.email() );
             throw new UserAlreadyExistsException( StringUtil.concat( ApiConstants.MESSAGE_USER_EMAIL_ALREADY_EXISTS,
-                                                                     request.getEmail(),
+                                                                     request.email(),
                                                                      ApiConstants.MESSAGE_ALREADY_EXISTS_SUFFIX ) );
         }
         // Validate username uniqueness
-        log.debug( LogConstants.LOG_CHECKING_USERNAME_EXISTS, request.getUsername() );
-        if ( userService.existsByUsername( request.getUsername() ) )
+        log.debug( LogConstants.LOG_CHECKING_USERNAME_EXISTS, request.username() );
+        if ( userService.existsByUsername( request.username() ) )
         {
-            log.warn( LogConstants.LOG_REGISTRATION_ATTEMPT_EXISTING_USERNAME, request.getUsername() );
+            log.warn( LogConstants.LOG_REGISTRATION_ATTEMPT_EXISTING_USERNAME, request.username() );
             throw new UserAlreadyExistsException( StringUtil.concat( ApiConstants.MESSAGE_USER_USERNAME_ALREADY_EXISTS,
-                                                                     request.getUsername(),
+                                                                     request.username(),
                                                                      ApiConstants.MESSAGE_ALREADY_EXISTS_SUFFIX ) );
         }
         // Create new user

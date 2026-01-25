@@ -82,13 +82,12 @@ public class UserServiceImpl
     @Override
     public User createUser( UserRegistrationRequest request )
     {
-        log.info( LogConstants.LOG_CREATING_NEW_USER_ACCOUNT, request.getEmail() );
+        log.info( LogConstants.LOG_CREATING_NEW_USER_ACCOUNT, request.email() );
         // Create user entity using modern record-like pattern
-        User user = User.builder().username( request.getUsername() ).email( request.getEmail() )
-                .password( passwordEncoder.encode( request.getPassword() ) ).firstName( request.getFirstName() )
-                .lastName( request.getLastName() ).phoneNumber( request.getPhoneNumber() ).active( true )
-                .verified( false ).verificationToken( Utility.generateVerificationCode().toString() )
-                .createdAt( Instant.now() ).build();
+        User user = User.builder().username( request.username() ).email( request.email() )
+                .password( passwordEncoder.encode( request.password() ) ).firstName( request.firstName() )
+                .lastName( request.lastName() ).phoneNumber( request.phoneNumber() ).active( true ).verified( false )
+                .verificationToken( Utility.generateVerificationCode().toString() ).createdAt( Instant.now() ).build();
         // Assign default USER role using Set.of() for immutable sets
         log.debug( LogConstants.LOG_ASSIGNING_DEFAULT_USER_ROLE );
         Role userRole = roleRepository.findByName( "USER" ).orElseGet( () -> {

@@ -57,23 +57,23 @@ public class AuthServiceImpl
     @Override @Transactional
     public LoginResponse login( LoginRequest request )
     {
-        log.info( LogConstants.LOG_ATTEMPTING_LOGIN, request.getEmail() );
+        log.info( LogConstants.LOG_ATTEMPTING_LOGIN, request.email() );
         try
         {
             // Authenticate user credentials
             log.debug( LogConstants.LOG_AUTHENTICATING_USER_SPRING_SECURITY );
-            authenticationManager.authenticate( new UsernamePasswordAuthenticationToken( request.getEmail(),
-                                                                                         request.getPassword() ) );
-            log.debug( LogConstants.LOG_USER_AUTHENTICATION_SUCCESSFUL, request.getEmail() );
+            authenticationManager
+                    .authenticate( new UsernamePasswordAuthenticationToken( request.email(), request.password() ) );
+            log.debug( LogConstants.LOG_USER_AUTHENTICATION_SUCCESSFUL, request.email() );
             // Retrieve user from database using utility
-            User user = userHelper.findUserByEmailOrThrow( request.getEmail(), ApiConstants.OPERATION_AUTHENTICATION );
+            User user = userHelper.findUserByEmailOrThrow( request.email(), ApiConstants.OPERATION_AUTHENTICATION );
             // Check if user account is active using utility
             userHelper.validateUserActive( user, ApiConstants.OPERATION_LOGIN );
             // Generate JWT tokens using utility
             log.debug( LogConstants.LOG_GENERATING_JWT_TOKENS, user.getEmail() );
             String accessToken = jwtUtility.generateAccessToken( user );
-            String refreshToken = generateAndSaveRefreshToken( user, Boolean.TRUE.equals( request.getRememberMe() ) );
-            log.info( LogConstants.LOG_LOGIN_SUCCESSFUL, request.getEmail(), user.getId() );
+            String refreshToken = generateAndSaveRefreshToken( user, Boolean.TRUE.equals( request.rememberMe() ) );
+            log.info( LogConstants.LOG_LOGIN_SUCCESSFUL, request.email(), user.getId() );
             // Build response using utility
             LoginResponse response = jwtUtility.buildLoginResponse( user, accessToken, refreshToken );
             response.setSuccess( true );
@@ -82,7 +82,7 @@ public class AuthServiceImpl
         }
         catch ( Exception ex )
         {
-            log.error( LogConstants.LOG_LOGIN_FAILED, request.getEmail(), ex.getMessage() );
+            log.error( LogConstants.LOG_LOGIN_FAILED, request.email(), ex.getMessage() );
             throw new InvalidCredentialsException( ApiConstants.MESSAGE_INVALID_EMAIL_OR_PASSWORD );
         }
     }
@@ -177,9 +177,9 @@ public class AuthServiceImpl
     @Override @Transactional
     public void requestPasswordReset( PasswordResetRequest request )
     {
-        log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_REQUEST, request.getEmail() );
+        log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_REQUEST, request.email() );
         // Find user by email using utility
-        User user = userHelper.findUserByEmailOrThrow( request.getEmail(), "password reset" );
+        User user = userHelper.findUserByEmailOrThrow( request.email(), "password reset" );
         // Generate reset token using utility
         String resetToken = tokenUtility.generateToken();
         Instant expiryTime = tokenUtility.generatePasswordResetExpiry();
@@ -188,9 +188,9 @@ public class AuthServiceImpl
             u.setResetToken( resetToken );
             u.setResetTokenExpiry( expiryTime );
         } );
-        log.info( LogConstants.LOG_PASSWORD_RESET_TOKEN_GENERATED, request.getEmail(), expiryTime );
+        log.info( LogConstants.LOG_PASSWORD_RESET_TOKEN_GENERATED, request.email(), expiryTime );
         // TODO: Send email with reset token
-        log.debug( LogConstants.LOG_PASSWORD_RESET_EMAIL_SHOULD_BE_SENT, request.getEmail() );
+        log.debug( LogConstants.LOG_PASSWORD_RESET_EMAIL_SHOULD_BE_SENT, request.email() );
     }
 
     /**

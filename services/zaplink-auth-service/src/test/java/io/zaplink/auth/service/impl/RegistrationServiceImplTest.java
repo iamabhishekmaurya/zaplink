@@ -56,13 +56,12 @@ class RegistrationServiceImplTest
     @BeforeEach
     void setUp()
     {
-        registrationRequest = new UserRegistrationRequest();
-        registrationRequest.setEmail( "test@example.com" );
-        registrationRequest.setUsername( "testuser" );
-        registrationRequest.setPassword( "password123" );
-        registrationRequest.setFirstName( "Test" );
-        registrationRequest.setLastName( "User" );
-        registrationRequest.setPhoneNumber( "1234567890" );
+        registrationRequest = new UserRegistrationRequest( "testuser",
+                                                           "test@example.com",
+                                                           "password123",
+                                                           "Test",
+                                                           "User",
+                                                           "1234567890" );
         testUser = User.builder().id( 1L ).email( "test@example.com" ).username( "testuser" )
                 .password( "encodedPassword" ).firstName( "Test" ).lastName( "User" ).phoneNumber( "1234567890" )
                 .active( true ).verified( false ).verificationToken( UUID.randomUUID().toString() )

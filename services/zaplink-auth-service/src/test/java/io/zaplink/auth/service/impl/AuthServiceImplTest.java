@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.lenient;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,13 +70,10 @@ class AuthServiceImplTest
     {
         testUser = User.builder().id( 1L ).email( "test@example.com" ).password( "encodedPassword" ).firstName( "Test" )
                 .lastName( "User" ).active( true ).verified( true ).createdAt( Instant.now() ).build();
-        loginRequest = new LoginRequest();
-        loginRequest.setEmail( "test@example.com" );
-        loginRequest.setPassword( "password123" );
+        loginRequest = new LoginRequest( "test@example.com", "password123", false );
         testRefreshToken = RefreshToken.builder().id( 1L ).token( "refresh-token-123" ).user( testUser )
                 .expiryDate( Instant.now().plusSeconds( 3600 ) ).build();
-        passwordResetRequest = new PasswordResetRequest();
-        passwordResetRequest.setEmail( "test@example.com" );
+        passwordResetRequest = new PasswordResetRequest( "test@example.com" );
         // Only mock when needed in individual tests
     }
 

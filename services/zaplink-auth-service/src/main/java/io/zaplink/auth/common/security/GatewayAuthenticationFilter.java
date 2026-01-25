@@ -28,22 +28,19 @@ public class GatewayAuthenticationFilter
 {
     private final CustomUserDetailsService userDetailsService;
     private static final String            X_USER_EMAIL = "X-User-Email";
-    
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter( HttpServletRequest request )
+        throws ServletException
+    {
         String path = request.getRequestURI();
         // Skip authentication for public endpoints (after gateway strips prefix)
-        return path.startsWith("/auth/login") ||
-               path.startsWith("/auth/register") ||
-               path.startsWith("/auth/refresh") ||
-               path.startsWith("/auth/verify-email") ||
-               path.startsWith("/auth/resend-verification") ||
-               path.startsWith("/auth/request-password-reset") ||
-               path.startsWith("/auth/reset-password") ||
-               path.startsWith("/error") ||
-               path.startsWith("/actuator");
+        return path.startsWith( "/auth/login" ) || path.startsWith( "/auth/register" )
+                || path.startsWith( "/auth/refresh" ) || path.startsWith( "/auth/verify-email" )
+                || path.startsWith( "/auth/resend-verification" ) || path.startsWith( "/auth/request-password-reset" )
+                || path.startsWith( "/auth/reset-password" ) || path.startsWith( "/error" )
+                || path.startsWith( "/actuator" );
     }
-    
+
     @Override
     protected void doFilterInternal( HttpServletRequest request, HttpServletResponse response, FilterChain filterChain )
         throws ServletException,
@@ -63,11 +60,11 @@ public class GatewayAuthenticationFilter
                 authToken.setDetails( new WebAuthenticationDetailsSource().buildDetails( request ) );
                 SecurityContextHolder.getContext().setAuthentication( authToken );
                 log.debug( "Authentication successful for user: {}", userEmail );
-                if ( userDetails instanceof CustomUserDetails )
+                if ( userDetails instanceof CustomUserDetails customUserDetails )
                 {
                     System.out.println( "DEBUG: Authentication Filter: Authenticated User ID: "
-                            + ( (CustomUserDetails) userDetails ).getId() );
-                    log.info( "Authenticated User ID: {}", ( (CustomUserDetails) userDetails ).getId() );
+                            + customUserDetails.getId() );
+                    log.info( "Authenticated User ID: {}", customUserDetails.getId() );
                 }
             }
             catch ( Exception e )

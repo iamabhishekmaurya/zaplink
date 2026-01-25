@@ -1,10 +1,12 @@
 package io.zaplink.auth.common.exception;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
 import io.zaplink.auth.common.trace.TraceContext;
-import io.zaplink.auth.dto.response.BaseResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,73 +25,101 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler
 {
     @ExceptionHandler(AuthException.class)
-    public ResponseEntity<BaseResponse> handleAuthException( AuthException ex )
+    public ProblemDetail handleAuthException( AuthException ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_AUTH_EXCEPTION_OCCURRED, traceId, ex.getMessage(), ex.getErrorCode() );
-        BaseResponse response = BaseResponse.error( ex.getMessage(), ex.getErrorCode() );
-        return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( response );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail( HttpStatus.UNAUTHORIZED, ex.getMessage() );
+        problemDetail.setTitle( "Authentication Error" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ex.getErrorCode() );
+        problemDetail.setProperty( "traceId", traceId );
+        return problemDetail;
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<BaseResponse> handleUserAlreadyExistsException( UserAlreadyExistsException ex )
+    public ProblemDetail handleUserAlreadyExistsException( UserAlreadyExistsException ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_USER_ALREADY_EXISTS_EXCEPTION, traceId, ex.getMessage(), ex.getErrorCode() );
-        BaseResponse response = BaseResponse.error( ex.getMessage(), ex.getErrorCode() );
-        return ResponseEntity.status( HttpStatus.CONFLICT ).body( response );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail( HttpStatus.CONFLICT, ex.getMessage() );
+        problemDetail.setTitle( "User Already Exists" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ex.getErrorCode() );
+        problemDetail.setProperty( "traceId", traceId );
+        return problemDetail;
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<BaseResponse> handleUserNotFoundException( UserNotFoundException ex )
+    public ProblemDetail handleUserNotFoundException( UserNotFoundException ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_USER_NOT_FOUND_EXCEPTION, traceId, ex.getMessage(), ex.getErrorCode() );
-        BaseResponse response = BaseResponse.error( ex.getMessage(), ex.getErrorCode() );
-        return ResponseEntity.status( HttpStatus.NOT_FOUND ).body( response );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail( HttpStatus.NOT_FOUND, ex.getMessage() );
+        problemDetail.setTitle( "User Not Found" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ex.getErrorCode() );
+        problemDetail.setProperty( "traceId", traceId );
+        return problemDetail;
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<BaseResponse> handleInvalidCredentialsException( InvalidCredentialsException ex )
+    public ProblemDetail handleInvalidCredentialsException( InvalidCredentialsException ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_INVALID_CREDENTIALS_EXCEPTION, traceId, ex.getMessage(), ex.getErrorCode() );
-        BaseResponse response = BaseResponse.error( ex.getMessage(), ex.getErrorCode() );
-        return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( response );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail( HttpStatus.UNAUTHORIZED, ex.getMessage() );
+        problemDetail.setTitle( "Invalid Credentials" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ex.getErrorCode() );
+        problemDetail.setProperty( "traceId", traceId );
+        return problemDetail;
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<BaseResponse> handleAuthenticationException( AuthenticationException ex )
+    public ProblemDetail handleAuthenticationException( AuthenticationException ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_AUTHENTICATION_EXCEPTION, traceId, ex.getMessage() );
-        BaseResponse response = BaseResponse.error( ApiConstants.MESSAGE_AUTHENTICATION_FAILED,
-                                                    ApiConstants.ERROR_AUTHENTICATION_FAILED );
-        return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( response );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail( HttpStatus.UNAUTHORIZED,
+                                                                        ApiConstants.MESSAGE_AUTHENTICATION_FAILED );
+        problemDetail.setTitle( "Authentication Failed" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ApiConstants.ERROR_AUTHENTICATION_FAILED );
+        problemDetail.setProperty( "traceId", traceId );
+        return problemDetail;
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<BaseResponse> handleBadCredentialsException( BadCredentialsException ex )
+    public ProblemDetail handleBadCredentialsException( BadCredentialsException ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_BAD_CREDENTIALS_EXCEPTION, traceId, ex.getMessage() );
-        BaseResponse response = BaseResponse.error( ApiConstants.MESSAGE_INVALID_EMAIL_OR_PASSWORD,
-                                                    ApiConstants.ERROR_INVALID_CREDENTIALS );
-        return ResponseEntity.status( HttpStatus.UNAUTHORIZED ).body( response );
+        ProblemDetail problemDetail = ProblemDetail
+                .forStatusAndDetail( HttpStatus.UNAUTHORIZED, ApiConstants.MESSAGE_INVALID_EMAIL_OR_PASSWORD );
+        problemDetail.setTitle( "Bad Credentials" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ApiConstants.ERROR_INVALID_CREDENTIALS );
+        problemDetail.setProperty( "traceId", traceId );
+        return problemDetail;
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<BaseResponse> handleAccessDeniedException( AccessDeniedException ex )
+    public ProblemDetail handleAccessDeniedException( AccessDeniedException ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_ACCESS_DENIED_EXCEPTION, traceId, ex.getMessage() );
-        BaseResponse response = BaseResponse.error( ApiConstants.MESSAGE_ACCESS_DENIED,
-                                                    ApiConstants.ERROR_ACCESS_DENIED );
-        return ResponseEntity.status( HttpStatus.FORBIDDEN ).body( response );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail( HttpStatus.FORBIDDEN,
+                                                                        ApiConstants.MESSAGE_ACCESS_DENIED );
+        problemDetail.setTitle( "Access Denied" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ApiConstants.ERROR_ACCESS_DENIED );
+        problemDetail.setProperty( "traceId", traceId );
+        return problemDetail;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<BaseResponse> handleValidationExceptions( MethodArgumentNotValidException ex )
+    public ProblemDetail handleValidationExceptions( MethodArgumentNotValidException ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_VALIDATION_EXCEPTION_OCCURRED, traceId,
@@ -101,18 +130,27 @@ public class GlobalExceptionHandler
             String errorMessage = error.getDefaultMessage();
             errors.put( fieldName, errorMessage );
         } );
-        BaseResponse response = BaseResponse.error( ApiConstants.MESSAGE_VALIDATION_FAILED,
-                                                    ApiConstants.ERROR_VALIDATION_ERROR );
-        return ResponseEntity.status( HttpStatus.BAD_REQUEST ).body( response );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail( HttpStatus.BAD_REQUEST,
+                                                                        ApiConstants.MESSAGE_VALIDATION_FAILED );
+        problemDetail.setTitle( "Validation Failed" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ApiConstants.ERROR_VALIDATION_ERROR );
+        problemDetail.setProperty( "traceId", traceId );
+        problemDetail.setProperty( "errors", errors );
+        return problemDetail;
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseResponse> handleGlobalException( Exception ex )
+    public ProblemDetail handleGlobalException( Exception ex )
     {
         String traceId = TraceContext.getTraceId();
         log.error( LogConstants.LOG_UNEXPECTED_EXCEPTION_OCCURRED, traceId, ex.getMessage(), ex );
-        BaseResponse response = BaseResponse.error( ApiConstants.MESSAGE_UNEXPECTED_ERROR,
-                                                    ApiConstants.ERROR_INTERNAL_SERVER_ERROR );
-        return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).body( response );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail( HttpStatus.INTERNAL_SERVER_ERROR,
+                                                                        ApiConstants.MESSAGE_UNEXPECTED_ERROR );
+        problemDetail.setTitle( "Internal Server Error" );
+        problemDetail.setType( URI.create( "about:blank" ) );
+        problemDetail.setProperty( "errorCode", ApiConstants.ERROR_INTERNAL_SERVER_ERROR );
+        problemDetail.setProperty( "traceId", traceId );
+        return problemDetail;
     }
 }

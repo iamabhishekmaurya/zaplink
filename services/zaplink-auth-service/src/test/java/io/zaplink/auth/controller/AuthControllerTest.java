@@ -55,18 +55,14 @@ class AuthControllerTest
     void setUp()
     {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
-        registrationRequest = new UserRegistrationRequest();
-        registrationRequest.setEmail( "test@example.com" );
-        registrationRequest.setUsername( "testuser" );
-        registrationRequest.setPassword( "password123" );
-        registrationRequest.setFirstName( "Test" );
-        registrationRequest.setLastName( "User" );
-        registrationRequest.setPhoneNumber( "1234567890" );
-        loginRequest = new LoginRequest();
-        loginRequest.setEmail( "test@example.com" );
-        loginRequest.setPassword( "password123" );
-        passwordResetRequest = new PasswordResetRequest();
-        passwordResetRequest.setEmail( "test@example.com" );
+        registrationRequest = new UserRegistrationRequest( "testuser",
+                                                           "test@example.com",
+                                                           "password123",
+                                                           "Test",
+                                                           "User",
+                                                           "1234567890" );
+        loginRequest = new LoginRequest( "test@example.com", "password123", null );
+        passwordResetRequest = new PasswordResetRequest( "test@example.com" );
         registrationResponse = UserRegistrationResponse.builder().success( true )
                 .message( "User registered successfully" ).userId( 1L ).username( "testuser" )
                 .email( "test@example.com" ).firstName( "Test" ).lastName( "User" ).verified( false )
@@ -96,7 +92,12 @@ class AuthControllerTest
     void registerUser_InvalidEmail_ThrowsValidationException()
     {
         // Given
-        registrationRequest.setEmail( "invalid-email" );
+        registrationRequest = new UserRegistrationRequest( "testuser",
+                                                           "invalid-email",
+                                                           "password123",
+                                                           "Test",
+                                                           "User",
+                                                           "1234567890" );
         // When
         var violations = validator.validate( registrationRequest );
         // Then
@@ -108,7 +109,12 @@ class AuthControllerTest
     void registerUser_BlankUsername_ThrowsValidationException()
     {
         // Given
-        registrationRequest.setUsername( "" );
+        registrationRequest = new UserRegistrationRequest( "",
+                                                           "test@example.com",
+                                                           "password123",
+                                                           "Test",
+                                                           "User",
+                                                           "1234567890" );
         // When
         var violations = validator.validate( registrationRequest );
         // Then
@@ -120,7 +126,12 @@ class AuthControllerTest
     void registerUser_ShortPassword_ThrowsValidationException()
     {
         // Given
-        registrationRequest.setPassword( "123" );
+        registrationRequest = new UserRegistrationRequest( "testuser",
+                                                           "test@example.com",
+                                                           "123",
+                                                           "Test",
+                                                           "User",
+                                                           "1234567890" );
         // When
         var violations = validator.validate( registrationRequest );
         // Then
@@ -146,7 +157,7 @@ class AuthControllerTest
     void login_InvalidEmail_ThrowsValidationException()
     {
         // Given
-        loginRequest.setEmail( "invalid-email" );
+        loginRequest = new LoginRequest( "invalid-email", "password123", null );
         // When
         var violations = validator.validate( loginRequest );
         // Then
@@ -158,7 +169,7 @@ class AuthControllerTest
     void login_BlankPassword_ThrowsValidationException()
     {
         // Given
-        loginRequest.setPassword( "" );
+        loginRequest = new LoginRequest( "test@example.com", "", null );
         // When
         var violations = validator.validate( loginRequest );
         // Then
@@ -246,7 +257,7 @@ class AuthControllerTest
     void requestPasswordReset_InvalidEmail_ThrowsValidationException()
     {
         // Given
-        passwordResetRequest.setEmail( "invalid-email" );
+        passwordResetRequest = new PasswordResetRequest( "invalid-email" );
         // When
         var violations = validator.validate( passwordResetRequest );
         // Then

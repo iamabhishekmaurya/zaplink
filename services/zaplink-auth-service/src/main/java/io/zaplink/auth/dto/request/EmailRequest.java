@@ -1,18 +1,8 @@
 package io.zaplink.auth.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 
-@Data @SuperBuilder @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode(callSuper = false)
-public class EmailRequest
+@Builder
+public record EmailRequest( String to, String subject, String body, String cc, String bcc, String[] attachments )
 {
-    private String   to;
-    private String   subject;
-    private String   body;
-    private String   cc;
-    private String   bcc;
-    private String[] attachments;
 }
