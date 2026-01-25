@@ -22,8 +22,8 @@ public class GatewayConfig
         @Bean
         public RouteLocator customRouteLocator( RouteLocatorBuilder builder )
         {
-                // Temporarily hardcode to test
-                String basePath = "/v1/api";
+                // Base path from config (default /api)
+                String basePath = apiBasePath;
                 String writePath = basePath + "/wr";
                 String readPath = basePath + "/rd";
                 log.info( "🚀 Initializing Hybrid Gateway Java Routes with write path: {} and read path: {}", writePath,
@@ -34,18 +34,18 @@ public class GatewayConfig
                                  * Port: 8081
                                  */
                                 .route( "core-short-write",
-                                        r -> r.path( writePath + "/short/url" )
-                                                        .filters( f -> f.rewritePath( "/v1/api/wr/(?<segment>.*)",
+                                        r -> r.path( writePath + "/short/url" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( "/api/wr/(?<segment>.*)",
                                                                                       "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8081" ) )
                                 .route( "core-qr-write",
-                                        r -> r.path( writePath + "/qr/**" )
-                                                        .filters( f -> f.rewritePath( "/v1/api/wr/(?<segment>.*)",
+                                        r -> r.path( writePath + "/qr/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( "/api/wr/(?<segment>.*)",
                                                                                       "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8081" ) )
                                 .route( "manager-dynamic-qr-write",
-                                        r -> r.path( writePath + "/dyqr/**" )
-                                                        .filters( f -> f.rewritePath( "/v1/api/wr/(?<segment>.*)",
+                                        r -> r.path( writePath + "/dyqr/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( "/api/wr/(?<segment>.*)",
                                                                                       "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 /**
@@ -60,13 +60,13 @@ public class GatewayConfig
                                  * Port: 8083
                                  */
                                 .route( "manager-short-read",
-                                        r -> r.path( readPath + "/short/**" )
-                                                        .filters( f -> f.rewritePath( "/v1/api/rd/(?<segment>.*)",
+                                        r -> r.path( readPath + "/short/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( "/api/rd/(?<segment>.*)",
                                                                                       "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 .route( "manager-dynamic-qr-read",
-                                        r -> r.path( readPath + "/dyqr/**" )
-                                                        .filters( f -> f.rewritePath( "/v1/api/rd/(?<segment>.*)",
+                                        r -> r.path( readPath + "/dyqr/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( "/api/rd/(?<segment>.*)",
                                                                                       "/v1/api/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 /**
@@ -89,10 +89,13 @@ public class GatewayConfig
                                  * Port: 8084
                                  */
                                 .route( "auth-service",
-                                        r -> r.path( basePath + "/auth/**" ).filters( f -> f.stripPrefix( 0 ) )
+                                        r -> r.path( basePath + "/auth/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.stripPrefix( 1 ) )
                                                         .uri( "http://localhost:8084" ) )
-                                .route( "user-service", r -> r.path( basePath + "/users/**" )
-                                                .filters( f -> f.stripPrefix( 2 ) ).uri( "http://localhost:8084" ) )
+                                .route( "user-service",
+                                        r -> r.path( basePath + "/users/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.stripPrefix( 0 ) )
+                                                        .uri( "http://localhost:8084" ) )
                                 .build();
         }
 }

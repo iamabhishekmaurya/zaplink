@@ -1,5 +1,7 @@
 package io.zaplink.apigateway.common.security;
 
+import java.util.Set;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -34,7 +36,6 @@ public class JwtAuthenticationFilter
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().value();
         log.info( "JWT Filter: Processing request path: {}", path );
-        
         // Skip authentication for OPTIONS requests (CORS preflight) and public endpoints
         if ( request.getMethod().name().equals( "OPTIONS" ) || isPublicEndpoint( path ) )
         {
@@ -87,16 +88,16 @@ public class JwtAuthenticationFilter
         }
         return chain.filter( exchange );
     }
-
+    private static final Set<String> PUBLIC_AUTH_PATHS = Set
+            .of( "/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/auth/verify-email",
+                 "/api/auth/resend-verification", "/api/auth/request-password-reset", "/api/auth/reset-password" );
     private boolean isPublicEndpoint( String path )
     {
-        // Whitelist only specific public auth endpoints
-        boolean isAuthPublic = ( path.equals( "/v1/api/auth/register" ) || path.equals( "/v1/api/auth/login" )
-                || path.equals( "/v1/api/auth/refresh" ) || path.equals( "/v1/api/auth/verify-email" )
-                || path.equals( "/v1/api/auth/resend-verification" ) || path.equals( "/v1/api/auth/request-password-reset" )
-                || path.equals( "/v1/api/auth/reset-password" ) );
-        boolean isPublic = isAuthPublic || path.equals( "/error" ) || path.startsWith( "/actuator" ) || path.startsWith( "/r/" );
-        log.info( "JWT Filter: isPublicEndpoint check - path: {}, isAuthPublic: {}, isPublic: {}", path, isAuthPublic, isPublic );
+        boolean isAuthPublic = PUBLIC_AUTH_PATHS.contains( path );
+        boolean isPublic = isAuthPublic || path.equals( "/error" ) || path.startsWith( "/actuator" )
+                || path.startsWith( "/r/" );
+        log.info( "JWT Filter: isPublicEndpoint check - path: {}, isAuthPublic: {}, isPublic: {}", path, isAuthPublic,
+                  isPublic );
         return isPublic;
     }
 

@@ -8,6 +8,9 @@ spring:
     import: application-api.yml
   application:
     name: api-gateway-service
+  threads:
+    virtual:
+      enabled: true
 
 # JWT Configuration
 jwt:

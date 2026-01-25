@@ -1,26 +1,35 @@
 package io.zaplink.apigateway.common.config;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.CorsConfigurationSource;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import io.zaplink.apigateway.common.constant.LogConstants;
 import io.zaplink.apigateway.common.security.JwtAuthenticationFilter;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Slf4j @Configuration @EnableWebFluxSecurity @RequiredArgsConstructor
 public class SecurityConfig
 {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Bean
+    public ReactiveAuthenticationManager reactiveAuthenticationManager()
+    {
+        return authentication -> Mono.empty();
+    }
+
     @Bean
     public SecurityWebFilterChain securityWebFilterChain( ServerHttpSecurity http )
     {
@@ -28,9 +37,9 @@ public class SecurityConfig
         return http.csrf( ServerHttpSecurity.CsrfSpec::disable )
                 .cors( cors -> cors.configurationSource( corsConfigurationSource() ) )
                 .authorizeExchange( exchanges -> exchanges
-                        .pathMatchers( "/v1/api/auth/register", "/v1/api/auth/login", "/v1/api/auth/refresh",
-                                       "/v1/api/auth/verify-email", "/v1/api/auth/resend-verification",
-                                       "/v1/api/auth/request-password-reset", "/v1/api/auth/reset-password" )
+                        .pathMatchers( "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
+                                       "/api/auth/verify-email", "/api/auth/resend-verification",
+                                       "/api/auth/request-password-reset", "/api/auth/reset-password" )
                         .permitAll().pathMatchers( "/r/**" ).permitAll().pathMatchers( "/error" ).permitAll()
                         .pathMatchers( "/actuator/**" ).permitAll().pathMatchers( HttpMethod.OPTIONS, "/**" )
                         .permitAll().anyExchange().authenticated() )
