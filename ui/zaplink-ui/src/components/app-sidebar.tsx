@@ -7,7 +7,13 @@ import {
   LayoutDashboard,
   Link2,
   ScanLine,
-  Settings2
+  Settings2,
+  PieChart,
+  CreditCard,
+  User,
+  Bell,
+  Wallet,
+  Globe
 } from "lucide-react"
 import * as React from "react"
 
@@ -54,6 +60,11 @@ const data = {
       url: "/dashboard",
       icon: LayoutDashboard,
       isActive: true
+    },
+    {
+      title: "Analytics",
+      url: "/dashboard/analytics",
+      icon: PieChart,
     }
   ],
   navMain: [
@@ -83,10 +94,25 @@ const data = {
       icon: ScanLine,
       items: [
         {
+          title: "My QR Codes",
+          url: "/dashboard/qr",
+        },
+        {
           title: "QR Generator",
           url: "/dashboard/qr/qr-gen",
         },
       ],
+    },
+    {
+      title: "Finance",
+      url: "#",
+      icon: Wallet,
+      items: [
+        {
+          title: "Billing",
+          url: "/dashboard/billing",
+        }
+      ]
     },
     {
       title: "Settings",
@@ -96,6 +122,14 @@ const data = {
         {
           title: "General",
           url: "/dashboard/settings",
+        },
+        {
+          title: "Account",
+          url: "/dashboard/account",
+        },
+        {
+          title: "Notifications",
+          url: "/dashboard/notification",
         },
       ],
     },
