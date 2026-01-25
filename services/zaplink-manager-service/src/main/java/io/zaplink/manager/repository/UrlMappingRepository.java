@@ -44,7 +44,7 @@ public interface UrlMappingRepository
      * @param userEmail the email of the link owner
      * @return List of URL mappings belonging to the user
      */
-    List<UrlMappingEntity> findByUserEmail( String userEmail );
+    List<UrlMappingEntity> findByUserEmailOrderByCreatedAtDesc( String userEmail );
 
     /**
      * Counts all URL mappings associated with a specific user email.

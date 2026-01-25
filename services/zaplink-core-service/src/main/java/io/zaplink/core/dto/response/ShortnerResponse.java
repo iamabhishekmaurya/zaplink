@@ -1,12 +1,5 @@
 package io.zaplink.core.dto.response;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter @Setter
-public class ShortnerResponse
-    extends
-    BaseResponse
+public record ShortnerResponse( String url, String traceId )
 {
-    private String url;
 }

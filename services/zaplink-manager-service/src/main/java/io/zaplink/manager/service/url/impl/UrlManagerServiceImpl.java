@@ -80,8 +80,8 @@ public class UrlManagerServiceImpl
     @Override
     public List<LinkResponse> getLinksByUser( String userEmail )
     {
-        return urlMappingRepository.findByUserEmail( userEmail ).stream().map( this::mapToLinkResponse )
-                .collect( Collectors.toList() );
+        return urlMappingRepository.findByUserEmailOrderByCreatedAtDesc( userEmail ).stream()
+                .map( this::mapToLinkResponse ).collect( Collectors.toList() );
     }
 
     @Override

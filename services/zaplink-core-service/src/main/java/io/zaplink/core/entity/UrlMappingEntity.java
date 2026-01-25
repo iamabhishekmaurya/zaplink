@@ -36,4 +36,10 @@ public class UrlMappingEntity
     private Long          clickCount = 0L;
     @Enumerated(EnumType.STRING) @Column(name = "status", nullable = false)
     private UrlStatusEnum status;
+    @Column(name = "title")
+    private String        title;
+    @Column(name = "platform")
+    private String        platform;
+    @Column(name = "tags")
+    private String        tags;
 }

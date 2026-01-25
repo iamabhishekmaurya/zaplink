@@ -32,14 +32,14 @@ class ZaplinkCoreControllerTest
     void shortUrl_ValidRequest_Returns200()
         throws Exception
     {
-        ShortnerRequest request = new ShortnerRequest();
-        request.setOriginalUrl( "https://example.com" );
-        request.setTraceId( "valid-trace-id" );
-        ShortnerResponse response = new ShortnerResponse();
-        response.setUrl( "http://short.url/abc" );
-        response.setTraceId( "valid-trace-id" );
+        ShortnerRequest request = new ShortnerRequest( "https://example.com",
+                                                       "Title",
+                                                       "Platform",
+                                                       null,
+                                                       "valid-trace-id" );
+        ShortnerResponse response = new ShortnerResponse( "http://short.url/abc", "valid-trace-id" );
         when( urlShortnerService.createShortUrl( any( ShortnerRequest.class ), any() ) ).thenReturn( response );
-        mockMvc.perform( post( "/shortner/short/url" ).contentType( MediaType.APPLICATION_JSON )
+        mockMvc.perform( post( "/core/url" ).contentType( MediaType.APPLICATION_JSON )
                 .content( objectMapper.writeValueAsString( request ) ) ).andExpect( status().isOk() )
                 .andExpect( jsonPath( "$.url" ).value( "http://short.url/abc" ) )
                 .andExpect( jsonPath( "$.traceId" ).value( "valid-trace-id" ) );
@@ -49,10 +49,8 @@ class ZaplinkCoreControllerTest
     void shortUrl_InvalidUrl_Returns400()
         throws Exception
     {
-        ShortnerRequest request = new ShortnerRequest();
-        request.setOriginalUrl( "invalid-url" ); // Invalid format
-        request.setTraceId( "trace-1" );
-        mockMvc.perform( post( "/shortner/short/url" ).contentType( MediaType.APPLICATION_JSON )
+        ShortnerRequest request = new ShortnerRequest( "invalid-url", null, null, null, "trace-1" );
+        mockMvc.perform( post( "/core/url" ).contentType( MediaType.APPLICATION_JSON )
                 .content( objectMapper.writeValueAsString( request ) ) ).andExpect( status().isBadRequest() );
     }
 
@@ -60,10 +58,9 @@ class ZaplinkCoreControllerTest
     void shortUrl_MissingOriginalUrl_Returns400()
         throws Exception
     {
-        ShortnerRequest request = new ShortnerRequest();
+        ShortnerRequest request = new ShortnerRequest( null, null, null, null, "trace-1" );
         // Original URL is null/blank
-        request.setTraceId( "trace-1" );
-        mockMvc.perform( post( "/shortner/short/url" ).contentType( MediaType.APPLICATION_JSON )
+        mockMvc.perform( post( "/core/url" ).contentType( MediaType.APPLICATION_JSON )
                 .content( objectMapper.writeValueAsString( request ) ) ).andExpect( status().isBadRequest() );
     }
 }

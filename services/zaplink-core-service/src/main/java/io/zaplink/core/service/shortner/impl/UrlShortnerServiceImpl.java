@@ -30,7 +30,6 @@ public class UrlShortnerServiceImpl
     public ShortnerResponse createShortUrl( ShortnerRequest urlRequest, String userEmail )
     {
         log.info( LogConstants.LOG_SHORT_URL_INIT );
-        ShortnerResponse shortUrlResponse = new ShortnerResponse();
         try
         {
             SnowflakeShortKeyGenerator keyGenerator = new SnowflakeShortKeyGenerator( 0 );
@@ -42,12 +41,12 @@ public class UrlShortnerServiceImpl
             if ( savedUrlMappingEntity != null )
             {
                 log.info( LogConstants.LOG_URL_MAPPING_CREATED );
-                shortUrlResponse.setUrl( savedUrlMappingEntity.getShortUrl() );
-                shortUrlResponse.setTraceId( savedUrlMappingEntity.getTraceId() );
+                return new ShortnerResponse( savedUrlMappingEntity.getShortUrl(), savedUrlMappingEntity.getTraceId() );
             }
             else
             {
                 log.error( LogConstants.LOG_URL_MAPPING_NOT_CREATED );
+                return new ShortnerResponse( null, null );
             }
         }
         catch ( Exception ex )
@@ -55,7 +54,6 @@ public class UrlShortnerServiceImpl
             log.error( LogConstants.LOG_URL_SHORTENING_EXCEPTION, ex.getMessage() );
             throw ex;
         }
-        return shortUrlResponse;
     }
 
     /**
@@ -74,10 +72,16 @@ public class UrlShortnerServiceImpl
     {
         log.info( LogConstants.LOG_CREATING_URL_MAPPING, key );
         urlMappingEntity.setShortUrlKey( key );
-        urlMappingEntity.setOriginalUrl( urlRequest.getOriginalUrl() );
+        urlMappingEntity.setOriginalUrl( urlRequest.originalUrl() );
         urlMappingEntity.setShortUrl( shortUrl );
         urlMappingEntity.setUserEmail( userEmail );
-        urlMappingEntity.setTraceId( urlRequest.getTraceId() );
+        urlMappingEntity.setTraceId( urlRequest.traceId() );
+        urlMappingEntity.setTitle( urlRequest.title() );
+        urlMappingEntity.setPlatform( urlRequest.platform() );
+        if ( urlRequest.tags() != null && !urlRequest.tags().isEmpty() )
+        {
+            urlMappingEntity.setTags( String.join( ",", urlRequest.tags() ) );
+        }
         urlMappingEntity.setCreatedAt( LocalDateTime.now() );
         urlMappingEntity.setExpiresAt( LocalDateTime.now().plusSeconds( 60 * 60 * 24 * 15 ) );
         urlMappingEntity.setClickCount( 0L );
