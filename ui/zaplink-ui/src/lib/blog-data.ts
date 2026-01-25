@@ -29,11 +29,11 @@ export const allPosts: BlogPost[] = [
             <h3>2. Optimize for Mobile</h3>
             <p>More than 60% of clicks come from mobile devices. Ensure your destination page is mobile-friendly, or uses will bounce immediately.</p>
             <h3>3. A/B Test Your CTAs</h3>
-            <p>Don't guess what works. Test different button colors, positions, and text. Zaplink's A/B testing features make this easy.</p>
+            <p>Don't guess what works. Test different button colors, positions, and text. zaipme's A/B testing features make this easy.</p>
             <h3>4. Keep it Short</h3>
             <p>Shorter links look more trustworthy and are easier to share. A clean URL implies a clean, safe destination.</p>
             <h3>5. Analyze Your Data</h3>
-            <p>Use Zaplink's analytics to see what time of day your audience is most active and schedule your posts accordingly.</p>
+            <p>Use zaipme's analytics to see what time of day your audience is most active and schedule your posts accordingly.</p>
         `
     },
     {
@@ -79,7 +79,7 @@ export const allPosts: BlogPost[] = [
         color: 'from-[#ff8904] to-red-500',
         slug: 'api-v2-migration-guide',
         content: `
-            <p>We are excited to announce Zaplink API v2.0! This version introduces enhanced rate limiting, more granular scopes for tokens, and support for GraphQL.</p>
+            <p>We are excited to announce zaipme API v2.0! This version introduces enhanced rate limiting, more granular scopes for tokens, and support for GraphQL.</p>
             <h3>Breaking Changes</h3>
             <ul>
                 <li>The <code>/v1/links</code> endpoint has been renamed to <code>/v2/urls</code>.</li>
@@ -99,7 +99,7 @@ export const allPosts: BlogPost[] = [
         slug: 'enterprise-link-management-case-study',
         content: `
             <p>Managing links across a global organization is chaotic. Marketing teams use one tool, support uses another, and developers build their own scripts.</p>
-            <p>In this case study, we look at how [Company X] unified their link strategy using Zaplink Enterprise. They centralized 50+ domains, implemented SSO, and gained global visibility into their link performance.</p>
+            <p>In this case study, we look at how [Company X] unified their link strategy using zaipme Enterprise. They centralized 50+ domains, implemented SSO, and gained global visibility into their link performance.</p>
         `
     },
     {

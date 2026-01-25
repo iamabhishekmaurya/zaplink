@@ -22,7 +22,7 @@ export const OurStory = () => {
                                 looked good, and actually gave us data we could use.
                             </p>
                             <p>
-                                So we built Zaplink. What began as a tool for our own marketing campaigns
+                                So we built zaipmeWhat began as a tool for our own marketing campaigns
                                 quickly grew into a platform used by thousands of teams worldwide.
                             </p>
                             <p>

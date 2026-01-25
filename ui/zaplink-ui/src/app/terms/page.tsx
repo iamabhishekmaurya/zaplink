@@ -18,7 +18,7 @@ export default function TermsOfServicePage() {
                         <h2 className="text-2xl font-semibold tracking-tight text-foreground">1. Agreement to Terms</h2>
                         <p className="text-muted-foreground leading-relaxed">
                             These Terms of Service constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you") and
-                            <span className="font-semibold text-foreground"> Zaplink</span> ("we," "us" or "our"), concerning your access to and use of the Zaplink website as well as any other media form, media channel,
+                            <span className="font-semibold text-foreground"> zaipme</span> ("we," "us" or "our"), concerning your access to and use of the zaipme website as well as any other media form, media channel,
                             mobile website or mobile application related, linked, or otherwise connected thereto (collectively, the "Site").
                         </p>
                     </section>
@@ -74,7 +74,7 @@ export default function TermsOfServicePage() {
                             In order to resolve a complaint regarding the Site or to receive further information regarding use of the Site, please contact us at:
                         </p>
                         <div className="mt-4">
-                            <span className="text-primary font-medium text-lg">legal@zaplink.com</span>
+                            <span className="text-primary font-medium text-lg">legal@zaipme.com</span>
                         </div>
                     </section>
                 </div>

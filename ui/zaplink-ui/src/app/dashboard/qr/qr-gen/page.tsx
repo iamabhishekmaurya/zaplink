@@ -203,7 +203,7 @@ const QrGeneratorContent = () => {
         if (!previewUrl) return
         const link = document.createElement('a')
         link.href = previewUrl
-        link.download = `zaplink-qr-${Date.now()}.${format}`
+        link.download = `zaipmeqr-${Date.now()}.${format}`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -286,7 +286,7 @@ const QrGeneratorContent = () => {
                                                     <FormLabel>URL or Text</FormLabel>
                                                     <FormControl>
                                                         <div className="flex gap-2">
-                                                            <Input placeholder="https://zaplink.io/my-link" {...field} className="h-12" />
+                                                            <Input placeholder="https://zaipme.io/my-link" {...field} className="h-12" />
                                                             <Button type="button" onClick={() => generateQR(form.getValues())} className="h-12 px-6" disabled={isGenerating}>
                                                                 Generate
                                                             </Button>

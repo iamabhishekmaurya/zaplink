@@ -13,7 +13,7 @@ export default function ContactPage() {
                 <div className="text-center py-20 bg-muted/20">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Sales</h1>
                     <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                        Ready to empower your team? Let's talk about how Zaplink can help you scale.
+                        Ready to empower your team? Let's talk about how zaipme can help you scale.
                     </p>
                 </div>
                 {/* Reusing the form from support but technically it works for contact too. 

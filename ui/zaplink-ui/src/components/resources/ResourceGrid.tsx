@@ -18,7 +18,7 @@ const resources = [
     {
         icon: HelpCircle,
         title: 'Help Center',
-        description: 'Find answers to common questions and learn how to use Zaplink features.',
+        description: 'Find answers to common questions and learn how to use zaipme features.',
         color: 'text-emerald-500',
         bg: 'bg-emerald-500/10',
         href: '#'
@@ -34,7 +34,7 @@ const resources = [
     {
         icon: Users,
         title: 'Community',
-        description: 'Connect with other Zaplink users, share tips, and get inspired.',
+        description: 'Connect with other zaipme users, share tips, and get inspired.',
         color: 'text-[#ff8904]',
         bg: 'bg-[#ff8904]/10',
         href: '#'
@@ -47,7 +47,7 @@ export default function ResourceGrid() {
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold mb-4">Browse Resources</h2>
-                    <p className="text-muted-foreground">Everything you need to succeed with Zaplink.</p>
+                    <p className="text-muted-foreground">Everything you need to succeed with zaipme</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">

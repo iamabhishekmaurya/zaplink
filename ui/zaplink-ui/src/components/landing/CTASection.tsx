@@ -26,9 +26,9 @@ export const CTASection = () => {
                         <div className="text-center lg:text-left">
                             <span className="text-sm font-medium text-primary mb-2 block">Contact</span>
                             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                                <span className="font-[family-name:var(--font-script)] text-primary">Supercharge</span> your links<br />with Zaplink today!
+                                <span className="font-[family-name:var(--font-script)] text-primary">Supercharge</span> your links<br />with zaipmetoday!
                             </h2>
-                            <p className="text-muted-foreground mb-6">Join thousands of marketers who trust Zaplink.</p>
+                            <p className="text-muted-foreground mb-6">Join thousands of marketers who trust zaipme.</p>
                             <Link href="/signup">
                                 <Button className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 rounded-full font-medium shadow-lg">
                                     Get Started Free <ArrowRight className="w-4 h-4 ml-2" />

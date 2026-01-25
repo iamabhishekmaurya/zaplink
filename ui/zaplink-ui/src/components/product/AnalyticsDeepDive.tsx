@@ -68,7 +68,7 @@ export const AnalyticsDeepDive = () => {
                             <h2 className="text-3xl md:text-5xl font-bold mb-4">Deep dive into your <br /><span className="text-primary font-[family-name:var(--font-script)]">Performance</span></h2>
                             <p className="text-muted-foreground text-lg mb-8">
                                 Understanding your audience is key to growth.
-                                Zaplink breaks down complex data into actionable insights.
+                                zaipmebreaks down complex data into actionable insights.
                             </p>
 
                             <Tabs defaultValue="location" className="w-full">

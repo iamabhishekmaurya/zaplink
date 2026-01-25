@@ -1,18 +1,28 @@
 'use client';
 
 import { motion } from "motion/react";
-import { Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import {
+    SiSlack,
+    SiX,
+    SiNotion,
+    SiHubspot,
+    SiSalesforce,
+    SiMailchimp,
+    SiZapier,
+    SiDiscord
+} from "react-icons/si";
 
 const integrations = [
-    { name: "Slack", color: "bg-[#E01E5A]", x: 0, y: -120, delay: 0 },
-    { name: "Twitter", color: "bg-[#1DA1F2]", x: 120, y: 0, delay: 1 },
-    { name: "Notion", color: "bg-[#000000]", x: 0, y: 120, delay: 2 },
-    { name: "HubSpot", color: "bg-[#FF7A59]", x: -120, y: 0, delay: 3 },
-    { name: "Salesforce", color: "bg-[#00A1E0]", x: 85, y: -85, delay: 0.5 },
-    { name: "Mailchimp", color: "bg-[#FFE01B]", x: 85, y: 85, delay: 1.5 },
-    { name: "Zapier", color: "bg-[#FF4F00]", x: -85, y: 85, delay: 2.5 },
-    { name: "Discord", color: "bg-[#5865F2]", x: -85, y: -85, delay: 3.5 },
+    { name: "Slack", color: "bg-[#E01E5A]", x: 0, y: -120, delay: 0, icon: <SiSlack className="w-6 h-6 md:w-8 md:h-8" /> },
+    { name: "X", color: "bg-[#000000]", x: 120, y: 0, delay: 1, icon: <SiX className="w-6 h-6 md:w-8 md:h-8" /> },
+    { name: "Notion", color: "bg-[#000000]", x: 0, y: 120, delay: 2, icon: <SiNotion className="w-6 h-6 md:w-8 md:h-8" /> },
+    { name: "HubSpot", color: "bg-[#FF7A59]", x: -120, y: 0, delay: 3, icon: <SiHubspot className="w-6 h-6 md:w-8 md:h-8" /> },
+    { name: "Salesforce", color: "bg-[#00A1E0]", x: 85, y: -85, delay: 0.5, icon: <SiSalesforce className="w-6 h-6 md:w-8 md:h-8" /> },
+    { name: "Mailchimp", color: "bg-[#FFE01B]", x: 85, y: 85, delay: 1.5, icon: <SiMailchimp className="w-6 h-6 md:w-8 md:h-8 text-black" /> },
+    { name: "Zapier", color: "bg-[#FF4F00]", x: -85, y: 85, delay: 2.5, icon: <SiZapier className="w-6 h-6 md:w-8 md:h-8" /> },
+    { name: "Discord", color: "bg-[#5865F2]", x: -85, y: -85, delay: 3.5, icon: <SiDiscord className="w-6 h-6 md:w-8 md:h-8" /> },
 ];
 
 export const IntegrationUniverse = () => {
@@ -29,7 +39,7 @@ export const IntegrationUniverse = () => {
                 >
                     <h2 className="text-3xl md:text-5xl font-bold mb-6">Connects with your <br />favorite <span className="text-primary font-[family-name:var(--font-script)]">tools</span></h2>
                     <p className="text-muted-foreground text-lg mb-8">
-                        Streamline your workflow by integrating Zaplink with the apps you use every day.
+                        Streamline your workflow by integrating zaipme with the apps you use every day.
                         API-first design ensures seamless connectivity.
                     </p>
                     <Button variant="outline" className="rounded-full">Explore Integration Library</Button>
@@ -38,9 +48,8 @@ export const IntegrationUniverse = () => {
                 {/* Orbit Animation Container */}
                 <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] mx-auto flex items-center justify-center">
                     {/* Central Hub */}
-                    <div className="absolute w-24 h-24 bg-gradient-to-br from-primary to-[#ff8904] rounded-2xl flex items-center justify-center shadow-[0_0_50px_-12px_var(--color-primary)] z-20">
-                        <Zap className="w-10 h-10 text-white fill-white" />
-                    </div>
+                    <Image src="/logo-light.png" alt="Logo" width={70} height={70} className="block dark:hidden" />
+                    <Image src="/logo-dark.png" alt="Logo" width={70} height={70} className="hidden dark:block" />
 
                     {/* Orbit Rings */}
                     <div className="absolute w-[70%] h-[70%] border border-dashed border-border/50 rounded-full animate-[spin_60s_linear_infinite]" />
@@ -70,7 +79,7 @@ export const IntegrationUniverse = () => {
                                 className={`w-12 h-12 md:w-16 md:h-16 ${app.color} rounded-xl flex items-center justify-center shadow-lg text-white font-bold text-xs md:text-sm`}
                                 whileHover={{ scale: 1.1, y: -5 }}
                             >
-                                {app.name[0]}
+                                {app.icon}
                             </motion.div>
                         </motion.div>
                     ))}

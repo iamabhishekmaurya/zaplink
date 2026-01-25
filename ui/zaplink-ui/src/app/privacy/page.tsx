@@ -17,9 +17,9 @@ export default function PrivacyPolicyPage() {
                     <section className="space-y-4">
                         <h2 className="text-2xl font-semibold tracking-tight text-foreground">1. Introduction</h2>
                         <p className="text-muted-foreground leading-relaxed">
-                            Welcome to Zaplink ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy.
+                            Welcome to zaipme ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy.
                             If you have any questions or concerns about this privacy notice or our practices with regard to your personal information,
-                            please contact us at <span className="text-primary">privacy@zaplink.com</span>.
+                            please contact us at <span className="text-primary">privacy@zaipme.com</span>.
                         </p>
                     </section>
 
@@ -76,7 +76,7 @@ export default function PrivacyPolicyPage() {
                     <section className="space-y-4">
                         <h2 className="text-2xl font-semibold tracking-tight text-foreground">5. Your Privacy Rights (GDPR)</h2>
                         <p className="text-muted-foreground leading-relaxed">
-                            If you are a resident of the European Economic Area (EEA), you have certain data protection rights. Zaplink aims to take reasonable steps to allow you to correct, amend, delete, or limit the use of your Personal Data.
+                            If you are a resident of the European Economic Area (EEA), you have certain data protection rights. zaipme aims to take reasonable steps to allow you to correct, amend, delete, or limit the use of your Personal Data.
                         </p>
                         <div className="grid md:grid-cols-2 gap-4 mt-4">
                             <div className="bg-card border border-border/50 p-4 rounded-lg">
@@ -110,10 +110,10 @@ export default function PrivacyPolicyPage() {
                     <section className="space-y-4 bg-muted/30 p-6 rounded-lg border border-border">
                         <h2 className="text-2xl font-semibold tracking-tight text-foreground">7. Contact Us</h2>
                         <p className="text-muted-foreground leading-relaxed">
-                            If you have questions or comments about this policy, you may email us at <span className="text-primary font-medium">privacy@zaplink.com</span> or by post to:
+                            If you have questions or comments about this policy, you may email us at <span className="text-primary font-medium">privacy@zaipme.com</span> or by post to:
                         </p>
                         <address className="not-italic text-sm text-muted-foreground mt-4">
-                            Zaplink Inc.<br />
+                            zaipme Inc.<br />
                             123 Tech Street<br />
                             San Francisco, CA 94105<br />
                             United States

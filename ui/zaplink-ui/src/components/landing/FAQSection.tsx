@@ -5,16 +5,16 @@ import { motion } from "motion/react";
 
 const faqs = [
     {
-        question: "How does Zaplink improve my link performance?",
-        answer: "Zaplink provides AI-powered analytics that help you understand your audience better, optimize link placement, and track conversions in real-time."
+        question: "How does zaipme improve my link performance?",
+        answer: "zaipme provides AI-powered analytics that help you understand your audience better, optimize link placement, and track conversions in real-time."
     },
     {
         question: "Is my data secure?",
         answer: "Absolutely. We use bank-grade encryption (AES-256) for all data at rest and in transit. Your links are protected with optional password protection."
     },
     {
-        question: "Can I integrate Zaplink with my CRM?",
-        answer: "Yes! Zaplink integrates seamlessly with popular CRMs like Salesforce, HubSpot, and more."
+        question: "Can I integrate zaipme with my CRM?",
+        answer: "Yes! zaipme integrates seamlessly with popular CRMs like Salesforce, HubSpot, and more."
     },
     {
         question: "Is there a free trial?",

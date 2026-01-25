@@ -5,21 +5,21 @@ import { motion } from "motion/react";
 
 const testimonials = [
     {
-        quote: "Zaplink is by far my favorite link management tool among all the options available. It's incredibly powerful yet remains surprisingly user-friendly.",
+        quote: "zaipmeis by far my favorite link management tool among all the options available. It's incredibly powerful yet remains surprisingly user-friendly.",
         author: "Jake George",
         role: "Founder, Loom",
         company: "Loom",
         icon: "🎬"
     },
     {
-        quote: "I recently started using Zaplink to help marketing teams automate their workflows, and the results have been impressive.",
+        quote: "I recently started using zaipme to help marketing teams automate their workflows, and the results have been impressive.",
         author: "Steve Alvarez",
         role: "VP Marketing, Evernote",
         company: "Evernote",
         icon: "🐘"
     },
     {
-        quote: "I absolutely love building with Zaplink—it has enabled me to create incredibly powerful link tracking solutions.",
+        quote: "I absolutely love building with zaipme—it has enabled me to create incredibly powerful link tracking solutions.",
         author: "Sara Rahmanian",
         role: "Head of Engineering, Lattice",
         company: "Lattice",

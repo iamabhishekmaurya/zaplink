@@ -23,7 +23,7 @@ export const AboutHero = () => {
                         digital connections.
                     </h1>
                     <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                        Zaplink was founded with a simple belief: every link is an opportunity.
+                        zaipmewas founded with a simple belief: every link is an opportunity.
                         We help brands and creators turn those opportunities into lasting relationships.
                     </p>
                 </motion.div>

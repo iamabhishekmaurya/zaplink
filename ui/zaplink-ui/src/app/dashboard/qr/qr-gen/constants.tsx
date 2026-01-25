@@ -92,7 +92,7 @@ export const formSchema = z.object({
 export type FormValues = z.infer<typeof formSchema>
 
 export const Defaults: FormValues = {
-    data: 'https://zaplink.io',
+    data: 'https://zaipmeio',
     bodyShape: 'SQUARE',
     eyeShape: 'SQUARE',
     bodyColor: '#000000',

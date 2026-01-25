@@ -89,7 +89,7 @@ export const BenefitsSection = () => {
                                     </div>
                                     <div className="flex-1 mx-4">
                                         <div className="bg-background rounded px-3 py-1.5 text-xs text-muted-foreground flex items-center gap-2">
-                                            zaplink.co <span className="text-muted-foreground/50">·</span> 25.4k visits
+                                            zaipmeo <span className="text-muted-foreground/50">·</span> 25.4k visits
                                         </div>
                                     </div>
                                 </div>

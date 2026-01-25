@@ -76,7 +76,7 @@ export const FooterSection = () => {
                 </div>
                 <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-sm text-muted-foreground">
-                        © {new Date().getFullYear()} Zaplink. All rights reserved.
+                        © {new Date().getFullYear()} zaipme. All rights reserved.
                     </p>
                     <div className="flex gap-6">
                         <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>

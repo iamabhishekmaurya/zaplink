@@ -17,7 +17,7 @@ export default function BlogHero() {
                     className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 border border-primary/20"
                 >
                     <PenTool className="w-3.5 h-3.5" />
-                    <span>The Zaplink Blog</span>
+                    <span>The zaipme Blog</span>
                 </motion.div>
 
                 <motion.h1

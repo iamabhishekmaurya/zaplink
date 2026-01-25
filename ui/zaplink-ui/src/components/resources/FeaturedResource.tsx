@@ -39,7 +39,7 @@ export default function FeaturedResource() {
                                 <div className="w-24 h-32 mx-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-lg shadow-2xl mb-4 group-hover:-translate-y-2 transition-transform duration-500 flex items-center justify-center">
                                     <span className="text-4xl">📚</span>
                                 </div>
-                                <p className="text-white/70 font-medium">Zaplink Originals</p>
+                                <p className="text-white/70 font-medium">zaipme Originals</p>
                             </div>
                         </div>
                     </div>

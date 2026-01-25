@@ -44,7 +44,7 @@ export const FeaturesHero = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                        From powerful analytics to custom QR codes, Zaplink gives you total control over how your audience connects with your content.
+                        From powerful analytics to custom QR codes, zaipmeives you total control over how your audience connects with your content.
                     </motion.p>
 
                     <motion.div

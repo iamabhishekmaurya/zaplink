@@ -12,7 +12,7 @@
 //                             <div className="bg-primary p-1.5 rounded-lg">
 //                                 <LinkIcon className="h-5 w-5 text-primary-foreground" />
 //                             </div>
-//                             <span className="text-xl font-bold tracking-tight">Zaplink</span>
+//                             <span className="text-xl font-bold tracking-tight">zaipme</span>
 //                         </Link>
 //                         <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
 //                             Empowering individuals and businesses to share more with less. Shorten, track, and optimize your links at scale.
@@ -60,7 +60,7 @@
 //                 </div>
 
 //                 <div className="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
-//                     <p>© {new Date().getFullYear()} Zaplink Inc. All rights reserved.</p>
+//                     <p>© {new Date().getFullYear()} zaipme Inc. All rights reserved.</p>
 //                     <div className="flex items-center gap-6">
 //                         <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
 //                         <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>

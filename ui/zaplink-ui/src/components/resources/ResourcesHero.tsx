@@ -38,7 +38,7 @@ export default function ResourcesHero() {
                     transition={{ duration: 0.5, delay: 0.2 }}
                     className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
                 >
-                    Explore our guides, tutorials, and articles to master Zaplink and supercharge your marketing campaigns.
+                    Explore our guides, tutorials, and articles to master zaipme and supercharge your marketing campaigns.
                 </motion.p>
             </div>
 

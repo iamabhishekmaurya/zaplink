@@ -11,7 +11,7 @@ export const CookieConsent = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        const consent = Cookies.get('zaplink-cookie-consent');
+        const consent = Cookies.get('zaipmecookie-consent');
         if (!consent) {
             const timer = setTimeout(() => setIsVisible(true), 1000);
             return () => clearTimeout(timer);
@@ -19,12 +19,12 @@ export const CookieConsent = () => {
     }, []);
 
     const handleAccept = () => {
-        Cookies.set('zaplink-cookie-consent', 'true', { expires: 365 });
+        Cookies.set('zaipme-cookie-consent', 'true', { expires: 365 });
         setIsVisible(false);
     };
 
     const handleDecline = () => {
-        Cookies.set('zaplink-cookie-consent', 'false', { expires: 365 });
+        Cookies.set('zaipme-cookie-consent', 'false', { expires: 365 });
         setIsVisible(false);
     }
 

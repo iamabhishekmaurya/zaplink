@@ -24,7 +24,7 @@ export default function LegalPage() {
                             <p className="text-sm text-muted-foreground">Last updated: January 24, 2026</p>
                         </div>
                         <p className="text-muted-foreground leading-relaxed">
-                            At Zaplink, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclosure, and safeguard your information when you visit our website.
+                            At zaipme, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclosure, and safeguard your information when you visit our website.
                         </p>
                         <div className="space-y-3">
                             <h4 className="text-xl font-semibold">1. Information We Collect</h4>
@@ -42,7 +42,7 @@ export default function LegalPage() {
                             <p className="text-sm text-muted-foreground">Last updated: January 24, 2026</p>
                         </div>
                         <p className="text-muted-foreground leading-relaxed">
-                            These Terms of Service ("Terms") govern your access to and use of Zaplink services.
+                            These Terms of Service ("Terms") govern your access to and use of zaipme services.
                         </p>
                         <div className="space-y-3">
                             <h4 className="text-xl font-semibold">1. Acceptance of Terms</h4>
@@ -58,7 +58,7 @@ export default function LegalPage() {
                         <div className="space-y-2">
                             <h3 className="text-2xl font-bold">Cookie Policy</h3>
                         </div>
-                        <p className="text-muted-foreground leading-relaxed">We use cookies to improve your experience. By using Zaplink, you agree to our use of cookies.</p>
+                        <p className="text-muted-foreground leading-relaxed">We use cookies to improve your experience. By using zaipme, you agree to our use of cookies.</p>
                     </TabsContent>
                 </Tabs>
             </main>
