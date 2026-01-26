@@ -1,0 +1,10 @@
+# Tracing Configuration Template
+# Add this to each service's application.yml
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0  # 100% sampling for development
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces  # Tempo OTLP HTTP endpoint

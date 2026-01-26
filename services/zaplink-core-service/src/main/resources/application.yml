@@ -47,3 +47,13 @@ springdoc:
     tags-sorter: alpha
     doc-expansion: none
   show-actuator: true
+
+
+# Distributed Tracing Configuration
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces

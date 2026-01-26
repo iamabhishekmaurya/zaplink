@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  tempo:
+    image: grafana/tempo:latest
+    container_name: zaplink-tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"   # Tempo HTTP API
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    networks:
+      - zaplink-tracing
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: zaplink-grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    ports:
+      - "3001:3000"
+    networks:
+      - zaplink-tracing
+    depends_on:
+      - tempo
+    restart: unless-stopped
+
+volumes:
+  tempo-data:
+  grafana-data:
+
+networks:
+  zaplink-tracing:
+    driver: bridge

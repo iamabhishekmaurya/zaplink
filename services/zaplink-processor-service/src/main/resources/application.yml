@@ -42,3 +42,12 @@ spring:
 zaplink:
     batch:
         flush-interval: 15000  # Flush every 5 seconds (5000ms)
+
+# Distributed Tracing Configuration
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
