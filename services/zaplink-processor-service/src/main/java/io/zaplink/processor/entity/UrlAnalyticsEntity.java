@@ -27,6 +27,12 @@ public class UrlAnalyticsEntity
     private String        country;
     @Column(name = "city")
     private String        city;
+    @Column(name = "device_type")
+    private String        deviceType;
+    @Column(name = "browser")
+    private String        browser;
+    @Column(name = "trace_id")
+    private String        traceId;
     @Column(name = "accessed_at")
     private LocalDateTime accessedAt;
 }

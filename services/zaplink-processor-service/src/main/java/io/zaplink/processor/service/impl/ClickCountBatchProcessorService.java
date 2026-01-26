@@ -6,9 +6,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import io.zaplink.processor.dto.request.ClickCount;
 import io.zaplink.processor.repository.UrlMappingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ClickCountBatchProcessorService
 {
     private final UrlMappingRepository    urlMappingRepository;
+    private final TransactionTemplate     transactionTemplate;
     /**
      * Thread-safe in-memory buffer for accumulating click counts.
      * Key: URL key, Value: Accumulated count
@@ -35,12 +35,11 @@ public class ClickCountBatchProcessorService
      * Accumulates a click count in the in-memory buffer.
      * This method is very fast as it only updates memory.
      * 
-     * @param clickCount the click count data from Kafka
+     * @param urlKey the URL key to increment
+     * @param count the amount to increment by (usually 1)
      */
-    public void accumulateClickCount( ClickCount clickCount )
+    public void accumulateClickCount( String urlKey, long count )
     {
-        String urlKey = clickCount.getUrlKey();
-        long count = clickCount.getCount();
         // Atomically increment the count in the buffer
         batchBuffer.computeIfAbsent( urlKey, k -> new AtomicLong( 0 ) ).addAndGet( count );
         log.debug( "📊 Accumulated click count for URL key: {}, current buffer size: {}", urlKey, batchBuffer.size() );
@@ -49,9 +48,9 @@ public class ClickCountBatchProcessorService
     /**
      * Flushes accumulated click counts to the database.
      * Scheduled to run every 5 seconds (configurable).
-     * Uses batch updates for efficiency.
+     * Uses granular transactions to ensure partial success.
      */
-    @Scheduled(fixedRateString = "${zaplink.batch.flush-interval:30000}") @Transactional
+    @Scheduled(fixedRateString = "${zaplink.batch.flush-interval:30000}")
     public void flushBatch()
     {
         if ( batchBuffer.isEmpty() )
@@ -74,8 +73,12 @@ public class ClickCountBatchProcessorService
             totalClicks += count;
             try
             {
-                int rowsAffected = urlMappingRepository.incrementClickCountBy( urlKey, count );
-                if ( rowsAffected > 0 )
+                // Execute update in its own transaction
+                boolean updated = Boolean.TRUE.equals( transactionTemplate.execute( status -> {
+                    int rows2 = urlMappingRepository.incrementClickCountBy( urlKey, count );
+                    return rows2 > 0;
+                } ) );
+                if ( updated )
                 {
                     successCount++;
                     log.debug( "✅ Updated URL key: {} with count: {}", urlKey, count );
@@ -84,13 +87,14 @@ public class ClickCountBatchProcessorService
                 {
                     failureCount++;
                     log.warn( "⚠️ URL key not found: {}, count: {}", urlKey, count );
+                    // Don't retry not-found errors, it's likely invalid data
                 }
             }
             catch ( Exception e )
             {
                 failureCount++;
                 log.error( "❌ Error updating URL key: {}, count: {}", urlKey, count, e );
-                // Re-add to buffer for retry in next flush
+                // Re-add to buffer for retry in next flush (only for system errors)
                 batchBuffer.computeIfAbsent( urlKey, k -> new AtomicLong( 0 ) ).addAndGet( count );
             }
         }
