@@ -4,10 +4,11 @@ services:
   tempo:
     image: grafana/tempo:latest
     container_name: zaplink-tempo
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    command: [ "-config.file=/etc/tempo.yaml", "-target=all" ]
+    user: "0:0"
     volumes:
-      - ./tempo.yaml:/etc/tempo.yaml
-      - tempo-data:/tmp/tempo
+      - ./tempo-config.yaml:/etc/tempo.yaml:ro
+      - ./tempo-data:/tmp/tempo
     ports:
       - "3200:3200"   # Tempo HTTP API
       - "4317:4317"   # OTLP gRPC
@@ -23,6 +24,8 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
+    links:            # FORCE /etc/hosts entry
+      - tempo
     volumes:
       - grafana-data:/var/lib/grafana
       - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
@@ -35,7 +38,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  tempo-data:
   grafana-data:
 
 networks:

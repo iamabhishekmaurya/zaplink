@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  # ============================================================
+  # 🎵 Grafana Tempo (Tracing Backend)
+  # ============================================================
+  zaplink-tempo:
+    image: grafana/tempo:2.5.0
+    container_name: zaplink-tempo
+    command: ["--config.file=/etc/tempo.yaml"]
+    ports:
+      - "3200:3200"   # Tempo HTTP API
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+    volumes:
+      - ./docker/tracing/tempo-config.yaml:/etc/tempo.yaml
+      - ./docker/tracing/tempo-overrides.yaml:/etc/tempo-overrides.yaml
+    networks:
+      - zaplink-net
+
+  # ============================================================
+  # 📊 Grafana (Visualization)
+  # ============================================================
+  zaplink-grafana:
+    image: grafana/grafana:latest
+    container_name: zaplink-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - zaplink-net
+
+volumes:
+  grafana-storage:
+
+networks:
+  zaplink-net:
+    driver: bridge

@@ -1,0 +1,40 @@
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http:
+          endpoint: 0.0.0.0:4318
+        grpc:
+          endpoint: 0.0.0.0:4317
+
+ingester:
+  max_block_duration: 5m
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    heartbeat_period: 100ms
+    num_tokens: 512
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /tmp/tempo/wal
+    local:
+      path: /tmp/tempo/blocks
+
+querier:
+  max_concurrent_queries: 10
+
+overrides:
+  per_tenant_override_config: /etc/tempo-overrides.yaml
+
+auth_enabled: false
+
+# Explicitly specify all targets for single binary mode
+target: all

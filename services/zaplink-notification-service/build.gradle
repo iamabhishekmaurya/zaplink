@@ -49,8 +49,10 @@ dependencies {
     // JSON Processing
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     
-    // Metrics
+    // Metrics & Tracing
     implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
     
     // Lombok
     compileOnly 'org.projectlombok:lombok'

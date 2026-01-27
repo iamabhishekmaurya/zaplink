@@ -63,9 +63,26 @@ jwt:
 
 # Distributed Tracing Configuration
 management:
+  tracing:
+    sampling:
+      probability: 1.0
+    enabled: true
+  otlp:
     tracing:
-        sampling:
-        probability: 1.0
-    otlp:
-        tracing:
-        endpoint: http://localhost:4318/v1/traces
+      endpoint: http://localhost:4317/v1/traces
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,tracing
+  endpoint:
+    prometheus:
+      access: unrestricted
+    health:
+      probes:
+        enabled: true
+    tracing:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
