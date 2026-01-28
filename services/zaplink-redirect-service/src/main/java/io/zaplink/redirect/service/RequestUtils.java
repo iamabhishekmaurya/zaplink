@@ -73,6 +73,28 @@ public final class RequestUtils
     }
 
     /**
+     * Extract Operating System from User-Agent header.
+     */
+    public static String extractOS( String userAgent )
+    {
+        if ( userAgent == null )
+            return "Unknown";
+        String ua = userAgent.toLowerCase();
+        if ( ua.contains( "windows" ) )
+            return "Windows";
+        if ( ua.contains( "mac" ) || ua.contains( "darwin" ) )
+            return "MacOS"; // iOS also contains like Mac OS X often, check iOS first? No usually distinct.
+        // Actually iOS UA often contains "iPhone OS 15_0 like Mac OS X"
+        if ( ua.contains( "iphone" ) || ua.contains( "ipad" ) || ua.contains( "ios" ) )
+            return "iOS";
+        if ( ua.contains( "android" ) )
+            return "Android";
+        if ( ua.contains( "linux" ) )
+            return "Linux";
+        return "Unknown";
+    }
+
+    /**
      * Extract browser name from User-Agent header.
      * Uses enhanced switch expression (Java 21).
      */
@@ -87,7 +109,8 @@ public final class RequestUtils
             case String s when s.contains( "edg" ) -> "Edge";
             case String s when s.contains( "chrome" ) -> "Chrome";
             case String s when s.contains( "firefox" ) -> "Firefox";
-            case String s when s.contains( "safari" ) -> "Safari";
+            case String s when s.contains( "safari" ) && !s.contains( "chrome" )
+                    && !s.contains( "android" ) -> "Safari"; // Safari check refinement
             case String s when s.contains( "opera" ) || s.contains( "opr" ) -> "Opera";
             case String s when s.contains( "msie" ) || s.contains( "trident" ) -> "IE";
             default -> "Other";

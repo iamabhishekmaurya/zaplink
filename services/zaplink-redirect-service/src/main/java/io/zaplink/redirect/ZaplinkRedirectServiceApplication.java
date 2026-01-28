@@ -2,6 +2,7 @@ package io.zaplink.redirect;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Zaplink Redirect Service Application.
@@ -13,7 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 
  * @author Zaplink Team
  */
-@SpringBootApplication
+@EnableAsync @SpringBootApplication
 public class ZaplinkRedirectServiceApplication
 {
 	public static void main( String[] args )

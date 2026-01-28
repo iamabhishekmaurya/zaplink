@@ -6,8 +6,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import io.zaplink.redirect.common.constants.RedisConstants;
+import io.zaplink.redirect.dto.RedirectConfigDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Redis service for URL and QR code caching.
@@ -17,51 +19,107 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisService
 {
     private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper        objectMapper;
     /**
-     * Get cached URL by short URL key.
-     *
-     * @param shortUrlKey the short URL key
-     * @return Optional containing the original URL if cached
+     * Get cached URL config (original URL + rules) by short URL key.
      */
-    public Optional<String> getUrl( String shortUrlKey )
+    public Optional<RedirectConfigDto> getUrlConfig( String shortUrlKey )
     {
         try
         {
-            String key = RedisConstants.URL_CACHE_PREFIX + shortUrlKey;
+            String key = RedisConstants.URL_CACHE_PREFIX + "config:" + shortUrlKey;
             String value = redisTemplate.opsForValue().get( key );
             if ( value != null )
             {
-                log.debug( "🔵 Cache HIT for URL key: {}", shortUrlKey );
-                return Optional.of( value );
+                log.debug( "🔵 Cache HIT for URL config: {}", shortUrlKey );
+                return Optional.of( objectMapper.readValue( value, RedirectConfigDto.class ) );
             }
-            log.debug( "🔴 Cache MISS for URL key: {}", shortUrlKey );
+            log.debug( "🔴 Cache MISS for URL config: {}", shortUrlKey );
             return Optional.empty();
         }
         catch ( Exception e )
         {
-            log.warn( "Redis error fetching URL key: {}", shortUrlKey, e );
+            log.warn( "Redis error fetching URL config: {}", shortUrlKey, e );
             return Optional.empty();
         }
     }
 
     /**
-     * Cache URL for fast lookups.
-     *
-     * @param shortUrlKey the short URL key
-     * @param originalUrl the original URL to cache
+     * Cache URL Configuration.
      */
-    public void cacheUrl( String shortUrlKey, String originalUrl )
+    public void cacheUrlConfig( String shortUrlKey, RedirectConfigDto config )
     {
         try
         {
-            String key = RedisConstants.URL_CACHE_PREFIX + shortUrlKey;
-            redisTemplate.opsForValue().set( key, originalUrl, RedisConstants.URL_CACHE_TTL );
-            log.debug( "📝 Cached URL for key: {}", shortUrlKey );
+            String key = RedisConstants.URL_CACHE_PREFIX + "config:" + shortUrlKey;
+            String json = objectMapper.writeValueAsString( config );
+            redisTemplate.opsForValue().set( key, json, RedisConstants.URL_CACHE_TTL );
+            log.debug( "📝 Cached URL config for key: {}", shortUrlKey );
         }
         catch ( Exception e )
         {
-            log.warn( "Redis error caching URL key: {}", shortUrlKey, e );
+            log.warn( "Redis error caching URL config: {}", shortUrlKey, e );
         }
+    }
+
+    /**
+     * Get cached QR config by QR key.
+     */
+    public Optional<RedirectConfigDto> getQrConfig( String qrKey )
+    {
+        try
+        {
+            String key = RedisConstants.QR_CACHE_PREFIX + "config:" + qrKey;
+            String value = redisTemplate.opsForValue().get( key );
+            if ( value != null )
+            {
+                log.debug( "🔵 Cache HIT for QR config: {}", qrKey );
+                return Optional.of( objectMapper.readValue( value, RedirectConfigDto.class ) );
+            }
+            log.debug( "🔴 Cache MISS for QR config: {}", qrKey );
+            return Optional.empty();
+        }
+        catch ( Exception e )
+        {
+            log.warn( "Redis error fetching QR config: {}", qrKey, e );
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Cache QR Config.
+     */
+    public void cacheQrConfig( String qrKey, RedirectConfigDto config )
+    {
+        try
+        {
+            String key = RedisConstants.QR_CACHE_PREFIX + "config:" + qrKey;
+            String json = objectMapper.writeValueAsString( config );
+            redisTemplate.opsForValue().set( key, json, RedisConstants.QR_CACHE_TTL );
+            log.debug( "📝 Cached QR config for key: {}", qrKey );
+        }
+        catch ( Exception e )
+        {
+            log.warn( "Redis error caching QR config: {}", qrKey, e );
+        }
+    }
+
+    /**
+     * Deprecated: Get cached URL by short URL key.
+     * Kept for backward compatibility if needed, but new logic should use getUrlConfig.
+     */
+    public Optional<String> getUrl( String shortUrlKey )
+    {
+        // Fallback to simple string cache
+        return Optional.empty();
+    }
+
+    /**
+     * Deprecated: Cache URL for fast lookups.
+     */
+    public void cacheUrl( String shortUrlKey, String originalUrl )
+    {
+        // No-op or delegate to old logic if needed
     }
 
     /**

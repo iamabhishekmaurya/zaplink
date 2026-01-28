@@ -16,7 +16,9 @@ import io.zaplink.core.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.core.dto.request.dynamicqr.UpdateDestinationRequest;
 import io.zaplink.core.dto.response.dynamicqr.DynamicQrResponse;
 import io.zaplink.core.entity.DynamicQrCodeEntity;
+import io.zaplink.core.entity.RedirectRuleEntity;
 import io.zaplink.core.repository.DynamicQrCodeRepository;
+import io.zaplink.core.repository.RedirectRuleRepository;
 import io.zaplink.core.service.dynamicqr.DynamicQrService;
 import io.zaplink.core.utility.SnowflakeShortUrlKeyUtil;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class DynamicQrServiceImpl
     DynamicQrService
 {
     private final DynamicQrCodeRepository dynamicQrCodeRepository;
+    private final RedirectRuleRepository  redirectRuleRepository;
     private final ObjectMapper            objectMapper;
     @Override @Transactional
     public DynamicQrResponse createDynamicQr( CreateDynamicQrRequest request, String userEmail )
@@ -58,6 +61,16 @@ public class DynamicQrServiceImpl
                     .scanLimit( request.getScanLimit() ).allowedDomains( allowedDomainsJson )
                     .trackAnalytics( request.getTrackAnalytics() != null ? request.getTrackAnalytics() : true ).build();
             entity = dynamicQrCodeRepository.save( entity );
+            if ( request.getRules() != null && !request.getRules().isEmpty() )
+            {
+                final Long qrId = entity.getId();
+                List<RedirectRuleEntity> ruleEntities = request.getRules().stream()
+                        .map( r -> RedirectRuleEntity.builder().dynamicQrCodeId( qrId ).dimension( r.dimension() )
+                                .value( r.value() ).destinationUrl( r.destinationUrl() ).priority( r.priority() )
+                                .createdAt( LocalDateTime.now() ).build() )
+                        .collect( Collectors.toList() );
+                redirectRuleRepository.saveAll( ruleEntities );
+            }
             log.info( "Created dynamic QR with key: {} for user: {}", qrKey, userEmail );
             return convertToResponse( entity );
         }
@@ -80,6 +93,21 @@ public class DynamicQrServiceImpl
         entity.setCurrentDestinationUrl( request.getDestinationUrl() );
         entity.setUpdatedAt( LocalDateTime.now() );
         entity = dynamicQrCodeRepository.save( entity );
+        // Update Rules
+        if ( request.getRules() != null )
+        {
+            redirectRuleRepository.deleteByDynamicQrCodeId( entity.getId() );
+            if ( !request.getRules().isEmpty() )
+            {
+                final Long qrId = entity.getId();
+                List<RedirectRuleEntity> ruleEntities = request.getRules().stream()
+                        .map( r -> RedirectRuleEntity.builder().dynamicQrCodeId( qrId ).dimension( r.dimension() )
+                                .value( r.value() ).destinationUrl( r.destinationUrl() ).priority( r.priority() )
+                                .createdAt( LocalDateTime.now() ).build() )
+                        .collect( Collectors.toList() );
+                redirectRuleRepository.saveAll( ruleEntities );
+            }
+        }
         log.info( "Updated destination for QR key: {} by user: {}", qrKey, userEmail );
         return convertToResponse( entity );
     }

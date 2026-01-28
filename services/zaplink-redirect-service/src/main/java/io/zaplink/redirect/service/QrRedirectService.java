@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.zaplink.redirect.dto.event.QrScanEvent;
 import io.zaplink.redirect.entity.DynamicQrCodeEntity;
 import io.zaplink.redirect.repository.DynamicQrCodeRepository;
+import io.zaplink.redirect.repository.RedirectRuleRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 public class QrRedirectService
 {
     private final DynamicQrCodeRepository dynamicQrCodeRepository;
+    private final RedirectRuleRepository  redirectRuleRepository;
     private final GeoIpService            geoIpService;
     private final KafkaEventPublisher     kafkaEventPublisher;
     private final ObjectMapper            objectMapper;
+    private final RuleEngine              ruleEngine;
     @Value("${redirect.error.base-url:https://zaplink.app/error}")
     private String                        errorBaseUrl;
     @Value("${redirect.password-protect.base-url:https://zaplink.app/password-protect}")
@@ -141,12 +145,35 @@ public class QrRedirectService
             }
             // In production, verify accessToken against hashed password/session
         }
+        // --- SMART ROUTING START ---
+        // Fetch Rules (Lazy load or fetch from Repo)
+        // For QR, we fetch rules directly from repo for now as we don't have them in Entity yet
+        String finalDestination = entity.getCurrentDestinationUrl();
+        var rules = redirectRuleRepository.findByDynamicQrCodeIdOrderByPriorityDesc( entity.getId() );
+        if ( !rules.isEmpty() )
+        {
+            String ip = RequestUtils.getClientIpAddress( request );
+            String ua = RequestUtils.getUserAgent( request );
+            String country = request.getHeader( "CF-IPCountry" );
+            if ( country == null || country.isEmpty() )
+            {
+                country = geoIpService.resolveLocation( ip ).get( "country" );
+            }
+            var context = RuleEngine.RoutingContext.builder().deviceType( RequestUtils.extractDeviceType( ua ) )
+                    .os( RequestUtils.extractOS( ua ) ).country( country ).build();
+            Optional<String> smartDest = ruleEngine.evaluate( rules, context );
+            if ( smartDest.isPresent() )
+            {
+                finalDestination = smartDest.get();
+            }
+        }
+        // --- SMART ROUTING END ---
         // 7. Publish analytics event (if tracking enabled)
         if ( Boolean.TRUE.equals( entity.getTrackAnalytics() ) )
         {
             publishScanEvent( qrKey, request );
         }
-        return new QrRedirectResult.Success( entity.getCurrentDestinationUrl() );
+        return new QrRedirectResult.Success( finalDestination );
     }
 
     /**
@@ -174,6 +201,7 @@ public class QrRedirectService
     /**
      * Publish QR scan event asynchronously to Kafka.
      */
+    @Async
     private void publishScanEvent( String qrKey, HttpServletRequest request )
     {
         try

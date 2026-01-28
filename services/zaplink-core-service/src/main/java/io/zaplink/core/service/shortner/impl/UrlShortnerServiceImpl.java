@@ -1,6 +1,7 @@
 package io.zaplink.core.service.shortner.impl;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,12 +10,13 @@ import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.enums.UrlStatusEnum;
 import io.zaplink.core.dto.request.ShortnerRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
+import io.zaplink.core.entity.RedirectRuleEntity;
 import io.zaplink.core.entity.UrlMappingEntity;
+import io.zaplink.core.repository.RedirectRuleRepository;
 import io.zaplink.core.repository.UrlMappingRepository;
 import io.zaplink.core.service.shortner.UrlShortnerService;
 import io.zaplink.core.utility.SnowflakeShortKeyGenerator;
 import io.zaplink.core.utility.StringUtil;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,8 +26,9 @@ public class UrlShortnerServiceImpl
     UrlShortnerService
 {
     @Value("${redirect.base.url}")
-    private String                     BASE_URL;
-    private final UrlMappingRepository urlMappingRepository;
+    private String                       BASE_URL;
+    private final UrlMappingRepository   urlMappingRepository;
+    private final RedirectRuleRepository redirectRuleRepository;
     @Override
     public ShortnerResponse createShortUrl( ShortnerRequest urlRequest, String userEmail )
     {
@@ -40,6 +43,16 @@ public class UrlShortnerServiceImpl
             UrlMappingEntity savedUrlMappingEntity = urlMappingRepository.save( urlMappingEntity );
             if ( savedUrlMappingEntity != null )
             {
+                if ( urlRequest.rules() != null && !urlRequest.rules().isEmpty() )
+                {
+                    final Long mappingId = savedUrlMappingEntity.getId();
+                    List<RedirectRuleEntity> ruleEntities = urlRequest.rules().stream()
+                            .map( r -> RedirectRuleEntity.builder().urlMappingId( mappingId ).dimension( r.dimension() )
+                                    .value( r.value() ).destinationUrl( r.destinationUrl() ).priority( r.priority() )
+                                    .createdAt( LocalDateTime.now() ).build() )
+                            .toList();
+                    redirectRuleRepository.saveAll( ruleEntities );
+                }
                 log.info( LogConstants.LOG_URL_MAPPING_CREATED );
                 return new ShortnerResponse( savedUrlMappingEntity.getShortUrl(), savedUrlMappingEntity.getTraceId() );
             }

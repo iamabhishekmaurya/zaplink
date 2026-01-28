@@ -70,7 +70,7 @@ kafka:
 
 # GeoIP configuration
 geoip:
-  api-url: http://ip-api.com/json/{ip}
+  db-path: classpath:GeoLite2-City.mmdb
 
 # Management endpoints
 management:

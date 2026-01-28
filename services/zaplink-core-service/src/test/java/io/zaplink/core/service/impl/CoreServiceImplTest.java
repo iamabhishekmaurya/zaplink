@@ -41,7 +41,7 @@ class CoreServiceImplTest
         // Arrange
         String originalUrl = "https://www.example.com";
         String traceId = "test-trace-id";
-        ShortnerRequest request = new ShortnerRequest( originalUrl, "Title", "Platform", null, traceId );
+        ShortnerRequest request = new ShortnerRequest( originalUrl, "Title", "Platform", null, null, traceId );
         UrlMappingEntity savedEntity = new UrlMappingEntity();
         savedEntity.setShortUrl( "http://localhost:8083/1" );
         savedEntity.setTraceId( traceId );
@@ -62,7 +62,7 @@ class CoreServiceImplTest
         // This test documents current behavior, though ideally we might want to throw an error.
         // Arrange
         String originalUrl = "https://www.google.com";
-        ShortnerRequest request = new ShortnerRequest( originalUrl, null, null, null, "trace-123" );
+        ShortnerRequest request = new ShortnerRequest( originalUrl, null, null, null, null, "trace-123" );
         when( urlMappingRepository.save( any( UrlMappingEntity.class ) ) ).thenReturn( null );
         ShortnerResponse response = urlShortnerService.createShortUrl( request, "test@example.com" );
         // Assert
@@ -76,7 +76,7 @@ class CoreServiceImplTest
     void shortUrl_RepositoryThrowsException_PropagatesException()
     {
         // Arrange
-        ShortnerRequest request = new ShortnerRequest( "https://error.com", null, null, null, null );
+        ShortnerRequest request = new ShortnerRequest( "https://error.com", null, null, null, null, null );
         when( urlMappingRepository.save( any( UrlMappingEntity.class ) ) )
                 .thenThrow( new RuntimeException( "DB Error" ) );
         // Act & Assert

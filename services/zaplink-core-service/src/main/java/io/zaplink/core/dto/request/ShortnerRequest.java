@@ -12,6 +12,7 @@ public record ShortnerRequest( @NotBlank(message = ErrorConstant.ORIGINAL_URL_RE
                                @Size(max = 100, message = ErrorConstant.TITLE_LENGTH_EXCEEDED) String title,
                                @Size(max = 50, message = ErrorConstant.PLATFORM_LENGTH_EXCEEDED) String platform,
                                @Size(max = 5, message = ErrorConstant.TAGS_SIZE_EXCEEDED) List<@Size(max = 20, message = ErrorConstant.TAG_LENGTH_EXCEEDED) String> tags,
+                               List<RedirectRuleDto> rules,
                                String traceId )
 {
 }
