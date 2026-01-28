@@ -18,4 +18,5 @@ public class LinkResponse
     private Long                  clickCount;
     private UrlStatusEnum         status;
     private List<RedirectRuleDto> rules;
+    private List<String>          tags;
 }

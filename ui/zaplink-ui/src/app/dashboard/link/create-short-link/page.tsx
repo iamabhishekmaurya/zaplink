@@ -1,23 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { SmartRoutingRules } from '@/components/smart-routing/SmartRoutingRules'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Loader2, Link2, Globe, Tag, Sparkles, Youtube, Github, Twitter, Linkedin, Instagram, Facebook, Link, RefreshCw } from 'lucide-react'
-import { IconBrandYoutube } from '@tabler/icons-react'
+import { TagInput } from '@/components/ui/tag-input'
 import { useShortlinks } from '@/hooks/useShortlinks'
-import { extractTitleFromUrl, extractPlatformFromUrl } from '@/lib/api/shortlinkService'
+import { extractPlatformFromUrl, extractTitleFromUrl } from '@/lib/api/shortlinkService'
+import { RedirectRuleDto } from '@/lib/types/apiRequestType'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { IconBrandYoutube } from '@tabler/icons-react'
+import { ArrowLeft, Facebook, Github, Globe, Instagram, Link, Link2, Linkedin, Loader2, RefreshCw, Sparkles, Tag, Twitter } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { SmartRoutingRules } from '@/components/smart-routing/SmartRoutingRules'
-import { RedirectRuleDto } from '@/lib/types/apiRequestType'
-import { TagInput } from '@/components/ui/tag-input'
 
 const formSchema = z.object({
     originalUrl: z.string().url('Please enter a valid URL'),
@@ -64,13 +63,27 @@ const CreateShortLink = () => {
         try {
             setInitialLoading(true)
             const link = await getShortlink(linkId)
+            console.log("DEBUG: Loaded link data:", link)
+            console.log("DEBUG: Tags:", link?.tags, "Type:", typeof link?.tags)
+
             if (link) {
+                let parsedRules = link.rules || []
+                console.log("DEBUG: Raw rules:", parsedRules, "Type:", typeof parsedRules)
+
+                if (typeof parsedRules === 'string') {
+                    try {
+                        parsedRules = JSON.parse(parsedRules)
+                    } catch (e) {
+                        parsedRules = []
+                    }
+                }
+
                 form.reset({
                     originalUrl: link.originalUrl,
                     title: link.title || '',
                     platform: link.platform || '',
                     tags: link.tags || [],
-                    rules: link.rules || []
+                    rules: parsedRules
                 })
             }
         } catch (err: any) {

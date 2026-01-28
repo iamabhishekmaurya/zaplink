@@ -1,6 +1,6 @@
 import api from "@/lib/api/client";
 import { API_ENDPOINTS } from '@/lib/constant/apiConstant';
-import { ShortLink, GetUserLinksResponse } from '@/lib/types/apiRequestType';
+import { ShortLink } from '@/lib/types/apiRequestType';
 
 export interface StatsResponse {
   totalLinks: number;
@@ -90,7 +90,8 @@ export const shortlinkService = {
         updatedAt: item.updatedAt || item.createdAt,
         userId: item.userId || 'current-user',
         clicks: item.clickCount || item.clicks || 0,
-        shortUrlKey: item.shortUrlKey
+        shortUrlKey: item.shortUrlKey,
+        rules: item.rules || []
       }));
 
       return transformedLinks;
@@ -127,7 +128,7 @@ export const shortlinkService = {
     }
   },
 
-  // Update a short link (workaround - create new and delete old)
+  // Update a short link
   updateShortLink: async (id: string, data: {
     title?: string;
     platform?: string;
@@ -135,43 +136,21 @@ export const shortlinkService = {
     rules?: any[];
   }) => {
     try {
-      // Get the existing link to preserve the original URL
-      const existingLinks = await shortlinkService.getUserLinks();
+      // Get the existing link to get the shortUrlKey
+      const existingLink = await shortlinkService.getShortlink(id);
 
-      // Try both string and number comparison for robust ID matching
-      const existingLink = existingLinks.find(link =>
-        link.id === id ||
-        link.id.toString() === id ||
-        String(link.id) === String(id)
-      );
-
-      if (!existingLink) {
-        throw new Error(`Short link with ID ${id} not found`);
-      }
-
-      // Create a new link with the updated data
-      const newLinkData = {
+      const updatePayload = {
+        shortUrlKey: existingLink.shortUrlKey,
         title: data.title || existingLink.title,
-        originalUrl: existingLink.originalUrl,
         platform: data.platform || existingLink.platform,
         tags: data.tags || existingLink.tags,
+        // Ensure rules are passed correctly, defaulting to existing if not provided
         rules: "rules" in data ? (data as any).rules : existingLink.rules
       };
 
-      const newLink = await shortlinkService.createShortLink(newLinkData);
-
-      // Delete the old link using the same ID comparison
-      const linkToDelete = existingLinks.find(link =>
-        link.id === id ||
-        link.id.toString() === id ||
-        String(link.id) === String(id)
-      );
-
-      if (linkToDelete) {
-        await shortlinkService.deleteShortLink(linkToDelete.id);
-      }
-
-      return newLink;
+      // Call the PUT endpoint
+      const response = await api.put(API_ENDPOINTS.SHORTEN_URL, updatePayload);
+      return response.data;
     } catch (error) {
       console.error('Error updating short link:', error);
       throw error;

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.zaplink.core.common.enums.QRBodyShapeEnum;
 import io.zaplink.core.common.enums.QREyeShapeEnum;
 import io.zaplink.core.dto.request.ShortnerRequest;
+import io.zaplink.core.dto.request.UpdateShortLinkRequest;
 import io.zaplink.core.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.core.dto.request.dynamicqr.UpdateDestinationRequest;
 import io.zaplink.core.dto.request.qr.QRConfig;
@@ -39,6 +40,13 @@ public class CoreController
                                             @RequestHeader(value = "X-User-Email", required = false) String userEmail )
     {
         return urlServiceProvider.createShortUrl( urlRequest, userEmail );
+    }
+
+    @PutMapping(value = "/url")
+    public ShortnerResponse updateShortUrl( @Valid @RequestBody UpdateShortLinkRequest updateRequest,
+                                            @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        return urlServiceProvider.updateShortUrl( updateRequest, userEmail );
     }
 
     @PostMapping(value = "/dyqr")

@@ -125,16 +125,16 @@ export const QrCodeCard = ({
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={() => router.push(`/dashboard/analytics/${qr.qrKey}?type=qr`)}>
+                                        <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/dashboard/analytics/${qr.qrKey}?type=qr`)}>
                                             <BarChart3 className="h-4 w-4 mr-2" />
                                             Analytics
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => onDownload(qr)}>
+                                        <DropdownMenuItem className="cursor-pointer" onClick={() => onDownload(qr)}>
                                             <Download className="h-4 w-4 mr-2" />
                                             Download
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className="text-destructive focus:text-destructive"
+                                            className="text-destructive focus:text-destructive cursor-pointer"
                                             onClick={() => onDelete(qr.qrKey)}
                                         >
                                             <Trash2 className="h-4 w-4 mr-2" />

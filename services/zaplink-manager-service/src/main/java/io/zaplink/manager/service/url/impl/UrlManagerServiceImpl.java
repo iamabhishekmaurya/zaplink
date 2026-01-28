@@ -83,7 +83,7 @@ public class UrlManagerServiceImpl
         return LinkResponse.builder().id( entity.getId() ).shortUrlKey( entity.getShortUrlKey() )
                 .originalUrl( entity.getOriginalUrl() ).shortUrl( entity.getShortUrl() )
                 .createdAt( entity.getCreatedAt() ).clickCount( entity.getClickCount() ).status( entity.getStatus() )
-                .rules( mapToRuleDtos( entity.getId() ) ).build();
+                .rules( mapToRuleDtos( entity.getId() ) ).tags( entity.getTags() ).build();
     }
 
     private List<RedirectRuleDto> mapToRuleDtos( Long urlMappingId )

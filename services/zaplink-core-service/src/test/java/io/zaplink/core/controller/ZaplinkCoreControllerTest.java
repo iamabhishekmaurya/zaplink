@@ -38,7 +38,7 @@ class ZaplinkCoreControllerTest
                                                        null,
                                                        null,
                                                        "valid-trace-id" );
-        ShortnerResponse response = new ShortnerResponse( "http://short.url/abc", "valid-trace-id" );
+        ShortnerResponse response = new ShortnerResponse( "http://short.url/abc", "valid-trace-id", null );
         when( urlShortnerService.createShortUrl( any( ShortnerRequest.class ), any() ) ).thenReturn( response );
         mockMvc.perform( post( "/core/url" ).contentType( MediaType.APPLICATION_JSON )
                 .content( objectMapper.writeValueAsString( request ) ) ).andExpect( status().isOk() )

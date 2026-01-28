@@ -1,5 +1,6 @@
 'use client'
 
+import { getPlatformColor, getPlatformIcon } from '@/components/common/platformIcons'
 import { ShareDropdown } from '@/components/share-dropdown'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,7 +8,6 @@ import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ShortLink } from '@/lib/types/apiRequestType'
-import { getPlatformColor, getPlatformIcon } from '@/components/common/platformIcons'
 import {
     BarChart3,
     Calendar,
@@ -129,11 +129,11 @@ export const ShortLinkCard = ({
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => onEdit(link)}>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit(link)}>
                                     <Edit3 className="h-4 w-4 mr-2" />
                                     Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onToggleActive(link.id)}>
+                                <DropdownMenuItem className="cursor-pointer" onClick={() => onToggleActive(link.id)}>
                                     {link.isActive ? (
                                         <>
                                             <PowerOff className="h-4 w-4 mr-2" />
@@ -147,7 +147,7 @@ export const ShortLinkCard = ({
                                     )}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive"
+                                    className="text-destructive focus:text-destructive cursor-pointer"
                                     onClick={() => onDelete(link.id)}
                                 >
                                     <Trash2 className="h-4 w-4 mr-2 text-destructive" />

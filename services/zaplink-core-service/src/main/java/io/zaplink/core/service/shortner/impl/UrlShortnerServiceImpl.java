@@ -9,9 +9,12 @@ import org.springframework.stereotype.Service;
 import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.enums.UrlStatusEnum;
 import io.zaplink.core.dto.request.ShortnerRequest;
+import io.zaplink.core.dto.request.UpdateShortLinkRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
 import io.zaplink.core.entity.RedirectRuleEntity;
 import io.zaplink.core.entity.UrlMappingEntity;
+import io.zaplink.core.exception.ResourceNotFoundException;
+import io.zaplink.core.exception.UnauthorizedException;
 import io.zaplink.core.repository.RedirectRuleRepository;
 import io.zaplink.core.repository.UrlMappingRepository;
 import io.zaplink.core.service.shortner.UrlShortnerService;
@@ -19,6 +22,7 @@ import io.zaplink.core.utility.SnowflakeShortKeyGenerator;
 import io.zaplink.core.utility.StringUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service @Slf4j @RequiredArgsConstructor
 public class UrlShortnerServiceImpl
@@ -54,12 +58,14 @@ public class UrlShortnerServiceImpl
                     redirectRuleRepository.saveAll( ruleEntities );
                 }
                 log.info( LogConstants.LOG_URL_MAPPING_CREATED );
-                return new ShortnerResponse( savedUrlMappingEntity.getShortUrl(), savedUrlMappingEntity.getTraceId() );
+                return new ShortnerResponse( savedUrlMappingEntity.getShortUrl(),
+                                             savedUrlMappingEntity.getTraceId(),
+                                             savedUrlMappingEntity.getTags() );
             }
             else
             {
                 log.error( LogConstants.LOG_URL_MAPPING_NOT_CREATED );
-                return new ShortnerResponse( null, null );
+                return new ShortnerResponse( null, null, null );
             }
         }
         catch ( Exception ex )
@@ -93,11 +99,40 @@ public class UrlShortnerServiceImpl
         urlMappingEntity.setPlatform( urlRequest.platform() );
         if ( urlRequest.tags() != null && !urlRequest.tags().isEmpty() )
         {
-            urlMappingEntity.setTags( String.join( ",", urlRequest.tags() ) );
+            urlMappingEntity.setTags( urlRequest.tags() );
         }
         urlMappingEntity.setCreatedAt( LocalDateTime.now() );
         urlMappingEntity.setExpiresAt( LocalDateTime.now().plusSeconds( 60 * 60 * 24 * 15 ) );
         urlMappingEntity.setClickCount( 0L );
         urlMappingEntity.setStatus( UrlStatusEnum.ACTIVE );
+    }
+
+    @Override @Transactional
+    public ShortnerResponse updateShortUrl( UpdateShortLinkRequest updateRequest, String userEmail )
+    {
+        UrlMappingEntity entity = urlMappingRepository.findByShortUrlKey( updateRequest.shortUrlKey() )
+                .orElseThrow( () -> new ResourceNotFoundException( "Link not found with key: "
+                        + updateRequest.shortUrlKey() ) );
+        if ( !entity.getUserEmail().equals( userEmail ) )
+        {
+            throw new UnauthorizedException( "You are not authorized to update this link" );
+        }
+        entity.setTitle( updateRequest.title() );
+        entity.setPlatform( updateRequest.platform() );
+        entity.setTags( updateRequest.tags() );
+        // Update Rules: Delete existing and add new
+        redirectRuleRepository.deleteByUrlMappingId( entity.getId() );
+        redirectRuleRepository.flush(); // Force delete to be applied immediately
+        if ( updateRequest.rules() != null && !updateRequest.rules().isEmpty() )
+        {
+            List<RedirectRuleEntity> ruleEntities = updateRequest.rules().stream()
+                    .map( r -> RedirectRuleEntity.builder().urlMappingId( entity.getId() ).dimension( r.dimension() )
+                            .value( r.value() ).destinationUrl( r.destinationUrl() ).priority( r.priority() )
+                            .createdAt( LocalDateTime.now() ).build() )
+                    .toList();
+            redirectRuleRepository.saveAll( ruleEntities );
+        }
+        UrlMappingEntity savedEntity = urlMappingRepository.save( entity );
+        return new ShortnerResponse( savedEntity.getShortUrl(), savedEntity.getTraceId(), savedEntity.getTags() );
     }
 }

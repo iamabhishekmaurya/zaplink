@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.response;
 
-public record ShortnerResponse( String url, String traceId )
+import java.util.List;
+
+public record ShortnerResponse( String url, String traceId, List<String> tags )
 {
 }

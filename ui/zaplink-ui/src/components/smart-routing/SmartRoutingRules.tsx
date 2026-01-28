@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { RedirectRuleDto } from '@/lib/types/apiRequestType';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Trash2, Plus, ArrowRight, Layers, Smartphone, Globe, Monitor } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { RedirectRuleDto } from '@/lib/types/apiRequestType';
+import { ArrowRight, Globe, Monitor, Pencil, Plus, Smartphone, Trash2, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { CgSmartHomeHeat } from "react-icons/cg";
 
 interface SmartRoutingRulesProps {
     rules: RedirectRuleDto[];
@@ -26,15 +27,26 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
         destinationUrl: '',
         priority: 1
     });
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-    const handleAddRule = () => {
+    const handleAddOrUpdateRule = () => {
         if (newRule.dimension && newRule.value && newRule.destinationUrl) {
-            const ruleToAdd = {
-                ...newRule,
-                priority: rules.length + 1 // Simple auto-increment priority
-            } as RedirectRuleDto;
+            if (editingIndex !== null) {
+                // Update existing rule
+                const updatedRules = [...rules];
+                updatedRules[editingIndex] = { ...newRule, priority: rules[editingIndex].priority } as RedirectRuleDto;
+                onChange(updatedRules);
+                setEditingIndex(null);
+            } else {
+                // Add new rule
+                const ruleToAdd = {
+                    ...newRule,
+                    priority: rules.length + 1
+                } as RedirectRuleDto;
+                onChange([...rules, ruleToAdd]);
+            }
 
-            onChange([...rules, ruleToAdd]);
+            // Reset form
             setNewRule({
                 dimension: 'DEVICE_TYPE',
                 value: '',
@@ -44,17 +56,35 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
         }
     };
 
+    const handleEditRule = (index: number) => {
+        const ruleToEdit = rules[index];
+        setNewRule({ ...ruleToEdit });
+        setEditingIndex(index);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingIndex(null);
+        setNewRule({
+            dimension: 'DEVICE_TYPE',
+            value: '',
+            destinationUrl: '',
+            priority: rules.length + 2
+        });
+    };
+
     const handleRemoveRule = (index: number) => {
         const updatedRules = rules.filter((_, i) => i !== index);
-        // Re-calculate priorities
         const reorderedRules = updatedRules.map((r, i) => ({ ...r, priority: i + 1 }));
         onChange(reorderedRules);
+        if (editingIndex === index) {
+            handleCancelEdit();
+        }
     };
 
     const Content = (
         <div className="space-y-6">
-            {/* Add New Rule Form */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 bg-secondary/20 rounded-lg border border-border/50">
+            {/* Add/Edit Rule Form */}
+            <div className={`grid grid-cols-1 md:grid-cols-12 gap-4 p-4 rounded-lg border border-border/50 ${editingIndex !== null ? 'bg-primary/5 border-primary/30' : 'bg-secondary/20'}`}>
                 <div className="md:col-span-3 flex flex-col gap-2">
                     <label className="text-sm font-medium">When</label>
                     <Select
@@ -96,15 +126,29 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
                 </div>
 
                 <div className="md:col-span-1 flex flex-col gap-2">
-                    <label className="text-sm font-medium invisible">Add</label>
-                    <Button
-                        type="button"
-                        onClick={handleAddRule}
-                        disabled={!newRule.value || !newRule.destinationUrl}
-                        className="w-full"
-                    >
-                        <Plus className="h-4 w-4" />
-                    </Button>
+                    <label className="text-sm font-medium invisible">Action</label>
+                    <div className="flex gap-2">
+                        <Button
+                            type="button"
+                            onClick={handleAddOrUpdateRule}
+                            disabled={!newRule.value || !newRule.destinationUrl}
+                            className="w-full"
+                            variant={editingIndex !== null ? "default" : "secondary"}
+                        >
+                            {editingIndex !== null ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                        </Button>
+                        {editingIndex !== null && (
+                            <Button
+                                type="button"
+                                onClick={handleCancelEdit}
+                                variant="ghost"
+                                size="icon"
+                                className="shrink-0"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -117,7 +161,10 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
                 )}
 
                 {rules.map((rule, index) => (
-                    <div key={index} className="flex flex-col md:flex-row items-center gap-4 p-3 bg-card border rounded-lg group hover:border-primary/30 transition-colors">
+                    <div
+                        key={index}
+                        className={`flex flex-col md:flex-row items-center gap-4 p-3 border rounded-lg group transition-colors ${editingIndex === index ? 'border-primary bg-primary/5' : 'bg-card hover:border-primary/30'}`}
+                    >
                         <div className="flex items-center gap-2 min-w-[120px]">
                             <Badge variant="outline" className="font-mono">
                                 #{index + 1}
@@ -135,15 +182,24 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
                             </span>
                         </div>
 
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleRemoveRule(index)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditRule(index)}
+                            >
+                                <Pencil className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleRemoveRule(index)}
+                            >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -154,7 +210,7 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
         return (
             <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                    <Layers className="h-5 w-5 text-primary" />
+                    <CgSmartHomeHeat className="h-5 w-5 text-primary" />
                     <div>
                         <h3 className="text-base font-semibold">Smart Routing Rules</h3>
                         <p className="text-xs text-muted-foreground">Redirect users based on device, OS, or location.</p>
@@ -169,7 +225,7 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
         <Card className="border-border/50 bg-background/50 backdrop-blur-sm shadow-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Layers className="h-5 w-5 text-primary" /> Smart Routing Rules
+                    <CgSmartHomeHeat className="h-5 w-5 text-primary" /> Smart Routing Rules
                 </CardTitle>
                 <CardDescription>
                     Redirect users to different destinations based on their device, OS, or location.
