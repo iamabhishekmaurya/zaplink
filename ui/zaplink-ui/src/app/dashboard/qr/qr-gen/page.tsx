@@ -180,6 +180,12 @@ const QrGeneratorContent = () => {
     }
 
     const handleSave = async (name: string) => {
+        const isValid = await form.trigger()
+        if (!isValid) {
+            toast.error("Please fix form errors before saving")
+            return
+        }
+
         const values = form.getValues()
         if (!values.data) {
             toast.error("Please enter a destination URL")
@@ -354,7 +360,7 @@ const QrGeneratorContent = () => {
                                             </TabsContent>
 
                                             <TabsContent value="advanced">
-                                                <AdvancedTab onSave={handleSave} />
+                                                <AdvancedTab />
                                             </TabsContent>
 
                                             <TabsContent value="smart-rules">
