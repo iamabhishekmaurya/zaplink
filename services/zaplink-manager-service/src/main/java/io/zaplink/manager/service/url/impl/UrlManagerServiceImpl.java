@@ -6,10 +6,13 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import io.zaplink.manager.common.enums.UrlStatusEnum;
+import io.zaplink.manager.dto.RedirectRuleDto;
 import io.zaplink.manager.dto.response.LinkAnalyticsResponse;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
+import io.zaplink.manager.entity.RedirectRuleEntity;
 import io.zaplink.manager.entity.UrlMappingEntity;
+import io.zaplink.manager.repository.RedirectRuleRepository;
 import io.zaplink.manager.repository.UrlAnalyticsRepository;
 import io.zaplink.manager.repository.UrlMappingRepository;
 import io.zaplink.manager.service.helper.RedisServiceHelper;
@@ -25,6 +28,7 @@ public class UrlManagerServiceImpl
     private final RedisServiceHelper     redisService;
     private final UrlMappingRepository   urlMappingRepository;
     private final UrlAnalyticsRepository urlAnalyticsRepository;
+    private final RedirectRuleRepository redirectRuleRepository;
     @Override
     public List<LinkResponse> getLinksByUser( String userEmail )
     {
@@ -79,7 +83,18 @@ public class UrlManagerServiceImpl
         return LinkResponse.builder().id( entity.getId() ).shortUrlKey( entity.getShortUrlKey() )
                 .originalUrl( entity.getOriginalUrl() ).shortUrl( entity.getShortUrl() )
                 .createdAt( entity.getCreatedAt() ).clickCount( entity.getClickCount() ).status( entity.getStatus() )
-                .build();
+                .rules( mapToRuleDtos( entity.getId() ) ).build();
+    }
+
+    private List<RedirectRuleDto> mapToRuleDtos( Long urlMappingId )
+    {
+        List<RedirectRuleEntity> rules = redirectRuleRepository.findByUrlMappingIdOrderByPriorityDesc( urlMappingId );
+        if ( rules == null || rules.isEmpty() )
+            return null;
+        return rules.stream()
+                .map( r -> RedirectRuleDto.builder().dimension( r.getDimension() ).value( r.getValue() )
+                        .destinationUrl( r.getDestinationUrl() ).priority( r.getPriority() ).build() )
+                .collect( Collectors.toList() );
     }
 
     @Override
