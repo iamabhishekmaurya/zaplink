@@ -106,6 +106,7 @@ export const shortlinkService = {
     originalUrl: string;
     platform?: string;
     tags?: string[];
+    rules?: any[];
   }) => {
     try {
       const response = await api.post(API_ENDPOINTS.SHORTEN_URL, data);
@@ -131,6 +132,7 @@ export const shortlinkService = {
     title?: string;
     platform?: string;
     tags?: string[];
+    rules?: any[];
   }) => {
     try {
       // Get the existing link to preserve the original URL
@@ -152,7 +154,8 @@ export const shortlinkService = {
         title: data.title || existingLink.title,
         originalUrl: existingLink.originalUrl,
         platform: data.platform || existingLink.platform,
-        tags: data.tags || existingLink.tags
+        tags: data.tags || existingLink.tags,
+        rules: "rules" in data ? (data as any).rules : existingLink.rules
       };
 
       const newLink = await shortlinkService.createShortLink(newLinkData);

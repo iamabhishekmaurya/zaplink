@@ -41,6 +41,7 @@ export const useShortlinks = () => {
     originalUrl: string;
     platform?: string;
     tags?: string[];
+    rules?: any[];
   }) => {
     try {
       const newShortlink = await shortlinkService.createShortLink(data);

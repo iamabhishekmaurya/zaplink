@@ -102,6 +102,13 @@ export interface VerifyEmailResponse {
   userInfo?: UserInfo;
 }
 
+export interface RedirectRuleDto {
+  dimension: 'DEVICE_TYPE' | 'OS' | 'COUNTRY';
+  value: string;
+  destinationUrl: string;
+  priority: number;
+}
+
 export interface ShortLink {
   id: string;
   title: string;
@@ -116,6 +123,7 @@ export interface ShortLink {
   userId: string;
   clicks?: number;
   shortUrlKey?: string;
+  rules?: RedirectRuleDto[];
 }
 
 export interface GetUserLinksResponse extends BaseResponse {
@@ -136,6 +144,7 @@ export interface DynamicQrResponse {
   createdAt: string;
   updatedAt: string;
   lastScanned?: string;
+  rules?: RedirectRuleDto[];
 }
 
 export interface PageResponse<T> {

@@ -15,12 +15,16 @@ import { extractTitleFromUrl, extractPlatformFromUrl } from '@/lib/api/shortlink
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+import { SmartRoutingRules } from '@/components/smart-routing/SmartRoutingRules'
+import { RedirectRuleDto } from '@/lib/types/apiRequestType'
+import { TagInput } from '@/components/ui/tag-input'
 
 const formSchema = z.object({
     originalUrl: z.string().url('Please enter a valid URL'),
     title: z.string().optional(),
     platform: z.string().optional(),
-    tags: z.string().optional()
+    tags: z.array(z.string()).optional(),
+    rules: z.array(z.any()).optional() // Using any temporarily to bypass deeper zod validation for the DTO
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -41,7 +45,8 @@ const CreateShortLink = () => {
             originalUrl: '',
             title: '',
             platform: '',
-            tags: ''
+            tags: [],
+            rules: []
         }
     })
 
@@ -64,7 +69,8 @@ const CreateShortLink = () => {
                     originalUrl: link.originalUrl,
                     title: link.title || '',
                     platform: link.platform || '',
-                    tags: link.tags?.join(', ') || ''
+                    tags: link.tags || [],
+                    rules: link.rules || []
                 })
             }
         } catch (err: any) {
@@ -101,15 +107,13 @@ const CreateShortLink = () => {
             setLoading(true)
             setError(null)
 
-            const tagsArray = values.tags
-                ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
-                : []
 
             const linkData = {
                 title: values.title || extractTitleFromUrl(values.originalUrl),
                 originalUrl: values.originalUrl,
                 platform: values.platform || extractPlatformFromUrl(values.originalUrl),
-                tags: tagsArray
+                tags: values.tags || [],
+                rules: values.rules as RedirectRuleDto[]
             }
 
             if (isEditMode) {
@@ -213,7 +217,7 @@ const CreateShortLink = () => {
                                                     <FormControl>
                                                         <Input
                                                             placeholder="https://example.com/long-url"
-                                                            className="h-12 text-base border-input/50 focus:border-primary/50 bg-background/50"
+                                                            className="h-16 text-base border-input/50 focus:border-primary/50 bg-background/50"
                                                             {...field}
                                                             onChange={(e) => handleUrlChange(e.target.value)}
                                                         />
@@ -234,7 +238,7 @@ const CreateShortLink = () => {
                                                         <FormControl>
                                                             <Input
                                                                 placeholder="My Awesome Link"
-                                                                className="h-12 border-input/50 focus:border-primary/50 bg-background/50"
+                                                                className="h-9 border-input/50 focus:border-primary/50 bg-background/50"
                                                                 {...field}
                                                             />
                                                         </FormControl>
@@ -286,14 +290,27 @@ const CreateShortLink = () => {
                                                         <Tag className="h-4 w-4" /> Tags
                                                     </FormLabel>
                                                     <FormControl>
-                                                        <Textarea
+                                                        <TagInput
+                                                            value={field.value as string[] || []}
+                                                            onChange={field.onChange}
                                                             placeholder="marketing, social, campaign"
-                                                            className="min-h-[100px] resize-none border-input/50 focus:border-primary/50 bg-background/50"
-                                                            {...field}
                                                         />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
+                                            )}
+                                        />
+
+                                        {/* Smart Routing Rules */}
+                                        <FormField
+                                            control={form.control}
+                                            name="rules"
+                                            render={({ field }) => (
+                                                <SmartRoutingRules
+                                                    rules={field.value as RedirectRuleDto[] || []}
+                                                    onChange={field.onChange}
+                                                    variant="plain"
+                                                />
                                             )}
                                         />
 

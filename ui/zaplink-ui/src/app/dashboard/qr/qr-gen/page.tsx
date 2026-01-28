@@ -18,6 +18,7 @@ import { DesignTab } from './components/tabs/design-tab'
 import { ColorsTab } from './components/tabs/colors-tab'
 import { LogoTab } from './components/tabs/logo-tab'
 import { AdvancedTab } from './components/tabs/advanced-tab'
+import { SmartRulesTab } from './components/tabs/smart-rules-tab'
 import { QrPreview } from './components/qr-preview'
 import { DynamicQrService } from '@/lib/api/dynamicQr'
 
@@ -209,7 +210,8 @@ const QrGeneratorContent = () => {
                 password: values.passwordProtection ? values.password : undefined,
                 scanLimit: values.scanLimit === 0 ? undefined : values.scanLimit, // 0 usually means unlimited in UI but backend treats >0 as limit.
                 allowedDomains: allowedDomains,
-                trackAnalytics: values.trackAnalytics
+                trackAnalytics: values.trackAnalytics,
+                rules: values.rules || []
             })
             toast.success('QR Code saved successfully and is now active!')
         } catch (error) {
@@ -331,10 +333,11 @@ const QrGeneratorContent = () => {
                                     </CardHeader>
                                     <CardContent>
                                         <Tabs defaultValue="design" className="w-full">
-                                            <TabsList className="grid w-full grid-cols-4 mb-6">
+                                            <TabsList className="grid w-full grid-cols-5 mb-6">
                                                 <TabsTrigger value="design">Design</TabsTrigger>
                                                 <TabsTrigger value="colors">Colors</TabsTrigger>
                                                 <TabsTrigger value="logo">Logo</TabsTrigger>
+                                                <TabsTrigger value="smart-rules">Rules</TabsTrigger>
                                                 <TabsTrigger value="advanced">Advanced</TabsTrigger>
                                             </TabsList>
 
@@ -352,6 +355,10 @@ const QrGeneratorContent = () => {
 
                                             <TabsContent value="advanced">
                                                 <AdvancedTab onSave={handleSave} />
+                                            </TabsContent>
+
+                                            <TabsContent value="smart-rules">
+                                                <SmartRulesTab />
                                             </TabsContent>
                                         </Tabs>
                                     </CardContent>

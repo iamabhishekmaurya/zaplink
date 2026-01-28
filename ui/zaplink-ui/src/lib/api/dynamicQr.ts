@@ -13,6 +13,7 @@ interface CreateDynamicQrRequest {
     scanLimit?: number
     allowedDomains?: string[]
     trackAnalytics?: boolean
+    rules?: any[]
 }
 
 export const DynamicQrService = {

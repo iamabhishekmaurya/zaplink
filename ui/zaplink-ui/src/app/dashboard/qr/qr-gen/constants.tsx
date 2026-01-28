@@ -87,6 +87,7 @@ export const formSchema = z.object({
     domainRestriction: z.string().optional(),
     allowedDomains: z.string().optional(), // Comma separated domains
     scanLimit: z.number().min(0).max(10000).optional(),
+    rules: z.array(z.any()).optional(),
 })
 
 export type FormValues = z.infer<typeof formSchema>
@@ -125,4 +126,5 @@ export const Defaults: FormValues = {
     domainRestriction: 'none',
     allowedDomains: '',
     scanLimit: 1000,
+    rules: []
 }
