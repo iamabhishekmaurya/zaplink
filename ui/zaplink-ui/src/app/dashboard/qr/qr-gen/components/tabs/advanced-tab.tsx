@@ -1,17 +1,12 @@
-import React from 'react'
-import { useFormContext } from 'react-hook-form'
-import { FormField, FormItem, FormControl, FormLabel } from '@/components/ui/form'
-import { Switch } from '@/components/ui/switch'
+import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
+import { Globe, Settings, Shield, Zap } from 'lucide-react'
+import { useFormContext } from 'react-hook-form'
 import { FormValues } from '../../constants'
-import { Settings, Zap, Globe, Shield, Clock } from 'lucide-react'
 
-import { toast } from 'sonner'
-import { useState } from 'react'
-import { Loader2 } from 'lucide-react'
 
 export const AdvancedTab = () => {
     const form = useFormContext<FormValues>()
@@ -266,8 +261,6 @@ export const AdvancedTab = () => {
                     />
                 </div>
             </div>
-
-
         </div>
     )
 }
