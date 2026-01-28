@@ -45,6 +45,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+# Custom Service URLs
+zaplink:
+  services:
+    core:
+      url: http://localhost:8081
+
 # Distributed Tracing Configuration
 management:
   tracing:

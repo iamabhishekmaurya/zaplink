@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import io.zaplink.manager.dto.request.qr.QRConfig;
 
-@FeignClient(name = "zaplink-core-service") // Uses Eureka by default
+@FeignClient(name = "zaplink-core-service", url = "${zaplink.services.core.url:http://localhost:8081}", path = "/core") // Direct URL fallback
 public interface CoreServiceClient
 {
-    @PostMapping(value = "/qr/styled", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.IMAGE_PNG_VALUE)
+    @PostMapping(value = "/qr/styled", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.IMAGE_PNG_VALUE, headers = "X-API-Version=1")
     ResponseEntity<byte[]> generateStyledQr( @RequestBody QRConfig config );
 }

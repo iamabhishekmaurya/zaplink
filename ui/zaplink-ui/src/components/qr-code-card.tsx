@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import api from "@/lib/api/client"
 import { DynamicQrResponse } from '@/lib/types/apiRequestType'
-import api from "@/lib/api/client";
 import {
     BarChart3,
     Calendar,
@@ -34,16 +34,23 @@ export const QrCodeCard = ({
     const router = useRouter()
 
     useEffect(() => {
+        const controller = new AbortController();
+        let objectUrl: string | null = null;
+
         const fetchImage = async () => {
             try {
                 // Fetch image as blob with auth headers
                 const response = await api.get(qr.qrImageUrl, {
-                    responseType: 'blob'
+                    responseType: 'blob',
+                    signal: controller.signal
                 })
                 const url = URL.createObjectURL(response.data)
+                objectUrl = url
                 setImageUrl(url)
-            } catch (error) {
-                console.error('Failed to load QR image', error)
+            } catch (error: any) {
+                if (error.code !== 'ERR_CANCELED' && error.name !== 'CanceledError') {
+                    console.error('Failed to load QR image', error)
+                }
             }
         }
 
@@ -53,8 +60,9 @@ export const QrCodeCard = ({
 
         // Cleanup blob URL on unmount
         return () => {
-            if (imageUrl) {
-                URL.revokeObjectURL(imageUrl)
+            controller.abort()
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl)
             }
         }
     }, [qr.qrImageUrl])
