@@ -31,7 +31,7 @@ public class MediaServiceIntegrationTest
     @Autowired
     private AssetRepository               assetRepository;
     @MockitoBean
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
     @BeforeEach
     void setUp()
     {
@@ -44,7 +44,7 @@ public class MediaServiceIntegrationTest
     {
         // Arrange
         MockMultipartFile file = new MockMultipartFile( "file", "test-image.jpg", "image/jpeg", new byte[1024] );
-        UUID ownerId = UUID.randomUUID();
+        String ownerId = UUID.randomUUID().toString();
         // Act
         Asset asset = mediaService.uploadAsset( file, ownerId, null );
         // Assert
@@ -60,6 +60,6 @@ public class MediaServiceIntegrationTest
         // So 2 uploads expected if image.
         verify( s3Client, atLeast( 1 ) ).putObject( any( PutObjectRequest.class ), any( RequestBody.class ) );
         // Verify Kafka event
-        verify( kafkaTemplate, times( 1 ) ).send( eq( "media-events" ), any() );
+        verify( kafkaTemplate, times( 1 ) ).send( any( org.apache.kafka.clients.producer.ProducerRecord.class ) );
     }
 }

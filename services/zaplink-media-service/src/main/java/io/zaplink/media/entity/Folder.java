@@ -18,5 +18,5 @@ public class Folder
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "parent_id")
     private Folder parent;
     @Column(name = "owner_id", nullable = false)
-    private UUID   ownerId;
+    private String ownerId;
 }

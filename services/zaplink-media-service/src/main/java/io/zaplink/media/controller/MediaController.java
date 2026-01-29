@@ -39,7 +39,7 @@ public class MediaController
      */
     @PostMapping("/upload")
     public ResponseEntity<Asset> uploadMedia( @RequestParam("file") MultipartFile file,
-                                              @RequestParam("ownerId") UUID ownerId,
+                                              @RequestParam("ownerId") String ownerId,
                                               @RequestParam(value = "folderId", required = false) UUID folderId )
     {
         log.info( LogConstants.LOG_CONTROLLER_UPLOAD_REQ, ownerId, folderId, file.getOriginalFilename() );
@@ -58,7 +58,7 @@ public class MediaController
      */
     @GetMapping
     public ResponseEntity<Page<Asset>> listAssets( @RequestParam(value = "folderId", required = false) UUID folderId,
-                                                   @RequestParam(value = "ownerId", required = false) UUID ownerId,
+                                                   @RequestParam(value = "ownerId", required = false) String ownerId,
                                                    @PageableDefault(size = 20) Pageable pageable )
     {
         log.info( LogConstants.LOG_CONTROLLER_LIST_REQ, ownerId, folderId, pageable.getPageNumber() );
@@ -81,7 +81,7 @@ public class MediaController
      * @return 204 No Content.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAsset( @PathVariable UUID id )
+    public ResponseEntity<Void> deleteAsset( @PathVariable("id") UUID id )
     {
         log.info( LogConstants.LOG_CONTROLLER_DELETE_REQ, id );
         mediaService.deleteAsset( id );

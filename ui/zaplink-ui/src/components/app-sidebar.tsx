@@ -13,7 +13,8 @@ import {
   User,
   Bell,
   Wallet,
-  Globe
+  Globe,
+  Image as ImageIcon
 } from "lucide-react"
 import * as React from "react"
 
@@ -102,6 +103,17 @@ const data = {
           url: "/dashboard/qr/qr-gen",
         },
       ],
+    },
+    {
+      title: "Media",
+      url: "/dashboard/media",
+      icon: ImageIcon,
+      items: [
+        {
+          title: "Library",
+          url: "/dashboard/media",
+        }
+      ]
     },
     {
       title: "Finance",

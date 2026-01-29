@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import io.zaplink.media.common.constants.ExceptionConstants;
+import lombok.extern.slf4j.Slf4j;
 import io.zaplink.media.dto.error.ErrorResponse;
 import io.zaplink.media.dto.error.FieldError;
 
@@ -22,7 +23,7 @@ import io.zaplink.media.dto.error.FieldError;
  * Centralizes error handling to ensure consistent JSON responses across the API.
  * Maps specific exceptions (like AssetNotFoundException) to HTTP status codes.
  */
-@RestControllerAdvice
+@Slf4j @RestControllerAdvice
 public class GlobalExceptionHandler
 {
         /**
@@ -57,6 +58,7 @@ public class GlobalExceptionHandler
         @ExceptionHandler(Exception.class)
         public ResponseEntity<Object> handleGlobalException( Exception ex, WebRequest request )
         {
+                log.error( "Unhandled exception in Media Service", ex );
                 // Check if request wants OpenMetrics format (for Prometheus)
                 String acceptHeader = request.getHeader( HttpHeaders.ACCEPT );
                 if ( acceptHeader != null && acceptHeader.contains( "application/openmetrics-text" ) )

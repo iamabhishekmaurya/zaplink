@@ -33,7 +33,7 @@ public class FolderService
      * @return The created Folder.
      */
     @Transactional
-    public Folder createFolder( String name, UUID parentId, UUID ownerId )
+    public Folder createFolder( String name, UUID parentId, String ownerId )
     {
         log.info( LogConstants.LOG_FOLDER_CREATE_REQ, name, parentId, ownerId );
         Folder parent = null;
@@ -56,7 +56,7 @@ public class FolderService
      * @param parentId The parent folder ID (can be null for root).
      * @return List of folders.
      */
-    public List<Folder> listFolders( UUID ownerId, UUID parentId )
+    public List<Folder> listFolders( String ownerId, UUID parentId )
     {
         log.info( LogConstants.LOG_FOLDER_LIST_REQ, ownerId, parentId );
         return folderRepository.findByOwnerIdAndParentId( ownerId, parentId );

@@ -6,18 +6,22 @@ import { Toaster } from "@/components/ui/sonner"
 import store from "../../store/index"
 import { AuthInitializer } from "../auth/AuthInitializer"
 
+import ReactQueryProvider from "@/providers/ReactQueryProvider"
+
 interface ProvidersProps {
     children: React.ReactNode
 }
 
 export function Providers({ children }: ProvidersProps) {
     return (
-        <Provider store={store}>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                <AuthInitializer />
-                {children}
-                <Toaster />
-            </ThemeProvider>
-        </Provider>
+        <ReactQueryProvider>
+            <Provider store={store}>
+                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                    <AuthInitializer />
+                    {children}
+                    <Toaster />
+                </ThemeProvider>
+            </Provider>
+        </ReactQueryProvider>
     )
 }

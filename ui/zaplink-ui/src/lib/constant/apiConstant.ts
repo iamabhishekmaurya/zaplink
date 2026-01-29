@@ -13,7 +13,10 @@ export const API_BASE_URLS = {
   SHORT_LINKS: '/api/rd/short/links',
   SHORT_STATS: '/api/rd/short/stats',
   SHORT_ANALYTICS: '/api/rd/short',
-  MANAGER_DYQR: '/api/rd/dyqr'
+  MANAGER_DYQR: '/api/rd/dyqr',
+
+  // Media Service
+  MEDIA: '/api/media'
 } as const
 
 // API Endpoints

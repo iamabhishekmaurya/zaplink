@@ -16,7 +16,7 @@ public class Asset
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID          id;
     @Column(name = "owner_id", nullable = false)
-    private UUID          ownerId;
+    private String        ownerId;
     @Column(nullable = false)
     private String        url;
     @Column(nullable = false)

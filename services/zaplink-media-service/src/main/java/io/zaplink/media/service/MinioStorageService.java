@@ -40,6 +40,7 @@ public class MinioStorageService
         {
             s3Client.headBucket( HeadBucketRequest.builder().bucket( bucketName ).build() );
             log.info( LogConstants.LOG_BUCKET_EXISTS, bucketName );
+            setPublicBucketPolicy( bucketName );
         }
         catch ( NoSuchBucketException e )
         {
@@ -48,6 +49,7 @@ public class MinioStorageService
             {
                 s3Client.createBucket( b -> b.bucket( bucketName ) );
                 log.info( LogConstants.LOG_BUCKET_CREATED, bucketName );
+                setPublicBucketPolicy( bucketName );
             }
             catch ( Exception createEx )
             {
@@ -59,6 +61,23 @@ public class MinioStorageService
         {
             log.error( LogConstants.LOG_BUCKET_ACCESS_ERROR, bucketName, e.getMessage() );
             // We might choose to fail startup here or handle gracefully depending on requirements
+        }
+    }
+
+    private void setPublicBucketPolicy( String bucketName )
+    {
+        try
+        {
+            String policy = String
+                    .format( "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"*\"]},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::%s/*\"]}]}",
+                             bucketName );
+            s3Client.putBucketPolicy( software.amazon.awssdk.services.s3.model.PutBucketPolicyRequest.builder()
+                    .bucket( bucketName ).policy( policy ).build() );
+            log.info( "Public read policy set for bucket: {}", bucketName );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Failed to set bucket policy for {}", bucketName, e );
         }
     }
 

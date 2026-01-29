@@ -13,5 +13,5 @@ public class CreateFolderRequest
     private String name;
     private UUID   parentId;
     @NotNull(message = "Owner ID is required")
-    private UUID   ownerId;
+    private String ownerId;
 }

@@ -14,10 +14,10 @@ public interface FolderRepository
 {
     List<Folder> findByParentId( UUID parentId );
 
-    List<Folder> findByOwnerId( UUID ownerId );
+    List<Folder> findByOwnerId( String ownerId );
 
     // For listing folders securely
-    List<Folder> findByOwnerIdAndParentId( UUID ownerId, UUID parentId );
+    List<Folder> findByOwnerIdAndParentId( String ownerId, UUID parentId );
 
     // For checking if folder has subfolders
     boolean existsByParentId( UUID parentId );

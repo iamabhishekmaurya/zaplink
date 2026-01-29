@@ -58,7 +58,7 @@ public class MediaService
      * @throws StorageException if the upload fails or I/O errors occur.
      */
     @Transactional
-    public Asset uploadAsset( MultipartFile file, UUID ownerId, UUID folderId )
+    public Asset uploadAsset( MultipartFile file, String ownerId, UUID folderId )
     {
         String originalFilename = file.getOriginalFilename();
         String contentType = file.getContentType();

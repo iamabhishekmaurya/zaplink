@@ -32,14 +32,14 @@ public class FolderController
     }
 
     @GetMapping
-    public ResponseEntity<List<Folder>> listFolders( @RequestParam(value = "ownerId") UUID ownerId,
+    public ResponseEntity<List<Folder>> listFolders( @RequestParam(value = "ownerId") String ownerId,
                                                      @RequestParam(value = "parentId", required = false) UUID parentId )
     {
         return ResponseEntity.ok( folderService.listFolders( ownerId, parentId ) );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFolder( @PathVariable UUID id )
+    public ResponseEntity<Void> deleteFolder( @PathVariable("id") UUID id )
     {
         folderService.deleteFolder( id );
         return ResponseEntity.noContent().build();
