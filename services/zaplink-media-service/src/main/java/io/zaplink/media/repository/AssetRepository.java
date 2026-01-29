@@ -15,5 +15,7 @@ public interface AssetRepository
 {
     Page<Asset> findByFolderId( UUID folderId, Pageable pageable );
 
+    boolean existsByFolderId( UUID folderId );
+
     Page<Asset> findByOwnerId( UUID ownerId, Pageable pageable );
 }

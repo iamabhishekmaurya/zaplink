@@ -56,4 +56,11 @@ public final class LogConstants
     public static final String LOG_CONTROLLER_UPLOAD_SUCCESS     = "Upload successful. Asset ID: {}";
     public static final String LOG_CONTROLLER_LIST_REQ           = "Listing assets. Owner: {}, Folder: {}, Page: {}";
     public static final String LOG_CONTROLLER_DELETE_REQ         = "Received delete request for asset ID: {}";
+    // ==================== FOLDER LOGS ====================
+    public static final String LOG_FOLDER_CREATE_REQ             = "Received create folder request. Name: {}, Parent: {}, Owner: {}";
+    public static final String LOG_FOLDER_CREATED                = "Folder created successfully. ID: {}";
+    public static final String LOG_FOLDER_LIST_REQ               = "Listing folders. Owner: {}, Parent: {}";
+    public static final String LOG_FOLDER_DELETE_REQ             = "Received delete folder request. ID: {}";
+    public static final String LOG_FOLDER_DELETED                = "Folder deleted. ID: {}";
+    public static final String LOG_FOLDER_NOT_EMPTY              = "Cannot delete folder {}. It is not empty (contains {} assets/subfolders).";
 }
