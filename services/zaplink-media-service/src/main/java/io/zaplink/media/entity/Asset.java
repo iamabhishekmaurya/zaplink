@@ -21,6 +21,8 @@ public class Asset
     private String        url;
     @Column(nullable = false)
     private String        filename;
+    @Column(name = "thumbnail_path")
+    private String        thumbnailPath;
     @Column(name = "mime_type")
     private String        mimeType;
     @Column(name = "size_bytes")

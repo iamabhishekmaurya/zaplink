@@ -40,9 +40,10 @@ public class MediaController
                                               @RequestParam("ownerId") UUID ownerId,
                                               @RequestParam(value = "folderId", required = false) UUID folderId )
     {
-        log.info("Received upload request. Owner: {}, Folder: {}, File: {}", ownerId, folderId, file.getOriginalFilename());
+        log.info( "Received upload request. Owner: {}, Folder: {}, File: {}", ownerId, folderId,
+                  file.getOriginalFilename() );
         Asset asset = mediaService.uploadAsset( file, ownerId, folderId );
-        log.info("Upload successful. Asset ID: {}", asset.getId());
+        log.info( "Upload successful. Asset ID: {}", asset.getId() );
         return ResponseEntity.ok( asset );
     }
 
@@ -59,7 +60,7 @@ public class MediaController
                                                    @RequestParam(value = "ownerId", required = false) UUID ownerId,
                                                    @PageableDefault(size = 20) Pageable pageable )
     {
-        log.info("Listing assets. Owner: {}, Folder: {}, Page: {}", ownerId, folderId, pageable.getPageNumber());
+        log.info( "Listing assets. Owner: {}, Folder: {}, Page: {}", ownerId, folderId, pageable.getPageNumber() );
         if ( folderId != null )
         {
             return ResponseEntity.ok( assetRepository.findByFolderId( folderId, pageable ) );
@@ -73,7 +74,7 @@ public class MediaController
 
     /**
      * Deletes an asset by ID.
-     * Note: Currently performs a soft repository delete inside the service integration (TODO).
+     * Performs a permanent delete of both the database record and the file in storage.
      * 
      * @param id The UUID of the asset to delete.
      * @return 204 No Content.
@@ -81,12 +82,9 @@ public class MediaController
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAsset( @PathVariable UUID id )
     {
-        log.info("Received delete request for asset ID: {}", id);
-        // Implement soft delete or hard delete. 
-        // For now, just hard delete via repository.
-        // TODO: Move to MediaService to handle S3 deletion as well.
-        assetRepository.deleteById( id );
-        log.info("Asset deleted from database: {}", id);
+        log.info( "Received delete request for asset ID: {}", id );
+        mediaService.deleteAsset( id );
         return ResponseEntity.noContent().build();
     }
 }
+  

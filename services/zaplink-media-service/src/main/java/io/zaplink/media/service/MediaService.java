@@ -1,24 +1,34 @@
 package io.zaplink.media.service;
 
-import io.zaplink.media.dto.event.MediaUploadedEvent;
-import io.zaplink.media.entity.Asset;
-import io.zaplink.media.repository.AssetRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
+import javax.imageio.ImageIO;
+
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.UUID;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.zaplink.media.common.exception.AssetNotFoundException;
+import io.zaplink.media.common.exception.StorageException;
+import io.zaplink.media.dto.event.MediaUploadedEvent;
+import io.zaplink.media.entity.Asset;
+import io.zaplink.media.repository.AssetRepository;
+import io.zaplink.media.repository.FolderRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Core service for managing media assets.
@@ -29,11 +39,12 @@ public class MediaService
 {
     private final StorageService                storageService;
     private final AssetRepository               assetRepository;
+    private final FolderRepository              folderRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     @Value("${application.storage.s3.bucket}")
     private String                              bucket;
     @Value("${application.storage.s3.endpoint}")
-    private String                              endpoint;       // Used to construct URL if needed
+    private String                              endpoint;        // Used to construct URL if needed
     /**
      * Uploads a new media asset, extracts metadata, persists to database, and publishes an event.
      *
@@ -53,6 +64,7 @@ public class MediaService
         // 1. Extract Metadata & Generate Thumbnail (if image)
         int width = 0;
         int height = 0;
+        String thumbnailPath = null;
         boolean isImage = contentType != null && contentType.startsWith( "image/" );
         if ( isImage )
         {
@@ -66,7 +78,7 @@ public class MediaService
                     height = image.getHeight();
                     log.debug( "Image dimensions: {}x{}", width, height );
                     // Generate Thumbnail
-                    uploadThumbnail( image, originalFilename );
+                    thumbnailPath = uploadThumbnail( image, originalFilename );
                 }
             }
             catch ( Exception e )
@@ -86,18 +98,16 @@ public class MediaService
         catch ( IOException e )
         {
             log.error( "Storage upload failed for key: {}", key, e );
-            throw new io.zaplink.media.common.exception.StorageException( "Failed to upload file to storage", e );
+            throw new StorageException( "Failed to upload file to storage", e );
         }
         String publicUrl = constructUrl( key );
         // 3. Save Entity to Database
         Asset asset = Asset.builder().ownerId( ownerId ).url( publicUrl ).filename( originalFilename )
                 .mimeType( contentType ).sizeBytes( size ).width( width > 0 ? width : null )
-                .height( height > 0 ? height : null )
-                // .folder(folder) // Fetch folder if present
-                .build();
+                .height( height > 0 ? height : null ).thumbnailPath( thumbnailPath ).build();
         if ( folderId != null )
         {
-            // asset.setFolder(folderRepository.getReferenceById(folderId)); // Simple ref
+            asset.setFolder( folderRepository.getReferenceById( folderId ) );
             log.debug( "Associating asset with folder: {}", folderId );
         }
         asset = assetRepository.save( asset );
@@ -106,12 +116,10 @@ public class MediaService
         MediaUploadedEvent event = new MediaUploadedEvent( asset.getId(), ownerId, publicUrl, contentType, size );
         try
         {
-            String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString( event );
-            org.apache.kafka.clients.producer.ProducerRecord<String, String> record = new org.apache.kafka.clients.producer.ProducerRecord<>( "media-events",
-                                                                                                                                              null,
-                                                                                                                                              json );
+            String json = new ObjectMapper().writeValueAsString( event );
+            ProducerRecord<String, String> record = new ProducerRecord<>( "media-events", null, json );
             // Add Validation Header expected by listeners sharing the same DTO definition: __TypeId__
-            record.headers().add( "__TypeId__", "mediaUploaded".getBytes( java.nio.charset.StandardCharsets.UTF_8 ) );
+            record.headers().add( "__TypeId__", "mediaUploaded".getBytes( StandardCharsets.UTF_8 ) );
             kafkaTemplate.send( record );
             log.info( "Published media-events for asset: {}", asset.getId() );
         }
@@ -123,13 +131,66 @@ public class MediaService
     }
 
     /**
+     * Deletes an asset by its ID, removing it from both the database and object storage.
+     * 
+     * @param id The UUID of the asset to delete.
+     * @throws AssetNotFoundException if not found.
+     */
+    @Transactional
+    public void deleteAsset( UUID id )
+    {
+        log.info( "Deleting asset: {}", id );
+        Asset asset = assetRepository.findById( id )
+                .orElseThrow( () -> new AssetNotFoundException( "Asset not found with id: " + id ) );
+        // 1. Delete from Storage
+        // Key extraction logic: URL is like endpoint/bucket/<key>
+        try
+        {
+            String url = asset.getUrl();
+            String key = null;
+            if ( url.contains( bucket ) )
+            {
+                int bucketIndex = url.indexOf( bucket );
+                int keyStartIndex = bucketIndex + bucket.length() + 1;
+                if ( keyStartIndex < url.length() )
+                {
+                    key = url.substring( keyStartIndex );
+                }
+            }
+            if ( key != null )
+            {
+                log.info( "Extracted storage key: {}", key );
+                storageService.delete( key );
+            }
+            else
+            {
+                log.warn( "Could not extract storage key from URL: {}. Storage deletion skipped.", url );
+            }
+            // Delete Thumbnail if exists
+            if ( asset.getThumbnailPath() != null )
+            {
+                log.info( "Deleting thumbnail: {}", asset.getThumbnailPath() );
+                storageService.delete( asset.getThumbnailPath() );
+            }
+        }
+        catch ( Exception e )
+        {
+            log.error( "Failed to delete file from storage for asset: {}", id, e );
+        }
+        // 2. Delete from DB
+        assetRepository.delete( asset );
+        log.info( "Asset deleted from database: {}", id );
+    }
+
+    /**
      * Helper method to generate and upload a thumbnail for an image.
      * Thumbnails are stored in a 'thumbnails/' prefix.
      * 
      * @param original The original BufferedImage.
      * @param filename The original filename to base the thumbnail name on.
+     * @return The key of the uploaded thumbnail, or null if failed.
      */
-    private void uploadThumbnail( BufferedImage original, String filename )
+    private String uploadThumbnail( BufferedImage original, String filename )
     {
         try
         {
@@ -150,11 +211,13 @@ public class MediaService
             log.debug( "Uploading thumbnail to storage key: {}", thumbKey );
             storageService.upload( is, "image/jpeg", bytes.length, thumbKey );
             log.info( "Thumbnail uploaded successfully: {}", thumbKey );
+            return thumbKey;
         }
         catch ( Exception e )
         {
             // Log warning but do not stop the main flow
             log.warn( "Failed to generate thumbnail for {}: {}", filename, e.getMessage() );
+            return null;
         }
     }
 
