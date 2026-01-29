@@ -16,9 +16,18 @@ import org.springframework.web.context.request.WebRequest;
 import io.zaplink.media.dto.error.ErrorResponse;
 import io.zaplink.media.dto.error.FieldError;
 
+/**
+ * Global Exception Handler for the Media Service.
+ * Centralizes error handling to ensure consistent JSON responses across the API.
+ * Maps specific exceptions (like AssetNotFoundException) to HTTP status codes.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
+    /**
+     * Handles validation errors (e.g., @Valid annotation failures).
+     * @return 400 Bad Request with a list of field validation errors.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions( MethodArgumentNotValidException ex, WebRequest request )
     {

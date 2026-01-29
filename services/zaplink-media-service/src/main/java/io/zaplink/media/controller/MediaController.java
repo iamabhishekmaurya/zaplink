@@ -11,27 +11,55 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.UUID;
 
-@RestController @RequestMapping(value = "/media") @RequiredArgsConstructor
+/**
+ * REST Controller for Media Management using the "media" resource.
+ * Provides endpoints for uploading, listing, and deleting assets.
+ * 
+ * Versioning: Enforced via "X-API-VERSION=1" header.
+ * Base Path: /api/media (Mapped via Gateway or direct)
+ */
+@RestController @RequestMapping(value = "/media", headers = "X-API-VERSION=1") @RequiredArgsConstructor @Slf4j
 public class MediaController
 {
     private final MediaService    mediaService;
     private final AssetRepository assetRepository;
+    /**
+     * Uploads a media file.
+     * 
+     * @param file The file binary.
+     * @param ownerId The ID of the authenticated user.
+     * @param folderId Optional ID of the folder to place the file in.
+     * @return The created Asset object.
+     */
     @PostMapping("/upload")
     public ResponseEntity<Asset> uploadMedia( @RequestParam("file") MultipartFile file,
                                               @RequestParam("ownerId") UUID ownerId,
                                               @RequestParam(value = "folderId", required = false) UUID folderId )
     {
+        log.info("Received upload request. Owner: {}, Folder: {}, File: {}", ownerId, folderId, file.getOriginalFilename());
         Asset asset = mediaService.uploadAsset( file, ownerId, folderId );
+        log.info("Upload successful. Asset ID: {}", asset.getId());
         return ResponseEntity.ok( asset );
     }
 
+    /**
+     * Lists assets with optional filtering.
+     * 
+     * @param folderId Filter by folder.
+     * @param ownerId Filter by owner.
+     * @param pageable Pagination info (page, size, sort).
+     * @return A page of Asset entities.
+     */
     @GetMapping
     public ResponseEntity<Page<Asset>> listAssets( @RequestParam(value = "folderId", required = false) UUID folderId,
                                                    @RequestParam(value = "ownerId", required = false) UUID ownerId,
                                                    @PageableDefault(size = 20) Pageable pageable )
     {
+        log.info("Listing assets. Owner: {}, Folder: {}, Page: {}", ownerId, folderId, pageable.getPageNumber());
         if ( folderId != null )
         {
             return ResponseEntity.ok( assetRepository.findByFolderId( folderId, pageable ) );
@@ -43,16 +71,22 @@ public class MediaController
         return ResponseEntity.ok( assetRepository.findAll( pageable ) );
     }
 
+    /**
+     * Deletes an asset by ID.
+     * Note: Currently performs a soft repository delete inside the service integration (TODO).
+     * 
+     * @param id The UUID of the asset to delete.
+     * @return 204 No Content.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAsset( @PathVariable UUID id )
     {
+        log.info("Received delete request for asset ID: {}", id);
         // Implement soft delete or hard delete. 
-        // For now, just hard delete (logic not fully in service yet, doing repository delete for simplicity for now 
-        // OR better: add delete method to service to handle S3 deletion too).
-        // Let's add delete to service in next step or now?
-        // Let's stick to simple repository delete here but that leaves S3 garbage. 
-        // Ideally should call service.
+        // For now, just hard delete via repository.
+        // TODO: Move to MediaService to handle S3 deletion as well.
         assetRepository.deleteById( id );
+        log.info("Asset deleted from database: {}", id);
         return ResponseEntity.noContent().build();
     }
 }

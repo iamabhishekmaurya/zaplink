@@ -1,4 +1,4 @@
-package io.zaplink.media.config;
+package io.zaplink.media.common.config;
 
 import java.util.HashMap;
 import java.util.Map;

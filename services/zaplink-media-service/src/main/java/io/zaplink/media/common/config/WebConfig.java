@@ -1,3 +1,5 @@
+package io.zaplink.media.common.config;
+
 // package io.zaplink.media.config;
 // import io.zaplink.media.interceptor.ApiVersionInterceptor;
 // import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package io.zaplink.media.event;
+package io.zaplink.media.dto.event;
 
 import java.util.UUID;
 
