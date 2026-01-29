@@ -1,5 +1,7 @@
 package io.zaplink.media.controller;
 
+import io.zaplink.media.common.constants.AppConstants;
+import io.zaplink.media.common.constants.LogConstants;
 import io.zaplink.media.entity.Asset;
 import io.zaplink.media.repository.AssetRepository;
 import io.zaplink.media.service.MediaService;
@@ -22,7 +24,7 @@ import java.util.UUID;
  * Versioning: Enforced via "X-API-VERSION=1" header.
  * Base Path: /api/media (Mapped via Gateway or direct)
  */
-@RestController @RequestMapping(value = "/media", headers = "X-API-VERSION=1") @RequiredArgsConstructor @Slf4j
+@RestController @RequestMapping(value = "/media") @RequiredArgsConstructor @Slf4j
 public class MediaController
 {
     private final MediaService    mediaService;
@@ -40,10 +42,9 @@ public class MediaController
                                               @RequestParam("ownerId") UUID ownerId,
                                               @RequestParam(value = "folderId", required = false) UUID folderId )
     {
-        log.info( "Received upload request. Owner: {}, Folder: {}, File: {}", ownerId, folderId,
-                  file.getOriginalFilename() );
+        log.info( LogConstants.LOG_CONTROLLER_UPLOAD_REQ, ownerId, folderId, file.getOriginalFilename() );
         Asset asset = mediaService.uploadAsset( file, ownerId, folderId );
-        log.info( "Upload successful. Asset ID: {}", asset.getId() );
+        log.info( LogConstants.LOG_CONTROLLER_UPLOAD_SUCCESS, asset.getId() );
         return ResponseEntity.ok( asset );
     }
 
@@ -60,7 +61,7 @@ public class MediaController
                                                    @RequestParam(value = "ownerId", required = false) UUID ownerId,
                                                    @PageableDefault(size = 20) Pageable pageable )
     {
-        log.info( "Listing assets. Owner: {}, Folder: {}, Page: {}", ownerId, folderId, pageable.getPageNumber() );
+        log.info( LogConstants.LOG_CONTROLLER_LIST_REQ, ownerId, folderId, pageable.getPageNumber() );
         if ( folderId != null )
         {
             return ResponseEntity.ok( assetRepository.findByFolderId( folderId, pageable ) );
@@ -82,9 +83,8 @@ public class MediaController
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAsset( @PathVariable UUID id )
     {
-        log.info( "Received delete request for asset ID: {}", id );
+        log.info( LogConstants.LOG_CONTROLLER_DELETE_REQ, id );
         mediaService.deleteAsset( id );
         return ResponseEntity.noContent().build();
     }
 }
-  

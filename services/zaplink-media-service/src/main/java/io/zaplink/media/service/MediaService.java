@@ -21,6 +21,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.zaplink.media.common.constants.AppConstants;
+import io.zaplink.media.common.constants.ExceptionConstants;
+import io.zaplink.media.common.constants.LogConstants;
 import io.zaplink.media.common.exception.AssetNotFoundException;
 import io.zaplink.media.common.exception.StorageException;
 import io.zaplink.media.dto.event.MediaUploadedEvent;
@@ -60,15 +63,15 @@ public class MediaService
         String originalFilename = file.getOriginalFilename();
         String contentType = file.getContentType();
         long size = file.getSize();
-        log.info( "Starting upload for file: {}, owner: {}, content-type: {}", originalFilename, ownerId, contentType );
+        log.info( LogConstants.LOG_UPLOAD_START, originalFilename, ownerId, contentType );
         // 1. Extract Metadata & Generate Thumbnail (if image)
         int width = 0;
         int height = 0;
         String thumbnailPath = null;
-        boolean isImage = contentType != null && contentType.startsWith( "image/" );
+        boolean isImage = contentType != null && contentType.startsWith( AppConstants.PREFIX_IMAGE );
         if ( isImage )
         {
-            log.debug( "Processing image metadata for: {}", originalFilename );
+            log.debug( LogConstants.LOG_IMAGE_METADATA_PROCESSING, originalFilename );
             try (InputStream is = file.getInputStream())
             {
                 BufferedImage image = ImageIO.read( is );
@@ -76,15 +79,14 @@ public class MediaService
                 {
                     width = image.getWidth();
                     height = image.getHeight();
-                    log.debug( "Image dimensions: {}x{}", width, height );
+                    log.debug( LogConstants.LOG_IMAGE_DIMENSIONS, width, height );
                     // Generate Thumbnail
                     thumbnailPath = uploadThumbnail( image, originalFilename );
                 }
             }
             catch ( Exception e )
             {
-                log.warn( "Failed to process image metadata/thumbnail for file: {}. Proceeding with original upload.",
-                          originalFilename, e );
+                log.warn( LogConstants.LOG_IMAGE_METADATA_FAILED, originalFilename, e );
             }
         }
         // 2. Upload Original File to Storage (MinIO/S3)
@@ -92,13 +94,13 @@ public class MediaService
         String key = UUID.randomUUID() + "/" + originalFilename;
         try
         {
-            log.info( "Uploading file to storage with key: {}", key );
+            log.info( LogConstants.LOG_STORAGE_UPLOAD_START, key );
             storageService.upload( file, key );
         }
         catch ( IOException e )
         {
-            log.error( "Storage upload failed for key: {}", key, e );
-            throw new StorageException( "Failed to upload file to storage", e );
+            log.error( LogConstants.LOG_STORAGE_UPLOAD_FAILED, key, e );
+            throw new StorageException( ExceptionConstants.ERR_STORAGE_UPLOAD_FAILED, e );
         }
         String publicUrl = constructUrl( key );
         // 3. Save Entity to Database
@@ -108,24 +110,27 @@ public class MediaService
         if ( folderId != null )
         {
             asset.setFolder( folderRepository.getReferenceById( folderId ) );
-            log.debug( "Associating asset with folder: {}", folderId );
+            log.debug( LogConstants.LOG_FOLDER_ASSOCIATION, folderId );
         }
         asset = assetRepository.save( asset );
-        log.info( "Asset saved to database. ID: {}", asset.getId() );
+        log.info( LogConstants.LOG_ASSET_SAVED, asset.getId() );
         // 4. Publish Event to Kafka with manual serialization
         MediaUploadedEvent event = new MediaUploadedEvent( asset.getId(), ownerId, publicUrl, contentType, size );
         try
         {
             String json = new ObjectMapper().writeValueAsString( event );
-            ProducerRecord<String, String> record = new ProducerRecord<>( "media-events", null, json );
+            ProducerRecord<String, String> record = new ProducerRecord<>( AppConstants.KAFKA_TOPIC_MEDIA_EVENTS,
+                                                                          null,
+                                                                          json );
             // Add Validation Header expected by listeners sharing the same DTO definition: __TypeId__
-            record.headers().add( "__TypeId__", "mediaUploaded".getBytes( StandardCharsets.UTF_8 ) );
+            record.headers().add( AppConstants.KAFKA_HEADER_TYPE_ID,
+                                  AppConstants.SERIALIZATION_ID_MEDIA.getBytes( StandardCharsets.UTF_8 ) );
             kafkaTemplate.send( record );
-            log.info( "Published media-events for asset: {}", asset.getId() );
+            log.info( LogConstants.LOG_EVENT_PUBLISHED, asset.getId() );
         }
         catch ( Exception e )
         {
-            log.error( "Failed to publish media event for asset: {}", asset.getId(), e );
+            log.error( LogConstants.LOG_EVENT_PUBLISH_FAILED, asset.getId(), e );
         }
         return asset;
     }
@@ -139,9 +144,9 @@ public class MediaService
     @Transactional
     public void deleteAsset( UUID id )
     {
-        log.info( "Deleting asset: {}", id );
+        log.info( LogConstants.LOG_ASSET_DELETING, id );
         Asset asset = assetRepository.findById( id )
-                .orElseThrow( () -> new AssetNotFoundException( "Asset not found with id: " + id ) );
+                .orElseThrow( () -> new AssetNotFoundException( ExceptionConstants.ERR_ASSET_NOT_FOUND + id ) );
         // 1. Delete from Storage
         // Key extraction logic: URL is like endpoint/bucket/<key>
         try
@@ -159,27 +164,27 @@ public class MediaService
             }
             if ( key != null )
             {
-                log.info( "Extracted storage key: {}", key );
+                log.info( LogConstants.LOG_STORAGE_KEY_EXTRACTED, key );
                 storageService.delete( key );
             }
             else
             {
-                log.warn( "Could not extract storage key from URL: {}. Storage deletion skipped.", url );
+                log.warn( LogConstants.LOG_STORAGE_KEY_EXTRACTION_FAILED, url );
             }
             // Delete Thumbnail if exists
             if ( asset.getThumbnailPath() != null )
             {
-                log.info( "Deleting thumbnail: {}", asset.getThumbnailPath() );
+                log.info( LogConstants.LOG_THUMBNAIL_DELETING, asset.getThumbnailPath() );
                 storageService.delete( asset.getThumbnailPath() );
             }
         }
         catch ( Exception e )
         {
-            log.error( "Failed to delete file from storage for asset: {}", id, e );
+            log.error( LogConstants.LOG_STORAGE_DELETE_FAILED, id, e );
         }
         // 2. Delete from DB
         assetRepository.delete( asset );
-        log.info( "Asset deleted from database: {}", id );
+        log.info( LogConstants.LOG_ASSET_DELETED_DB, id );
     }
 
     /**
@@ -196,7 +201,7 @@ public class MediaService
         {
             int targetWidth = 200;
             int targetHeight = 200;
-            log.debug( "Generating thumbnail for {}. Target size: {}x{}", filename, targetWidth, targetHeight );
+            log.debug( LogConstants.LOG_THUMBNAIL_GENERATION, filename, targetWidth, targetHeight );
             // High-quality scaling using getScaledInstance
             Image tmp = original.getScaledInstance( targetWidth, targetHeight, Image.SCALE_SMOOTH );
             BufferedImage thumb = new BufferedImage( targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB );
@@ -204,19 +209,20 @@ public class MediaService
             g.drawImage( tmp, 0, 0, null );
             g.dispose();
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            ImageIO.write( thumb, "jpg", os );
+            ImageIO.write( thumb, AppConstants.EXT_JPG, os );
             byte[] bytes = os.toByteArray();
             InputStream is = new ByteArrayInputStream( bytes );
-            String thumbKey = "thumbnails/" + UUID.randomUUID() + "-" + filename + ".jpg";
-            log.debug( "Uploading thumbnail to storage key: {}", thumbKey );
-            storageService.upload( is, "image/jpeg", bytes.length, thumbKey );
-            log.info( "Thumbnail uploaded successfully: {}", thumbKey );
+            String thumbKey = AppConstants.PREFIX_THUMBNAILS + UUID.randomUUID() + "-" + filename + "."
+                    + AppConstants.EXT_JPG;
+            log.debug( LogConstants.LOG_THUMBNAIL_UPLOAD_START, thumbKey );
+            storageService.upload( is, AppConstants.MIME_TYPE_JPEG, bytes.length, thumbKey );
+            log.info( LogConstants.LOG_THUMBNAIL_UPLOAD_SUCCESS, thumbKey );
             return thumbKey;
         }
         catch ( Exception e )
         {
             // Log warning but do not stop the main flow
-            log.warn( "Failed to generate thumbnail for {}: {}", filename, e.getMessage() );
+            log.warn( LogConstants.LOG_THUMBNAIL_GENERATION_FAILED, filename, e.getMessage() );
             return null;
         }
     }

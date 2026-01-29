@@ -12,6 +12,8 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import io.zaplink.media.common.constants.ExceptionConstants;
+import io.zaplink.media.common.constants.LogConstants;
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 
@@ -37,26 +39,25 @@ public class MinioStorageService
         try
         {
             s3Client.headBucket( HeadBucketRequest.builder().bucket( bucketName ).build() );
-            log.info( "S3 Bucket '{}' exists and is accessible.", bucketName );
+            log.info( LogConstants.LOG_BUCKET_EXISTS, bucketName );
         }
         catch ( NoSuchBucketException e )
         {
-            log.info( "Bucket '{}' does not exist. Attempting to create...", bucketName );
+            log.info( LogConstants.LOG_BUCKET_NOT_FOUND, bucketName );
             try
             {
                 s3Client.createBucket( b -> b.bucket( bucketName ) );
-                log.info( "Bucket '{}' created successfully.", bucketName );
+                log.info( LogConstants.LOG_BUCKET_CREATED, bucketName );
             }
             catch ( Exception createEx )
             {
-                log.error( "Failed to create bucket '{}'. Ensure S3/MinIO credentials have create permissions.",
-                           bucketName, createEx );
+                log.error( LogConstants.LOG_BUCKET_CREATION_FAILED, bucketName, createEx );
                 throw createEx;
             }
         }
         catch ( Exception e )
         {
-            log.error( "Error accessing S3 bucket '{}': {}", bucketName, e.getMessage() );
+            log.error( LogConstants.LOG_BUCKET_ACCESS_ERROR, bucketName, e.getMessage() );
             // We might choose to fail startup here or handle gracefully depending on requirements
         }
     }
@@ -73,7 +74,7 @@ public class MinioStorageService
     public String upload( MultipartFile file, String key )
         throws IOException
     {
-        log.debug( "Delegating upload for file: {} to key: {}", file.getOriginalFilename(), key );
+        log.debug( LogConstants.LOG_UPLOAD_DELEGATION, file.getOriginalFilename(), key );
         return upload( file.getInputStream(), file.getContentType(), file.getSize(), key );
     }
 
@@ -89,19 +90,19 @@ public class MinioStorageService
     @Override
     public String upload( java.io.InputStream inputStream, String contentType, long size, String key )
     {
-        log.debug( "Uploading stream to S3. Key: {}, Size: {}, Type: {}", key, size, contentType );
+        log.debug( LogConstants.LOG_STREAM_UPLOAD_START, key, size, contentType );
         try
         {
             PutObjectRequest putOb = PutObjectRequest.builder().bucket( bucketName ).key( key )
                     .contentType( contentType ).build();
             s3Client.putObject( putOb, RequestBody.fromInputStream( inputStream, size ) );
-            log.info( "Successfully uploaded object to S3: {}", key );
+            log.info( LogConstants.LOG_S3_UPLOAD_SUCCESS, key );
             return key;
         }
         catch ( Exception e )
         {
-            log.error( "S3 Upload failed for key: {}", key, e );
-            throw new RuntimeException( "S3 Upload failed", e ); // Or a specific StorageException
+            log.error( LogConstants.LOG_S3_UPLOAD_FAILED, key, e );
+            throw new RuntimeException( ExceptionConstants.ERR_S3_UPLOAD_FAILED, e ); // Or a specific StorageException
         }
     }
 
@@ -113,16 +114,16 @@ public class MinioStorageService
     @Override
     public void delete( String key )
     {
-        log.info( "Deleting object from S3: {}", key );
+        log.info( LogConstants.LOG_S3_DELETE_START, key );
         try
         {
             DeleteObjectRequest deleteOb = DeleteObjectRequest.builder().bucket( bucketName ).key( key ).build();
             s3Client.deleteObject( deleteOb );
-            log.debug( "Delete request sent for key: {}", key );
+            log.debug( LogConstants.LOG_S3_DELETE_SENT, key );
         }
         catch ( Exception e )
         {
-            log.error( "Failed to delete object: {}", key, e );
+            log.error( LogConstants.LOG_S3_DELETE_FAILED, key, e );
             // S3 idempotent delete doesn't always throw on missing keys, but connection errors will appear here.
         }
     }
