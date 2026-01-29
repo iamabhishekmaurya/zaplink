@@ -32,7 +32,6 @@ public class MediaService
     private String                              endpoint;       // Used to construct URL if needed
     @Transactional
     public Asset uploadAsset( MultipartFile file, UUID ownerId, UUID folderId )
-        throws IOException
     {
         String originalFilename = file.getOriginalFilename();
         String contentType = file.getContentType();
@@ -43,9 +42,9 @@ public class MediaService
         boolean isImage = contentType != null && contentType.startsWith( "image/" );
         if ( isImage )
         {
-            try
+            try (InputStream is = file.getInputStream())
             {
-                BufferedImage image = ImageIO.read( file.getInputStream() );
+                BufferedImage image = ImageIO.read( is );
                 if ( image != null )
                 {
                     width = image.getWidth();
@@ -57,11 +56,19 @@ public class MediaService
             catch ( Exception e )
             {
                 log.warn( "Failed to process image metadata for file: {}", originalFilename, e );
+                // check if we want to fail upload if thumbnail fails? probably not.
             }
         }
         // 2. Upload Original
         String key = UUID.randomUUID() + "/" + originalFilename;
-        storageService.upload( file, key );
+        try
+        {
+            storageService.upload( file, key );
+        }
+        catch ( IOException e )
+        {
+            throw new io.zaplink.media.common.exception.StorageException( "Failed to upload file to storage", e );
+        }
         String publicUrl = constructUrl( key );
         // 3. Save Entity
         Asset asset = Asset.builder().ownerId( ownerId ).url( publicUrl ).filename( originalFilename )

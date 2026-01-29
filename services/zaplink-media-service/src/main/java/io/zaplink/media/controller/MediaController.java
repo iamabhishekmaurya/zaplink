@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @RestController @RequestMapping(value = "/media") @RequiredArgsConstructor
@@ -23,7 +22,6 @@ public class MediaController
     public ResponseEntity<Asset> uploadMedia( @RequestParam("file") MultipartFile file,
                                               @RequestParam("ownerId") UUID ownerId,
                                               @RequestParam(value = "folderId", required = false) UUID folderId )
-        throws IOException
     {
         Asset asset = mediaService.uploadAsset( file, ownerId, folderId );
         return ResponseEntity.ok( asset );
