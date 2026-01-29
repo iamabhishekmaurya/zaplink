@@ -94,8 +94,16 @@ public class GatewayConfig
                                                         .uri( "http://localhost:8084" ) )
                                 .route( "user-service",
                                         r -> r.path( basePath + "/users/**" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.stripPrefix( 1 ) ) // Changed from 0 to 1 assuming /api/users -> /users
+                                                        .filters( f -> f.stripPrefix( 1 ) )
                                                         .uri( "http://localhost:8084" ) )
+                                /**
+                                 * Media Service Routes
+                                 * Port: 8086
+                                 */
+                                .route( "media-service",
+                                        r -> r.path( basePath + "/media/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.stripPrefix( 1 ) )
+                                                        .uri( "http://localhost:8086" ) )
                                 .build();
         }
 }

@@ -1,0 +1,65 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: zaplink-media-service
+    api:
+      version:
+        header: X-API-VERSION
+        value: 1
+  
+  threads:
+    virtual:
+      enabled: true
+
+  # Distributed Tracing
+  management:
+    tracing:
+      sampling:
+        probability: 1.0
+    otlp:
+      tracing:
+        endpoint: http://localhost:4318/v1/traces
+  
+  # Database Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/zaplink_media
+    username: postgres
+    password: 12345
+    driver-class-name: org.postgresql.Driver
+  
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    properties:
+      spring.json.type.mapping: mediaUploaded:io.zaplink.media.event.MediaUploadedEvent
+
+  # File Upload Limits
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+# MinIO / S3 Configuration
+application:
+  storage:
+    s3:
+      endpoint: http://localhost:9000
+      region: us-east-1
+      access-key: minioadmin
+      secret-key: minioadmin
+      bucket: zaplink-media
