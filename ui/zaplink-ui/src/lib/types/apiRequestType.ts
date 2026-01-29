@@ -145,6 +145,12 @@ export interface DynamicQrResponse {
   updatedAt: string;
   lastScanned?: string;
   rules?: RedirectRuleDto[];
+  qrConfig?: QRConfigType; // or any/unknown if strict generic
+  allowedDomains?: string[];
+  password?: string;
+  scanLimit?: number;
+  expirationDate?: string;
+  trackAnalytics?: boolean;
 }
 
 export interface PageResponse<T> {

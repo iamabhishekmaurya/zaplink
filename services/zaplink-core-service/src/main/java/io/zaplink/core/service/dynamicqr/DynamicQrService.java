@@ -13,4 +13,8 @@ public interface DynamicQrService
     void toggleQrStatus( String qrKey, String userEmail );
 
     void deleteDynamicQr( String qrKey, String userEmail );
+
+    DynamicQrResponse updateDynamicQr( String qrKey,
+                                       io.zaplink.core.dto.request.dynamicqr.UpdateDynamicQrRequest request,
+                                       String userEmail );
 }

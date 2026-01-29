@@ -5,19 +5,26 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class DynamicQrResponse {
-    
-    private Long id;
-    private String qrKey;
-    private String qrName;
-    private String currentDestinationUrl;
-    private String qrImageUrl;
-    private String redirectUrl;
-    private String campaignId;
-    private String userEmail;
-    private Boolean isActive;
-    private Long totalScans;
+public class DynamicQrResponse
+{
+    private Long          id;
+    private String        qrKey;
+    private String        qrName;
+    private String        currentDestinationUrl;
+    private String        qrImageUrl;
+    private String        redirectUrl;
+    private String        campaignId;
+    private String        userEmail;
+    private Boolean       isActive;
+    private Long          totalScans;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime lastScanned;
+    // Advanced Fields
+    private Object        qrConfig;
+    private Object        allowedDomains;
+    private String        password;
+    private Integer       scanLimit;
+    private LocalDateTime expirationDate;
+    private Boolean       trackAnalytics;
 }

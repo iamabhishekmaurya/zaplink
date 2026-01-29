@@ -57,6 +57,15 @@ public class CoreController
         return ResponseEntity.ok( response );
     }
 
+    @PutMapping(value = "/dyqr/{qrKey}")
+    public ResponseEntity<DynamicQrResponse> updateDynamicQr( @PathVariable("qrKey") String qrKey,
+                                                              @Valid @RequestBody io.zaplink.core.dto.request.dynamicqr.UpdateDynamicQrRequest request,
+                                                              @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        DynamicQrResponse response = dynamicQrService.updateDynamicQr( qrKey, request, userEmail );
+        return ResponseEntity.ok( response );
+    }
+
     @PutMapping(value = "/dyqr/{qrKey}/destination")
     public ResponseEntity<DynamicQrResponse> updateDestination( @PathVariable("qrKey") String qrKey,
                                                                 @Valid @RequestBody UpdateDestinationRequest request,

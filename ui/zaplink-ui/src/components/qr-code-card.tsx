@@ -12,6 +12,7 @@ import {
     Download,
     ExternalLink,
     MoreHorizontal,
+    Pencil,
     QrCode,
     ScanLine,
     Trash2
@@ -128,6 +129,13 @@ export const QrCodeCard = ({
                                         <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/dashboard/analytics/${qr.qrKey}?type=qr`)}>
                                             <BarChart3 className="h-4 w-4 mr-2" />
                                             Analytics
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="cursor-pointer"
+                                            onClick={() => router.push(`/dashboard/qr/qr-gen?edit=${qr.qrKey}&data=${encodeURIComponent(JSON.stringify(qr))}`)}
+                                        >
+                                            <Pencil className="h-4 w-4 mr-2" />
+                                            Edit
                                         </DropdownMenuItem>
                                         <DropdownMenuItem className="cursor-pointer" onClick={() => onDownload(qr)}>
                                             <Download className="h-4 w-4 mr-2" />

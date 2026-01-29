@@ -18,13 +18,21 @@ import { Label } from "@/components/ui/label"
 interface QrPreviewProps {
     previewUrl: string | null
     isGenerating: boolean
+    isEditing?: boolean
+    initialName?: string
     onDownload: (format: 'png' | 'svg') => void
     onSave: (name: string) => void
 }
 
-export const QrPreview: React.FC<QrPreviewProps> = ({ previewUrl, isGenerating, onDownload, onSave }) => {
-    const [name, setName] = useState('')
+export const QrPreview: React.FC<QrPreviewProps> = ({ previewUrl, isGenerating, isEditing, initialName, onDownload, onSave }) => {
+    const [name, setName] = useState(initialName || '')
     const [isOpen, setIsOpen] = useState(false)
+
+    React.useEffect(() => {
+        if (initialName) {
+            setName(initialName)
+        }
+    }, [initialName])
 
     const handleSave = () => {
         if (name.trim()) {
@@ -50,14 +58,14 @@ export const QrPreview: React.FC<QrPreviewProps> = ({ previewUrl, isGenerating, 
                         <Dialog open={isOpen} onOpenChange={setIsOpen}>
                             <DialogTrigger asChild>
                                 <Button className="w-full h-12 text-base shadow-lg hover:shadow-primary/25 transition-all font-semibold" disabled={!previewUrl || isGenerating}>
-                                    <Save className="mr-2 h-4 w-4" /> Save & Track
+                                    <Save className="mr-2 h-4 w-4" /> {isEditing ? 'Update & Track' : 'Save & Track'}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-xl">
                                 <DialogHeader>
-                                    <DialogTitle>Save QR Code</DialogTitle>
+                                    <DialogTitle>{isEditing ? 'Update QR Code' : 'Save QR Code'}</DialogTitle>
                                     <DialogDescription>
-                                        Give your QR code a name to track its performance later.
+                                        {isEditing ? 'Update the name if needed.' : 'Give your QR code a name to track its performance later.'}
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="grid gap-4 py-4">

@@ -139,6 +139,65 @@ public class DynamicQrServiceImpl
         log.info( "Deleted dynamic QR with key: {} by user: {}", qrKey, userEmail );
     }
 
+    @Override @Transactional
+    public DynamicQrResponse updateDynamicQr( String qrKey,
+                                              io.zaplink.core.dto.request.dynamicqr.UpdateDynamicQrRequest request,
+                                              String userEmail )
+    {
+        Optional<DynamicQrCodeEntity> entityOpt = dynamicQrCodeRepository.findByQrKey( qrKey );
+        if ( entityOpt.isEmpty() || !entityOpt.get().getUserEmail().equals( userEmail ) )
+        {
+            throw new IllegalArgumentException( "Dynamic QR not found or access denied" );
+        }
+        DynamicQrCodeEntity entity = entityOpt.get();
+        try
+        {
+            // Update Basic Fields
+            if ( request.qrName() != null )
+                entity.setQrName( request.qrName() );
+            if ( request.destinationUrl() != null )
+                entity.setCurrentDestinationUrl( request.destinationUrl() );
+            if ( request.qrConfig() != null )
+                entity.setQrConfig( objectMapper.writeValueAsString( request.qrConfig() ) );
+            if ( request.campaignId() != null )
+                entity.setCampaignId( request.campaignId() );
+            // Update Advanced Fields
+            if ( request.expirationDate() != null )
+                entity.setExpirationDate( request.expirationDate() );
+            if ( request.password() != null )
+                entity.setPassword( request.password() );
+            if ( request.scanLimit() != null )
+                entity.setScanLimit( request.scanLimit() );
+            if ( request.trackAnalytics() != null )
+                entity.setTrackAnalytics( request.trackAnalytics() );
+            if ( request.allowedDomains() != null )
+            {
+                entity.setAllowedDomains( objectMapper.writeValueAsString( request.allowedDomains() ) );
+            }
+            entity.setUpdatedAt( LocalDateTime.now() );
+            entity = dynamicQrCodeRepository.save( entity );
+            // Update Rules
+            redirectRuleRepository.deleteByDynamicQrCodeId( entity.getId() );
+            redirectRuleRepository.flush(); // Critical for unique constraint
+            if ( request.rules() != null && !request.rules().isEmpty() )
+            {
+                final Long qrId = entity.getId();
+                List<RedirectRuleEntity> ruleEntities = request.rules().stream()
+                        .map( r -> RedirectRuleEntity.builder().dynamicQrCodeId( qrId ).dimension( r.dimension() )
+                                .value( r.value() ).destinationUrl( r.destinationUrl() ).priority( r.priority() )
+                                .createdAt( LocalDateTime.now() ).build() )
+                        .collect( Collectors.toList() );
+                redirectRuleRepository.saveAll( ruleEntities );
+            }
+            log.info( "Updated dynamic QR with key: {} for user: {}", qrKey, userEmail );
+            return convertToResponse( entity );
+        }
+        catch ( JsonProcessingException e )
+        {
+            throw new RuntimeException( "Failed to process QR configuration update", e );
+        }
+    }
+
     private DynamicQrResponse convertToResponse( DynamicQrCodeEntity entity )
     {
         DynamicQrResponse response = new DynamicQrResponse();
@@ -155,6 +214,27 @@ public class DynamicQrServiceImpl
         response.setCreatedAt( entity.getCreatedAt() );
         response.setUpdatedAt( entity.getUpdatedAt() );
         response.setLastScanned( entity.getLastScanned() );
+        // Advanced Fields
+        try
+        {
+            if ( entity.getQrConfig() != null )
+            {
+                response.setQrConfig( objectMapper.readTree( entity.getQrConfig() ) );
+            }
+            if ( entity.getAllowedDomains() != null )
+            {
+                response.setAllowedDomains( objectMapper.readTree( entity.getAllowedDomains() ) );
+            }
+        }
+        catch ( JsonProcessingException e )
+        {
+            log.error( "Error parsing JSON fields for response", e );
+            // Fallback to null or ignore, but logging is important
+        }
+        response.setPassword( entity.getPassword() );
+        response.setScanLimit( entity.getScanLimit() );
+        response.setExpirationDate( entity.getExpirationDate() );
+        response.setTrackAnalytics( entity.getTrackAnalytics() );
         return response;
     }
 

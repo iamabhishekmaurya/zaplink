@@ -68,7 +68,9 @@ const mapToApiConfig = (values: FormValues): QRConfigType => {
 const QrGeneratorContent = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const urlParam = searchParams.get('url')
+    const urlParam = searchParams.get('url') // Restored
+    const editParam = searchParams.get('edit')
+    const dataParam = searchParams.get('data')
 
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [isGenerating, setIsGenerating] = useState(false)
@@ -89,12 +91,103 @@ const QrGeneratorContent = () => {
         mode: 'onChange',
     })
 
+    // Pre-fill form on Edit Mode
+    useEffect(() => {
+        if (editParam && dataParam) {
+            try {
+                const qrData = JSON.parse(decodeURIComponent(dataParam))
+                // TODO: Map API response back to FormValues properly
+                // This is a simplified mapping, might need valid Deep Merge
+                const qrConfig = typeof qrData.qrConfig === 'string'
+                    ? JSON.parse(qrData.qrConfig)
+                    : qrData.qrConfig
+
+                const newValues: any = {
+                    ...Defaults,
+                    data: qrData.currentDestinationUrl,
+                }
+
+                if (qrConfig) {
+                    console.log("Restoring Config:", qrConfig) // Debug log
+                    // Body
+                    if (qrConfig.body) {
+                        newValues.bodyShape = qrConfig.body.shape
+                        newValues.bodyColor = qrConfig.body.color
+                        newValues.bodyColorDark = qrConfig.body.colorDark
+                        newValues.gradientLinear = qrConfig.body.gradientLinear
+                    }
+                    // Eye - Map correctly. API might return eyeColorOuter/Inner nested or flat? 
+                    // Based on type definitions it should be nested.
+                    if (qrConfig.eye) {
+                        newValues.eyeShape = qrConfig.eye.shape
+                        newValues.eyeColorOuter = qrConfig.eye.colorOuter
+                        newValues.eyeColorInner = qrConfig.eye.colorInner
+                    }
+                    // General
+                    newValues.backgroundColor = qrConfig.backgroundColor
+                    newValues.margin = qrConfig.margin
+                    newValues.transparentBackground = qrConfig.transparentBackground
+
+                    // Logo
+                    if (qrConfig.logo) {
+                        newValues.logo = {
+                            logoPath: qrConfig.logo.logoPath || '',
+                            sizeRatio: qrConfig.logo.sizeRatio,
+                            padding: qrConfig.logo.padding,
+                            backgroundColor: qrConfig.logo.backgroundColor,
+                            backgroundEnabled: qrConfig.logo.backgroundEnabled,
+                            backgroundRounded: qrConfig.logo.backgroundRounded,
+                            backgroundCornerRadius: qrConfig.logo.backgroundCornerRadius,
+                            removeQuietZone: qrConfig.logo.removeQuietZone,
+                            marginSize: qrConfig.logo.marginSize
+                        }
+                    }
+                }
+
+                // Advanced & Rules
+                // Note: Allowed domains mapping might need adjustment if format differs
+                if (qrData.allowedDomains) {
+                    // If it comes as JSON string
+                    try {
+                        const domains = typeof qrData.allowedDomains === 'string' ? JSON.parse(qrData.allowedDomains) : qrData.allowedDomains
+                        if (Array.isArray(domains)) newValues.allowedDomains = domains.join(', ')
+                    } catch (e) { }
+                }
+
+                if (qrData.password) {
+                    newValues.passwordProtection = true
+                    newValues.password = qrData.password
+                }
+
+                if (qrData.scanLimit) newValues.scanLimit = qrData.scanLimit
+                if (qrData.expirationDate) {
+                    const expiry = new Date(qrData.expirationDate)
+                    const now = new Date()
+                    const diffTime = Math.abs(expiry.getTime() - now.getTime())
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                    newValues.expirationDays = diffDays
+                }
+                // Rules need to be fetched separately if not in list response, or passed in full object
+                // Assuming basic rules might be there or needing fetch. For now we use what's passed.
+
+                form.reset(newValues)
+                // Trigger generation for preview
+                setTimeout(() => generateQR(newValues), 500)
+
+            } catch (e) {
+                console.error("Failed to parse edit data", e)
+                toast.error("Failed to load QR data for editing")
+            }
+        }
+    }, [editParam, dataParam, form])
+
+
     // Update form if urlParam changes (e.g. navigation)
     useEffect(() => {
-        if (urlParam) {
+        if (urlParam && !editParam) {
             form.setValue('data', urlParam)
         }
-    }, [urlParam, form])
+    }, [urlParam, form, editParam]) // Added editParam dependency
 
     // Watch all values to trigger auto-generation on style changes
     const watchedValues = form.watch()
@@ -208,7 +301,7 @@ const QrGeneratorContent = () => {
                 allowedDomains = values.allowedDomains.split(/[,\n]+/).map(d => d.trim()).filter(Boolean)
             }
 
-            await DynamicQrService.createDynamicQr({
+            const payload = {
                 qrName: name,
                 destinationUrl: values.data,
                 qrConfig: config,
@@ -218,8 +311,17 @@ const QrGeneratorContent = () => {
                 allowedDomains: allowedDomains,
                 trackAnalytics: values.trackAnalytics,
                 rules: values.rules || []
-            })
-            toast.success('QR Code saved successfully and is now active!')
+            }
+
+            if (editParam) {
+                await DynamicQrService.updateDynamicQr(editParam, payload)
+                toast.success('QR Code updated successfully!')
+                router.push('/dashboard/qr') // Redirect back to list
+            } else {
+                await DynamicQrService.createDynamicQr(payload)
+                toast.success('QR Code saved successfully and is now active!')
+            }
+
         } catch (error) {
             console.error('Failed to save QR', error)
             toast.error('Failed to save QR code. Please try again.')
@@ -276,14 +378,17 @@ const QrGeneratorContent = () => {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>
     }
 
+    // Extract name from dataParam if available
+    const initialName = dataParam ? JSON.parse(decodeURIComponent(dataParam)).qrName : ''
+
     return (
         <div className="min-h-screen bg-background p-4 lg:p-8">
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">QR Generator</h1>
-                        <p className="text-muted-foreground mt-1">Create stunning, custom QR codes for your brand.</p>
+                        <h1 className="text-3xl font-bold tracking-tight">{editParam ? 'Edit QR Code' : 'QR Generator'}</h1>
+                        <p className="text-muted-foreground mt-1">{editParam ? 'Update your QR code settings and design.' : 'Create stunning, custom QR codes for your brand.'}</p>
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline" onClick={() => router.push('/dashboard/qr')} className="flex items-center gap-2">
@@ -378,6 +483,8 @@ const QrGeneratorContent = () => {
                         <QrPreview
                             previewUrl={previewUrl}
                             isGenerating={isGenerating}
+                            isEditing={!!editParam}
+                            initialName={initialName}
                             onDownload={handleDownload}
                             onSave={handleSave}
                         />

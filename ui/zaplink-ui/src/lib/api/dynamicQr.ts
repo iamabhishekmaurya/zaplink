@@ -31,6 +31,11 @@ export const DynamicQrService = {
 
     deleteDynamicQr: async (qrKey: string) => {
         await api.delete(API_ENDPOINTS.DYNAMIC_QR_DELETE(qrKey))
+    },
+
+    updateDynamicQr: async (qrKey: string, data: any) => {
+        const response = await api.put<DynamicQrResponse>(`${API_ENDPOINTS.DYNAMIC_QR_CREATE}/${qrKey}`, data)
+        return response.data
     }
 }
 
