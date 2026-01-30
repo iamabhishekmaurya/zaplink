@@ -74,6 +74,7 @@ const DraggableMediaItem = ({ item }: { item: MediaAsset }) => {
                 src={item.type === 'video' ? (item.thumbnail || item.url) : item.url}
                 alt="Media asset"
                 fill
+                unoptimized
                 className="object-cover transition-transform group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />

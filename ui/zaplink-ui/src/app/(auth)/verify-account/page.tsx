@@ -2,12 +2,14 @@
 
 import { OTPForm } from "@/components/(form)/otp-form"
 import { Particles } from "@/components/ui/particles"
+import { Loader2 } from "lucide-react"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 
-export default function VerifyAccountPage() {
+// Content component that uses useSearchParams - must be wrapped in Suspense
+function VerifyAccountContent() {
     const { resolvedTheme } = useTheme()
     const [color, setColor] = useState("#ffffff")
     const searchParams = useSearchParams()
@@ -35,5 +37,26 @@ export default function VerifyAccountPage() {
                 refresh
             />
         </div>
+    )
+}
+
+// Loading fallback for Suspense
+function VerifyAccountLoading() {
+    return (
+        <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+            <div className="flex items-center gap-2">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                <span className="text-base font-semibold text-foreground">Loading...</span>
+            </div>
+        </div>
+    );
+}
+
+// Main page component with Suspense wrapper
+export default function VerifyAccountPage() {
+    return (
+        <Suspense fallback={<VerifyAccountLoading />}>
+            <VerifyAccountContent />
+        </Suspense>
     )
 }

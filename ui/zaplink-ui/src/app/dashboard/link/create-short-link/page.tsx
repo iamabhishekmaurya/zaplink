@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { IconBrandYoutube } from '@tabler/icons-react'
 import { ArrowLeft, Facebook, Github, Globe, Instagram, Link, Link2, Linkedin, Loader2, RefreshCw, Sparkles, Tag, Twitter } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -28,7 +28,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-const CreateShortLink = () => {
+const CreateShortLinkContent = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { createShortlink, getShortlink, updateShortlink } = useShortlinks()
@@ -390,6 +390,18 @@ const CreateShortLink = () => {
                 </div>
             </div>
         </div>
+    )
+}
+
+const CreateShortLink = () => {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+        }>
+            <CreateShortLinkContent />
+        </Suspense>
     )
 }
 

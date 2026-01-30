@@ -54,7 +54,21 @@ export const schedulerApi = {
     getMediaItems: async (): Promise<MediaAsset[]> => {
         // Gateway Route: /api/media
         const response = await api.get('/api/media');
-        return response.data?.content || response.data; // Handle Page<Asset> or List
+        const assets = response.data?.content || response.data || [];
+
+        // Map Asset response to MediaAsset interface
+        return assets.map((asset: {
+            id: string;
+            url: string;
+            mimeType?: string;
+            thumbnailPath?: string;
+        }) => ({
+            id: asset.id,
+            url: asset.url,
+            type: asset.mimeType?.startsWith('video/') ? 'video' as const : 'image' as const,
+            mimeType: asset.mimeType,
+            thumbnail: asset.thumbnailPath,
+        }));
     },
 
     // 2. Fetch Scheduled Posts

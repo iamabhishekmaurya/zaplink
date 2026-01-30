@@ -23,7 +23,7 @@ import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useTheme } from "next-themes";
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
@@ -39,7 +39,8 @@ const resetPasswordSchema = z.object({
 
 type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>;
 
-export default function ResetPasswordPage() {
+// Content component that uses useSearchParams - must be wrapped in Suspense
+function ResetPasswordContent() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -170,5 +171,28 @@ export default function ResetPasswordPage() {
                 refresh
             />
         </div>
+    )
+}
+
+// Loading fallback for Suspense
+function ResetPasswordLoading() {
+    return (
+        <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+            <div className="flex flex-col w-full gap-6 max-w-sm md:max-w-4xl z-10">
+                <div className="flex items-center gap-2 self-center font-medium">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <span className="text-base font-semibold text-foreground">Loading...</span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Main page component with Suspense wrapper
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={<ResetPasswordLoading />}>
+            <ResetPasswordContent />
+        </Suspense>
     )
 }
