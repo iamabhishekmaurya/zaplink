@@ -4,9 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useDynamicQrs } from '@/hooks/useDynamicQrs'
-import { QrCodeCard } from '@/components/qr-code-card'
-import { QrCodeSkeletonList } from '@/components/qr-code-skeleton'
-import { QrSearchAndFilters } from '@/components/qr-search-and-filters'
+import { QrCodeCard } from '@/components/qr/qr-code-card'
+import { QrCodeSkeletonList } from '@/components/qr/qr-code-skeleton'
+import { QrSearchAndFilters } from '@/components/qr/qr-search-and-filters'
 import { Plus, QrCode } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import type { DynamicQrResponse } from '@/lib/types/apiRequestType'
@@ -34,23 +34,23 @@ const QrListPage = () => {
     // Filter QRs based on search and filters
     const filteredQrs = qrs.filter(qr => {
         // Search filter
-        const matchesSearch = searchQuery === '' || 
+        const matchesSearch = searchQuery === '' ||
             qr.qrName.toLowerCase().includes(searchQuery.toLowerCase()) ||
             qr.currentDestinationUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
             qr.redirectUrl.toLowerCase().includes(searchQuery.toLowerCase())
 
         // Status filter
-        const matchesStatus = selectedStatus === 'all' || 
+        const matchesStatus = selectedStatus === 'all' ||
             (selectedStatus === 'active' && qr.isActive) ||
             (selectedStatus === 'inactive' && !qr.isActive)
 
         // Date range filter
         const matchesDateRange = () => {
             if (selectedDateRange === 'all') return true
-            
+
             const qrDate = new Date(qr.createdAt)
             const now = new Date()
-            
+
             switch (selectedDateRange) {
                 case 'today':
                     return qrDate.toDateString() === now.toDateString()
@@ -145,8 +145,8 @@ const QrListPage = () => {
                     <div>
                         <h3 className="text-lg font-semibold">No QR Codes found</h3>
                         <p className="text-muted-foreground">
-                            {hasActiveFilters 
-                                ? 'Try adjusting your filters or search terms' 
+                            {hasActiveFilters
+                                ? 'Try adjusting your filters or search terms'
                                 : 'Create your first dynamic QR code to start tracking.'
                             }
                         </p>

@@ -1,7 +1,7 @@
 'use client'
 
 import { getPlatformColor, getPlatformIcon } from '@/components/common/platformIcons'
-import { ShareDropdown } from '@/components/share-dropdown'
+import { ShareDropdown } from '@/components/shortlinks/share-dropdown'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'

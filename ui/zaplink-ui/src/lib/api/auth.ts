@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from "../constant/apiConstant";
+import { API_ENDPOINTS } from "../constants/apiConstant";
 import {
     BaseResponse,
     ForgotPasswordRequest,

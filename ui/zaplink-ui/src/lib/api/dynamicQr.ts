@@ -1,5 +1,5 @@
 import api from "@/lib/api/client";
-import { API_ENDPOINTS } from '../constant/apiConstant'
+import { API_ENDPOINTS } from '../constants/apiConstant'
 import { DynamicQrResponse, PageResponse, QRConfigType } from '../types/apiRequestType'
 
 interface CreateDynamicQrRequest {

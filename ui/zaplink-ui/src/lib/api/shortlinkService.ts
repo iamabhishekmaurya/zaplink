@@ -1,5 +1,5 @@
 import api from "@/lib/api/client";
-import { API_ENDPOINTS } from '@/lib/constant/apiConstant';
+import { API_ENDPOINTS } from '@/lib/constants/apiConstant';
 import { ShortLink } from '@/lib/types/apiRequestType';
 
 export interface StatsResponse {

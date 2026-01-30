@@ -1,6 +1,6 @@
 import api from "@/lib/api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { API_BASE_URLS } from "@/lib/constant/apiConstant";
+import { API_BASE_URLS } from "@/lib/constants/apiConstant";
 
 interface Folder {
     id: string;

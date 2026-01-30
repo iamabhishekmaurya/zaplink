@@ -21,7 +21,7 @@ import * as React from "react"
 
 import { NavMain } from "@/components/(nav)/nav-main"
 import { NavUser } from "@/components/(nav)/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { TeamSwitcher } from "./team-switcher"
 import { Separator } from "@/components/ui/separator"
 import {
   Sidebar,
@@ -30,7 +30,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { NavGeneral } from "./(nav)/nav-general"
+import { NavGeneral } from "@/components/(nav)/nav-general"
 
 // This is sample data.
 const data = {

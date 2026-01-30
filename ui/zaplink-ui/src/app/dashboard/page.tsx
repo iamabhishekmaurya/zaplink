@@ -1,10 +1,10 @@
 "use client"
-import { SectionCards } from "@/components/section-cards"
+import { SectionCards } from "@/components/dashboard/section-cards"
 import { Loader2, AlertCircle, WifiOff, RefreshCw } from "lucide-react"
 import { useDashboardData } from "@/hooks/useDashboardData"
-import { CreationHistoryChart, PlatformDistributionChart } from "@/components/dashboard-charts"
-import { RecentActivityTable } from "@/components/recent-activity-table"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
+import { CreationHistoryChart, PlatformDistributionChart } from "@/components/dashboard/dashboard-charts"
+import { RecentActivityTable } from "@/components/dashboard/recent-activity-table"
+import { ChartAreaInteractive } from "@/components/dashboard/chart-area-interactive"
 import { Button } from "@/components/ui/button"
 
 export default function Page() {

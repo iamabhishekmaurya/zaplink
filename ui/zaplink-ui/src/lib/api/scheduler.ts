@@ -1,5 +1,5 @@
 import api from '@/lib/api/client';
-import { API_BASE_URLS } from '@/lib/constant/apiConstant';
+import { API_BASE_URLS } from '@/lib/constants/apiConstant';
 
 // --- Interfaces ---
 
