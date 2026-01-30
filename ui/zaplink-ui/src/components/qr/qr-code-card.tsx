@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import api from "@/lib/api/client"
 import { DynamicQrResponse } from '@/lib/types/apiRequestType'
 import {
     BarChart3,
@@ -40,16 +39,24 @@ export const QrCodeCard = ({
 
         const fetchImage = async () => {
             try {
-                // Fetch image as blob with auth headers
-                const response = await api.get(qr.qrImageUrl, {
-                    responseType: 'blob',
+                // For absolute URLs (like from MinIO), use native fetch with auth token
+                // The axios client would append baseURL and break the request
+                const token = localStorage.getItem('token')
+                const response = await fetch(qr.qrImageUrl, {
+                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
                     signal: controller.signal
                 })
-                const url = URL.createObjectURL(response.data)
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load QR image: ${response.status}`)
+                }
+
+                const blob = await response.blob()
+                const url = URL.createObjectURL(blob)
                 objectUrl = url
                 setImageUrl(url)
             } catch (error: any) {
-                if (error.code !== 'ERR_CANCELED' && error.name !== 'CanceledError') {
+                if (error.name !== 'AbortError') {
                     console.error('Failed to load QR image', error)
                 }
             }
