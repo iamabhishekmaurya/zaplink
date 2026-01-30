@@ -1,11 +1,58 @@
 "use client"
+import dynamic from "next/dynamic"
 import { SectionCards } from "@/components/dashboard/section-cards"
 import { Loader2, AlertCircle, WifiOff, RefreshCw } from "lucide-react"
 import { useDashboardData } from "@/hooks/useDashboardData"
-import { CreationHistoryChart, PlatformDistributionChart } from "@/components/dashboard/dashboard-charts"
-import { RecentActivityTable } from "@/components/dashboard/recent-activity-table"
-import { ChartAreaInteractive } from "@/components/dashboard/chart-area-interactive"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+
+// Loading skeleton for charts
+const ChartSkeleton = () => (
+  <Card>
+    <CardHeader>
+      <Skeleton className="h-5 w-32" />
+    </CardHeader>
+    <CardContent>
+      <Skeleton className="h-[300px] w-full" />
+    </CardContent>
+  </Card>
+)
+
+// Loading skeleton for table
+const TableSkeleton = () => (
+  <Card>
+    <CardHeader>
+      <Skeleton className="h-5 w-40" />
+    </CardHeader>
+    <CardContent className="space-y-3">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Skeleton key={i} className="h-12 w-full" />
+      ))}
+    </CardContent>
+  </Card>
+)
+
+// Lazy load heavy chart components
+const ChartAreaInteractive = dynamic(
+  () => import("@/components/dashboard/chart-area-interactive").then(mod => ({ default: mod.ChartAreaInteractive })),
+  { loading: () => <ChartSkeleton />, ssr: false }
+)
+
+const CreationHistoryChart = dynamic(
+  () => import("@/components/dashboard/dashboard-charts").then(mod => ({ default: mod.CreationHistoryChart })),
+  { loading: () => <ChartSkeleton />, ssr: false }
+)
+
+const PlatformDistributionChart = dynamic(
+  () => import("@/components/dashboard/dashboard-charts").then(mod => ({ default: mod.PlatformDistributionChart })),
+  { loading: () => <ChartSkeleton />, ssr: false }
+)
+
+const RecentActivityTable = dynamic(
+  () => import("@/components/dashboard/recent-activity-table").then(mod => ({ default: mod.RecentActivityTable })),
+  { loading: () => <TableSkeleton />, ssr: false }
+)
 
 export default function Page() {
   const stats = useDashboardData()
