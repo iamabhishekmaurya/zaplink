@@ -41,6 +41,11 @@ public class SchedulerService
     {
         log.debug( LogMessages.ENTERING_SCHEDULE_POST, post );
         // 1. Validate Schedule Time
+        if ( post.getScheduledTime() == null )
+        {
+            log.error( "Validation failed: scheduledTime is null" );
+            throw new IllegalArgumentException( "Scheduled time cannot be null" );
+        }
         if ( post.getScheduledTime().isBefore( Instant.now() ) )
         {
             log.warn( LogMessages.VALIDATION_FAILED_PAST, post.getScheduledTime() );
@@ -63,7 +68,7 @@ public class SchedulerService
      * @param end     The end of the time range (exclusive).
      * @return A list of scheduled posts matching the criteria.
      */
-    public List<ScheduledPost> getPosts( UUID ownerId, Instant start, Instant end )
+    public List<ScheduledPost> getPosts( String ownerId, Instant start, Instant end )
     {
         log.debug( LogMessages.RETRIEVING_POSTS, ownerId, start, end );
         return scheduledPostRepository.findByOwnerAndDateRange( ownerId, start, end );
@@ -93,6 +98,11 @@ public class SchedulerService
             throw new IllegalArgumentException( ErrorMessages.CANNOT_RESCHEDULE_PUBLISHED );
         }
         // 3. Validate New Time
+        if ( newTime == null )
+        {
+            log.error( "Validation failed: newTime is null for postId: {}", postId );
+            throw new IllegalArgumentException( "New scheduled time cannot be null" );
+        }
         if ( newTime.isBefore( Instant.now() ) )
         {
             log.warn( LogMessages.RESCHEDULE_PAST_TIME, newTime );

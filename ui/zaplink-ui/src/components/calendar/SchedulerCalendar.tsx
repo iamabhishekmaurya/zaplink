@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { ScheduledPost } from '@/lib/api/scheduler-mock';
+import { ScheduledPost } from '@/lib/api/scheduler';
 import { ScheduledPostCard } from './ScheduledPostCard';
 import { cn } from '@/lib/utils';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';

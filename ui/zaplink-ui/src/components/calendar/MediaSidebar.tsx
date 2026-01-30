@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { MediaAsset, schedulerApi } from '@/lib/api/scheduler-mock';
+import { useQuery } from '@tanstack/react-query';
+import { MediaAsset, schedulerApi } from '@/lib/api/scheduler';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
@@ -10,14 +11,18 @@ import { cn } from '@/lib/utils';
 import { GripVertical, Image as ImageIcon, Video } from 'lucide-react';
 
 export const MediaSidebar = () => {
-    const [media, setMedia] = useState<MediaAsset[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: media, isLoading, isError } = useQuery({
+        queryKey: ['media-assets'],
+        queryFn: schedulerApi.getMediaItems,
+    });
 
-    useEffect(() => {
-        schedulerApi.fetchMedia()
-            .then(setMedia)
-            .finally(() => setLoading(false));
-    }, []);
+    if (isError) {
+        return (
+            <div className="flex w-64 flex-col border-r bg-background items-center justify-center p-4 text-center">
+                <p className="text-sm text-destructive">Failed to load media library.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex w-64 flex-col border-r bg-background">
@@ -26,12 +31,12 @@ export const MediaSidebar = () => {
             </div>
             <ScrollArea className="flex-1">
                 <div className="grid grid-cols-2 gap-2 p-4">
-                    {loading ? (
+                    {isLoading ? (
                         Array.from({ length: 8 }).map((_, i) => (
                             <Skeleton key={i} className="aspect-square w-full rounded-md" />
                         ))
                     ) : (
-                        media.map((item) => (
+                        media?.map((item) => (
                             <DraggableMediaItem key={item.id} item={item} />
                         ))
                     )}

@@ -1,11 +1,8 @@
-'use client';
-
-import React from 'react';
+import { ScheduledPost } from '@/lib/api/scheduler';
 import { useDraggable } from '@dnd-kit/core';
-import { ScheduledPost } from '@/lib/api/scheduler-mock';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { FaInstagram, FaLinkedin, FaTwitter, FaFacebook } from "react-icons/fa";
+import { FaInstagram, FaLinkedin, FaTwitter, FaFacebook, FaTiktok } from "react-icons/fa";
 
 interface ScheduledPostCardProps {
     post: ScheduledPost;
@@ -30,6 +27,7 @@ export const ScheduledPostCard = ({ post }: ScheduledPostCardProps) => {
             case 'linkedin': return <FaLinkedin className="text-blue-700" />;
             case 'twitter': return <FaTwitter className="text-sky-500" />;
             case 'facebook': return <FaFacebook className="text-blue-600" />;
+            case 'tiktok': return <FaTiktok className="text-black dark:text-white" />;
             default: return null;
         }
     };

@@ -15,10 +15,12 @@ import {
 import { MediaSidebar } from '@/components/calendar/MediaSidebar';
 import { SchedulerCalendar } from '@/components/calendar/SchedulerCalendar';
 import { PostComposer } from '@/components/calendar/PostComposer';
-import { ScheduledPost, schedulerApi, MediaAsset } from '@/lib/api/scheduler-mock';
+import { ScheduledPost, schedulerApi, MediaAsset, CreatePostRequest, UpdatePostRequest } from '@/lib/api/scheduler';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { ScheduledPostCard } from '@/components/calendar/ScheduledPostCard';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -31,7 +33,7 @@ const dropAnimation: DropAnimation = {
 };
 
 export default function CalendarPage() {
-    const [posts, setPosts] = useState<ScheduledPost[]>([]);
+    const queryClient = useQueryClient();
     const [currentDate, setCurrentDate] = useState(new Date());
 
     // Drag State
@@ -47,6 +49,38 @@ export default function CalendarPage() {
         setMounted(true);
     }, []);
 
+    // 1. Fetch Posts
+    const { data: posts = [] } = useQuery({
+        queryKey: ['scheduled-posts', currentDate.toISOString().slice(0, 7)], // Key by Month
+        queryFn: async () => {
+            // Fetch +/- 1 month to cover grid edges if needed, for now just current month approx
+            const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString();
+            const end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString();
+            return schedulerApi.getScheduledPosts(start, end);
+        }
+    });
+
+    // 2. Mutations
+    const createPostMutation = useMutation({
+        mutationFn: schedulerApi.createPost,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] });
+            toast.success("Post scheduled!");
+            setIsComposerOpen(false);
+        },
+        onError: () => toast.error("Failed to schedule post")
+    });
+
+    const updatePostMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string, data: UpdatePostRequest }) => schedulerApi.updatePost(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['scheduled-posts'] });
+            toast.success("Post updated!");
+            setIsComposerOpen(false);
+        },
+        onError: () => toast.error("Failed to update post")
+    });
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -54,11 +88,6 @@ export default function CalendarPage() {
             },
         })
     );
-
-    useEffect(() => {
-        // Initial fetch
-        schedulerApi.fetchScheduledPosts(new Date(), new Date()).then(setPosts);
-    }, []);
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
@@ -74,6 +103,10 @@ export default function CalendarPage() {
         if (!over) return;
 
         const dropDate = new Date(over.id as string); // Droppable ID is ISO date string
+
+        // Ensure dropDate has a valid time (e.g., maintain 9 AM default or current time if today)
+        dropDate.setHours(10, 0, 0, 0);
+
         const dragData = active.data.current;
 
         // SCENARIO 1: New Post (Media dropped on Day)
@@ -84,7 +117,7 @@ export default function CalendarPage() {
             setComposerData({
                 mediaUrl: media.url,
                 mediaType: media.type,
-                scheduledAt: dropDate,
+                scheduledAt: dropDate.toISOString(),
                 platforms: ['instagram'], // Default
             });
             setIsComposerOpen(true);
@@ -94,31 +127,20 @@ export default function CalendarPage() {
         else if (dragData?.type === 'post') {
             const post = dragData.post as ScheduledPost;
 
-            // Optimistic Update
-            const updatedPost = { ...post, scheduledAt: dropDate };
-            setPosts(prev => prev.map(p => p.id === post.id ? updatedPost : p));
-
-            try {
-                await schedulerApi.updatePost(post.id, { scheduledAt: dropDate });
-            } catch (error) {
-                console.error("Failed to reschedule", error);
-                // Revert on failure
-                setPosts(prev => prev.map(p => p.id === post.id ? post : p));
-            }
+            // Call API directly for rescheduling
+            updatePostMutation.mutate({
+                id: post.id,
+                data: { scheduledAt: dropDate.toISOString() }
+            });
         }
     };
 
-    const handleSavePost = async (data: Partial<ScheduledPost>) => {
+    const handleSavePost = async (data: any) => {
         if (data.id) {
-            // Update existing
-            const updated = await schedulerApi.updatePost(data.id, data);
-            setPosts(prev => prev.map(p => p.id === data.id ? updated : p));
+            updatePostMutation.mutate({ id: data.id, data });
         } else {
-            // Create new
-            const newPost = await schedulerApi.createPost(data as any); // Cast for mock
-            setPosts(prev => [...prev, newPost]);
+            createPostMutation.mutate(data);
         }
-        setIsComposerOpen(false);
     };
 
     return (
@@ -128,7 +150,6 @@ export default function CalendarPage() {
             onDragEnd={handleDragEnd}
         >
             <div className="flex h-screen overflow-hidden">
-                {/* Helper to verify DndContext is mounted */}
                 <MediaSidebar />
 
                 <div className="flex-1 overflow-hidden">

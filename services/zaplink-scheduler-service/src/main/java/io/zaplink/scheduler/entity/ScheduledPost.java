@@ -1,5 +1,6 @@
 package io.zaplink.scheduler.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.zaplink.scheduler.common.constants.DbIdentifiers;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class ScheduledPost
     private String        caption;
     @ElementCollection @CollectionTable(name = DbIdentifiers.TABLE_SCHEDULED_POST_MEDIA, joinColumns = @JoinColumn(name = DbIdentifiers.JOIN_COL_SCHEDULED_POST_ID)) @Column(name = DbIdentifiers.COL_MEDIA_ASSET_ID)
     private List<UUID>    mediaAssetIds;
+    @JsonAlias("scheduledAt") // Accept "scheduledAt" from frontend
     @Column(name = DbIdentifiers.COL_SCHEDULED_TIME, nullable = false)
     private Instant       scheduledTime;
     @Enumerated(EnumType.STRING) @Column(nullable = false)
@@ -30,7 +32,7 @@ public class ScheduledPost
     @ElementCollection @CollectionTable(name = DbIdentifiers.TABLE_SCHEDULED_POST_ACCOUNTS, joinColumns = @JoinColumn(name = DbIdentifiers.JOIN_COL_SCHEDULED_POST_ID)) @Column(name = DbIdentifiers.COL_SOCIAL_ACCOUNT_ID)
     private List<UUID>    socialAccountIds;
     @Column(name = DbIdentifiers.COL_OWNER_ID, nullable = false)
-    private UUID          ownerId;
+    private String        ownerId;
     @CreationTimestamp @Column(name = DbIdentifiers.COL_CREATED_AT, updatable = false)
     private LocalDateTime createdAt;
     @UpdateTimestamp @Column(name = DbIdentifiers.COL_UPDATED_AT)

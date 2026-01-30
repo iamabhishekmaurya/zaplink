@@ -41,7 +41,7 @@ public class SchedulerController
      */
     @PostMapping
     public ResponseEntity<ScheduledPost> schedulePost( @RequestBody ScheduledPost post,
-                                                       @RequestHeader(ApiConstants.HEADER_USER_ID) UUID userId )
+                                                       @RequestHeader(ApiConstants.HEADER_USER_ID) String userId )
     {
         log.info( LogMessages.API_SCHEDULE_POST, userId );
         post.setOwnerId( userId );
@@ -59,7 +59,7 @@ public class SchedulerController
     @GetMapping
     public ResponseEntity<List<ScheduledPost>> getPosts( @RequestParam(ApiConstants.PARAM_START) Instant start,
                                                          @RequestParam(ApiConstants.PARAM_END) Instant end,
-                                                         @RequestHeader(ApiConstants.HEADER_USER_ID) UUID userId )
+                                                         @RequestHeader(ApiConstants.HEADER_USER_ID) String userId )
     {
         log.debug( LogMessages.API_GET_POSTS, userId, start, end );
         return ResponseEntity.ok( schedulerService.getPosts( userId, start, end ) );

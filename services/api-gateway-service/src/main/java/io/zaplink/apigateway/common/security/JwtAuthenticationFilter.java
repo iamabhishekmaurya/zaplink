@@ -68,8 +68,34 @@ public class JwtAuthenticationFilter
                     SecurityContext securityContext = new SecurityContextImpl( authToken );
                     log.debug( LogConstants.LOG_GATEWAY_FILTER_SETTING_AUTHENTICATION, userEmail );
                     // Add user email to request header for downstream services
-                    ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-                            .header( "X-User-Email", userEmail ).build();
+                    ServerHttpRequest.Builder requestBuilder = exchange.getRequest().mutate()
+                            .header( SecurityConstants.HEADER_USER_EMAIL, userEmail );
+                    try
+                    {
+                        // DEBUG: Print all claims to see what is properly available
+                        jwtConfig.extractClaim( jwt, claims -> {
+                            log.info( "DEBUG JWT Claims: {}", claims );
+                            return null;
+                        } );
+                        // Safely extract User ID
+                        Object userIdObj = jwtConfig.extractClaim( jwt, claims -> claims.get( "userId" ) );
+                        if ( userIdObj != null )
+                        {
+                            String userIdStr = userIdObj.toString();
+                            log.info( "Successfully extracted userId: {}", userIdStr );
+                            requestBuilder.header( SecurityConstants.HEADER_USER_ID, userIdStr );
+                        }
+                        else
+                        {
+                            log.warn( "userId claim is NULL in token!" );
+                        }
+                    }
+                    catch ( Exception e )
+                    {
+                        log.warn( "Failed to extract userId from token: {}", e.getMessage() );
+                        // Continue request even if ID extraction fails (e.g. for old tokens)
+                    }
+                    ServerHttpRequest mutatedRequest = requestBuilder.build();
                     return chain.filter( exchange.mutate().request( mutatedRequest ).build() )
                             .contextWrite( ReactiveSecurityContextHolder
                                     .withSecurityContext( Mono.just( securityContext ) ) );
