@@ -104,6 +104,22 @@ public class GatewayConfig
                                         r -> r.path( basePath + "/media/**" ).and().header( "X-API-Version", "1" )
                                                         .filters( f -> f.stripPrefix( 1 ) )
                                                         .uri( "http://localhost:8086" ) )
+                                /**
+                                 * Social Service Routes
+                                 * Port: 8088
+                                 */
+                                .route( "social-service",
+                                        r -> r.path( basePath + "/social/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.stripPrefix( 1 ) )
+                                                        .uri( "http://localhost:8088" ) )
+                                /**
+                                 * Scheduler Service Routes
+                                 * Port: 8089
+                                 */
+                                .route( "scheduler-service",
+                                        r -> r.path( basePath + "/schedule/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.stripPrefix( 1 ) )
+                                                        .uri( "http://localhost:8089" ) )
                                 .build();
         }
 }
