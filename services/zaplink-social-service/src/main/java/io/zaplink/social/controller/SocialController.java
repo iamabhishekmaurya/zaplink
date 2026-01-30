@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.zaplink.social.common.constants.ApiConstants;
+import io.zaplink.social.common.constants.LogMessages;
 import io.zaplink.social.dto.record.PublishRequest;
 import io.zaplink.social.entity.SocialAccount;
 import io.zaplink.social.service.SocialService;
@@ -27,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
  * This controller assumes that the API Gateway performs JWT validation and injects the
  * 'X-User-Id' header for user identification.
  */
-@RestController @RequestMapping("/social") @RequiredArgsConstructor @Slf4j
+@RestController @RequestMapping(ApiConstants.BASE_URI) @RequiredArgsConstructor @Slf4j
 public class SocialController
 {
     private final SocialService socialService;
@@ -49,14 +51,14 @@ public class SocialController
      * @param userId   The authenticated user ID (from Gateway).
      * @return 200 OK with the created {@link SocialAccount} details.
      */
-    @PostMapping("/connect")
+    @PostMapping(ApiConstants.CONNECT_URI)
     public ResponseEntity<SocialAccount> connectAccount( @RequestParam String provider,
                                                          @RequestParam String code,
-                                                         @RequestHeader("X-User-Id") UUID userId )
+                                                         @RequestHeader(ApiConstants.HEADER_USER_ID) UUID userId )
     {
-        log.info( "API: connectAccount - Request received. Provider: '{}', UserId: '{}'", provider, userId );
+        log.info( LogMessages.CONTROLLER_CONNECT_REQUEST, provider, userId );
         SocialAccount account = socialService.connectAccount( provider, code, userId );
-        log.info( "API: connectAccount - Success. Created AccountID: '{}'", account.getId() );
+        log.info( LogMessages.CONTROLLER_CONNECT_SUCCESS, account.getId() );
         return ResponseEntity.ok( account );
     }
 
@@ -79,12 +81,12 @@ public class SocialController
      * @param request Payload containing account ID, caption, and media URL.
      * @return 200 OK.
      */
-    @PostMapping("/publish")
+    @PostMapping(ApiConstants.PUBLISH_URI)
     public ResponseEntity<Void> publishPost( @RequestBody PublishRequest request )
     {
-        log.info( "API: publishPost - Request received. Target AccountID: '{}'", request.accountId() );
+        log.info( LogMessages.CONTROLLER_PUBLISH_REQUEST, request.accountId() );
         socialService.publishPost( request.accountId(), request.caption(), request.mediaUrl() );
-        log.info( "API: publishPost - Success." );
+        log.info( LogMessages.CONTROLLER_PUBLISH_SUCCESS );
         return ResponseEntity.ok().build();
     }
 }

@@ -5,7 +5,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import io.zaplink.social.common.constants.Constants;
+import io.zaplink.social.common.constants.ErrorMessages;
+import io.zaplink.social.common.constants.LogMessages;
 import io.zaplink.social.common.enums.SocialProvider;
 import io.zaplink.social.entity.SocialAccount;
 import io.zaplink.social.repository.SocialAccountRepository;
@@ -53,6 +54,7 @@ public class SocialService
      *     <li>Integrate with actual Provider APIs (e.g., Graph API) using WebClient.</li>
      *     <li>Implement idempotency: Check if the account is already connected and update tokens instead of creating new.</li>
      *     <li>Encrypt 'accessToken' and 'refreshToken' before storing in the database for security.</li>
+     *     <li>Externalize constants to configuration bundles (Suggested Improvement).</li>
      * </ul>
      *
      * @param providerStr The case-insensitive name of the social provider (e.g., "INSTAGRAM").
@@ -63,8 +65,8 @@ public class SocialService
      */
     public SocialAccount connectAccount( String providerStr, String authCode, UUID ownerId )
     {
-        log.info( "Method: connectAccount - Entry. Provider: '{}', OwnerId: '{}'", providerStr, ownerId );
-        log.debug( "AuthCode length: {}", ( authCode != null ? authCode.length() : "null" ) );
+        log.info( LogMessages.CONNECT_ENTRY, providerStr, ownerId );
+        log.debug( LogMessages.AUTH_CODE_DEBUG, ( authCode != null ? authCode.length() : "null" ) );
         // 1. Validate Provider
         SocialProvider provider;
         try
@@ -73,11 +75,11 @@ public class SocialService
         }
         catch ( IllegalArgumentException | NullPointerException e )
         {
-            log.error( "Method: connectAccount - Validation Failed. Invalid provider: '{}'", providerStr, e );
-            throw new IllegalArgumentException( "Unsupported or invalid social provider: " + providerStr );
+            log.error( LogMessages.CONNECT_VALIDATION_FAILED, providerStr, e );
+            throw new IllegalArgumentException( ErrorMessages.INVALID_PROVIDER + providerStr );
         }
         // 2. Perform OAuth Exchange (Mocked)
-        log.info( "Method: connectAccount - Initiating OAuth token exchange for provider: {}", provider );
+        log.info( LogMessages.CONNECT_INIT_TOKEN_EXCHANGE, provider );
         // --- START MOCK LOGIC ---
         // In a real scenario, this would be: TokenResponse tokens = providerClient.exchange(authCode);
         String mockProviderId = "mock_" + provider.name().toLowerCase() + "_" + UUID.randomUUID().toString();
@@ -86,8 +88,7 @@ public class SocialService
         // Assume tokens are valid for 60 days standard
         LocalDateTime expiry = LocalDateTime.now().plusDays( 60 );
         // --- END MOCK LOGIC ---
-        log.debug( "Method: connectAccount - Token exchange successful. ProviderId: '{}', Expiry: '{}'", mockProviderId,
-                   expiry );
+        log.debug( LogMessages.CONNECT_EXCHANGE_SUCCESS, mockProviderId, expiry );
         // 3. Build Entity
         SocialAccount account = SocialAccount.builder().provider( provider ).providerId( mockProviderId )
                 .accessToken( mockAccessToken ).refreshToken( mockRefreshToken ).tokenExpiry( expiry )
@@ -96,15 +97,14 @@ public class SocialService
         try
         {
             SocialAccount savedAccount = socialAccountRepository.save( account );
-            log.info( Constants.LOG_ACCOUNT_CONNECTED, provider, mockProviderId );
-            log.info( "Method: connectAccount - Exit. Success. AccountID: '{}'", savedAccount.getId() );
+            log.info( LogMessages.ACCOUNT_CONNECTED_INFO, provider, mockProviderId );
+            log.info( LogMessages.CONNECT_EXIT_SUCCESS, savedAccount.getId() );
             return savedAccount;
         }
         catch ( Exception e )
         {
-            log.error( "Method: connectAccount - Database persistence failed for provider: '{}', owner: '{}'", provider,
-                       ownerId, e );
-            throw new RuntimeException( "Failed to save social account connection", e );
+            log.error( LogMessages.CONNECT_DB_ERROR, provider, ownerId, e );
+            throw new RuntimeException( ErrorMessages.DB_SAVE_FAILED, e );
         }
     }
 
@@ -133,39 +133,38 @@ public class SocialService
      */
     public void publishPost( UUID accountId, String caption, String mediaUrl )
     {
-        log.info( "Method: publishPost - Entry. AccountID: '{}'", accountId );
-        // Do not log full caption or mediaUrl to avoid PII or log bloat, just lengths or hash if needed.
-        log.debug( "Caption length: {}, MediaUrl provided: {}", ( caption != null ? caption.length() : 0 ),
-                   ( mediaUrl != null ) );
+        log.info( LogMessages.PUBLISH_ENTRY, accountId );
+        // Do not log full caption or mediaUrl to avoid PII or log bloat
+        log.debug( LogMessages.PUBLISH_DEBUG_INPUT, ( caption != null ? caption.length() : 0 ), ( mediaUrl != null ) );
         // 1. Retrieve Account
         SocialAccount account = socialAccountRepository.findById( accountId ).orElseThrow( () -> {
-            log.error( "Method: publishPost - Account lookup failed. ID: '{}'", accountId );
-            return new IllegalArgumentException( Constants.EXCEPTION_ACCOUNT_NOT_FOUND + accountId );
+            log.error( LogMessages.PUBLISH_ACCOUNT_LOOKUP_FAILED, accountId );
+            return new IllegalArgumentException( ErrorMessages.ACCOUNT_NOT_FOUND + accountId );
         } );
         // 2. Publish Logic (Mocked)
         try
         {
-            log.info( "Method: publishPost - Calling external API for Provider: '{}'", account.getProvider() );
+            log.info( LogMessages.PUBLISH_CALL_EXTERNAL_API, account.getProvider() );
             // --- START MOCK LOGIC ---
             // Simulating network latency
             // Thread.sleep(100); 
-            log.info( "--------------------------------------------------" );
-            log.info( Constants.LOG_PUBLISHING_POST, account.getProvider(), caption );
-            log.info( "Target Provider ID: {}", account.getProviderId() );
-            log.info( "Media Asset: {}", mediaUrl );
+            log.info( LogMessages.LOG_SEPARATOR );
+            log.info( LogMessages.PUBLISH_LOG_POST_DETAILS, account.getProvider(), caption );
+            log.info( LogMessages.PUBLISH_LOG_TARGET_ID, account.getProviderId() );
+            log.info( LogMessages.PUBLISH_LOG_MEDIA, mediaUrl );
             // Sanitize sensitive token in logs
             String sanitizedToken = ( account.getAccessToken() != null
                     && account.getAccessToken().length() > 5 ) ? account.getAccessToken().substring( 0, 5 ) + "***"
                                                                : "null";
-            log.debug( "Using AccessToken: {}", sanitizedToken );
-            log.info( "--------------------------------------------------" );
+            log.debug( LogMessages.PUBLISH_LOG_TOKEN_DEBUG, sanitizedToken );
+            log.info( LogMessages.LOG_SEPARATOR );
             // --- END MOCK LOGIC ---
-            log.info( "Method: publishPost - Exit. Publish successful for AccountID: '{}'", accountId );
+            log.info( LogMessages.PUBLISH_EXIT_SUCCESS, accountId );
         }
         catch ( Exception e )
         {
-            log.error( "Method: publishPost - Failed to publish to provider '{}'", account.getProvider(), e );
-            throw new RuntimeException( "External publishing failed", e );
+            log.error( LogMessages.PUBLISH_ERROR, account.getProvider(), e );
+            throw new RuntimeException( ErrorMessages.PUBLISH_FAILED, e );
         }
     }
 }
