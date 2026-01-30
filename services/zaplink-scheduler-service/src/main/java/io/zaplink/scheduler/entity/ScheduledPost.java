@@ -1,5 +1,6 @@
 package io.zaplink.scheduler.entity;
 
+import io.zaplink.scheduler.common.constants.DbIdentifiers;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,26 +14,26 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Entity @Table(name = "scheduled_posts") @Data @Builder @NoArgsConstructor @AllArgsConstructor
+@Entity @Table(name = DbIdentifiers.TABLE_SCHEDULED_POSTS) @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class ScheduledPost
 {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID          id;
     @Column(columnDefinition = "TEXT")
     private String        caption;
-    @ElementCollection @CollectionTable(name = "scheduled_post_media", joinColumns = @JoinColumn(name = "scheduled_post_id")) @Column(name = "media_asset_id")
+    @ElementCollection @CollectionTable(name = DbIdentifiers.TABLE_SCHEDULED_POST_MEDIA, joinColumns = @JoinColumn(name = DbIdentifiers.JOIN_COL_SCHEDULED_POST_ID)) @Column(name = DbIdentifiers.COL_MEDIA_ASSET_ID)
     private List<UUID>    mediaAssetIds;
-    @Column(name = "scheduled_time", nullable = false)
+    @Column(name = DbIdentifiers.COL_SCHEDULED_TIME, nullable = false)
     private Instant       scheduledTime;
     @Enumerated(EnumType.STRING) @Column(nullable = false)
     private PostStatus    status;
-    @ElementCollection @CollectionTable(name = "scheduled_post_social_accounts", joinColumns = @JoinColumn(name = "scheduled_post_id")) @Column(name = "social_account_id")
+    @ElementCollection @CollectionTable(name = DbIdentifiers.TABLE_SCHEDULED_POST_ACCOUNTS, joinColumns = @JoinColumn(name = DbIdentifiers.JOIN_COL_SCHEDULED_POST_ID)) @Column(name = DbIdentifiers.COL_SOCIAL_ACCOUNT_ID)
     private List<UUID>    socialAccountIds;
-    @Column(name = "owner_id", nullable = false)
+    @Column(name = DbIdentifiers.COL_OWNER_ID, nullable = false)
     private UUID          ownerId;
-    @CreationTimestamp @Column(name = "created_at", updatable = false)
+    @CreationTimestamp @Column(name = DbIdentifiers.COL_CREATED_AT, updatable = false)
     private LocalDateTime createdAt;
-    @UpdateTimestamp @Column(name = "updated_at")
+    @UpdateTimestamp @Column(name = DbIdentifiers.COL_UPDATED_AT)
     private LocalDateTime updatedAt;
     public enum PostStatus {
         DRAFT, SCHEDULED, PUBLISHED, FAILED

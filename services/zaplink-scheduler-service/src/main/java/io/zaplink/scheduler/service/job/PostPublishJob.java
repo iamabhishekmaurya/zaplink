@@ -1,6 +1,8 @@
 package io.zaplink.scheduler.service.job;
 
 import io.zaplink.scheduler.common.client.SocialClient;
+import io.zaplink.scheduler.common.constants.DbIdentifiers;
+import io.zaplink.scheduler.common.constants.LogMessages;
 import io.zaplink.scheduler.entity.ScheduledPost;
 import io.zaplink.scheduler.repository.ScheduledPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+/**
+ * Quartz Job for publishing scheduled posts.
+ * <p>
+ * This job is triggered by the Quartz Scheduler at the scheduled time.
+ * It retrieves the post, validates its status, and publishes it to the associated social accounts
+ * via the Social Service.
+ * </p>
+ */
 @Component @Slf4j @RequiredArgsConstructor
 public class PostPublishJob
     implements
@@ -20,46 +30,59 @@ public class PostPublishJob
 {
     private final ScheduledPostRepository scheduledPostRepository;
     private final SocialClient            socialClient;
+    /**
+     * Executes the post publishing logic.
+     *
+     * @param context The Quartz job execution context containing job data (e.g., postId).
+     * @throws JobExecutionException If the post cannot be found or a critical error occurs.
+     */
     @Override @Transactional
     public void execute( JobExecutionContext context )
         throws JobExecutionException
     {
-        String postIdStr = context.getJobDetail().getJobDataMap().getString( "postId" );
-        log.info( "Executing PostPublishJob for postId: {}", postIdStr );
+        // 1. Retrieve Post ID from Job Data
+        String postIdStr = context.getJobDetail().getJobDataMap().getString( DbIdentifiers.JOB_DATA_POST_ID );
+        log.info( LogMessages.EXECUTE_PUBLISH_JOB, postIdStr );
         UUID postId = UUID.fromString( postIdStr );
+        // 2. Fetch Post from Database
         ScheduledPost post = scheduledPostRepository.findById( postId )
                 .orElseThrow( () -> new JobExecutionException( "Post not found: " + postId ) );
+        // 3. Validate Post Status (Idempotency Check)
+        // Ensure we don't re-publish if it's already done or cancelled.
         if ( post.getStatus() != ScheduledPost.PostStatus.SCHEDULED )
         {
-            log.warn( "Post {} is not in SCHEDULED state (current: {}), skipping.", postId, post.getStatus() );
+            log.warn( LogMessages.POST_NOT_SCHEDULED, postId, post.getStatus() );
             return;
         }
         try
         {
-            // In a real scenario, we would iterate over socialAccountIds and publish to each.
-            // For this MVP, we'll assume the social service handles the broadcasting or we call it once.
-            // Actually, the requirements check "call zaplink-social-service client directly".
-            // Assuming we pass the first account or iterate. Let's iterate.
+            // 4. Publish to Social Accounts
+            // Iterate through all social accounts linked to this post.
             for ( UUID socialAccountId : post.getSocialAccountIds() )
             {
-                // Mock media URL for now since we haven't integrated Media Service fully to get URL
-                // In real impl, we'd fetch asset details.
+                // TODO: Integrate with Media Service to fetch actual signed URLs for assets.
+                // Currently using a mock URL generator for MVP.
                 String mockMediaUrl = "https://mock-media.com/"
                         + ( post.getMediaAssetIds().isEmpty() ? "default" : post.getMediaAssetIds().get( 0 ) );
+                // Call Social Service Feign Client
                 socialClient.publishPost( new SocialClient.PublishRequest( socialAccountId,
                                                                            post.getCaption(),
                                                                            mockMediaUrl ) );
             }
+            // 5. Update Status to PUBLISHED
             post.setStatus( ScheduledPost.PostStatus.PUBLISHED );
             scheduledPostRepository.save( post );
-            log.info( "Successfully published post {}", postId );
+            log.info( LogMessages.PUBLISHED_SUCCESS, postId );
         }
         catch ( Exception e )
         {
-            log.error( "Failed to publish post {}", postId, e );
+            // 6. Handle Failures
+            // Log error and update status to FAILED so it can be retried or inspected manualy.
+            log.error( LogMessages.ERR_PUBLISH_FAILED, postId, e );
             post.setStatus( ScheduledPost.PostStatus.FAILED );
             scheduledPostRepository.save( post );
-            // Optionally re-throw to let Quartz handle retries
+            // We optionally re-throw to let Quartz handle retries if configured,
+            // but for now we swallow it after marking as FAILED to prevent loop.
         }
     }
 }
