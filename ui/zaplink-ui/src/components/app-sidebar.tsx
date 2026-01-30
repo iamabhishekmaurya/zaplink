@@ -14,7 +14,8 @@ import {
   Bell,
   Wallet,
   Globe,
-  Image as ImageIcon
+  Image as ImageIcon,
+  CalendarDays
 } from "lucide-react"
 import * as React from "react"
 
@@ -112,6 +113,17 @@ const data = {
         {
           title: "Library",
           url: "/dashboard/media",
+        }
+      ]
+    },
+    {
+      title: "Calendar",
+      url: "/dashboard/calendar",
+      icon: CalendarDays,
+      items: [
+        {
+          title: "Scheduler",
+          url: "/dashboard/calendar",
         }
       ]
     },

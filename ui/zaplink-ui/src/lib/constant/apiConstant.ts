@@ -24,7 +24,7 @@ export const API_BASE_URLS = {
 export const API_ENDPOINTS = {
   // QR Code endpoints (Core Service)
   GENERATE_STYLED_QR: `${API_BASE_URLS.CORE_QR}/styled`,
-  // GENERATE_SIMPLE_QR: `${API_BASE_URLS.CORE_QR}/simple`, // Not present in controller check
+  GENERATE_SIMPLE_QR: `${API_BASE_URLS.CORE_QR}/simple`, // Not present in controller check
 
   // Authentication endpoints (Auth Service)
   LOGIN: `${API_BASE_URLS.AUTH}/login`,
