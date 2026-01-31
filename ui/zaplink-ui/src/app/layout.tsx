@@ -1,7 +1,7 @@
+import { CookieConsent } from "@/components/common/CookieConsent";
+import { Providers } from "@/components/providers/Providers";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Shadows_Into_Light } from "next/font/google";
-import { Providers } from "@/components/providers/Providers";
-import { CookieConsent } from "@/components/common/CookieConsent";
 import "./globals.css";
 
 const geistSans = Geist({

@@ -12,8 +12,7 @@ export const FooterSection = () => {
                 <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 mb-12">
                     <div className="lg:w-1/3">
                         <Link href="/" className="flex items-center gap-2 mb-4">
-                            <Image src="/logo-light.png" alt="Logo" width={24} height={24} className="block dark:hidden" />
-                            <Image src="/logo-dark.png" alt="Logo" width={24} height={24} className="hidden dark:block" />
+                           <Image src="/logo.png" alt="Logo" width={24} height={24} />
                             <span className="text-lg font-semibold text-foreground">Zaipme</span>
                         </Link>
                         <p className="text-sm text-muted-foreground mb-6 leading-relaxed">

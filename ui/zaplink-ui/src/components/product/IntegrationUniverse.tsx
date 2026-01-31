@@ -48,8 +48,7 @@ export const IntegrationUniverse = () => {
                 {/* Orbit Animation Container */}
                 <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] mx-auto flex items-center justify-center">
                     {/* Central Hub */}
-                    <Image src="/logo-light.png" alt="Logo" width={70} height={70} className="block dark:hidden" />
-                    <Image src="/logo-dark.png" alt="Logo" width={70} height={70} className="hidden dark:block" />
+                    <Image src="/logo.png" alt="Logo" width={24} height={24} />
 
                     {/* Orbit Rings */}
                     <div className="absolute w-[70%] h-[70%] border border-dashed border-border/50 rounded-full animate-[spin_60s_linear_infinite]" />

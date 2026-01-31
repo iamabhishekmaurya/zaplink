@@ -86,8 +86,7 @@ function ResetPasswordContent() {
         <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
             <div className="flex flex-col w-full gap-6 max-w-sm md:max-w-4xl z-10">
                 <a href="/" className="flex items-center gap-2 self-center font-medium">
-                    <Image src="/logo-light.png" alt="Logo" width={24} height={24} className="block dark:hidden" />
-                    <Image src="/logo-dark.png" alt="Logo" width={24} height={24} className="hidden dark:block" />
+                    <Image src="/logo.png" alt="Logo" width={24} height={24} />
                     <span className="text-base font-semibold text-foreground">zaipme</span>
                 </a>
 

@@ -54,8 +54,7 @@ export default function Navbar() {
                     <div className="flex items-center justify-between h-14 px-6">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2.5">
-                            <Image src="/logo-light.png" alt="Logo" width={24} height={24} className="block dark:hidden" />
-                            <Image src="/logo-dark.png" alt="Logo" width={24} height={24} className="hidden dark:block" />
+                            <Image src="/logo.png" alt="Logo" width={24} height={24} />
                             <span className="text-base font-semibold text-foreground">Zaipme</span>
                         </Link>
 
