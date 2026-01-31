@@ -29,7 +29,7 @@ spring:
             port: 6379
     # DataSource config
     datasource:
-        url: jdbc:postgresql://localhost:5432/zaplink_core
+        url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=core
         username: postgres
         password: 12345
     # JPA config
@@ -39,6 +39,7 @@ spring:
         properties:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
+                '[default_schema]': core
 
 # Batch Processing Configuration
 zaplink:

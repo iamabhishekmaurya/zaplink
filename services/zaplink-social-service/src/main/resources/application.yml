@@ -2,7 +2,7 @@ spring:
   application:
     name: zaplink-social-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/zaplink_social
+    url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=social
     username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
@@ -13,6 +13,7 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        '[default_schema]': social
   kafka:
     bootstrap-servers: localhost:9092
     consumer:

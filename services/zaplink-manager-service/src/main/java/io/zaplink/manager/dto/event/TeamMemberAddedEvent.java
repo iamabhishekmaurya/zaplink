@@ -1,10 +1,5 @@
 package io.zaplink.manager.dto.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 
 /**
@@ -15,94 +10,89 @@ import java.time.Instant;
  * @version 1.0
  * @since 2026-01-31
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TeamMemberAddedEvent {
-    
+public record TeamMemberAddedEvent(
     /**
      * Event type identifier.
      */
-    private String eventType;
+    String eventType,
     
     /**
      * Unique event ID for tracing.
      */
-    private String eventId;
+    String eventId,
     
     /**
      * Timestamp when the event was created.
      */
-    private Instant timestamp;
+    Instant timestamp,
     
     /**
      * Team member ID.
      */
-    private Long teamMemberId;
+    Long teamMemberId,
     
     /**
      * Team ID.
      */
-    private Long teamId;
+    Long teamId,
     
     /**
      * Team name.
      */
-    private String teamName;
+    String teamName,
     
     /**
      * User ID.
      */
-    private Long userId;
+    Long userId,
     
     /**
      * Username.
      */
-    private String username;
+    String username,
     
     /**
      * User email.
      */
-    private String email;
+    String email,
     
     /**
      * User first name.
      */
-    private String firstName;
+    String firstName,
     
     /**
      * User last name.
      */
-    private String lastName;
+    String lastName,
     
     /**
      * Role assigned to the member.
      */
-    private String role;
+    String role,
     
     /**
      * Status of the member.
      */
-    private String status;
+    String status,
     
     /**
      * Organization ID.
      */
-    private Long organizationId;
+    Long organizationId,
     
     /**
      * Organization name.
      */
-    private String organizationName;
+    String organizationName,
     
     /**
      * User ID who invited this member.
      */
-    private Long invitedBy;
+    Long invitedBy,
     
     /**
      * When the member was invited.
      */
-    private Instant invitedAt;
-}
+    Instant invitedAt
+) {}

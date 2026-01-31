@@ -3,47 +3,36 @@ package io.zaplink.manager.dto.response.dynamicqr;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Data
-public class QrAnalyticsResponse
+public record QrAnalyticsResponse( @JsonProperty("qr_key") String qrKey,
+                                   @JsonProperty("qr_name") String qrName,
+                                   @JsonProperty("total_scans") Long totalScans,
+                                   @JsonProperty("scans_today") Long scansToday,
+                                   @JsonProperty("scans_this_week") Long scansThisWeek,
+                                   @JsonProperty("scans_this_month") Long scansThisMonth,
+                                   @JsonProperty("last_scanned") LocalDateTime lastScanned,
+                                   @JsonProperty("country_stats") List<CountryStats> countryStats,
+                                   @JsonProperty("device_stats") List<DeviceStats> deviceStats,
+                                   @JsonProperty("browser_stats") List<BrowserStats> browserStats,
+                                   @JsonProperty("daily_stats") List<DailyStats> dailyStats )
 {
-    private String             qrKey;
-    private String             qrName;
-    private Long               totalScans;
-    private Long               scansToday;
-    private Long               scansThisWeek;
-    private Long               scansThisMonth;
-    private LocalDateTime      lastScanned;
-    private List<CountryStats> countryStats;
-    private List<DeviceStats>  deviceStats;
-    private List<BrowserStats> browserStats;
-    private List<DailyStats>   dailyStats;
-    @Data
-    public static class CountryStats
+    public record CountryStats( @JsonProperty("country") String country,
+                                @JsonProperty("count") Long count,
+                                @JsonProperty("percentage") Double percentage )
     {
-        private String country;
-        private Long   count;
-        private Double percentage;
     }
-    @Data
-    public static class DeviceStats
+    public record DeviceStats( @JsonProperty("device_type") String deviceType,
+                               @JsonProperty("count") Long count,
+                               @JsonProperty("percentage") Double percentage )
     {
-        private String deviceType;
-        private Long   count;
-        private Double percentage;
     }
-    @Data
-    public static class BrowserStats
+    public record BrowserStats( @JsonProperty("browser") String browser,
+                                @JsonProperty("count") Long count,
+                                @JsonProperty("percentage") Double percentage )
     {
-        private String browser;
-        private Long   count;
-        private Double percentage;
     }
-    @Data
-    public static class DailyStats
+    public record DailyStats( @JsonProperty("date") String date, @JsonProperty("scans") Long scans )
     {
-        private String date;
-        private Long   scans;
     }
 }

@@ -3,26 +3,21 @@ package io.zaplink.manager.dto.response;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Data @Builder
-public class LinkAnalyticsResponse
+public record LinkAnalyticsResponse( @JsonProperty("short_url_key") String shortUrlKey,
+                                     @JsonProperty("original_url") String originalUrl,
+                                     @JsonProperty("total_clicks") Long totalClicks,
+                                     @JsonProperty("clicks_today") Long clicksToday,
+                                     @JsonProperty("last_accessed") LocalDateTime lastAccessed,
+                                     @JsonProperty("top_countries") List<Entry> topCountries,
+                                     @JsonProperty("top_browsers") List<Entry> topBrowsers,
+                                     @JsonProperty("top_referrers") List<Entry> topReferrers,
+                                     @JsonProperty("daily_clicks") List<Entry> dailyClicks )
 {
-    private String        shortUrlKey;
-    private String        originalUrl;
-    private Long          totalClicks;
-    private Long          clicksToday;
-    private LocalDateTime lastAccessed;
-    private List<Entry>   topCountries;
-    private List<Entry>   topBrowsers;
-    private List<Entry>   topReferrers;
-    private List<Entry>   dailyClicks;
-    @Data @Builder
-    public static class Entry
+    public record Entry( @JsonProperty("name") String name,
+                         @JsonProperty("value") Long value,
+                         @JsonProperty("percentage") Double percentage )
     {
-        private String name;
-        private Long   value;
-        private Double percentage;
     }
 }

@@ -1,16 +1,12 @@
 package io.zaplink.manager.dto;
 
-import io.zaplink.manager.common.enums.RuleDimension;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class RedirectRuleDto
+import io.zaplink.manager.common.enums.RuleDimension;
+
+public record RedirectRuleDto( RuleDimension dimension,
+                               String value,
+                               @JsonProperty("destination_url") String destinationUrl,
+                               Integer priority )
 {
-    private RuleDimension dimension;
-    private String        value;
-    private String        destinationUrl;
-    private Integer       priority;
 }

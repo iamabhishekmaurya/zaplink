@@ -42,27 +42,26 @@ public class EventConsumerService
     {
         try
         {
-            log.info( "Processing team member added event: {}", event.getEventId() );
+            log.info( "Processing team member added event: {}", event.eventId() );
             // Check if record already exists
-            if ( teamMemberViewRepository.existsById( event.getTeamMemberId() ) )
+            if ( teamMemberViewRepository.existsById( event.teamMemberId() ) )
             {
-                log.warn( "Team member view record already exists: {}", event.getTeamMemberId() );
+                log.warn( "Team member view record already exists: {}", event.teamMemberId() );
                 return;
             }
             // Create team member view record
-            TeamMemberView teamMemberView = TeamMemberView.builder().id( event.getTeamMemberId() )
-                    .teamId( event.getTeamId() ).teamName( event.getTeamName() ).userId( event.getUserId() )
-                    .username( event.getUsername() ).userEmail( event.getEmail() ).firstName( event.getFirstName() )
-                    .lastName( event.getLastName() ).role( event.getRole() ).status( event.getStatus() )
-                    .invitedAt( event.getInvitedAt() ).joinedAt( null ) // Will be updated when user accepts invitation
-                    .organizationId( event.getOrganizationId() ).organizationName( event.getOrganizationName() )
+            TeamMemberView teamMemberView = TeamMemberView.builder().id( event.teamMemberId() ).teamId( event.teamId() )
+                    .teamName( event.teamName() ).userId( event.userId() ).username( event.username() )
+                    .userEmail( event.email() ).firstName( event.firstName() ).lastName( event.lastName() )
+                    .role( event.role() ).status( event.status() ).invitedAt( event.invitedAt() ).joinedAt( null ) // Will be updated when user accepts invitation
+                    .organizationId( event.organizationId() ).organizationName( event.organizationName() )
                     .lastUpdated( Instant.now() ).build();
             teamMemberViewRepository.save( teamMemberView );
-            log.info( "Team member view record created successfully: {}", event.getTeamMemberId() );
+            log.info( "Team member view record created successfully: {}", event.teamMemberId() );
         }
         catch ( Exception ex )
         {
-            log.error( "Error processing team member added event: {}", event.getEventId(), ex );
+            log.error( "Error processing team member added event: {}", event.eventId(), ex );
             throw new RuntimeException( "Failed to process team member added event", ex );
         }
     }
@@ -78,9 +77,9 @@ public class EventConsumerService
     {
         try
         {
-            log.info( "Processing workflow status changed event: {}", event.getEventId() );
+            log.info( "Processing workflow status changed event: {}", event.eventId() );
             // Handle different status transitions
-            switch ( event.getNewStatus() )
+            switch ( event.newStatus() )
             {
                 case "SUBMITTED":
                     // Add to pending post view
@@ -89,16 +88,16 @@ public class EventConsumerService
                 case "APPROVED":
                 case "REJECTED":
                     // Remove from pending post view
-                    removeFromPendingPostView( event.getPostId() );
+                    removeFromPendingPostView( event.postId() );
                     break;
                 default:
-                    log.warn( "Unhandled workflow status: {}", event.getNewStatus() );
+                    log.warn( "Unhandled workflow status: {}", event.newStatus() );
             }
-            log.info( "Workflow status changed event processed successfully: {}", event.getEventId() );
+            log.info( "Workflow status changed event processed successfully: {}", event.eventId() );
         }
         catch ( Exception ex )
         {
-            log.error( "Error processing workflow status changed event: {}", event.getEventId(), ex );
+            log.error( "Error processing workflow status changed event: {}", event.eventId(), ex );
             throw new RuntimeException( "Failed to process workflow status changed event", ex );
         }
     }
@@ -111,22 +110,21 @@ public class EventConsumerService
     private void addToPendingPostView( WorkflowStatusChangedEvent event )
     {
         // Check if record already exists
-        if ( pendingPostViewRepository.existsById( event.getPostId() ) )
+        if ( pendingPostViewRepository.existsById( event.postId() ) )
         {
-            log.warn( "Pending post view record already exists: {}", event.getPostId() );
+            log.warn( "Pending post view record already exists: {}", event.postId() );
             return;
         }
         // Create pending post view record
-        PendingPostView pendingPostView = PendingPostView.builder().id( event.getPostId() ).title( event.getTitle() )
+        PendingPostView pendingPostView = PendingPostView.builder().id( event.postId() ).title( event.title() )
                 .content( null ) // Content not included in event for security
-                .authorId( event.getAuthorId() ).authorName( event.getAuthorName() )
-                .authorEmail( event.getAuthorEmail() ).campaignId( event.getCampaignId() )
-                .campaignName( event.getCampaignName() ).teamId( event.getTeamId() ).teamName( event.getTeamName() )
-                .organizationId( event.getOrganizationId() ).organizationName( event.getOrganizationName() )
-                .submittedAt( event.getChangedAt() ).status( event.getNewStatus() ).lastUpdated( Instant.now() )
-                .build();
+                .authorId( event.authorId() ).authorName( event.authorName() ).authorEmail( event.authorEmail() )
+                .campaignId( event.campaignId() ).campaignName( event.campaignName() ).teamId( event.teamId() )
+                .teamName( event.teamName() ).organizationId( event.organizationId() )
+                .organizationName( event.organizationName() ).submittedAt( event.changedAt() )
+                .status( event.newStatus() ).lastUpdated( Instant.now() ).build();
         pendingPostViewRepository.save( pendingPostView );
-        log.info( "Pending post view record created successfully: {}", event.getPostId() );
+        log.info( "Pending post view record created successfully: {}", event.postId() );
     }
 
     /**

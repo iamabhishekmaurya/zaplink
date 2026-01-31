@@ -1,10 +1,5 @@
 package io.zaplink.manager.dto.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 
 /**
@@ -15,109 +10,104 @@ import java.time.Instant;
  * @version 1.0
  * @since 2026-01-31
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class WorkflowStatusChangedEvent {
-    
+public record WorkflowStatusChangedEvent(
     /**
      * Event type identifier.
      */
-    private String eventType;
+    String eventType,
     
     /**
      * Unique event ID for tracing.
      */
-    private String eventId;
+    String eventId,
     
     /**
      * Timestamp when the event was created.
      */
-    private Instant timestamp;
+    Instant timestamp,
     
     /**
      * Post ID.
      */
-    private Long postId;
+    Long postId,
     
     /**
      * Post title.
      */
-    private String title;
+    String title,
     
     /**
      * Previous status.
      */
-    private String previousStatus;
+    String previousStatus,
     
     /**
      * New status.
      */
-    private String newStatus;
+    String newStatus,
     
     /**
      * Author ID.
      */
-    private Long authorId;
+    Long authorId,
     
     /**
      * Author name.
      */
-    private String authorName;
+    String authorName,
     
     /**
      * Author email.
      */
-    private String authorEmail;
+    String authorEmail,
     
     /**
      * Campaign ID if applicable.
      */
-    private Long campaignId;
+    Long campaignId,
     
     /**
      * Campaign name if applicable.
      */
-    private String campaignName;
+    String campaignName,
     
     /**
      * Team ID.
      */
-    private Long teamId;
+    Long teamId,
     
     /**
      * Team name.
      */
-    private String teamName;
+    String teamName,
     
     /**
      * Organization ID.
      */
-    private Long organizationId;
+    Long organizationId,
     
     /**
      * Organization name.
      */
-    private String organizationName;
+    String organizationName,
     
     /**
      * Reviewer ID if applicable.
      */
-    private Long reviewerId;
+    Long reviewerId,
     
     /**
      * Reviewer name if applicable.
      */
-    private String reviewerName;
+    String reviewerName,
     
     /**
      * Review comments if applicable.
      */
-    private String reviewComments;
+    String reviewComments,
     
     /**
      * When the status change occurred.
      */
-    private Instant changedAt;
-}
+    Instant changedAt
+) {}

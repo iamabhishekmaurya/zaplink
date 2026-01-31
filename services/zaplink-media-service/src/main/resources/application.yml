@@ -24,7 +24,7 @@ spring:
   
   # Database Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/zaplink_media
+    url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=media
     username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
@@ -37,6 +37,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        '[default_schema]': media
     show-sql: true
 
   # Kafka Configuration

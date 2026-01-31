@@ -1,60 +1,57 @@
 server:
-    port: 8083
+  port: 8083
 
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
   application:
     name: zaplink-manager-service
-  # API versioning
-  mvc:
-    apiversion:
-      required: true
-      use:
-        header: X-API-Version
-      supported:
-      - 1
-  # Enable Virtual Threads (Project Loom)
-  threads:
-      virtual:
-          enabled: true
-  # Kafka config
+  datasource:
+    url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=manager
+    username: postgres
+    password: 12345
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 15
+      pool-name: ManagerHikariPool
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        '[default_schema]': manager
+        format_sql: true
+    show-sql: true
   kafka:
     bootstrap-servers: localhost:9092
+    consumer:
+      group-id: zaplink-manager-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
       retries: 5
-    properties:
-      "[spring.json.add.type.headers]": "true"
-  # Redis config
-  data:
-    redis:
-      host: localhost
-      port: 6379
-  # Database config
-  datasource:
-    url: jdbc:postgresql://localhost:5432/zaplink_core
-    username: postgres
-    password: 12345
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+      properties:
+        "[spring.json.add.type.headers]": "true"
   # Flyway config
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-# Custom Service URLs
+# Service URLs for inter-service communication
 zaplink:
   services:
-    core:
+    auth:
       url: http://localhost:8081
+    core:
+      url: http://localhost:8082
 
 # Distributed Tracing Configuration
 management:

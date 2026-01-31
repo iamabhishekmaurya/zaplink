@@ -1,17 +1,19 @@
 package io.zaplink.manager.dto.request.qr;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Data
-public class QRConfig
+public record QRConfig( String data,
+                        int size,
+                        int margin,
+                        @JsonProperty("error_correction_level") String errorCorrectionLevel,
+                        @JsonProperty("transparent_background") boolean transparentBackground,
+                        @JsonProperty("background_color") String backgroundColor,
+                        QRBodyConfig body,
+                        QREyeConfig eye,
+                        QRLogoConfig logo )
 {
-    private String       data;
-    private int          size                  = 1024;
-    private int          margin                = 0;
-    private String       errorCorrectionLevel  = "H";
-    private boolean      transparentBackground = false;
-    private String       backgroundColor       = "#FFFFFF";
-    private QRBodyConfig body                  = new QRBodyConfig();
-    private QREyeConfig  eye                   = new QREyeConfig();
-    private QRLogoConfig logo;
+    public QRConfig()
+    {
+        this( null, 1024, 0, "H", false, "#FFFFFF", new QRBodyConfig(), new QREyeConfig(), null );
+    }
 }

@@ -1,13 +1,16 @@
 package io.zaplink.manager.dto.request.qr;
 
-import io.zaplink.manager.common.enums.QRBodyShapeEnum;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Data
-public class QRBodyConfig
+import io.zaplink.manager.common.enums.QRBodyShapeEnum;
+
+public record QRBodyConfig( QRBodyShapeEnum shape,
+                            String color,
+                            @JsonProperty("color_dark") String colorDark,
+                            @JsonProperty("gradient_linear") boolean gradientLinear )
 {
-    private QRBodyShapeEnum shape          = QRBodyShapeEnum.SQUARE;
-    private String          color          = "#000000";
-    private String          colorDark      = null;                  // For gradient end
-    private boolean         gradientLinear = true;                  // true = linear, false = radial
+    public QRBodyConfig()
+    {
+        this( QRBodyShapeEnum.SQUARE, "#000000", null, true );
+    }
 }

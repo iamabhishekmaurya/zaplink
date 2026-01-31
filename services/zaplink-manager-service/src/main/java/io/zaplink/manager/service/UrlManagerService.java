@@ -38,20 +38,22 @@ public class UrlManagerService
         long activeLinks = urlMappingRepository.countByStatusAndUserEmail( UrlStatusEnum.ACTIVE, userEmail );
         Long totalClicks = urlMappingRepository.getTotalClickCountByUserEmail( userEmail );
         List<StatsResponse.Entry> clickTrend = urlAnalyticsRepository.findClickTrendByUser( userEmail ).stream()
-                .map( obj -> StatsResponse.Entry.builder().name( obj[0].toString() ).value( obj[1] ).build() )
-                .collect( Collectors.toList() );
+                .map( obj -> new StatsResponse.Entry( obj[0].toString(), obj[1] ) ).collect( Collectors.toList() );
         List<StatsResponse.Entry> referrers = urlAnalyticsRepository.findTopReferrersByUser( userEmail ).stream()
                 .limit( 5 )
-                .map( obj -> StatsResponse.Entry.builder().name( (String) obj[0] )
-                        .value( calculatePercentage( (Long) obj[1], totalClicks ) ).build() )
+                .map( obj -> new StatsResponse.Entry( (String) obj[0],
+                                                      calculatePercentage( (Long) obj[1], totalClicks ) ) )
                 .collect( Collectors.toList() );
         List<Object[]> regions = urlAnalyticsRepository.findTopRegionsByUser( userEmail );
         String topRegion = regions.isEmpty() ? "N/A" : (String) regions.get( 0 )[0];
         // Format referrers to have int value as percentage
-        return StatsResponse.builder().totalLinks( totalLinks ).activelinks( activeLinks )
-                .totalClicks( totalClicks != null ? totalClicks : 0L ).clickTrend( clickTrend ).referrers( referrers )
-                .topRegion( topRegion ).avgCtr( 0.0 ) // Impressions not tracked yet
-                .build();
+        return new StatsResponse( totalLinks,
+                                  activeLinks,
+                                  totalClicks != null ? totalClicks : 0L,
+                                  topRegion,
+                                  0.0,
+                                  clickTrend,
+                                  referrers );
     }
 
     private int calculatePercentage( Long value, Long total )
@@ -74,10 +76,15 @@ public class UrlManagerService
 
     private LinkResponse mapToLinkResponse( UrlMappingEntity entity )
     {
-        return LinkResponse.builder().id( entity.getId() ).shortUrlKey( entity.getShortUrlKey() )
-                .originalUrl( entity.getOriginalUrl() ).shortUrl( entity.getShortUrl() )
-                .createdAt( entity.getCreatedAt() ).clickCount( entity.getClickCount() ).status( entity.getStatus() )
-                .rules( mapToRuleDtos( entity.getId() ) ).tags( entity.getTags() ).build();
+        return new LinkResponse( entity.getId(),
+                                 entity.getShortUrlKey(),
+                                 entity.getOriginalUrl(),
+                                 entity.getShortUrl(),
+                                 entity.getCreatedAt(),
+                                 entity.getClickCount(),
+                                 entity.getStatus(),
+                                 mapToRuleDtos( entity.getId() ),
+                                 entity.getTags() );
     }
 
     private List<RedirectRuleDto> mapToRuleDtos( Long urlMappingId )
@@ -86,8 +93,10 @@ public class UrlManagerService
         if ( rules == null || rules.isEmpty() )
             return null;
         return rules.stream()
-                .map( r -> RedirectRuleDto.builder().dimension( r.getDimension() ).value( r.getValue() )
-                        .destinationUrl( r.getDestinationUrl() ).priority( r.getPriority() ).build() )
+                .map( r -> new RedirectRuleDto( r.getDimension(),
+                                                r.getValue(),
+                                                r.getDestinationUrl(),
+                                                r.getPriority() ) )
                 .collect( Collectors.toList() );
     }
 
@@ -116,13 +125,12 @@ public class UrlManagerService
             List<LinkAnalyticsResponse.Entry> dailyClicks = dailyStats.stream().map( obj -> {
                 String dateStr = obj[0] != null ? obj[0].toString() : "Unknown";
                 Long adCount = obj[1] instanceof Number ? ( (Number) obj[1] ).longValue() : 0L;
-                return LinkAnalyticsResponse.Entry.builder().name( dateStr ).value( adCount ).build();
+                return new LinkAnalyticsResponse.Entry( dateStr, adCount, null );
             } ).collect( Collectors.toList() );
             // 4. Build Response
-            return LinkAnalyticsResponse.builder().shortUrlKey( link.getShortUrlKey() )
-                    .originalUrl( link.getOriginalUrl() ).totalClicks( link.getClickCount() ).clicksToday( 0L )
-                    .lastAccessed( null ).topCountries( countries ).topBrowsers( browsers ).topReferrers( referrers )
-                    .dailyClicks( dailyClicks ).build();
+            return new LinkAnalyticsResponse( link.getShortUrlKey(),
+                    link.getOriginalUrl(), link.getClickCount(), 0L,
+                    null, countries, browsers, referrers, dailyClicks );
         }
         catch ( Exception e )
         {
@@ -136,8 +144,7 @@ public class UrlManagerService
         return data.stream().limit( 5 ).map( obj -> {
             String name = obj[0] != null ? String.valueOf( obj[0] ) : "Unknown";
             Long count = obj[1] instanceof Number ? ( (Number) obj[1] ).longValue() : 0L;
-            return LinkAnalyticsResponse.Entry.builder().name( name ).value( count )
-                    .percentage( (double) calculatePercentage( count, total ) ).build();
+            return new LinkAnalyticsResponse.Entry( name, count, (double) calculatePercentage( count, total ) );
         } ).collect( Collectors.toList() );
     }
 }

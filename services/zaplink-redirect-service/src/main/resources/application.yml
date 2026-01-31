@@ -14,7 +14,7 @@ spring:
   
   # Database config (read-optimized)
   datasource:
-    url: jdbc:postgresql://localhost:5432/zaplink_core
+    url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=core
     username: postgres
     password: 12345
     hikari:
@@ -30,6 +30,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        '[default_schema]': core
     open-in-view: false
   
   # Redis config

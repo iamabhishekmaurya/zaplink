@@ -1,17 +1,20 @@
 package io.zaplink.manager.dto.request.dynamicqr;
 
-import io.zaplink.manager.dto.request.qr.QRConfig;
-import lombok.Data;
+import java.time.LocalDateTime;
+import java.util.List;
 
-@Data
-public class CreateDynamicQrRequest
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.zaplink.manager.dto.request.qr.QRConfig;
+
+public record CreateDynamicQrRequest( @JsonProperty("qr_name") String qrName,
+                                      @JsonProperty("destination_url") String destinationUrl,
+                                      @JsonProperty("qr_config") QRConfig qrConfig,
+                                      @JsonProperty("campaign_id") String campaignId,
+                                      String password, // Optional
+                                      @JsonProperty("scan_limit") Integer scanLimit, // Optional
+                                      @JsonProperty("expiration_date") LocalDateTime expirationDate, // Optional
+                                      @JsonProperty("allowed_domains") List<String> allowedDomains // Optional
+)
 {
-    private String                  qrName;
-    private String                  destinationUrl;
-    private QRConfig                qrConfig;
-    private String                  campaignId;
-    private String                  password;       // Optional
-    private Integer                 scanLimit;      // Optional
-    private java.time.LocalDateTime expirationDate; // Optional
-    private java.util.List<String>  allowedDomains; // Optional
 }

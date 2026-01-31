@@ -13,10 +13,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import lombok.extern.slf4j.Slf4j;
-
 import io.zaplink.manager.dto.error.ErrorResponse;
 import io.zaplink.manager.dto.error.FieldError;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j @RestControllerAdvice
 public class GlobalExceptionHandler
@@ -33,15 +32,17 @@ public class GlobalExceptionHandler
                         return ResponseEntity.badRequest().contentType( MediaType.TEXT_PLAIN )
                                         .body( "# VALIDATION ERROR: " + ex.getMessage() + "\n" );
                 }
-                List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream().map( error -> FieldError
-                                .builder().field( error.getField() ).message( error.getDefaultMessage() )
-                                .rejectedValue( error.getRejectedValue() != null ? error.getRejectedValue().toString()
-                                                                                 : null )
-                                .build() ).collect( Collectors.toList() );
-                ErrorResponse errorResponse = ErrorResponse.builder().timestamp( LocalDateTime.now().toString() )
-                                .status( HttpStatus.BAD_REQUEST.name() ).message( "Validation failed" )
-                                .path( request.getDescription( false ).replace( "uri=", "" ) )
-                                .fieldErrors( fieldErrors ).build();
+                List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                                .map( error -> new FieldError( error.getField(),
+                                                               error.getDefaultMessage(),
+                                                               error.getRejectedValue() != null ? error
+                                                                               .getRejectedValue().toString() : null ) )
+                                .collect( Collectors.toList() );
+                ErrorResponse errorResponse = new ErrorResponse( LocalDateTime.now().toString(),
+                                                                 HttpStatus.BAD_REQUEST.name(),
+                                                                 "Validation failed",
+                                                                 request.getDescription( false ).replace( "uri=", "" ),
+                                                                 fieldErrors );
                 return ResponseEntity.badRequest().body( errorResponse );
         }
 
@@ -58,12 +59,13 @@ public class GlobalExceptionHandler
                                         .contentType( MediaType.TEXT_PLAIN )
                                         .body( "# ERROR: " + ex.getMessage() + "\n" );
                 }
-                ErrorResponse errorResponse = ErrorResponse.builder().timestamp( LocalDateTime.now().toString() )
-                                .status( HttpStatus.INTERNAL_SERVER_ERROR.name() ).message( "Internal server error" )
-                                .path( request.getDescription( false ).replace( "uri=", "" ) )
-                                .fieldErrors( List.of( FieldError.builder().field( "global" ).message( ex.getMessage() )
-                                                .rejectedValue( null ).build() ) )
-                                .build();
+                ErrorResponse errorResponse = new ErrorResponse( LocalDateTime.now().toString(),
+                                                                 HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                                                                 "Internal server error",
+                                                                 request.getDescription( false ).replace( "uri=", "" ),
+                                                                 List.of( new FieldError( "global",
+                                                                                          ex.getMessage(),
+                                                                                          null ) ) );
                 return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).body( errorResponse );
         }
 }

@@ -1,12 +1,15 @@
 package io.zaplink.manager.dto.request.qr;
 
-import io.zaplink.manager.common.enums.QREyeShapeEnum;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Data
-public class QREyeConfig
+import io.zaplink.manager.common.enums.QREyeShapeEnum;
+
+public record QREyeConfig( QREyeShapeEnum shape,
+                           @JsonProperty("color_outer") String colorOuter,
+                           @JsonProperty("color_inner") String colorInner )
 {
-    private QREyeShapeEnum shape      = QREyeShapeEnum.SQUARE;
-    private String         colorOuter = "#000000";
-    private String         colorInner = "#000000";
+    public QREyeConfig()
+    {
+        this( QREyeShapeEnum.SQUARE, "#000000", "#000000" );
+    }
 }

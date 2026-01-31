@@ -2,6 +2,8 @@ package io.zaplink.manager.dto.response;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * DTO for team member information in responses from Manager Service.
  * Contains user details and their role within the team from the read model.
@@ -14,63 +16,20 @@ import java.time.Instant;
  * @version 1.0
  * @since 2026-01-31
  */
-public record TeamMemberResponse(
-                                  /**
-                                   * Team member ID.
-                                   */
-                                  Long id,
-                                  /**
-                                   * Team ID.
-                                   */
-                                  Long teamId,
-                                  /**
-                                   * Team name.
-                                   */
-                                  String teamName,
-                                  /**
-                                   * User ID.
-                                   */
-                                  Long userId,
-                                  /**
-                                   * Username.
-                                   */
+public record TeamMemberResponse( Long id,
+                                  @JsonProperty("team_id") Long teamId,
+                                  @JsonProperty("team_name") String teamName,
+                                  @JsonProperty("user_id") Long userId,
                                   String username,
-                                  /**
-                                   * User email.
-                                   */
                                   String email,
-                                  /**
-                                   * User first name.
-                                   */
-                                  String firstName,
-                                  /**
-                                   * User last name.
-                                   */
-                                  String lastName,
-                                  /**
-                                   * Role within the team.
-                                   */
+                                  @JsonProperty("first_name") String firstName,
+                                  @JsonProperty("last_name") String lastName,
                                   String role,
-                                  /**
-                                   * Status of the team member.
-                                   */
                                   String status,
-                                  /**
-                                   * When the member was invited.
-                                   */
-                                  Instant invitedAt,
-                                  /**
-                                   * When the member joined the team.
-                                   */
-                                  Instant joinedAt,
-                                  /**
-                                   * Organization ID.
-                                   */
-                                  Long organizationId,
-                                  /**
-                                   * Organization name.
-                                   */
-                                  String organizationName )
+                                  @JsonProperty("invited_at") Instant invitedAt,
+                                  @JsonProperty("joined_at") Instant joinedAt,
+                                  @JsonProperty("organization_id") Long organizationId,
+                                  @JsonProperty("organization_name") String organizationName )
 {
     /**
      * Compact constructor for validation and null checks.

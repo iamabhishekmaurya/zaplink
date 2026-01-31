@@ -322,7 +322,7 @@ public class BioPageService
                                    entity.getUsername(),
                                    entity.getOwnerId(),
                                    entity.getThemeConfig(),
-                                   entity.getAvatarUrl(),
+                                   null, // avatarUrl
                                    entity.getBioText(),
                                    entity.getCreatedAt(),
                                    entity.getUpdatedAt(),

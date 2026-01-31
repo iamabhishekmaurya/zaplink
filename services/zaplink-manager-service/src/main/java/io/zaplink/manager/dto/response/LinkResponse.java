@@ -1,22 +1,21 @@
 package io.zaplink.manager.dto.response;
 
 import java.time.LocalDateTime;
-import io.zaplink.manager.common.enums.UrlStatusEnum;
-import lombok.Builder;
-import lombok.Data;
-import io.zaplink.manager.dto.RedirectRuleDto;
 import java.util.List;
 
-@Data @Builder
-public class LinkResponse
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.zaplink.manager.common.enums.UrlStatusEnum;
+import io.zaplink.manager.dto.RedirectRuleDto;
+
+public record LinkResponse( @JsonProperty("id") Long id,
+                            @JsonProperty("short_url_key") String shortUrlKey,
+                            @JsonProperty("original_url") String originalUrl,
+                            @JsonProperty("short_url") String shortUrl,
+                            @JsonProperty("created_at") LocalDateTime createdAt,
+                            @JsonProperty("click_count") Long clickCount,
+                            @JsonProperty("status") UrlStatusEnum status,
+                            @JsonProperty("rules") List<RedirectRuleDto> rules,
+                            @JsonProperty("tags") List<String> tags )
 {
-    private Long                  id;
-    private String                shortUrlKey;
-    private String                originalUrl;
-    private String                shortUrl;
-    private LocalDateTime         createdAt;
-    private Long                  clickCount;
-    private UrlStatusEnum         status;
-    private List<RedirectRuleDto> rules;
-    private List<String>          tags;
 }

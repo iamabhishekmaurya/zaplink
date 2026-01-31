@@ -1,17 +1,19 @@
 package io.zaplink.manager.dto.request.qr;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@Data
-public class QRLogoConfig
+public record QRLogoConfig( @JsonProperty("logo_path") String logoPath,
+                            @JsonProperty("size_ratio") double sizeRatio,
+                            int padding,
+                            @JsonProperty("background_color") String backgroundColor,
+                            @JsonProperty("background_enabled") boolean backgroundEnabled,
+                            @JsonProperty("background_rounded") boolean backgroundRounded,
+                            @JsonProperty("background_corner_radius") int backgroundCornerRadius,
+                            @JsonProperty("remove_quiet_zone") boolean removeQuietZone,
+                            @JsonProperty("margin_size") int marginSize )
 {
-    private String  logoPath               = null;
-    private double  sizeRatio              = 0.2;       // Logo size as ratio of QR size (0.1 to 0.3)
-    private int     padding                = 2;         // Padding around logo
-    private String  backgroundColor        = "#FFFFFF"; // Background color for logo
-    private boolean backgroundEnabled      = true;      // Whether to draw background
-    private boolean backgroundRounded      = true;      // Rounded background corners
-    private int     backgroundCornerRadius = 20;        // Corner radius for background
-    private boolean removeQuietZone        = true;      // Remove QR modules behind logo
-    private int     marginSize             = 0;         // Margin around logo where modules are removed
+    public QRLogoConfig()
+    {
+        this( null, 0.2, 2, "#FFFFFF", true, true, 20, true, 0 );
+    }
 }
