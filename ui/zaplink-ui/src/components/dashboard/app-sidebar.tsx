@@ -15,7 +15,9 @@ import {
   Wallet,
   Globe,
   Image as ImageIcon,
-  CalendarDays
+  CalendarDays,
+  FileText,
+  Plus
 } from "lucide-react"
 import * as React from "react"
 
@@ -71,21 +73,37 @@ const data = {
   ],
   navMain: [
     {
-      title: "Links",
-      url: "#",
-      icon: Link2,
+      title: "Bio Pages",
+      url: "/dashboard/bio-page",
+      icon: FileText,
       isActive: true,
       items: [
         {
-          title: "My Links",
+          title: "Manage Pages",
+          url: "/dashboard/bio-page",
+        },
+        {
+          title: "Create Page",
+          url: "/dashboard/bio-page/create",
+        },
+      ],
+    },
+    {
+      title: "Short Links",
+      url: "/dashboard/link/short-link",
+      icon: Link2,
+      isActive: false,
+      items: [
+        {
+          title: "Manage Short Links",
           url: "/dashboard/link/short-link",
         },
         {
-          title: "Create Link",
+          title: "Create Short Link",
           url: "/dashboard/link/create-short-link",
         },
         {
-          title: "Dynamic Links",
+          title: "Dynamic QR Links",
           url: "/dashboard/link/dynamic-short-link",
         },
       ],

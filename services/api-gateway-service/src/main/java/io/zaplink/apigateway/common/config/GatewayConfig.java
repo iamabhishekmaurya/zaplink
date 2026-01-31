@@ -42,6 +42,24 @@ public class GatewayConfig
                                                         .filters( f -> f.rewritePath( writePath + "/qr/(?<segment>.*)",
                                                                                       "/core/qr/${segment}" ) )
                                                         .uri( "http://localhost:8081" ) )
+                                /**
+                                 * Core Service BioPage Write Routes (CQRS Command Side)
+                                 * Port: 8081
+                                 */
+                                .route( "core-biopage-write",
+                                        r -> r.path( writePath + "/bio-pages/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( writePath + "/bio-pages/(?<segment>.*)",
+                                                                                      "/core/bio-pages/${segment}" ) )
+                                                        .uri( "http://localhost:8081" ) )
+                                /**
+                                 * Core Service BioLink Write Routes (CQRS Command Side)
+                                 * Port: 8081
+                                 */
+                                .route( "core-biolink-write",
+                                        r -> r.path( writePath + "/bio-links/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( writePath + "/bio-links/(?<segment>.*)",
+                                                                                      "/core/bio-links/${segment}" ) )
+                                                        .uri( "http://localhost:8081" ) )
                                 .route( "manager-dynamic-qr-write", r -> r.path( writePath + "/dyqr/**" ).and()
                                                 .header( "X-API-Version", "1" )
                                                 .filters( f -> f.rewritePath( writePath + "/dyqr/(?<segment>.*)",
@@ -69,6 +87,24 @@ public class GatewayConfig
                                                                                       "/${segment}" ) )
                                                         .uri( "http://localhost:8083" ) )
                                 /**
+                                 * Manager Service BioPage Read Routes (CQRS Query Side)
+                                 * Port: 8083
+                                 */
+                                .route( "manager-biopage-read",
+                                        r -> r.path( readPath + "/bio-pages/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( readPath + "/bio-pages/(?<segment>.*)",
+                                                                                      "/bio-pages/${segment}" ) )
+                                                        .uri( "http://localhost:8083" ) )
+                                /**
+                                 * Manager Service BioLink Read Routes (CQRS Query Side)
+                                 * Port: 8083
+                                 */
+                                .route( "manager-biolink-read",
+                                        r -> r.path( readPath + "/bio-links/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( readPath + "/bio-links/(?<segment>.*)",
+                                                                                      "/bio-links/${segment}" ) )
+                                                        .uri( "http://localhost:8083" ) )
+                                /**
                                  * Redirect Service Routes (High-performance redirects)
                                  * Port: 8085
                                  */
@@ -80,6 +116,17 @@ public class GatewayConfig
                                                 .uri( "http://localhost:8085" ) )
                                 .route( "redirect-qr", r -> r.path( "/s/**" )
                                                 .filters( f -> f.rewritePath( "/s/(?<segment>.*)", "/s/${segment}" )
+                                                                .addResponseHeader( "X-Zaplink-Processing-Time",
+                                                                                    LocalDateTime.now().toString() )
+                                                                .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
+                                                .uri( "http://localhost:8085" ) )
+                                /**
+                                 * Redirect Service Bio Page Public Route
+                                 * Port: 8085
+                                 */
+                                .route( "redirect-bio-page",
+                                        r -> r.path( "/v1/bio/**" )
+                                                .filters( f -> f.rewritePath( "/v1/bio/(?<username>.*)", "/v1/bio/${username}" )
                                                                 .addResponseHeader( "X-Zaplink-Processing-Time",
                                                                                     LocalDateTime.now().toString() )
                                                                 .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )

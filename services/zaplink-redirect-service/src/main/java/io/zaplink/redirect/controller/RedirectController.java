@@ -3,6 +3,7 @@ package io.zaplink.redirect.controller;
 import java.io.IOException;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,8 @@ import io.zaplink.redirect.service.QrRedirectService;
 import io.zaplink.redirect.service.QrRedirectService.QrRedirectResult;
 import io.zaplink.redirect.service.UrlRedirectService;
 import io.zaplink.redirect.service.UrlRedirectService.RedirectResult;
+import io.zaplink.redirect.client.ManagerServiceClient;
+import io.zaplink.redirect.dto.BioPageResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ public class RedirectController
 {
     private final UrlRedirectService urlRedirectService;
     private final QrRedirectService  qrRedirectService;
+    private final ManagerServiceClient managerServiceClient;
     /**
      * Redirect short URL to original destination.
      * Path: /r/{urlKey}
@@ -113,5 +117,26 @@ public class RedirectController
     public String health()
     {
         return "OK";
+    }
+    
+    /**
+     * Get BioPage by username.
+     * Path: /v1/bio/{username}
+     */
+    @GetMapping("v1/bio/{username}")
+    public ResponseEntity<BioPageResponse> getBioPage(@PathVariable("username") String username) {
+        log.debug("Bio page request for username: {}", username);
+        
+        try {
+            BioPageResponse bioPage = managerServiceClient.getBioPageByUsername(username);
+            if (bioPage != null) {
+                return ResponseEntity.ok(bioPage);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("Error fetching bio page for username: {}", username, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

@@ -21,11 +21,20 @@ import io.zaplink.core.dto.request.UpdateShortLinkRequest;
 import io.zaplink.core.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.core.dto.request.dynamicqr.UpdateDestinationRequest;
 import io.zaplink.core.dto.request.qr.QRConfig;
+import io.zaplink.core.dto.request.biopage.CreateBioPageRequest;
+import io.zaplink.core.dto.request.biopage.UpdateBioPageRequest;
+import io.zaplink.core.dto.request.biolink.CreateBioLinkRequest;
+import io.zaplink.core.dto.request.biolink.UpdateBioLinkRequest;
+import io.zaplink.core.dto.request.biolink.ReorderLinksRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
 import io.zaplink.core.dto.response.dynamicqr.DynamicQrResponse;
-import io.zaplink.core.service.dynamicqr.DynamicQrService;
-import io.zaplink.core.service.qr.QRService;
-import io.zaplink.core.service.shortner.UrlShortnerService;
+import io.zaplink.core.dto.response.biopage.BioPageResponse;
+import io.zaplink.core.dto.response.biolink.BioLinkResponse;
+import io.zaplink.core.service.DynamicQrService;
+import io.zaplink.core.service.QRService;
+import io.zaplink.core.service.UrlShortnerService;
+import io.zaplink.core.service.BioPageService;
+import io.zaplink.core.service.BioLinkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -35,6 +44,8 @@ public class CoreController
     private final UrlShortnerService urlServiceProvider;
     private final DynamicQrService   dynamicQrService;
     private final QRService          qrService;
+    private final BioPageService     bioPageWriteService;
+    private final BioLinkService     bioLinkWriteService;
     @PostMapping(value = "/url")
     public ShortnerResponse createShortUrl( @Valid @RequestBody ShortnerRequest urlRequest,
                                             @RequestHeader(value = "X-User-Email", required = false) String userEmail )
@@ -105,5 +116,62 @@ public class CoreController
                                           "gradientTypes", Map.of( "linear", true, "radial", false ), "exampleColors",
                                           Map.of( "blue", "#0066FF", "red", "#FF6B6B", "green", "#4ECDC4", "purple",
                                                   "#6366F1", "black", "#000000", "darkGray", "#1A1A1A" ) ) );
+    }
+    // ========== BioPage Write Operations (CQRS Command Side) ==========
+
+    @PostMapping(value = "/bio-pages")
+    public BioPageResponse createBioPage( @Valid @RequestBody CreateBioPageRequest request,
+                                          @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        return bioPageWriteService.createBioPage( request, userEmail );
+    }
+
+    @PutMapping(value = "/bio-pages/{pageId}")
+    public BioPageResponse updateBioPage( @PathVariable Long pageId,
+                                          @Valid @RequestBody UpdateBioPageRequest request,
+                                          @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        return bioPageWriteService.updateBioPage( pageId, request, userEmail );
+    }
+
+    @DeleteMapping(value = "/bio-pages/{pageId}")
+    public ResponseEntity<Void> deleteBioPage( @PathVariable Long pageId,
+                                               @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        boolean deleted = bioPageWriteService.deleteBioPage( pageId, userEmail );
+        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+    // ========== BioLink Write Operations (CQRS Command Side) ==========
+
+    @PostMapping(value = "/bio-links")
+    public BioLinkResponse createBioLink( @Valid @RequestBody CreateBioLinkRequest request,
+                                          @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        return bioLinkWriteService.createBioLink( request, userEmail );
+    }
+
+    @PutMapping(value = "/bio-links/{linkId}")
+    public BioLinkResponse updateBioLink( @PathVariable Long linkId,
+                                          @Valid @RequestBody UpdateBioLinkRequest request,
+                                          @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        return bioLinkWriteService.updateBioLink( linkId, request, userEmail );
+    }
+
+    @DeleteMapping(value = "/bio-links/{linkId}")
+    public ResponseEntity<Void> deleteBioLink( @PathVariable("linkId") Long linkId,
+                                               @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        boolean deleted = bioLinkWriteService.deleteBioLink( linkId, userEmail );
+        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping(value = "/bio-links/{pageId}/reorder")
+    public ResponseEntity<Void> reorderLinks( @Valid @RequestBody ReorderLinksRequest request,
+                                              @PathVariable("pageId") Long pageId,
+                                              @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+    {
+        boolean reordered = bioLinkWriteService.reorderLinks( pageId, request, userEmail );
+        return reordered ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.zaplink.manager.dto.response.LinkAnalyticsResponse;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
-import io.zaplink.manager.service.url.UrlManagerService;
+import io.zaplink.manager.service.UrlManagerService;
 import lombok.RequiredArgsConstructor;
 
 @RestController @RequiredArgsConstructor @RequestMapping("/short")

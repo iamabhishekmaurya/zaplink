@@ -72,6 +72,12 @@ kafka:
 geoip:
   db-path: classpath:GeoLite2-City.mmdb
 
+# Custom Service URLs
+zaplink:
+  services:
+    manager:
+      url: http://localhost:8083
+
 # Management endpoints
 management:
   endpoints:

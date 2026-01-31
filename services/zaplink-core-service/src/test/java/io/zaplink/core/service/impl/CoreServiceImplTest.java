@@ -19,7 +19,7 @@ import io.zaplink.core.dto.request.ShortnerRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
 import io.zaplink.core.entity.UrlMappingEntity;
 import io.zaplink.core.repository.UrlMappingRepository;
-import io.zaplink.core.service.shortner.impl.UrlShortnerServiceImpl;
+import io.zaplink.core.service.UrlShortnerService;
 
 @ExtendWith(MockitoExtension.class)
 class CoreServiceImplTest
@@ -27,7 +27,7 @@ class CoreServiceImplTest
     @Mock
     private UrlMappingRepository   urlMappingRepository;
     @InjectMocks
-    private UrlShortnerServiceImpl urlShortnerService;
+    private UrlShortnerService urlShortnerService;
     private static final String    BASE_URL = "http://localhost:8083/";
     @BeforeEach
     void setUp()

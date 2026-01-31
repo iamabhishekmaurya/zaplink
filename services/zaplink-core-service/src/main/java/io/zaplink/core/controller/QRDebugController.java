@@ -17,7 +17,7 @@ import io.zaplink.core.common.enums.QREyeShapeEnum;
 import io.zaplink.core.dto.request.qr.QRBodyConfig;
 import io.zaplink.core.dto.request.qr.QRConfig;
 import io.zaplink.core.dto.request.qr.QREyeConfig;
-import io.zaplink.core.service.qr.impl.ZapQrEngine;
+import io.zaplink.core.service.ZapQrEngine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

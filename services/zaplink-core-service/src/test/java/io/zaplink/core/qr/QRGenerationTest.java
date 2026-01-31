@@ -3,8 +3,8 @@ package io.zaplink.core.qr;
 import io.zaplink.core.common.enums.QRBodyShapeEnum;
 import io.zaplink.core.common.enums.QREyeShapeEnum;
 import io.zaplink.core.dto.request.qr.*;
-import io.zaplink.core.service.qr.impl.QRRendererImpl;
-import io.zaplink.core.service.qr.impl.ZapQrEngine;
+import io.zaplink.core.service.QRRenderer;
+import io.zaplink.core.service.ZapQrEngine;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +17,7 @@ import java.io.IOException;
 @SpringBootTest
 public class QRGenerationTest
 {
-    private final ZapQrEngine qrEngine = new ZapQrEngine( new QRRendererImpl() );
+    private final ZapQrEngine qrEngine = new ZapQrEngine( new QRRenderer() );
     @Test
     public void testBasicQRGeneration()
         throws IOException

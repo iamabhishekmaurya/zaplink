@@ -9,6 +9,7 @@ export interface DashboardStats {
     totalClicks: number;
     totalQrs: number;
     totalScans: number;
+    bioPages: number;
     isLoading: boolean;
     error: string | null;
     isNetworkError: boolean;
@@ -30,6 +31,7 @@ export function useDashboardData() {
         totalClicks: 0,
         totalQrs: 0,
         totalScans: 0,
+        bioPages: 0,
         isLoading: true,
         error: null,
         isNetworkError: false,
@@ -154,6 +156,7 @@ export function useDashboardData() {
                     totalClicks,
                     totalQrs,
                     totalScans,
+                    bioPages: statsData.bioPages || 0,
                     isLoading: false,
                     error: null,
                     isNetworkError: false,

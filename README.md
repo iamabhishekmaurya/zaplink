@@ -1,12 +1,23 @@
-# Zaplink — URL Shortening Microservices (Spring Boot)
+# Zaplink — URL Shortening & Link in Bio Platform (Spring Boot)
 
-Zaplink is a microservices-based URL shortening platform built with Spring Boot, Kafka, Eureka Service Discovery, and a combination of Redis and HTTP APIs. The system is designed for scalability, fault tolerance, and separation of concerns. This repository contains a multi-module Gradle project with multiple services that communicate via REST and Kafka.
+Zaplink is a comprehensive microservices-based platform that provides both URL shortening and "Link in Bio" functionality. Built with Spring Boot, Kafka, Eureka Service Discovery, and a combination of Redis and HTTP APIs, the system is designed for scalability, fault tolerance, and separation of concerns. This repository contains a multi-module Gradle project with multiple services that communicate via REST and Kafka.
+
+## 🆕 BioPage Feature
+
+Zaplink now includes a full-featured "Link in Bio" CMS similar to Linktree/Later, allowing users to:
+- Create customizable bio pages with unique usernames
+- Add and manage multiple types of links (website, social media, products, email, phone)
+- Support for product links with pricing and currency
+- Drag-and-drop link reordering
+- Theme customization
+- Public bio page rendering at `zap.link/{username}`
 
 ---
 
 ## Table of Contents
 
 - [High-Level Overview](#high-level-overview)
+- [BioPage Feature](#biopage-feature)
 - [Architecture](#architecture)
   - [Services](#services)
   - [Data Flow](#data-flow)
@@ -17,6 +28,7 @@ Zaplink is a microservices-based URL shortening platform built with Spring Boot,
   - [core Service](#core-service)
   - [Processor Service](#processor-service)
   - [Manager Service](#manager-service)
+  - [Redirect Service](#redirect-service)
   - [Service Registry](#service-registry)
 - [Local Development](#local-development)
   - [Prerequisites](#prerequisites)
@@ -28,9 +40,12 @@ Zaplink is a microservices-based URL shortening platform built with Spring Boot,
   - [core API](#core-api)
   - [Processor API](#processor-api)
   - [Manager API](#manager-api)
+  - [Redirect Service API](#redirect-service-api)
+  - [BioPage API](#biopage-api)
   - [Gateway Endpoints](#gateway-endpoints)
 - [Messaging (Kafka)](#messaging-kafka)
 - [Data Model](#data-model)
+- [BioPage Data Model](#biopage-data-model)
 - [Short URL Generation](#short-url-generation)
 - [Error Handling](#error-handling)
 - [Logging & Observability](#logging--observability)
@@ -47,6 +62,50 @@ Zaplink is a microservices-based URL shortening platform built with Spring Boot,
 
 Zaplink provides a short URL for a given long URL. The request is accepted by the core service, which publishes a message to Kafka. The processor service processes the message and coordinates with the Manager service to persist/cache mappings and return/serve the shortened URLs. The API Gateway routes requests to underlying services and centralizes external API access.
 
+In addition, Zaplink now provides a complete "Link in Bio" solution where users can create customizable bio pages with multiple links, similar to Linktree or Later.
+
+## BioPage Feature
+
+The BioPage feature transforms Zaplink into a full-featured Link in Bio CMS with the following capabilities:
+
+### Core Features
+- **Custom Bio Pages**: Users create pages with unique usernames (e.g., `zap.link/johndoe`)
+- **Multiple Link Types**: Support for website links, social media, products, email, and phone
+- **Product Commerce**: Product links with pricing and currency support (stubbed for future payment integration)
+- **Drag & Drop Reordering**: Intuitive link management with sort ordering
+- **Theme Customization**: JSON-based theme configuration for personalized appearance
+- **Public Rendering**: Beautiful public bio pages accessible via clean URLs
+
+### Technical Implementation
+- **Database**: PostgreSQL with Flyway migrations for `bio_pages` and `bio_links` tables
+- **APIs**: Complete CRUD operations in manager service
+- **Public Endpoint**: Redirect service provides `GET /v1/bio/{username}` 
+- **Frontend**: React-based management UI and public page rendering
+- **Validation**: Unique usernames, required fields, and data integrity
+
+### Data Structure
+```sql
+bio_pages:
+- id, username (unique), owner_id, theme_config, avatar_url, bio_text
+
+bio_links:
+- id, page_id, title, url, type, is_active, sort_order, price, currency
+```
+
+### Usage Examples
+```bash
+# Create bio page
+POST /api/v1/bio-pages
+{"username": "johndoe", "bio_text": "Software developer"}
+
+# Add product link
+POST /api/v1/bio-links
+{"page_id": 1, "title": "My Course", "type": "PRODUCT", "price": 99.99, "currency": "USD"}
+
+# Get public bio page
+GET /v1/bio/johndoe
+```
+
 
 ## Architecture
 
@@ -55,7 +114,8 @@ Zaplink provides a short URL for a given long URL. The request is accepted by th
 - api-gateway-service: Routes external requests to internal services (edge service).
 - zaplink-core-service: Accepts requests to create short URLs and emits Kafka events.
 - zaplink-processor-service: Listens to Kafka topics and processes short URL creation events.
-- zaplink-manager-service: Business logic for URL storage/lookup, Redis integration.
+- zaplink-manager-service: Business logic for URL storage/lookup, Redis integration, and BioPage management.
+- zaplink-redirect-service: High-performance redirects and public BioPage serving.
 - zaplink-service-registry: Eureka service registry for service discovery.
 
 ### Data Flow
@@ -289,6 +349,137 @@ Note: API Gateway can proxy to downstream services. The following lists primary 
 - `UrlController` exposes endpoints for URL management and resolution (inspect the controller for exact mappings). Typical endpoints include:
   - POST to generate/store a mapping
   - GET to resolve a short code to long URL
+
+### Redirect Service API
+
+- GET `/v1/bio/{username}`
+  - Path Parameter:
+    - `username`: string (unique bio page username)
+  - Response (JSON):
+    ```json
+    {
+      "username": "johndoe",
+      "avatar_url": "https://example.com/avatar.jpg",
+      "bio_text": "Software developer...",
+      "theme_config": "{\"primaryColor\": \"#3b82f6\"}",
+      "links": [
+        {
+          "title": "My Portfolio",
+          "url": "https://johndoe.dev",
+          "type": "LINK",
+          "is_active": true,
+          "sort_order": 0,
+          "price": null,
+          "currency": null
+        },
+        {
+          "title": "Premium Course",
+          "type": "PRODUCT",
+          "is_active": true,
+          "sort_order": 1,
+          "price": 99.99,
+          "currency": "USD"
+        }
+      ]
+    }
+    ```
+  - Status Codes:
+    - 200 OK on success
+    - 404 Not Found if username not found
+    - 5xx on service/internal errors
+
+### BioPage API
+
+#### BioPage Management (Manager Service)
+
+- POST `/api/v1/bio-pages`
+  - Request Body (JSON):
+    ```json
+    {
+      "username": "johndoe",
+      "owner_id": "user123",
+      "bio_text": "Software developer...",
+      "avatar_url": "https://example.com/avatar.jpg",
+      "theme_config": "{\"primaryColor\": \"#3b82f6\"}"
+    }
+    ```
+  - Response (JSON): Complete BioPage object with ID
+  - Status Codes: 201 Created, 400 Bad Request, 409 Conflict (username exists)
+
+- GET `/api/v1/bio-pages/{id}`
+  - Get bio page by ID
+  - Response: Complete BioPage object with links
+
+- GET `/api/v1/bio-pages/username/{username}`
+  - Get bio page by username (includes links)
+  - Response: Complete BioPage object with links
+
+- GET `/api/v1/bio-pages/owner/{ownerId}`
+  - Get all bio pages for an owner
+  - Response: Array of BioPage objects
+
+- PUT `/api/v1/bio-pages/{id}`
+  - Update bio page (bio_text, avatar_url, theme_config)
+  - Request Body: Update fields only
+  - Response: Updated BioPage object
+
+- DELETE `/api/v1/bio-pages/{id}`
+  - Delete bio page and all associated links
+  - Status Codes: 204 No Content
+
+#### BioLink Management (Manager Service)
+
+- POST `/api/v1/bio-links`
+  - Request Body (JSON):
+    ```json
+    {
+      "page_id": 1,
+      "title": "My Website",
+      "url": "https://example.com",
+      "type": "LINK",
+      "sort_order": 0,
+      "is_active": true
+    }
+    ```
+  - Product link example:
+    ```json
+    {
+      "page_id": 1,
+      "title": "My Course",
+      "type": "PRODUCT",
+      "price": 99.99,
+      "currency": "USD",
+      "sort_order": 1
+    }
+    ```
+
+- GET `/api/v1/bio-links/{id}`
+  - Get bio link by ID
+
+- GET `/api/v1/bio-links/page/{pageId}`
+  - Get all links for a page (sorted by sort_order)
+
+- GET `/api/v1/bio-links/page/{pageId}/active`
+  - Get only active links for a page
+
+- PUT `/api/v1/bio-links/{id}`
+  - Update bio link
+  - Request Body: Update fields only
+
+- DELETE `/api/v1/bio-links/{id}`
+  - Delete bio link
+
+- PUT `/api/v1/bio-links/page/{pageId}/reorder`
+  - Reorder links on a page
+  - Request Body:
+    ```json
+    {
+      "linkOrders": [
+        {"linkId": 1, "sortOrder": 0},
+        {"linkId": 2, "sortOrder": 1}
+      ]
+    }
+    ```
 
 ### Gateway Endpoints
 

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.zaplink.manager.dto.response.dynamicqr.DynamicQrResponse;
 import io.zaplink.manager.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.manager.dto.response.dynamicqr.QrAnalyticsResponse;
-import io.zaplink.manager.service.dynamicqr.DynamicQrService;
+import io.zaplink.manager.service.DynamicQrService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

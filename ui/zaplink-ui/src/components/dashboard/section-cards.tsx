@@ -9,8 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { DollarSign, Link2, MousePointerClick, ScanLine } from "lucide-react"
+import { DollarSign, Link2, MousePointerClick, ScanLine, FileText, ArrowRight } from "lucide-react"
 import { DashboardStats } from "@/hooks/useDashboardData"
+import Link from "next/link"
 
 interface SectionCardsProps {
   stats: DashboardStats;
@@ -52,14 +53,21 @@ export function SectionCards({ stats }: SectionCardsProps) {
       }
     },
     {
-      title: "Avg. Clicks/Link",
-      value: stats.totalLinks > 0 ? Math.round(stats.totalClicks / stats.totalLinks) : 0,
-      change: "+5.2%",
-      icon: <DollarSign className="size-5 text-yellow-500" />,
+      title: "Bio Pages",
+      value: stats.bioPages || "0",
+      change: "Manage",
+      icon: <FileText className="size-5 text-green-500" />,
+      action: (
+        <Link href="/dashboard/bio-page">
+          <CardAction className="absolute top-2 right-2 p-1 hover:bg-primary/10">
+            <ArrowRight className="size-4" />
+          </CardAction>
+        </Link>
+      ),
       shortDetail: {
-        heading: "Engagement",
-        icon: <IconTrendingUp className="size-4 text-green-500" />,
-        info: "Average clicks per link"
+        heading: "Manage Pages",
+        icon: <ArrowRight className="size-4 text-green-500" />,
+        info: "Create and manage bio pages"
       }
     }
   ]
@@ -68,6 +76,7 @@ export function SectionCards({ stats }: SectionCardsProps) {
       {
         cards.map((stat, index) => (
           <Card key={index} className="relative overflow-hidden border-border/50 bg-background/50 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_0_20px_-12px_var(--color-primary)] transition-all duration-300">
+            {stat.action && stat.action}
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             <CardHeader className="pb-2">
               <CardDescription className="font-medium">{stat.title}</CardDescription>
