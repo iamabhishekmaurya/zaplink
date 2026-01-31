@@ -15,14 +15,35 @@ import org.springframework.web.context.request.WebRequest;
 
 import io.zaplink.core.dto.error.ErrorResponse;
 import io.zaplink.core.dto.error.FieldError;
+import io.zaplink.core.common.constants.LogConstants;
+import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Global exception handler for Core Service.
+ * Provides centralized error handling with consistent error responses.
+ * Enhanced with comprehensive logging and structured error responses.
+ * 
+ * @author Zaplink Team
+ * @version 1.0
+ * @since 2026-01-31
+ */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
+        /**
+         * Handles validation exceptions for request body validation failures.
+         * 
+         * @param ex The validation exception
+         * @param request The web request
+         * @return Error response with validation details
+         */
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<Object> handleValidationExceptions( MethodArgumentNotValidException ex,
                                                                   WebRequest request )
         {
+                log.warn("Validation failed: {}", ex.getBindingResult().getAllErrors());
+                
                 // Check if request wants OpenMetrics format (for Prometheus)
                 String acceptHeader = request.getHeader( HttpHeaders.ACCEPT );
                 if ( acceptHeader != null && acceptHeader.contains( "application/openmetrics-text" ) )
@@ -43,9 +64,70 @@ public class GlobalExceptionHandler
                 return ResponseEntity.badRequest().contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
         }
 
+        /**
+         * Handles resource not found exceptions.
+         * 
+         * @param ex The resource not found exception
+         * @param request The web request
+         * @return Error response
+         */
+        @ExceptionHandler(ResourceNotFoundException.class)
+        public ResponseEntity<Object> handleResourceNotFoundException(
+                ResourceNotFoundException ex, WebRequest request) {
+                
+                log.error("Resource not found: {}", ex.getMessage());
+                
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now().toString())
+                        .status(HttpStatus.NOT_FOUND.name())
+                        .message(ex.getMessage())
+                        .path(request.getDescription(false).replace("uri=", ""))
+                        .fieldErrors(List.of())
+                        .build();
+                
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(errorResponse);
+        }
+
+        /**
+         * Handles business logic exceptions.
+         * 
+         * @param ex The business exception
+         * @param request The web request
+         * @return Error response
+         */
+        @ExceptionHandler(BusinessException.class)
+        public ResponseEntity<Object> handleBusinessException(
+                BusinessException ex, WebRequest request) {
+                
+                log.error("Business rule violation: {}", ex.getMessage());
+                
+                ErrorResponse errorResponse = ErrorResponse.builder()
+                        .timestamp(LocalDateTime.now().toString())
+                        .status(HttpStatus.UNPROCESSABLE_ENTITY.name())
+                        .message(ex.getMessage())
+                        .path(request.getDescription(false).replace("uri=", ""))
+                        .fieldErrors(List.of())
+                        .build();
+                
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(errorResponse);
+        }
+
+        /**
+         * Handles all other exceptions.
+         * 
+         * @param ex The exception
+         * @param request The web request
+         * @return Error response
+         */
         @ExceptionHandler(Exception.class)
         public ResponseEntity<Object> handleGlobalException( Exception ex, WebRequest request )
         {
+                log.error("Unexpected error occurred", ex);
+                
                 // Check if request wants OpenMetrics format (for Prometheus)
                 String acceptHeader = request.getHeader( HttpHeaders.ACCEPT );
                 if ( acceptHeader != null && acceptHeader.contains( "application/openmetrics-text" ) )

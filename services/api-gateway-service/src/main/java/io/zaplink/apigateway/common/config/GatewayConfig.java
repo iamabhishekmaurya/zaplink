@@ -46,20 +46,56 @@ public class GatewayConfig
                                  * Core Service BioPage Write Routes (CQRS Command Side)
                                  * Port: 8081
                                  */
-                                .route( "core-biopage-write",
-                                        r -> r.path( writePath + "/bio-pages/**" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.rewritePath( writePath + "/bio-pages/(?<segment>.*)",
-                                                                                      "/core/bio-pages/${segment}" ) )
-                                                        .uri( "http://localhost:8081" ) )
+                                .route( "core-biopage-write", r -> r.path( writePath + "/bio-pages/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( writePath + "/bio-pages/(?<segment>.*)",
+                                                                              "/core/bio-pages/${segment}" ) )
+                                                .uri( "http://localhost:8081" ) )
                                 /**
-                                 * Core Service BioLink Write Routes (CQRS Command Side)
+                                 * Core Service Team Management Routes (Write Operations)
                                  * Port: 8081
                                  */
-                                .route( "core-biolink-write",
-                                        r -> r.path( writePath + "/bio-links/**" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.rewritePath( writePath + "/bio-links/(?<segment>.*)",
-                                                                                      "/core/bio-links/${segment}" ) )
-                                                        .uri( "http://localhost:8081" ) )
+                                .route( "core-team-write", r -> r.path( writePath + "/teams/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( writePath + "/teams/(?<segment>.*)",
+                                                                              "/api/teams/${segment}" ) )
+                                                .uri( "http://localhost:8081" ) )
+                                /**
+                                 * Core Service Workflow Routes (Write Operations)
+                                 * Port: 8081
+                                 */
+                                .route( "core-workflow-write", r -> r.path( writePath + "/workflow/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( writePath + "/workflow/(?<segment>.*)",
+                                                                              "/api/workflow/${segment}" ) )
+                                                .uri( "http://localhost:8081" ) )
+                                /**
+                                 * Manager Service Team Query Routes (Read Operations)
+                                 * Port: 8083
+                                 */
+                                .route( "manager-team-read", r -> r.path( readPath + "/teams/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( readPath + "/teams/(?<segment>.*)",
+                                                                              "/api/teams/${segment}" ) )
+                                                .uri( "http://localhost:8083" ) )
+                                /**
+                                 * Manager Service Workflow Query Routes (Read Operations)
+                                 * Port: 8083
+                                 */
+                                .route( "manager-workflow-read", r -> r.path( readPath + "/workflow/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( readPath + "/workflow/(?<segment>.*)",
+                                                                              "/api/workflow/${segment}" ) )
+                                                .uri( "http://localhost:8083" ) )
+                                /**
+                                 * Manager Service Influencer Routes (Read Operations)
+                                 * Port: 8083
+                                 */
+                                .route( "manager-influencer-read", r -> r.path( readPath + "/influencers/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( readPath + "/influencers/(?<segment>.*)",
+                                                                              "/api/influencers/${segment}" ) )
+                                                .uri( "http://localhost:8083" ) )
                                 .route( "manager-dynamic-qr-write", r -> r.path( writePath + "/dyqr/**" ).and()
                                                 .header( "X-API-Version", "1" )
                                                 .filters( f -> f.rewritePath( writePath + "/dyqr/(?<segment>.*)",
@@ -90,20 +126,20 @@ public class GatewayConfig
                                  * Manager Service BioPage Read Routes (CQRS Query Side)
                                  * Port: 8083
                                  */
-                                .route( "manager-biopage-read",
-                                        r -> r.path( readPath + "/bio-pages/**" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.rewritePath( readPath + "/bio-pages/(?<segment>.*)",
-                                                                                      "/bio-pages/${segment}" ) )
-                                                        .uri( "http://localhost:8083" ) )
+                                .route( "manager-biopage-read", r -> r.path( readPath + "/bio-pages/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( readPath + "/bio-pages/(?<segment>.*)",
+                                                                              "/bio-pages/${segment}" ) )
+                                                .uri( "http://localhost:8083" ) )
                                 /**
                                  * Manager Service BioLink Read Routes (CQRS Query Side)
                                  * Port: 8083
                                  */
-                                .route( "manager-biolink-read",
-                                        r -> r.path( readPath + "/bio-links/**" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.rewritePath( readPath + "/bio-links/(?<segment>.*)",
-                                                                                      "/bio-links/${segment}" ) )
-                                                        .uri( "http://localhost:8083" ) )
+                                .route( "manager-biolink-read", r -> r.path( readPath + "/bio-links/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( readPath + "/bio-links/(?<segment>.*)",
+                                                                              "/bio-links/${segment}" ) )
+                                                .uri( "http://localhost:8083" ) )
                                 /**
                                  * Redirect Service Routes (High-performance redirects)
                                  * Port: 8085
@@ -125,12 +161,12 @@ public class GatewayConfig
                                  * Port: 8085
                                  */
                                 .route( "redirect-bio-page",
-                                        r -> r.path( "/v1/bio/**" )
-                                                .filters( f -> f.rewritePath( "/v1/bio/(?<username>.*)", "/v1/bio/${username}" )
-                                                                .addResponseHeader( "X-Zaplink-Processing-Time",
-                                                                                    LocalDateTime.now().toString() )
-                                                                .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
-                                                .uri( "http://localhost:8085" ) )
+                                        r -> r.path( "/v1/bio/**" ).filters( f -> f
+                                                        .rewritePath( "/v1/bio/(?<username>.*)", "/v1/bio/${username}" )
+                                                        .addResponseHeader( "X-Zaplink-Processing-Time",
+                                                                            LocalDateTime.now().toString() )
+                                                        .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
+                                                        .uri( "http://localhost:8085" ) )
                                 /**
                                  * Auth Service Routes
                                  * Port: 8084

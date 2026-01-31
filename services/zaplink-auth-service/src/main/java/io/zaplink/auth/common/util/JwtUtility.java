@@ -41,15 +41,48 @@ public class JwtUtility
     }
 
     /**
-     * Generates JWT claims for a user.
+     * Generates JWT claims for a user with organization and role information.
      * 
      * @param user The user to generate claims for
      * @return Map of JWT claims
      */
     public Map<String, Object> generateJwtClaims( User user )
     {
-        return Map.of( SecurityConstants.CLAIM_USER_ID, user.getId(), SecurityConstants.CLAIM_USERNAME,
-                       user.getUsername() );
+        Map<String, Object> claims = new java.util.HashMap<>();
+        claims.put( SecurityConstants.CLAIM_USER_ID, user.getId() );
+        claims.put( SecurityConstants.CLAIM_USERNAME, user.getUsername() );
+        
+        // Add organization and role information if available
+        // This will be populated during login from team membership
+        claims.put( SecurityConstants.CLAIM_ORG_ID, 1L ); // Default org for now
+        claims.put( SecurityConstants.CLAIM_ROLE, SecurityConstants.ROLE_USER ); // Default role
+        
+        return claims;
+    }
+
+    /**
+     * Generates JWT claims for a user with custom organization and role.
+     * 
+     * @param user The user to generate claims for
+     * @param orgId The organization ID
+     * @param role The user role
+     * @param teamId The team ID (optional)
+     * @return Map of JWT claims
+     */
+    public Map<String, Object> generateJwtClaims( User user, Long orgId, String role, Long teamId )
+    {
+        Map<String, Object> claims = new java.util.HashMap<>();
+        claims.put( SecurityConstants.CLAIM_USER_ID, user.getId() );
+        claims.put( SecurityConstants.CLAIM_USERNAME, user.getUsername() );
+        claims.put( SecurityConstants.CLAIM_ORG_ID, orgId );
+        claims.put( SecurityConstants.CLAIM_ROLE, role );
+        
+        if ( teamId != null )
+        {
+            claims.put( SecurityConstants.CLAIM_TEAM_ID, teamId );
+        }
+        
+        return claims;
     }
 
     /**

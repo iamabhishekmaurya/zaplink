@@ -17,7 +17,10 @@ import {
   Image as ImageIcon,
   CalendarDays,
   FileText,
-  Plus
+  Plus,
+  Users,
+  Workflow,
+  Target
 } from "lucide-react"
 import * as React from "react"
 
@@ -133,6 +136,47 @@ const data = {
           url: "/dashboard/media",
         }
       ]
+    },
+    {
+      title: "Team Management",
+      url: "/dashboard/team-management",
+      icon: Users,
+      items: [
+        {
+          title: "Team Members",
+          url: "/dashboard/team-management",
+        },
+        {
+          title: "Workflow",
+          url: "/dashboard/workflow-management",
+        },
+      ],
+    },
+    {
+      title: "Workflow",
+      url: "/dashboard/workflow-management",
+      icon: Workflow,
+      items: [
+        {
+          title: "My Posts",
+          url: "/dashboard/workflow-management",
+        },
+        {
+          title: "Pending Approval",
+          url: "/dashboard/workflow-management?tab=pending",
+        },
+      ],
+    },
+    {
+      title: "Influencer",
+      url: "/dashboard/influencer-management",
+      icon: Target,
+      items: [
+        {
+          title: "My Campaigns",
+          url: "/dashboard/influencer-management",
+        },
+      ],
     },
     {
       title: "Calendar",

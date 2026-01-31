@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.zaplink.manager.client.CoreServiceClient;
+import io.zaplink.manager.common.client.CoreServiceClient;
 import io.zaplink.manager.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.manager.dto.request.qr.QRConfig;
 import io.zaplink.manager.dto.response.dynamicqr.DynamicQrResponse;

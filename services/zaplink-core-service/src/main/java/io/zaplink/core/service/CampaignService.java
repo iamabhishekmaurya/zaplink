@@ -1,6 +1,6 @@
 package io.zaplink.core.service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -8,8 +8,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.zaplink.core.common.enums.CampaignStatusEnum;
-import io.zaplink.core.entity.QrCampaignEntity;
+import io.zaplink.core.common.enums.CampaignStatus;
+import io.zaplink.core.common.enums.CampaignType;
+import io.zaplink.core.entity.Campaign;
 import io.zaplink.core.repository.QrCampaignRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,83 +19,99 @@ import lombok.extern.slf4j.Slf4j;
 public class CampaignService
 {
     private final QrCampaignRepository campaignRepository;
+    
     @Transactional
-    public QrCampaignEntity createCampaign( String campaignName, String userEmail, String description )
+    public Campaign createQrCampaign(String campaignName, String userEmail, String description, Long organizationId)
     {
         String campaignId = generateCampaignId();
-        QrCampaignEntity campaign = QrCampaignEntity.builder().campaignId( campaignId ).campaignName( campaignName )
-                .userEmail( userEmail ).description( description ).status( CampaignStatusEnum.ACTIVE )
-                .createdAt( LocalDateTime.now() ).updatedAt( LocalDateTime.now() ).build();
-        campaign = campaignRepository.save( campaign );
-        log.info( "Created campaign: {} for user: {}", campaignId, userEmail );
+        Campaign campaign = Campaign.createQrCampaign(campaignId, campaignName, userEmail, description, organizationId);
+        campaign = campaignRepository.save(campaign);
+        log.info("Created QR campaign: {} for user: {}", campaignId, userEmail);
+        return campaign;
+    }
+    
+    @Transactional
+    public Campaign createGeneralCampaign(String name, String description, Long organizationId, Long createdBy)
+    {
+        Campaign campaign = Campaign.createGeneralCampaign(name, description, organizationId, createdBy);
+        campaign = campaignRepository.save(campaign);
+        log.info("Created general campaign: {} for organization: {}", name, organizationId);
         return campaign;
     }
 
-    public Optional<QrCampaignEntity> getCampaign( String campaignId, String userEmail )
+    public Optional<Campaign> getCampaign(String campaignId, String userEmail)
     {
-        return campaignRepository.findByCampaignId( campaignId )
-                .filter( campaign -> campaign.getUserEmail().equals( userEmail ) );
+        return campaignRepository.findByCampaignId(campaignId)
+                .filter(campaign -> campaign.getUserEmail() != null && campaign.getUserEmail().equals(userEmail));
     }
 
-    public List<QrCampaignEntity> getCampaignsByUser( String userEmail )
+    public List<Campaign> getCampaignsByUser(String userEmail)
     {
-        return campaignRepository.findByUserEmail( userEmail );
+        return campaignRepository.findByUserEmail(userEmail);
+    }
+    
+    public List<Campaign> getQrCampaignsByUser(String userEmail)
+    {
+        return campaignRepository.findByTypeAndUserEmail(CampaignType.QR_CODE, userEmail);
+    }
+    
+    public List<Campaign> getActiveQrCampaignsByUser(String userEmail)
+    {
+        return campaignRepository.findActiveQrCampaignsByUserEmail(userEmail);
     }
 
     @Transactional
-    public Optional<QrCampaignEntity> updateCampaign( String campaignId,
-                                                      String userEmail,
-                                                      String campaignName,
-                                                      String description )
+    public Optional<Campaign> updateCampaign(String campaignId,
+                                             String userEmail,
+                                             String campaignName,
+                                             String description)
     {
-        Optional<QrCampaignEntity> campaignOpt = campaignRepository.findByCampaignId( campaignId );
-        if ( campaignOpt.isEmpty() || !campaignOpt.get().getUserEmail().equals( userEmail ) )
+        Optional<Campaign> campaignOpt = campaignRepository.findByCampaignId(campaignId);
+        if (campaignOpt.isEmpty() || !campaignOpt.get().getUserEmail().equals(userEmail))
         {
             return Optional.empty();
         }
-        QrCampaignEntity campaign = campaignOpt.get();
-        campaign.setCampaignName( campaignName );
-        campaign.setDescription( description );
-        campaign.setUpdatedAt( LocalDateTime.now() );
-        campaign = campaignRepository.save( campaign );
-        log.info( "Updated campaign: {} by user: {}", campaignId, userEmail );
-        return Optional.of( campaign );
+        Campaign campaign = campaignOpt.get();
+        campaign.setName(campaignName);
+        campaign.setDescription(description);
+        campaign = campaignRepository.save(campaign);
+        log.info("Updated campaign: {} by user: {}", campaignId, userEmail);
+        return Optional.of(campaign);
     }
 
     @Transactional
-    public boolean deleteCampaign( String campaignId, String userEmail )
+    public boolean deleteCampaign(String campaignId, String userEmail)
     {
-        Optional<QrCampaignEntity> campaignOpt = campaignRepository.findByCampaignId( campaignId );
-        if ( campaignOpt.isEmpty() || !campaignOpt.get().getUserEmail().equals( userEmail ) )
+        Optional<Campaign> campaignOpt = campaignRepository.findByCampaignId(campaignId);
+        if (campaignOpt.isEmpty() || !campaignOpt.get().getUserEmail().equals(userEmail))
         {
             return false;
         }
-        campaignRepository.delete( campaignOpt.get() );
-        log.info( "Deleted campaign: {} by user: {}", campaignId, userEmail );
+        campaignRepository.delete(campaignOpt.get());
+        log.info("Deleted campaign: {} by user: {}", campaignId, userEmail);
         return true;
     }
 
     @Transactional
-    public boolean toggleCampaignStatus( String campaignId, String userEmail )
+    public boolean toggleCampaignStatus(String campaignId, String userEmail)
     {
-        Optional<QrCampaignEntity> campaignOpt = campaignRepository.findByCampaignId( campaignId );
-        if ( campaignOpt.isEmpty() || !campaignOpt.get().getUserEmail().equals( userEmail ) )
+        Optional<Campaign> campaignOpt = campaignRepository.findByCampaignId(campaignId);
+        if (campaignOpt.isEmpty() || !campaignOpt.get().getUserEmail().equals(userEmail))
         {
             return false;
         }
-        QrCampaignEntity campaign = campaignOpt.get();
+        Campaign campaign = campaignOpt.get();
         // Toggle between ACTIVE and INACTIVE
-        if ( campaign.getStatus() == CampaignStatusEnum.ACTIVE )
+        if (CampaignStatus.ACTIVE.equals(campaign.getStatus()))
         {
-            campaign.setStatus( CampaignStatusEnum.INACTIVE );
+            campaign.setStatus(CampaignStatus.INACTIVE);
         }
         else
         {
-            campaign.setStatus( CampaignStatusEnum.ACTIVE );
+            campaign.setStatus(CampaignStatus.ACTIVE);
         }
-        campaign.setUpdatedAt( LocalDateTime.now() );
-        campaignRepository.save( campaign );
-        log.info( "Toggled status for campaign: {} to {} by user: {}", campaignId, campaign.getStatus(), userEmail );
+        campaignRepository.save(campaign);
+        log.info("Toggled status for campaign: {} to {} by user: {}", campaignId, campaign.getStatus(), userEmail);
         return true;
     }
 

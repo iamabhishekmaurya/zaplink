@@ -19,6 +19,10 @@ public final class SecurityConstants
     // ==================== ROLES ====================
     public static final String ROLE_USER           = "USER";
     public static final String ROLE_ADMIN          = "ADMIN";
+    public static final String ROLE_EDITOR         = "EDITOR";
+    public static final String ROLE_APPROVER       = "APPROVER";
+    public static final String ROLE_VIEWER         = "VIEWER";
+    public static final String ROLE_INFLUENCER     = "INFLUENCER";
     public static final String ROLE_PREFIX         = "ROLE_";
     public static final String OP_SEARCH_USER_ID   = "Searching user by id: {}";
     // ==================== ATTRIBUTES ====================
@@ -27,4 +31,7 @@ public final class SecurityConstants
     public static final String TOKEN_TYPE_BEARER   = "Bearer ";
     public static final String CLAIM_USER_ID       = "userId";
     public static final String CLAIM_USERNAME      = "username";
+    public static final String CLAIM_ORG_ID        = "orgId";
+    public static final String CLAIM_ROLE          = "role";
+    public static final String CLAIM_TEAM_ID       = "teamId";
 }
