@@ -120,5 +120,5 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
            "JOIN Team t ON tm.teamId = t.id " +
            "WHERE t.organizationId = :organizationId AND tm.status = 'ACTIVE'")
     List<TeamMember> findByOrganizationIdAndStatus(@Param("organizationId") Long organizationId, 
-                                                  String status);
+                                                  @Param("status") String status);
 }
