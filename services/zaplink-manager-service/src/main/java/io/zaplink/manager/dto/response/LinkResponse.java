@@ -1,21 +1,23 @@
 package io.zaplink.manager.dto.response;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.zaplink.manager.common.enums.UrlStatusEnum;
 import io.zaplink.manager.dto.RedirectRuleDto;
 
-public record LinkResponse( @JsonProperty("id") Long id,
+public record LinkResponse( Long id,
                             @JsonProperty("short_url_key") String shortUrlKey,
                             @JsonProperty("original_url") String originalUrl,
                             @JsonProperty("short_url") String shortUrl,
-                            @JsonProperty("created_at") LocalDateTime createdAt,
+                            @JsonProperty("created_at") @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "UTC") LocalDateTime createdAt,
                             @JsonProperty("click_count") Long clickCount,
-                            @JsonProperty("status") UrlStatusEnum status,
-                            @JsonProperty("rules") List<RedirectRuleDto> rules,
-                            @JsonProperty("tags") List<String> tags )
+                            UrlStatusEnum status,
+                            List<RedirectRuleDto> rules,
+                            List<String> tags )
 {
 }

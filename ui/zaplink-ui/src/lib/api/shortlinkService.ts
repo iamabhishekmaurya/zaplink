@@ -3,12 +3,12 @@ import { API_ENDPOINTS } from '@/lib/constants/apiConstant';
 import { ShortLink } from '@/lib/types/apiRequestType';
 
 export interface StatsResponse {
-  totalLinks: number;
-  totalClicks: number;
-  activelinks: number;
-  topRegion: string;
-  avgCtr: number;
-  clickTrend: { name: string; value: number }[];
+  total_links: number;
+  total_clicks: number;
+  active_links: number;
+  top_region: string;
+  avg_ctr: number;
+  click_trend: { name: string; value: number }[];
   referrers: { name: string; value: number | string }[];
 }
 

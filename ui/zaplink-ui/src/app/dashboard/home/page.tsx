@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
 import { RotateCw } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 const HomePage = () => {
   const [isLoading, setIsLoading] = useState(true)

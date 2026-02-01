@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { shortlinkService, StatsResponse } from '@/lib/api/shortlinkService';
 import { DynamicQrService } from '@/lib/api/dynamicQr';
 import { ShortLink, DynamicQrResponse } from '@/lib/types/apiRequestType';
+import { log } from 'console';
 
 export interface DashboardStats {
     totalLinks: number;
@@ -60,11 +61,10 @@ export function useDashboardData() {
                 ]);
 
                 const qrs = qrsPage.content || [];
-
                 // 1. Calculate Basic Stats
                 const totalLinks = links.length;
                 const activeLinks = links.filter(l => l.isActive).length;
-                const totalClicks = statsData.totalClicks || links.reduce((acc, l) => acc + (l.clicks || 0), 0);
+                const totalClicks = statsData.total_clicks || links.reduce((acc, l) => acc + (l.clicks || 0), 0);
 
                 const totalQrs = qrsPage.totalElements || qrs.length;
                 const totalScans = qrs.reduce((acc, q) => acc + (q.totalScans || 0), 0);
@@ -120,12 +120,50 @@ export function useDashboardData() {
                 }
 
                 links.forEach(l => {
-                    const dateKey = new Date(l.createdAt).toISOString().split('T')[0];
+                    // Robust date parsing with fallback
+                    let dateKey: string;
+                    try {
+                        const date = new Date(l.createdAt);
+                        if (isNaN(date.getTime())) {
+                            // If invalid date, try parsing as string format
+                            const fallbackDate = new Date(l.createdAt.replace(' ', 'T'));
+                            if (isNaN(fallbackDate.getTime())) {
+                                console.warn('Invalid date format:', l.createdAt);
+                                return; // Skip this entry
+                            }
+                            dateKey = fallbackDate.toISOString().split('T')[0];
+                        } else {
+                            dateKey = date.toISOString().split('T')[0];
+                        }
+                    } catch (error) {
+                        console.warn('Date parsing error:', error, l.createdAt);
+                        return; // Skip this entry
+                    }
+
                     if (historyMap[dateKey]) historyMap[dateKey].links++;
                 });
 
                 qrs.forEach(q => {
-                    const dateKey = new Date(q.createdAt).toISOString().split('T')[0];
+                    // Robust date parsing with fallback
+                    let dateKey: string;
+                    try {
+                        const date = new Date(q.createdAt);
+                        if (isNaN(date.getTime())) {
+                            // If invalid date, try parsing as string format
+                            const fallbackDate = new Date(q.createdAt.replace(' ', 'T'));
+                            if (isNaN(fallbackDate.getTime())) {
+                                console.warn('Invalid date format:', q.createdAt);
+                                return; // Skip this entry
+                            }
+                            dateKey = fallbackDate.toISOString().split('T')[0];
+                        } else {
+                            dateKey = date.toISOString().split('T')[0];
+                        }
+                    } catch (error) {
+                        console.warn('Date parsing error:', error, q.createdAt);
+                        return; // Skip this entry
+                    }
+
                     if (historyMap[dateKey]) historyMap[dateKey].qrs++;
                 });
 
@@ -139,7 +177,7 @@ export function useDashboardData() {
 
                 // 5. Visitor Trend (from StatsResponse)
                 // Map backend clickTrend to chart format
-                const visitorTrend = (statsData.clickTrend || []).map((item: { name: string; value: number }) => ({
+                const visitorTrend = (statsData.click_trend || []).map((item: { name: string; value: number }) => ({
                     date: item.name,
                     visitors: item.value
                 }));
@@ -156,7 +194,7 @@ export function useDashboardData() {
                     totalClicks,
                     totalQrs,
                     totalScans,
-                    bioPages: statsData.bioPages || 0,
+                    bioPages: 0, // Not available in statsData
                     isLoading: false,
                     error: null,
                     isNetworkError: false,
@@ -164,8 +202,8 @@ export function useDashboardData() {
                     platformDistribution,
                     creationHistory,
                     visitorTrend,
-                    avgCtr: statsData.avgCtr || 0,
-                    topRegion: statsData.topRegion || 'Unknown',
+                    avgCtr: statsData.avg_ctr || 0,
+                    topRegion: statsData.top_region || 'Unknown',
                     referrers,
                     refetch
                 });

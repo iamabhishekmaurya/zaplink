@@ -72,7 +72,7 @@ class BioPageService {
   private readonly baseUrl = '/api/v1';
 
   // ========== BioPage Write Operations (Core Service) ==========
-  
+
   async createBioPage(request: CreateBioPageRequest): Promise<BioPage> {
     const response = await apiClient.post(`${this.baseUrl}/wr/bio-pages`, request);
     return response.data;
@@ -88,7 +88,7 @@ class BioPageService {
   }
 
   // ========== BioPage Read Operations (Manager Service) ==========
-  
+
   async getBioPageById(id: string): Promise<BioPage> {
     const response = await apiClient.get(`${this.baseUrl}/rd/bio-pages/${id}`);
     return response.data;
@@ -110,7 +110,7 @@ class BioPageService {
   }
 
   // ========== BioLink Write Operations (Core Service) ==========
-  
+
   async createBioLink(request: CreateBioLinkRequest): Promise<BioLink> {
     const response = await apiClient.post(`${this.baseUrl}/wr/bio-links`, request);
     return response.data;
@@ -130,7 +130,7 @@ class BioPageService {
   }
 
   // ========== BioLink Read Operations (Manager Service) ==========
-  
+
   async getBioLinkById(id: number): Promise<BioLink> {
     const response = await apiClient.get(`${this.baseUrl}/rd/bio-links/${id}`);
     return response.data;
@@ -152,7 +152,7 @@ class BioPageService {
   }
 
   // ========== Public Bio Page (Redirect Service) ==========
-  
+
   async getPublicBioPage(username: string): Promise<BioPage> {
     const response = await apiClient.get(`/v1/bio/${username}`);
     return response.data;

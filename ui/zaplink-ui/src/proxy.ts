@@ -3,7 +3,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     let token = request.cookies.get('token')?.value;
 
     // Check for "bad" token strings that might be stuck in cookies

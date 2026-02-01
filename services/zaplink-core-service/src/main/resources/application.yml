@@ -1,6 +1,11 @@
 server:
     port: 8081
 
+# gRPC Server Configuration
+grpc:
+  server:
+    port: 50051
+
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}

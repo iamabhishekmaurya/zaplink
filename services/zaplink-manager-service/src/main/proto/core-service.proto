@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package io.zaplink.core;
+
+option java_package = "io.zaplink.core.grpc";
+option java_outer_classname = "CoreServiceProto";
+
+// Core Service gRPC definition
+service CoreService {
+  rpc GetUrlByUser(GetUrlByUserRequest) returns (GetUrlByUserResponse);
+  rpc GetUrlById(GetUrlByIdRequest) returns (GetUrlByIdResponse);
+  rpc GetUrlsByStatus(GetUrlsByStatusRequest) returns (GetUrlsByStatusResponse);
+}
+
+message GetUrlByUserRequest {
+  string user_email = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message GetUrlByUserResponse {
+  repeated UrlData urls = 1;
+  int32 total_count = 2;
+}
+
+message GetUrlByIdRequest {
+  string url_id = 1;
+}
+
+message GetUrlByIdResponse {
+  UrlData url = 1;
+}
+
+message GetUrlsByStatusRequest {
+  string status = 1;
+  string user_email = 2;
+}
+
+message GetUrlsByStatusResponse {
+  repeated UrlData urls = 1;
+}
+
+message UrlData {
+  string id = 1;
+  string short_url = 2;
+  string original_url = 3;
+  string user_email = 4;
+  string status = 5;
+  int64 click_count = 6;
+  string created_at = 7;
+  string updated_at = 8;
+  string title = 9;
+  string description = 10;
+  string qr_code_url = 11;
+}

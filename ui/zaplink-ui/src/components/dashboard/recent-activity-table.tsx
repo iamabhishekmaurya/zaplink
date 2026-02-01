@@ -21,6 +21,27 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+
+// Safe date parsing helper function
+const safeParseDate = (dateString: string): Date | null => {
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // Try parsing as string format (fallback for legacy format)
+            const fallbackDate = new Date(dateString.replace(' ', 'T'));
+            if (isNaN(fallbackDate.getTime())) {
+                console.warn('Invalid date format:', dateString);
+                return null;
+            }
+            return fallbackDate;
+        }
+        return date;
+    } catch (error) {
+        console.warn('Date parsing error:', error, dateString);
+        return null;
+    }
+};
+
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -89,7 +110,10 @@ export function RecentActivityTable({ items }: { items: DashboardStats['recentAc
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-muted-foreground text-sm">
-                                            {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                                            {(() => {
+                                                const parsedDate = safeParseDate(item.createdAt);
+                                                return parsedDate ? formatDistanceToNow(parsedDate, { addSuffix: true }) : 'Invalid date';
+                                            })()}
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-1">
