@@ -1,7 +1,7 @@
 import { allPosts } from '@/lib/blog-data';
 import { notFound } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
-import { FooterSection } from '@/components/landing/FooterSection';
+import { FooterSection } from '@/features/landing/ui/FooterSection';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Clock, Share2, Facebook, Twitter, Linkedin } from 'lucide-react';

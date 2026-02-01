@@ -1,15 +1,15 @@
 import Navbar from "@/components/layout/Navbar";
 
-import { BenefitsSection } from "@/components/landing/BenefitsSection";
-import { CTASection } from "@/components/landing/CTASection";
-import { FAQSection } from "@/components/landing/FAQSection";
-import { FooterSection } from "@/components/landing/FooterSection";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { PartnersSection } from "@/components/landing/PartnersSection";
-import { StatsSection } from "@/components/landing/StatsSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { FeatureShowcase } from "@/components/product/FeatureShowcase";
-import { IntegrationUniverse } from "@/components/product/IntegrationUniverse";
+import { BenefitsSection } from '@/features/landing/ui/BenefitsSection';
+import { CTASection } from '@/features/landing/ui/CTASection';
+import { FAQSection } from '@/features/landing/ui/FAQSection';
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import { HeroSection } from '@/features/landing/ui/HeroSection';
+import { PartnersSection } from '@/features/landing/ui/PartnersSection';
+import { StatsSection } from '@/features/landing/ui/StatsSection';
+import { TestimonialsSection } from '@/features/landing/ui/TestimonialsSection';
+import { FeatureShowcase } from '@/features/product/ui/FeatureShowcase';
+import { IntegrationUniverse } from '@/features/product/ui/IntegrationUniverse';
 
 export default function Home() {
   return (

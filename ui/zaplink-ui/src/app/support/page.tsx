@@ -1,10 +1,10 @@
 'use client';
 
 import Navbar from "@/components/layout/Navbar";
-import { FooterSection } from "@/components/landing/FooterSection";
-import { SupportHero } from "@/components/support/SupportHero";
-import { SupportOptions } from "@/components/support/SupportOptions";
-import { ContactSection } from "@/components/support/ContactSection";
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import { SupportHero } from '@/features/support/ui/SupportHero';
+import { SupportOptions } from '@/features/support/ui/SupportOptions';
+import { ContactSection } from '@/features/support/ui/ContactSection';
 
 export default function SupportPage() {
     return (

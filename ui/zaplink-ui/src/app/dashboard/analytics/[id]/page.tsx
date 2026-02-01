@@ -1,8 +1,8 @@
 'use client'
 
-import { AnalyticsDashboard, AnalyticsData } from '@/components/analytics/analytics-dashboard'
+import { AnalyticsDashboard, AnalyticsData } from '@/features/analytics/ui/analytics-dashboard'
 import { API_ENDPOINTS } from '@/lib/constants/apiConstant'
-import api from "@/lib/api/client";
+import api from '@/services/client';
 import { AlertCircle } from 'lucide-react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'

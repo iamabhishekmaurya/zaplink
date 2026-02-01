@@ -3,7 +3,7 @@ import { FormField } from '@/components/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Layers } from 'lucide-react'
-import { SmartRoutingRules } from '@/components/smart-routing/SmartRoutingRules'
+import { SmartRoutingRules } from '@/features/smart-routing/ui/SmartRoutingRules'
 import { RedirectRuleDto } from '@/lib/types/apiRequestType'
 
 export const SmartRulesTab = () => {

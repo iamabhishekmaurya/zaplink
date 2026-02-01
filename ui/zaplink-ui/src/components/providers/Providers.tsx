@@ -6,7 +6,8 @@ import { Provider } from "react-redux"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Toaster } from "@/components/ui/sonner"
 import store from "@/store/index"
-import { AuthInitializer } from "@/components/auth/AuthInitializer"
+import { AuthInitializer } from '@/features/auth/ui/AuthInitializer'
+import { AuthProvider } from "@/hooks/useAuth"
 
 interface ProvidersProps {
     children: React.ReactNode
@@ -31,11 +32,13 @@ export function Providers({ children }: ProvidersProps) {
     return (
         <QueryClientProvider client={queryClient}>
             <Provider store={store}>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                    <AuthInitializer />
-                    {children}
-                    <Toaster />
-                </ThemeProvider>
+                <AuthProvider>
+                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                        <AuthInitializer />
+                        {children}
+                        <Toaster />
+                    </ThemeProvider>
+                </AuthProvider>
             </Provider>
         </QueryClientProvider>
     )

@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { ExternalLink, Loader2, User } from "lucide-react"
+import { useParams } from "next/navigation"
+import { useEffect, useState } from "react"
 
 interface BioPageData {
   username: string
@@ -75,8 +75,8 @@ export default function BioPage() {
             <p className="text-muted-foreground mb-4">
               {error || "This bio page doesn't exist or has been removed."}
             </p>
-            <a 
-              href="/" 
+            <a
+              href="/"
               className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
             >
               Go Home
@@ -103,7 +103,7 @@ export default function BioPage() {
   }
 
   return (
-    <div 
+    <div
       className="min-h-screen"
       style={{ backgroundColor: theme.backgroundColor }}
     >
@@ -123,14 +123,14 @@ export default function BioPage() {
                   <User className="h-12 w-12 text-muted-foreground" />
                 </div>
               )}
-              <h1 
+              <h1
                 className="text-3xl font-bold mb-2"
                 style={{ color: theme.primaryColor }}
               >
                 @{bioData.username}
               </h1>
               {bioData.bio_text && (
-                <p 
+                <p
                   className="text-lg leading-relaxed"
                   style={{ color: theme.textColor }}
                 >
@@ -153,9 +153,9 @@ export default function BioPage() {
                         rel="noopener noreferrer"
                         className="block"
                       >
-                        <div 
+                        <div
                           className="p-4 rounded-lg border hover:shadow-md transition-all duration-200 transform hover:scale-[1.02] cursor-pointer"
-                          style={{ 
+                          style={{
                             borderColor: theme.primaryColor,
                             backgroundColor: theme.backgroundColor
                           }}
@@ -163,14 +163,14 @@ export default function BioPage() {
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span 
+                                <span
                                   className="font-semibold text-lg"
                                   style={{ color: theme.primaryColor }}
                                 >
                                   {link.title}
                                 </span>
-                                <Badge 
-                                  variant="secondary" 
+                                <Badge
+                                  variant="secondary"
                                   className="text-xs"
                                 >
                                   {link.type}
@@ -182,17 +182,17 @@ export default function BioPage() {
                                 </p>
                               )}
                             </div>
-                            <ExternalLink 
-                              className="h-5 w-5 flex-shrink-0" 
+                            <ExternalLink
+                              className="h-5 w-5 flex-shrink-0"
                               style={{ color: theme.primaryColor }}
                             />
                           </div>
                         </div>
                       </a>
                     ) : (
-                      <div 
+                      <div
                         className="p-4 rounded-lg border opacity-75"
-                        style={{ 
+                        style={{
                           borderColor: theme.primaryColor,
                           backgroundColor: theme.backgroundColor
                         }}
@@ -200,14 +200,14 @@ export default function BioPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span 
+                              <span
                                 className="font-semibold text-lg"
                                 style={{ color: theme.primaryColor }}
                               >
                                 {link.title}
                               </span>
-                              <Badge 
-                                variant="secondary" 
+                              <Badge
+                                variant="secondary"
                                 className="text-xs"
                               >
                                 {link.type}
@@ -228,7 +228,7 @@ export default function BioPage() {
 
             {bioData.links.filter(link => link.is_active).length === 0 && (
               <div className="text-center py-12">
-                <p 
+                <p
                   className="text-muted-foreground"
                   style={{ color: theme.textColor }}
                 >
@@ -241,8 +241,8 @@ export default function BioPage() {
             <div className="text-center mt-12 pt-8 border-t">
               <p className="text-sm text-muted-foreground">
                 Powered by{" "}
-                <a 
-                  href="/" 
+                <a
+                  href="/"
                   className="font-medium hover:underline"
                   style={{ color: theme.primaryColor }}
                 >

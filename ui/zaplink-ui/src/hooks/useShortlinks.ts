@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { shortlinkService } from '@/lib/api/shortlinkService';
+import { shortlinkService } from '@/services/shortlinkService';
 import { ShortLink } from '@/lib/types/apiRequestType';
 
 export const useShortlinks = () => {

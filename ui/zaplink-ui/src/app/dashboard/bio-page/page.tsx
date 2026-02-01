@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { BioPageManager } from "@/components/bio-page/bio-page-manager"
+import { BioPageManager } from '@/features/bio-page/ui/bio-page-manager'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BioPagePreview } from "@/components/bio-page/bio-page-preview"
-import { BioPageSettings } from "@/components/bio-page/bio-page-settings"
+import { BioPagePreview } from '@/features/bio-page/ui/bio-page-preview'
+import { BioPageSettings } from '@/features/bio-page/ui/bio-page-settings'
 
 export default function BioPagePage() {
   const [activeTab, setActiveTab] = useState("manage")

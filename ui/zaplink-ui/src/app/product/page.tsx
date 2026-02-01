@@ -1,10 +1,10 @@
 import Navbar from "@/components/layout/Navbar";
-import { FooterSection } from "@/components/landing/FooterSection";
-import { CTASection } from "@/components/landing/CTASection";
-import { ProductHero } from "@/components/product/ProductHero";
-import { FeatureShowcase } from "@/components/product/FeatureShowcase";
-import { AnalyticsDeepDive } from "@/components/product/AnalyticsDeepDive";
-import { IntegrationUniverse } from "@/components/product/IntegrationUniverse";
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import { CTASection } from '@/features/landing/ui/CTASection';
+import { ProductHero } from '@/features/product/ui/ProductHero';
+import { FeatureShowcase } from '@/features/product/ui/FeatureShowcase';
+import { AnalyticsDeepDive } from '@/features/product/ui/AnalyticsDeepDive';
+import { IntegrationUniverse } from '@/features/product/ui/IntegrationUniverse';
 
 export default function ProductPage() {
     return (

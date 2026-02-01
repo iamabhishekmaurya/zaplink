@@ -12,13 +12,13 @@ import {
     defaultDropAnimationSideEffects,
     DropAnimation
 } from '@dnd-kit/core';
-import { MediaSidebar } from '@/components/calendar/MediaSidebar';
-import { SchedulerCalendar } from '@/components/calendar/SchedulerCalendar';
-import { PostComposer } from '@/components/calendar/PostComposer';
-import { ScheduledPost, schedulerApi, MediaAsset, CreatePostRequest, UpdatePostRequest } from '@/lib/api/scheduler';
+import { MediaSidebar } from '@/features/calendar/ui/MediaSidebar';
+import { SchedulerCalendar } from '@/features/calendar/ui/SchedulerCalendar';
+import { PostComposer } from '@/features/calendar/ui/PostComposer';
+import { ScheduledPost, schedulerApi, MediaAsset, CreatePostRequest, UpdatePostRequest } from '@/services/scheduler';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { ScheduledPostCard } from '@/components/calendar/ScheduledPostCard';
+import { ScheduledPostCard } from '@/features/calendar/ui/ScheduledPostCard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 

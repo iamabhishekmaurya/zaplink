@@ -1,6 +1,6 @@
 "use client"
 
-import { InfluencerManagement } from "@/components/dashboard/influencer-management"
+import { InfluencerManagement } from '@/features/dashboard/ui/influencer-management'
 import { useAuth } from "@/hooks/useAuth"
 
 export default function InfluencerManagementPage() {

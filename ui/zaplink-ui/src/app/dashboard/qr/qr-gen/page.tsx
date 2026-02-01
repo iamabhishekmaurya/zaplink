@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RefreshCw, Settings2, Share2, ArrowLeft, Plus } from 'lucide-react'
-import { QRService } from '@/lib/api/QRServerApi'
+import { QRService } from '@/services/QRServerApi'
 import { QRConfigType } from '@/lib/types/apiRequestType'
 import { toast } from 'sonner'
 import { Defaults, formSchema, FormValues } from './constants'
@@ -20,7 +20,7 @@ import { LogoTab } from './components/tabs/logo-tab'
 import { AdvancedTab } from './components/tabs/advanced-tab'
 import { SmartRulesTab } from './components/tabs/smart-rules-tab'
 import { QrPreview } from './components/qr-preview'
-import { DynamicQrService } from '@/lib/api/dynamicQr'
+import { DynamicQrService } from '@/services/dynamicQr'
 
 // --- Main Component ---
 

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Users } from "lucide-react"
-import { CreateBioPageDialog } from "@/components/bio-page/create-bio-page-dialog"
+import { CreateBioPageDialog } from '@/features/bio-page/ui/create-bio-page-dialog'
 import { showSuccessToast, showErrorToast } from "@/lib/toast"
 
 export default function CreateBioPage() {

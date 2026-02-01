@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { shortlinkService, StatsResponse } from '@/lib/api/shortlinkService';
-import { DynamicQrService } from '@/lib/api/dynamicQr';
+import { shortlinkService, StatsResponse } from '@/services/shortlinkService';
+import { DynamicQrService } from '@/services/dynamicQr';
 import { ShortLink, DynamicQrResponse } from '@/lib/types/apiRequestType';
 import { log } from 'console';
 

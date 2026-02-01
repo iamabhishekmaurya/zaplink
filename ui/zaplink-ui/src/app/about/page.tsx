@@ -1,11 +1,11 @@
 'use client';
 
 import Navbar from "@/components/layout/Navbar";
-import { FooterSection } from "@/components/landing/FooterSection";
-import { AboutHero } from "@/components/company/AboutHero";
-import { OurStory } from "@/components/company/OurStory";
-import { TeamGrid } from "@/components/company/TeamGrid";
-import { CTASection } from "@/components/landing/CTASection";
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import { AboutHero } from '@/features/company/ui/AboutHero';
+import { OurStory } from '@/features/company/ui/OurStory';
+import { TeamGrid } from '@/features/company/ui/TeamGrid';
+import { CTASection } from '@/features/landing/ui/CTASection';
 
 export default function AboutPage() {
     return (

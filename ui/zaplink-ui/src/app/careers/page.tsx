@@ -1,11 +1,11 @@
 'use client';
 
 import Navbar from "@/components/layout/Navbar";
-import { FooterSection } from "@/components/landing/FooterSection";
-import { CareersHero } from "@/components/company/CareersHero";
-import { ValuesSection } from "@/components/company/ValuesSection";
-import { OpenPositions } from "@/components/company/OpenPositions";
-import { CTASection } from "@/components/landing/CTASection";
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import { CareersHero } from '@/features/company/ui/CareersHero';
+import { ValuesSection } from '@/features/company/ui/ValuesSection';
+import { OpenPositions } from '@/features/company/ui/OpenPositions';
+import { CTASection } from '@/features/landing/ui/CTASection';
 
 export default function CareersPage() {
     return (

@@ -1,7 +1,7 @@
 import Navbar from '@/components/layout/Navbar';
-import { FooterSection } from '@/components/landing/FooterSection';
-import BlogListing from '@/components/blog/BlogListing';
-import { CTASection } from '@/components/landing/CTASection';
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import BlogListing from '@/features/blog/ui/BlogListing';
+import { CTASection } from '@/features/landing/ui/CTASection';
 
 export default function AllArticlesPage() {
     return (

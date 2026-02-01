@@ -1,4 +1,4 @@
-import { AuthApi } from "@/lib/api/auth";
+import { AuthApi } from "@/services/auth";
 import {
 	AuthState,
 	LoginRequest,

@@ -1,4 +1,4 @@
-import api from "@/lib/api/client";
+import api from "@/services/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_BASE_URLS } from "@/lib/constants/apiConstant";
 

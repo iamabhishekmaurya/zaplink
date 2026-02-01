@@ -1,7 +1,7 @@
 'use client';
 
 import Navbar from "@/components/layout/Navbar";
-import { FooterSection } from "@/components/landing/FooterSection";
+import { FooterSection } from '@/features/landing/ui/FooterSection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function LegalPage() {

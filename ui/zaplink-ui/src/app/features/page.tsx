@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
-import { FooterSection } from '@/components/landing/FooterSection';
-import { FeaturesHero } from '@/components/features/FeaturesHero';
-import { FeatureTabs } from '@/components/features/FeatureTabs';
-import { DetailedFeatureSection } from '@/components/features/DetailedFeatureSection';
-import { CTASection } from '@/components/landing/CTASection';
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import { FeaturesHero } from '@/features/marketing-features/ui/FeaturesHero';
+import { FeatureTabs } from '@/features/marketing-features/ui/FeatureTabs';
+import { DetailedFeatureSection } from '@/features/marketing-features/ui/DetailedFeatureSection';
+import { CTASection } from '@/features/landing/ui/CTASection';
 
 export default function FeaturesPage() {
     const [activeTab, setActiveTab] = useState("all");

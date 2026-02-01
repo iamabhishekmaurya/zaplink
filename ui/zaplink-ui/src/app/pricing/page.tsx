@@ -1,10 +1,10 @@
 import Navbar from '@/components/layout/Navbar';
-import { FooterSection } from '@/components/landing/FooterSection';
-import { CTASection } from '@/components/landing/CTASection';
-import PricingHero from '@/components/pricing/PricingHero';
-import PricingTiers from '@/components/pricing/PricingTiers';
-import ComparisonTable from '@/components/pricing/ComparisonTable';
-import PricingFAQ from '@/components/pricing/PricingFAQ';
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import { CTASection } from '@/features/landing/ui/CTASection';
+import PricingHero from '@/features/pricing/ui/PricingHero';
+import PricingTiers from '@/features/pricing/ui/PricingTiers';
+import ComparisonTable from '@/features/pricing/ui/ComparisonTable';
+import PricingFAQ from '@/features/pricing/ui/PricingFAQ';
 
 export default function PricingPage() {
     return (

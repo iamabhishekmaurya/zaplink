@@ -1,4 +1,4 @@
-import MediaManager from "@/components/media/MediaManager";
+import MediaManager from '@/features/media/ui/MediaManager';
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

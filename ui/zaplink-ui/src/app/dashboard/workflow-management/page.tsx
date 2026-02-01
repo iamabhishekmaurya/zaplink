@@ -1,6 +1,6 @@
 "use client"
 
-import { WorkflowManagement } from "@/components/dashboard/workflow-management"
+import { WorkflowManagement } from '@/features/dashboard/ui/workflow-management'
 import { useAuth } from "@/hooks/useAuth"
 
 export default function WorkflowManagementPage() {

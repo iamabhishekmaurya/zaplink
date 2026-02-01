@@ -1,6 +1,6 @@
 "use client"
 import dynamic from "next/dynamic"
-import { SectionCards } from "@/components/dashboard/section-cards"
+import { SectionCards } from '@/features/dashboard/ui/section-cards'
 import { Loader2, AlertCircle, WifiOff, RefreshCw } from "lucide-react"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { Button } from "@/components/ui/button"
@@ -35,22 +35,22 @@ const TableSkeleton = () => (
 
 // Lazy load heavy chart components
 const ChartAreaInteractive = dynamic(
-  () => import("@/components/dashboard/chart-area-interactive").then(mod => ({ default: mod.ChartAreaInteractive })),
+  () => import('@/features/dashboard/ui/chart-area-interactive').then(mod => ({ default: mod.ChartAreaInteractive })),
   { loading: () => <ChartSkeleton />, ssr: false }
 )
 
 const CreationHistoryChart = dynamic(
-  () => import("@/components/dashboard/dashboard-charts").then(mod => ({ default: mod.CreationHistoryChart })),
+  () => import('@/features/dashboard/ui/dashboard-charts').then(mod => ({ default: mod.CreationHistoryChart })),
   { loading: () => <ChartSkeleton />, ssr: false }
 )
 
 const PlatformDistributionChart = dynamic(
-  () => import("@/components/dashboard/dashboard-charts").then(mod => ({ default: mod.PlatformDistributionChart })),
+  () => import('@/features/dashboard/ui/dashboard-charts').then(mod => ({ default: mod.PlatformDistributionChart })),
   { loading: () => <ChartSkeleton />, ssr: false }
 )
 
 const RecentActivityTable = dynamic(
-  () => import("@/components/dashboard/recent-activity-table").then(mod => ({ default: mod.RecentActivityTable })),
+  () => import('@/features/dashboard/ui/recent-activity-table').then(mod => ({ default: mod.RecentActivityTable })),
   { loading: () => <TableSkeleton />, ssr: false }
 )
 

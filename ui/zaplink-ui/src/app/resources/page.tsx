@@ -1,10 +1,10 @@
 import Navbar from '@/components/layout/Navbar';
-import { FooterSection } from '@/components/landing/FooterSection';
-import { CTASection } from '@/components/landing/CTASection';
-import ResourcesHero from '@/components/resources/ResourcesHero';
-import FeaturedResource from '@/components/resources/FeaturedResource';
-import ResourceGrid from '@/components/resources/ResourceGrid';
-import ResourcesNewsletter from '@/components/resources/ResourcesNewsletter';
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import { CTASection } from '@/features/landing/ui/CTASection';
+import ResourcesHero from '@/features/resources/ui/ResourcesHero';
+import FeaturedResource from '@/features/resources/ui/FeaturedResource';
+import ResourceGrid from '@/features/resources/ui/ResourceGrid';
+import ResourcesNewsletter from '@/features/resources/ui/ResourcesNewsletter';
 
 export default function ResourcesPage() {
     return (

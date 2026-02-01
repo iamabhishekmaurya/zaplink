@@ -30,82 +30,38 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ```
 src/
 ├── app/                          # Next.js App Router (Pages & Layouts)
-│   ├── (auth)/                   # Auth route group (login, signup, etc.)
+│   ├── (auth)/                   # Auth route group
 │   ├── dashboard/                # Dashboard pages
-│   │   ├── analytics/            # Analytics pages
-│   │   ├── link/                 # Shortlink management pages
-│   │   ├── qr/                   # QR code management pages
-│   │   ├── media/                # Media library
-│   │   ├── calendar/             # Scheduler/calendar
-│   │   └── ...
-│   ├── about/                    # About page
-│   ├── blogs/                    # Blog pages
-│   ├── pricing/                  # Pricing page
-│   ├── layout.tsx                # Root layout
-│   └── page.tsx                  # Home page
-│
-├── components/
-│   ├── ui/                       # Base UI primitives (shadcn/ui)
-│   ├── dashboard/                # Dashboard-specific components
-│   │   ├── app-sidebar.tsx
-│   │   ├── chart-area-interactive.tsx
-│   │   ├── dashboard-charts.tsx
-│   │   ├── recent-activity-table.tsx
-│   │   ├── section-cards.tsx
-│   │   ├── site-header.tsx
-│   │   ├── team-switcher.tsx
-│   │   └── index.ts              # Barrel export
-│   ├── shortlinks/               # Shortlink management components
-│   │   ├── search-and-filters.tsx
-│   │   ├── share-dropdown.tsx
-│   │   ├── short-link-card.tsx
-│   │   ├── short-link-empty.tsx
-│   │   ├── short-link-error.tsx
-│   │   ├── short-link-skeleton.tsx
-│   │   └── index.ts              # Barrel export
-│   ├── qr/                       # QR code components
-│   │   ├── qr-code-card.tsx
-│   │   ├── qr-code-skeleton.tsx
-│   │   ├── qr-search-and-filters.tsx
-│   │   └── index.ts              # Barrel export
-│   ├── layout/                   # Layout wrappers (MainLayout, Navbar)
-│   ├── common/                   # Shared utilities (ThemeToggle, etc.)
-│   ├── auth/                     # Auth components
-│   ├── providers/                # All React providers consolidated
-│   ├── landing/                  # Landing page sections
-│   ├── blog/                     # Blog components
-│   ├── calendar/                 # Calendar/scheduler components
-│   ├── media/                    # Media manager components
-│   ├── (form)/                   # Form components (auth forms)
-│   ├── (nav)/                    # Navigation components
-│   └── ...                       # Feature-specific folders
-│
-├── hooks/                        # Custom React hooks
-│   ├── useDashboardData.ts
-│   ├── useDynamicQrs.ts
-│   ├── useMedia.ts
-│   ├── useMobile.ts
-│   └── useShortlinks.ts
-│
-├── lib/
-│   ├── api/                      # API clients and services
-│   │   ├── client.ts             # Axios instance
-│   │   ├── auth.ts
-│   │   ├── dynamicQr.ts
-│   │   ├── scheduler.ts
-│   │   ├── shortlinkService.ts
-│   │   └── QRServerApi.ts
-│   ├── constants/                # Constants and config
-│   │   └── apiConstant.ts
-│   ├── types/                    # TypeScript types
-│   │   └── apiRequestType.ts
-│   ├── utils.ts                  # Utility functions (cn, etc.)
 │   └── ...
 │
-├── store/                        # Redux store
-│   ├── index.ts
-│   └── slices/
-│       └── authSlice.ts
+├── features/                     # Feature-based Architecture
+│   ├── auth/                     # Authentication feature
+│   │   ├── ui/                   # Feature-specific UI components
+│   │   └── hooks/                # Feature-specific hooks
+│   ├── dashboard/                # Dashboard feature
+│   │   ├── ui/
+│   │   └── hooks/
+│   ├── landing/                  # Landing page feature
+│   └── ... (blog, qr, shortlinks, etc.)
+│
+├── components/                   # Shared Presentational Components
+│   ├── ui/                       # Base UI primitives (shadcn/ui)
+│   ├── layout/                   # Global layout components
+│   └── common/                   # Common shared components
+│
+├── services/                     # Centralized API Services
+│   ├── auth.ts
+│   ├── client.ts
+│   └── ...
+│
+├── hooks/                        # Shared custom hooks
+│
+├── lib/                          # Utilities and Core Logic
+│   ├── constants/                # Centralized constants
+│   ├── types/                    # Shared TypeScript types
+│   └── utils.ts                  # Helper functions
+│
+├── store/                        # Redux Global State
 │
 └── middleware.ts                 # Next.js middleware
 ```
@@ -119,26 +75,20 @@ src/
 | File Type | Location | Notes |
 |-----------|----------|-------|
 | New page/route | `src/app/<route>/page.tsx` | Follow App Router conventions |
-| Dashboard page | `src/app/dashboard/<feature>/page.tsx` | Use route groups if needed |
-| Base UI component | `src/components/ui/` | shadcn/ui primitives only |
-| Dashboard component | `src/components/dashboard/` | Add to barrel export |
-| Shortlink component | `src/components/shortlinks/` | Add to barrel export |
-| QR component | `src/components/qr/` | Add to barrel export |
-| Feature-specific | `src/components/<feature>/` | Create new folder if needed |
-| Custom hook | `src/hooks/` | Prefix with `use` |
-| API service | `src/lib/api/` | One file per service domain |
-| TypeScript types | `src/lib/types/` | Shared types only |
-| Constants/config | `src/lib/constants/` | Application constants |
-| Redux slice | `src/store/slices/` | One slice per domain |
+| Feature Component | `src/features/<feature>/ui/` | If specific to a feature |
+| Shared Component | `src/components/ui/` or `src/components/common/` | If used across multiple features |
+| API Service | `src/services/` | One file per service domain |
+| Constants | `src/lib/constants/` | |
+| Types | `src/lib/types/` | Shared types only |
 
 ### Import Conventions
 
 ```typescript
 // Use @/ alias for imports
-import { Button } from '@/components/ui/button'
-import { ShortLinkCard } from '@/components/shortlinks/short-link-card'
-import { useDashboardData } from '@/hooks/useDashboardData'
-import { API_ENDPOINTS } from '@/lib/constants/apiConstant'
+import { Button } from '@/components/ui/button' // Shared UI
+import { LoginForm } from '@/features/auth/ui/LoginForm' // Feature UI
+import api from '@/services/client' // Services
+import { API_ENDPOINTS } from '@/lib/constants/apiConstant' // Constants
 ```
 
 ### Naming Conventions

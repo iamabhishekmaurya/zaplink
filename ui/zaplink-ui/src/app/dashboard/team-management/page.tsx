@@ -1,6 +1,6 @@
 "use client"
 
-import { TeamManagement } from "@/components/dashboard/team-management"
+import { TeamManagement } from '@/features/dashboard/ui/team-management'
 import { useAuth } from "@/hooks/useAuth"
 
 export default function TeamManagementPage() {

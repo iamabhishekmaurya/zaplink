@@ -1,9 +1,9 @@
 import Navbar from '@/components/layout/Navbar';
-import { FooterSection } from '@/components/landing/FooterSection';
-import BlogHero from '@/components/blog/BlogHero';
-import FeaturedPost from '@/components/blog/FeaturedPost';
-import BlogListing from '@/components/blog/BlogListing';
-import BlogNewsletter from '@/components/blog/BlogNewsletter';
+import { FooterSection } from '@/features/landing/ui/FooterSection';
+import BlogHero from '@/features/blog/ui/BlogHero';
+import FeaturedPost from '@/features/blog/ui/FeaturedPost';
+import BlogListing from '@/features/blog/ui/BlogListing';
+import BlogNewsletter from '@/features/blog/ui/BlogNewsletter';
 
 export default function BlogPage() {
     return (
