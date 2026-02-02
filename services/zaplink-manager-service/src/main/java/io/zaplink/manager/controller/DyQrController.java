@@ -62,8 +62,10 @@ public class DyQrController
                                                                         @RequestParam(name = "page", defaultValue = "0") int page,
                                                                         @RequestParam(name = "size", defaultValue = "10") int size )
     {
+        log.info( "🔍 getDynamicQrsByUser called - X-User-Email header value: '{}'", userEmail );
         Pageable pageable = PageRequest.of( page, size );
         Page<DynamicQrResponse> response = dynamicQrService.getDynamicQrsByUser( userEmail, pageable );
+        log.info( "🔍 getDynamicQrsByUser returning {} elements", response.getTotalElements() );
         return ResponseEntity.ok( response );
     }
 

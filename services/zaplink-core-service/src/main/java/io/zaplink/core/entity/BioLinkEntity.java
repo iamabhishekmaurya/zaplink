@@ -440,6 +440,18 @@ public class BioLinkEntity
     }
 
     /**
+     * Gets the page ID of the parent BioPage.
+     * Convenience method for serialization and DTO mapping.
+     * 
+     * @return the parent page's ID, or null if no page is associated
+     */
+    @JsonProperty("page_id")
+    public Long getPageId()
+    {
+        return bioPage != null ? bioPage.getId() : null;
+    }
+
+    /**
      * Gets the type name as a string.
      * 
      * @return the type name

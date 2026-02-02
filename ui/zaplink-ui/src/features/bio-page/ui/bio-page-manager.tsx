@@ -42,14 +42,14 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
 
   const handleCreatePage = async (pageData: any) => {
     try {
-      const response = await fetch('/api/v1/bio-pages', {
+      const response = await fetch('/api/wr/bio-pages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...pageData,
-          ownerId: 'user123' // TODO: Get from auth
+          owner_id: 'user123' // TODO: Get from auth
         }),
       })
 
@@ -65,11 +65,11 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
     }
   }
 
-  const handleDeletePage = async (pageId: string) => {
+  const handleDeletePage = async (pageId: number) => {
     if (!confirm('Are you sure you want to delete this bio page?')) return
 
     try {
-      const response = await fetch(`/api/v1/bio-pages/${pageId}`, {
+      const response = await fetch(`/api/wr/bio-pages/${pageId}`, {
         method: 'DELETE',
       })
 
@@ -124,7 +124,7 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
                     <CardTitle className="flex items-center gap-2">
                       {page.username}
                       <Badge variant="outline">
-                        {page.links?.length || 0} links
+                        {page.bioLinks?.length || 0} links
                       </Badge>
                     </CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -157,13 +157,13 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
                       {page.bioText || 'No bio added yet'}
                     </p>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       onClick={() => {
                         setSelectedPage(page)
-                        onPageSelect(page.id)
+                        onPageSelect(String(page.id))
                       }}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -183,9 +183,9 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
             <CardTitle>Manage Links for {selectedPage.username}</CardTitle>
           </CardHeader>
           <CardContent>
-            <BioLinkManager 
+            <BioLinkManager
               pageId={selectedPage.id}
-              links={selectedPage.links || []}
+              links={selectedPage.bioLinks || []}
               onLinksUpdate={() => {
                 fetchPages()
                 onPageUpdate()

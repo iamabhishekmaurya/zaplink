@@ -39,6 +39,9 @@ dependencies {
 	//DATABASE
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.postgresql:postgresql'
+	//DATABASE MIGRATION
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-database-postgresql'
 	//KAFKA
 	implementation 'org.springframework.kafka:spring-kafka'
 	//MONITORING

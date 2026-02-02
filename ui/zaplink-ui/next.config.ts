@@ -4,14 +4,12 @@ const nextConfig: NextConfig = {
   /* config options here */
 
   async rewrites() {
+    // Proxy all /api/* requests to the Gateway
+    // API versioning is done via X-API-Version header, not URL path
     return [
       {
-        source: "/api/v1/:path*",
-        destination: "http://localhost:8090/v1/api/:path*",
-      },
-      {
-        source: "/api/auth/:path*",
-        destination: "http://localhost:8090/v1/api/auth/:path*",
+        source: "/api/:path*",
+        destination: "http://localhost:8090/api/:path*",
       },
     ];
   },

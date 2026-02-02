@@ -1,18 +1,40 @@
 import api from "@/services/client";
 import { API_ENDPOINTS } from '@/lib/constants/apiConstant';
-import { ShortLink } from '@/lib/types/apiRequestType';
+import { ShortLink, LinkApiResponse, StatsApiResponse, StatsResponse, RedirectRuleDto } from '@/lib/types/apiRequestType';
 
-export interface StatsResponse {
-  total_links: number;
-  total_clicks: number;
-  active_links: number;
-  top_region: string;
-  avg_ctr: number;
-  click_trend: { name: string; value: number }[];
-  referrers: { name: string; value: number | string }[];
+// ============ Transformation Functions ============
+function transformLinkResponse(apiLink: LinkApiResponse): ShortLink {
+  return {
+    id: String(apiLink.id),
+    title: apiLink.title || extractTitleFromUrl(apiLink.original_url),
+    shortlink: apiLink.short_url || apiLink.short_url_key,
+    originalUrl: apiLink.original_url,
+    tags: apiLink.tags || [],
+    platform: apiLink.platform || extractPlatformFromUrl(apiLink.original_url),
+    hasAnalytics: true,
+    isActive: apiLink.status === 'ACTIVE',
+    createdAt: apiLink.created_at,
+    updatedAt: apiLink.created_at, // API doesn't have updatedAt, use createdAt
+    userId: 'current-user',
+    clicks: apiLink.click_count || 0,
+    shortUrlKey: apiLink.short_url_key,
+    rules: apiLink.rules || []
+  };
 }
 
-// Utility function to extract title from URL
+function transformStatsResponse(apiStats: StatsApiResponse): StatsResponse {
+  return {
+    totalLinks: apiStats.total_links,
+    totalClicks: apiStats.total_clicks,
+    activeLinks: apiStats.active_links,
+    topRegion: apiStats.top_region,
+    avgCtr: apiStats.avg_ctr,
+    clickTrend: apiStats.click_trend,
+    referrers: apiStats.referrers
+  };
+}
+
+// ============ Utility Functions ============
 export const extractTitleFromUrl = (url: string): string => {
   try {
     const urlObj = new URL(url);
@@ -43,7 +65,6 @@ export const extractTitleFromUrl = (url: string): string => {
   }
 };
 
-// Utility function to extract platform from URL
 export const extractPlatformFromUrl = (url: string): string => {
   try {
     const urlObj = new URL(url);
@@ -62,39 +83,43 @@ export const extractPlatformFromUrl = (url: string): string => {
   }
 };
 
+// ============ Request Types ============
+export interface CreateShortLinkRequest {
+  original_url: string;
+  title?: string;
+  platform?: string;
+  tags?: string[];
+  rules?: RedirectRuleDto[];
+  trace_id?: string;
+}
+
+export interface UpdateShortLinkRequest {
+  short_url_key: string;
+  title?: string;
+  platform?: string;
+  tags?: string[];
+  rules?: RedirectRuleDto[];
+}
+
+// ============ Service ============
 export const shortlinkService = {
   // Get all short links for the current user
   getUserLinks: async (): Promise<ShortLink[]> => {
     try {
-      const response = await api.get<any>(API_ENDPOINTS.GET_USER_LINKS);
+      const response = await api.get<LinkApiResponse[] | { data: LinkApiResponse[] }>(API_ENDPOINTS.GET_USER_LINKS);
 
       // Handle different response structures
-      let linksData = response.data;
+      let linksData: LinkApiResponse[] = [];
 
       // If response has nested data structure
-      if (response.data && response.data.data && Array.isArray(response.data.data)) {
+      if (response.data && 'data' in response.data && Array.isArray(response.data.data)) {
         linksData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        linksData = response.data;
       }
 
       // Transform API response to match our ShortLink interface
-      const transformedLinks = linksData.map((item: any) => ({
-        id: item.id,
-        title: item.title || extractTitleFromUrl(item.originalUrl),
-        shortlink: item.shortUrl || item.shortUrlKey,
-        originalUrl: item.originalUrl,
-        tags: item.tags || [],
-        platform: item.platform || extractPlatformFromUrl(item.originalUrl),
-        hasAnalytics: item.hasAnalytics !== false,
-        isActive: item.isActive !== false,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt || item.createdAt,
-        userId: item.userId || 'current-user',
-        clicks: item.clickCount || item.clicks || 0,
-        shortUrlKey: item.shortUrlKey,
-        rules: item.rules || []
-      }));
-
-      return transformedLinks;
+      return linksData.map(transformLinkResponse);
     } catch (error) {
       console.error('Error fetching user links:', error);
       throw error;
@@ -107,11 +132,18 @@ export const shortlinkService = {
     originalUrl: string;
     platform?: string;
     tags?: string[];
-    rules?: any[];
-  }) => {
+    rules?: RedirectRuleDto[];
+  }): Promise<ShortLink> => {
     try {
-      const response = await api.post(API_ENDPOINTS.SHORTEN_URL, data);
-      return response.data;
+      const request: CreateShortLinkRequest = {
+        original_url: data.originalUrl,
+        title: data.title,
+        platform: data.platform,
+        tags: data.tags,
+        rules: data.rules
+      };
+      const response = await api.post<LinkApiResponse>(API_ENDPOINTS.SHORTEN_URL, request);
+      return transformLinkResponse(response.data);
     } catch (error) {
       console.error('Error creating short link:', error);
       throw error;
@@ -119,7 +151,7 @@ export const shortlinkService = {
   },
 
   // Delete a short link
-  deleteShortLink: async (id: string) => {
+  deleteShortLink: async (id: string): Promise<void> => {
     try {
       await api.delete(API_ENDPOINTS.DELETE_LINK(id));
     } catch (error) {
@@ -133,31 +165,29 @@ export const shortlinkService = {
     title?: string;
     platform?: string;
     tags?: string[];
-    rules?: any[];
-  }) => {
+    rules?: RedirectRuleDto[];
+  }): Promise<ShortLink> => {
     try {
       // Get the existing link to get the shortUrlKey
       const existingLink = await shortlinkService.getShortlink(id);
 
-      const updatePayload = {
-        shortUrlKey: existingLink.shortUrlKey,
+      const updatePayload: UpdateShortLinkRequest = {
+        short_url_key: existingLink.shortUrlKey || '',
         title: data.title || existingLink.title,
         platform: data.platform || existingLink.platform,
         tags: data.tags || existingLink.tags,
-        // Ensure rules are passed correctly, defaulting to existing if not provided
-        rules: "rules" in data ? (data as any).rules : existingLink.rules
+        rules: data.rules ?? existingLink.rules
       };
 
-      // Call the PUT endpoint
-      const response = await api.put(API_ENDPOINTS.SHORTEN_URL, updatePayload);
-      return response.data;
+      const response = await api.put<LinkApiResponse>(API_ENDPOINTS.SHORTEN_URL, updatePayload);
+      return transformLinkResponse(response.data);
     } catch (error) {
       console.error('Error updating short link:', error);
       throw error;
     }
   },
 
-  // Get a single short link by ID (workaround since backend doesn't have single link endpoint)
+  // Get a single short link by ID
   getShortlink: async (id: string): Promise<ShortLink> => {
     try {
       // Fetch all links and find the one with matching ID
@@ -181,23 +211,16 @@ export const shortlinkService = {
     }
   },
 
-  // Get link analytics (not supported by backend yet)
-  getLinkAnalytics: async (id: string) => {
-    try {
-      throw new Error('Analytics functionality is not yet supported by the backend API');
-    } catch (error) {
-      console.error('Error fetching link analytics:', error);
-      throw error;
-    }
+  // Get link analytics
+  getLinkAnalytics: async (id: string): Promise<void> => {
+    throw new Error('Analytics functionality is not yet supported by the backend API');
   },
 
-  // Get user stats (total links, clicks, active links, trends)
-  getUserStats: async () => {
+  // Get user stats
+  getUserStats: async (): Promise<StatsResponse> => {
     try {
-      // Assuming API_ENDPOINTS.GET_USER_STATS is defined as "/short/stats" or similar depending on your constant file
-      // If not defined, I'll assume "/short/stats" based on the controller code I saw
-      const response = await api.get(API_ENDPOINTS.GET_STATS);
-      return response.data;
+      const response = await api.get<StatsApiResponse>(API_ENDPOINTS.GET_STATS);
+      return transformStatsResponse(response.data);
     } catch (error) {
       console.error('Error fetching user stats:', error);
       throw error;

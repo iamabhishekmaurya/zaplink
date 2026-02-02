@@ -1,20 +1,17 @@
 package io.zaplink.core.repository;
 
-import java.util.List;
-
+import io.zaplink.core.entity.BioLinkEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import io.zaplink.core.entity.BioLinkEntity;
+import java.util.List;
 
 @Repository
 public interface BioLinkRepository
     extends
     JpaRepository<BioLinkEntity, Long>
 {
-    List<BioLinkEntity> findByBioPageIdOrderBySortOrderAsc( Long pageId );
+    List<BioLinkEntity> findAllByPageIdOrderBySortOrderAsc( Long pageId );
 
-    List<BioLinkEntity> findByBioPageIdAndIsActiveOrderBySortOrderAsc( Long pageId, Boolean isActive );
-
-    void deleteByBioPageId( Long pageId );
+    void deleteAllByPageId( Long pageId );
 }

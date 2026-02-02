@@ -51,6 +51,11 @@ public class GatewayConfig
                                                 .filters( f -> f.rewritePath( writePath + "/bio-pages/(?<segment>.*)",
                                                                               "/core/bio-pages/${segment}" ) )
                                                 .uri( "http://localhost:8081" ) )
+                                .route( "core-biolink-write", r -> r.path( writePath + "/bio-links/**" ).and()
+                                                .header( "X-API-Version", "1" )
+                                                .filters( f -> f.rewritePath( writePath + "/bio-links/(?<segment>.*)",
+                                                                              "/core/bio-links/${segment}" ) )
+                                                .uri( "http://localhost:8081" ) )
                                 /**
                                  * Core Service Team Management Routes (Write Operations)
                                  * Port: 8081

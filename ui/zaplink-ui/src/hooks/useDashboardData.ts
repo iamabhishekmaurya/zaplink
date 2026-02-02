@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { shortlinkService, StatsResponse } from '@/services/shortlinkService';
+import { DynamicQrResponse, ShortLink } from '@/lib/types/apiRequestType';
 import { DynamicQrService } from '@/services/dynamicQr';
-import { ShortLink, DynamicQrResponse } from '@/lib/types/apiRequestType';
-import { log } from 'console';
+import { shortlinkService } from '@/services/shortlinkService';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface DashboardStats {
     totalLinks: number;
@@ -64,7 +63,7 @@ export function useDashboardData() {
                 // 1. Calculate Basic Stats
                 const totalLinks = links.length;
                 const activeLinks = links.filter(l => l.isActive).length;
-                const totalClicks = statsData.total_clicks || links.reduce((acc, l) => acc + (l.clicks || 0), 0);
+                const totalClicks = statsData.totalClicks || links.reduce((acc, l) => acc + (l.clicks || 0), 0);
 
                 const totalQrs = qrsPage.totalElements || qrs.length;
                 const totalScans = qrs.reduce((acc, q) => acc + (q.totalScans || 0), 0);
@@ -177,7 +176,7 @@ export function useDashboardData() {
 
                 // 5. Visitor Trend (from StatsResponse)
                 // Map backend clickTrend to chart format
-                const visitorTrend = (statsData.click_trend || []).map((item: { name: string; value: number }) => ({
+                const visitorTrend = (statsData.clickTrend || []).map((item: { name: string; value: number }) => ({
                     date: item.name,
                     visitors: item.value
                 }));
@@ -202,8 +201,8 @@ export function useDashboardData() {
                     platformDistribution,
                     creationHistory,
                     visitorTrend,
-                    avgCtr: statsData.avg_ctr || 0,
-                    topRegion: statsData.top_region || 'Unknown',
+                    avgCtr: statsData.avgCtr || 0,
+                    topRegion: statsData.topRegion || 'Unknown',
                     referrers,
                     refetch
                 });

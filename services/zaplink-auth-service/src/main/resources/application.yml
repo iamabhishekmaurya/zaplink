@@ -50,7 +50,7 @@ spring:
             retries: 5
     # DataSource config
     datasource:
-        url: jdbc:postgresql://localhost:5432/zaplink_auth
+        url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=auth
         username: postgres
         password: 12345
     # JPA config

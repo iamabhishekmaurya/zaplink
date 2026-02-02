@@ -1,22 +1,22 @@
-// API Base URLs
-// API Base URLs
+// API Base URLs - These are relative to the base URL configured in client.ts (/api)
+// API versioning is done via X-API-Version header (see client.ts), NOT URL path
 export const API_BASE_URLS = {
   // Auth Service
-  AUTH: '/api/auth',
+  AUTH: '/auth',
 
-  // Core Service (Write / Operations) - Gateway Path: /api/wr/...
-  CORE_URL: '/api/wr/short/url', // specific route in Gateway
-  CORE_QR: '/api/wr/qr',
-  CORE_DYQR: '/api/wr/dyqr', // Gateway routes this to Manager
+  // Core Service (Write / Operations) - Gateway Path: /wr/...
+  CORE_URL: '/wr/short/url',
+  CORE_QR: '/wr/qr',
+  CORE_DYQR: '/wr/dyqr',
 
-  // Manager Service (Read / Analytics) - Gateway Path: /api/rd/...
-  SHORT_LINKS: '/api/rd/short/links',
-  SHORT_STATS: '/api/rd/short/stats',
-  SHORT_ANALYTICS: '/api/rd/short',
-  MANAGER_DYQR: '/api/rd/dyqr',
+  // Manager Service (Read / Analytics) - Gateway Path: /rd/...
+  SHORT_LINKS: '/rd/short/links',
+  SHORT_STATS: '/rd/short/stats',
+  SHORT_ANALYTICS: '/rd/short',
+  MANAGER_DYQR: '/rd/dyqr',
 
   // Media Service
-  MEDIA: '/api/media'
+  MEDIA: '/media'
 } as const
 
 // API Endpoints

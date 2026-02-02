@@ -11,7 +11,7 @@ interface BioPageData {
   avatar_url?: string
   bio_text?: string
   theme_config?: string
-  links: Array<{
+  bioLinks: Array<{
     title: string
     url?: string
     type: string
@@ -33,7 +33,7 @@ export default function BioPage() {
     const fetchBioData = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/v1/bio/${username}`)
+        const response = await fetch(`/api/rd/bio-pages/${username}`)
         if (response.ok) {
           const data = await response.json()
           setBioData(data)
@@ -141,7 +141,7 @@ export default function BioPage() {
 
             {/* Links */}
             <div className="space-y-4">
-              {bioData.links
+              {bioData.bioLinks
                 .filter(link => link.is_active)
                 .sort((a, b) => a.sort_order - b.sort_order)
                 .map((link, index) => (
@@ -226,7 +226,7 @@ export default function BioPage() {
                 ))}
             </div>
 
-            {bioData.links.filter(link => link.is_active).length === 0 && (
+            {bioData.bioLinks.filter(link => link.is_active).length === 0 && (
               <div className="text-center py-12">
                 <p
                   className="text-muted-foreground"

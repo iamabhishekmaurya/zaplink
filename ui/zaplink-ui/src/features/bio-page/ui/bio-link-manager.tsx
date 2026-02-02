@@ -31,21 +31,10 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-
-interface BioLink {
-  id: string
-  pageId: string
-  title: string
-  url?: string
-  type: string
-  isActive: boolean
-  sortOrder: number
-  price?: number
-  currency?: string
-}
+import { BioLink } from '@/services/bioPageService'
 
 interface BioLinkManagerProps {
-  pageId: string
+  pageId: number
   links: BioLink[]
   onLinksUpdate: () => void
 }
@@ -53,7 +42,7 @@ interface BioLinkManagerProps {
 function SortableLinkItem({ link, onEdit, onDelete }: {
   link: BioLink
   onEdit: (link: BioLink) => void
-  onDelete: (linkId: string) => void
+  onDelete: (linkId: number) => void
 }) {
   const {
     attributes,
@@ -155,12 +144,12 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
       }))
 
       try {
-        const response = await fetch(`/api/v1/bio-links/page/${pageId}/reorder`, {
+        const response = await fetch(`/api/wr/bio-pages/${pageId}/links/reorder`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ linkOrders: reorderedLinks }),
+          body: JSON.stringify(reorderedLinks.map(r => r.linkId)),
         })
 
         if (response.ok) {
@@ -181,15 +170,15 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
 
   const handleCreateLink = async (linkData: any) => {
     try {
-      const response = await fetch('/api/v1/bio-links', {
+      const response = await fetch('/api/wr/bio-links', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...linkData,
-          pageId,
-          sortOrder: bioLinks.length
+          page_id: pageId,
+          sort_order: bioLinks.length
         }),
       })
 
@@ -209,9 +198,9 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
     }
   }
 
-  const handleUpdateLink = async (linkId: string, linkData: any) => {
+  const handleUpdateLink = async (linkId: number, linkData: any) => {
     try {
-      const response = await fetch(`/api/v1/bio-links/${linkId}`, {
+      const response = await fetch(`/api/wr/bio-links/${linkId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -237,11 +226,11 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
     }
   }
 
-  const handleDeleteLink = async (linkId: string) => {
+  const handleDeleteLink = async (linkId: number) => {
     if (!confirm('Are you sure you want to delete this link?')) return
 
     try {
-      const response = await fetch(`/api/v1/bio-links/${linkId}`, {
+      const response = await fetch(`/api/wr/bio-links/${linkId}`, {
         method: 'DELETE',
       })
 

@@ -2,83 +2,135 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { bioPageService } from "@/services/bioPageService"
+import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Users } from "lucide-react"
-import { CreateBioPageDialog } from '@/features/bio-page/ui/create-bio-page-dialog'
-import { showSuccessToast, showErrorToast } from "@/lib/toast"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+
+const schema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters").max(50),
+  bioText: z.string().max(500).optional(),
+  avatarUrl: z.string().url().optional().or(z.literal('')),
+})
 
 export default function CreateBioPage() {
   const router = useRouter()
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
 
-  const handleCreatePage = async (pageData: any) => {
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      username: "",
+      bioText: "",
+      avatarUrl: "",
+    },
+  })
+
+  async function onSubmit(data: z.infer<typeof schema>) {
+    if (!user?.id) {
+      toast.error("You must be logged in")
+      return
+    }
+
     try {
-      const response = await fetch('/api/v1/bio-pages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...pageData,
-          ownerId: 'user123' // TODO: Get from auth
-        }),
+      setLoading(true)
+      await bioPageService.createBioPage({
+        username: data.username,
+        bio_text: data.bioText,
+        avatar_url: data.avatarUrl || undefined,
+        owner_id: String(user.id)
       })
-
-      if (response.ok) {
-        showSuccessToast("Success", "Bio page created successfully")
-        router.push('/dashboard/bio-page')
-      }
+      toast.success("Bio page created successfully")
+      router.push("/dashboard/bio-page")
     } catch (error) {
-      showErrorToast("Error", "Failed to create bio page")
+      console.error(error)
+      toast.error("Failed to create bio page. Username might be taken.")
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Create New Bio Page</h2>
-          <p className="text-muted-foreground">
-            Create a new bio page to share your links and content
-          </p>
-        </div>
-      </div>
+    <div className="container mx-auto p-6 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Bio Page</CardTitle>
+          <CardDescription>
+            Claim your unique username and start building your page.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center">
+                        <span className="bg-muted px-3 py-2 border border-r-0 rounded-l-md text-muted-foreground text-sm">
+                          zap.link/
+                        </span>
+                        <Input className="rounded-l-none" placeholder="username" {...field} />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-      <div className="max-w-2xl">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Users className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Create Your Bio Page</h3>
-            <p className="text-muted-foreground text-center mb-6">
-              Set up your personalized bio page to share all your important links in one place
-            </p>
-            <Button 
-              onClick={() => setShowCreateDialog(true)}
-              size="lg"
-            >
-              Create Bio Page
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+              <FormField
+                control={form.control}
+                name="bioText"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bio Text</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Tell us about yourself..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-      <CreateBioPageDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onCreatePage={handleCreatePage}
-      />
+              <FormField
+                control={form.control}
+                name="avatarUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Avatar URL (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="ghost" onClick={() => router.back()}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Create Page
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

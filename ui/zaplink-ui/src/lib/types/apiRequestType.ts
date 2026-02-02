@@ -109,6 +109,23 @@ export interface RedirectRuleDto {
   priority: number;
 }
 
+// ============ ShortLink Types ============
+// API Response (snake_case - from backend)
+export interface LinkApiResponse {
+  id: number;
+  short_url_key: string;
+  original_url: string;
+  short_url: string;
+  created_at: string;
+  click_count: number;
+  status: string;
+  rules?: RedirectRuleDto[];
+  tags?: string[];
+  title?: string;
+  platform?: string;
+}
+
+// Frontend Type (camelCase)
 export interface ShortLink {
   id: string;
   title: string;
@@ -130,6 +147,32 @@ export interface GetUserLinksResponse extends BaseResponse {
   data: ShortLink[];
 }
 
+// ============ DynamicQR Types ============
+// API Response (snake_case - from backend)
+export interface DynamicQrApiResponse {
+  id: number;
+  qr_key: string;
+  qr_name: string;
+  current_destination_url: string;
+  qr_image_url: string;
+  redirect_url: string;
+  campaign_id?: string;
+  user_email: string;
+  is_active: boolean;
+  total_scans: number;
+  created_at: string;
+  updated_at: string;
+  last_scanned?: string;
+  rules?: RedirectRuleDto[];
+  qr_config?: QRConfigType;
+  allowed_domains?: string[];
+  password?: string;
+  scan_limit?: number;
+  expiration_date?: string;
+  track_analytics?: boolean;
+}
+
+// Frontend Type (camelCase)
 export interface DynamicQrResponse {
   id: number;
   qrKey: string;
@@ -145,12 +188,35 @@ export interface DynamicQrResponse {
   updatedAt: string;
   lastScanned?: string;
   rules?: RedirectRuleDto[];
-  qrConfig?: QRConfigType; // or any/unknown if strict generic
+  qrConfig?: QRConfigType;
   allowedDomains?: string[];
   password?: string;
   scanLimit?: number;
   expirationDate?: string;
   trackAnalytics?: boolean;
+}
+
+// ============ Stats Types ============
+// API Response (snake_case - from backend)
+export interface StatsApiResponse {
+  total_links: number;
+  total_clicks: number;
+  active_links: number;
+  top_region: string;
+  avg_ctr: number;
+  click_trend: { name: string; value: number }[];
+  referrers: { name: string; value: number | string }[];
+}
+
+// Frontend Type (camelCase)
+export interface StatsResponse {
+  totalLinks: number;
+  totalClicks: number;
+  activeLinks: number;
+  topRegion: string;
+  avgCtr: number;
+  clickTrend: { name: string; value: number }[];
+  referrers: { name: string; value: number | string }[];
 }
 
 export interface PageResponse<T> {

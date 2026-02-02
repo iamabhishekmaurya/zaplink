@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2026-01-31
  */
-@Slf4j @RestController @RequestMapping("/teams") @RequiredArgsConstructor @Validated @Tag(name = "Team Member Queries", description = "Read-optimized APIs for team member information")
+@Slf4j @Validated @RestController @RequiredArgsConstructor @RequestMapping("/teams") @Tag(name = "Team Member Queries", description = "Read-optimized APIs for team member information")
 public class TeamMemberQueryController
 {
     private final TeamMemberQueryService teamMemberQueryService;

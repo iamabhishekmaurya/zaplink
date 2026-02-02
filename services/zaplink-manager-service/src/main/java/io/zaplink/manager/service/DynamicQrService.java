@@ -1,6 +1,7 @@
 package io.zaplink.manager.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,14 +44,14 @@ public class DynamicQrService
         {
             if ( userEmail == null || userEmail.trim().isEmpty() )
             {
-                return new PageImpl<>( java.util.Collections.emptyList(), pageable, 0 );
+                return new PageImpl<>( Collections.emptyList(), pageable, 0 );
             }
             return dynamicQrCodeRepository.findByUserEmail( userEmail, pageable ).map( this::convertToResponse );
         }
         catch ( Exception e )
         {
             log.error( "Error getting dynamic QRs by user: {}", userEmail, e );
-            return new PageImpl<>( java.util.Collections.emptyList(), pageable, 0 );
+            return new PageImpl<>( Collections.emptyList(), pageable, 0 );
         }
     }
 
@@ -65,72 +66,57 @@ public class DynamicQrService
             throw new IllegalArgumentException( "Dynamic QR not found or access denied" );
         }
         DynamicQrCodeEntity qrEntity = entityOpt.get();
-        
         // Date Ranges
         if ( startDate == null )
             startDate = LocalDateTime.now().minusDays( 30 );
         if ( endDate == null )
             endDate = LocalDateTime.now();
-        
         // Calculate Scans Today, Week, Month
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime todayStart = now.toLocalDate().atStartOfDay();
         LocalDateTime weekStart = now.minusWeeks( 1 );
         LocalDateTime monthStart = now.minusMonths( 1 );
-        
         // Aggregate Stats from Repository
         // Map Country Stats
         List<Object[]> countryData = qrScanAnalyticsRepository.getCountryStats( qrKey );
-        List<QrAnalyticsResponse.CountryStats> countryStats = countryData.stream().map( obj -> 
-            new QrAnalyticsResponse.CountryStats(
-                (String) obj[0],
-                (Long) obj[1],
-                qrEntity.getTotalScans() > 0 ? (double) (Long) obj[1] / qrEntity.getTotalScans() * 100 : 0
-            )
-        ).collect( Collectors.toList() );
-        
+        List<QrAnalyticsResponse.CountryStats> countryStats = countryData.stream()
+                .map( obj -> new QrAnalyticsResponse.CountryStats( (String) obj[0],
+                                                                   (Long) obj[1],
+                                                                   qrEntity.getTotalScans() > 0 ? (double) (Long) obj[1]
+                                                                           / qrEntity.getTotalScans() * 100 : 0 ) )
+                .collect( Collectors.toList() );
         // Map Device Stats
         List<Object[]> deviceData = qrScanAnalyticsRepository.getDeviceStats( qrKey );
-        List<QrAnalyticsResponse.DeviceStats> deviceStats = deviceData.stream().map( obj -> 
-            new QrAnalyticsResponse.DeviceStats(
-                (String) obj[0],
-                (Long) obj[1],
-                qrEntity.getTotalScans() > 0 ? (double) (Long) obj[1] / qrEntity.getTotalScans() * 100 : 0
-            )
-        ).collect( Collectors.toList() );
-        
+        List<QrAnalyticsResponse.DeviceStats> deviceStats = deviceData.stream()
+                .map( obj -> new QrAnalyticsResponse.DeviceStats( (String) obj[0],
+                                                                  (Long) obj[1],
+                                                                  qrEntity.getTotalScans() > 0 ? (double) (Long) obj[1]
+                                                                          / qrEntity.getTotalScans() * 100 : 0 ) )
+                .collect( Collectors.toList() );
         // Map Browser Stats
         List<Object[]> browserData = qrScanAnalyticsRepository.getBrowserStats( qrKey );
-        List<QrAnalyticsResponse.BrowserStats> browserStats = browserData.stream().map( obj -> 
-            new QrAnalyticsResponse.BrowserStats(
-                (String) obj[0],
-                (Long) obj[1],
-                qrEntity.getTotalScans() > 0 ? (double) (Long) obj[1] / qrEntity.getTotalScans() * 100 : 0
-            )
-        ).collect( Collectors.toList() );
-        
+        List<QrAnalyticsResponse.BrowserStats> browserStats = browserData.stream()
+                .map( obj -> new QrAnalyticsResponse.BrowserStats( (String) obj[0],
+                                                                   (Long) obj[1],
+                                                                   qrEntity.getTotalScans() > 0 ? (double) (Long) obj[1]
+                                                                           / qrEntity.getTotalScans() * 100 : 0 ) )
+                .collect( Collectors.toList() );
         // Map Daily Stats
         List<Object[]> dailyData = qrScanAnalyticsRepository.getDailyScanStats( qrKey, startDate );
-        List<QrAnalyticsResponse.DailyStats> dailyStats = dailyData.stream().map( obj -> 
-            new QrAnalyticsResponse.DailyStats(
-                obj[0].toString(),
-                (Long) obj[1]
-            )
-        ).collect( Collectors.toList() );
-        
-        return new QrAnalyticsResponse(
-            qrEntity.getQrKey(),
-            qrEntity.getQrName(),
-            qrEntity.getTotalScans(),
-            qrScanAnalyticsRepository.countByQrKeyAndDateRange( qrKey, todayStart, now ),
-            qrScanAnalyticsRepository.countByQrKeyAndDateRange( qrKey, weekStart, now ),
-            qrScanAnalyticsRepository.countByQrKeyAndDateRange( qrKey, monthStart, now ),
-            qrEntity.getLastScanned(),
-            countryStats,
-            deviceStats,
-            browserStats,
-            dailyStats
-        );
+        List<QrAnalyticsResponse.DailyStats> dailyStats = dailyData.stream()
+                .map( obj -> new QrAnalyticsResponse.DailyStats( obj[0].toString(), (Long) obj[1] ) )
+                .collect( Collectors.toList() );
+        return new QrAnalyticsResponse( qrEntity.getQrKey(),
+                                        qrEntity.getQrName(),
+                                        qrEntity.getTotalScans(),
+                                        qrScanAnalyticsRepository.countByQrKeyAndDateRange( qrKey, todayStart, now ),
+                                        qrScanAnalyticsRepository.countByQrKeyAndDateRange( qrKey, weekStart, now ),
+                                        qrScanAnalyticsRepository.countByQrKeyAndDateRange( qrKey, monthStart, now ),
+                                        qrEntity.getLastScanned(),
+                                        countryStats,
+                                        deviceStats,
+                                        browserStats,
+                                        dailyStats );
     }
 
     public List<DynamicQrResponse> getQrCodesByCampaign( String campaignId, String userEmail )
@@ -159,17 +145,15 @@ public class DynamicQrService
             // Parse QR config from JSON
             QRConfig qrConfig = objectMapper.readValue( entity.getQrConfig(), QRConfig.class );
             // Create new QRConfig with updated data since records are immutable
-            QRConfig updatedQrConfig = new QRConfig(
-                redirectUrl,
-                qrConfig.size(),
-                qrConfig.margin(),
-                qrConfig.errorCorrectionLevel(),
-                qrConfig.transparentBackground(),
-                qrConfig.backgroundColor(),
-                qrConfig.body(),
-                qrConfig.eye(),
-                qrConfig.logo()
-            );
+            QRConfig updatedQrConfig = new QRConfig( redirectUrl,
+                                                     qrConfig.size(),
+                                                     qrConfig.margin(),
+                                                     qrConfig.errorCorrectionLevel(),
+                                                     qrConfig.transparentBackground(),
+                                                     qrConfig.backgroundColor(),
+                                                     qrConfig.body(),
+                                                     qrConfig.eye(),
+                                                     qrConfig.logo() );
             return coreServiceClient.generateStyledQr( updatedQrConfig ).getBody();
         }
         catch ( JsonProcessingException e )
@@ -228,21 +212,19 @@ public class DynamicQrService
 
     private DynamicQrResponse convertToResponse( DynamicQrCodeEntity entity )
     {
-        return new DynamicQrResponse(
-            entity.getId(),
-            entity.getQrKey(),
-            entity.getQrName(),
-            entity.getCurrentDestinationUrl(),
-            "/api/rd/dyqr/" + entity.getQrKey() + "/image",
-            generateRedirectUrl( entity.getQrKey() ),
-            entity.getCampaignId(),
-            entity.getUserEmail(),
-            entity.getIsActive(),
-            entity.getTotalScans(),
-            entity.getCreatedAt(),
-            entity.getUpdatedAt(),
-            entity.getLastScanned()
-        );
+        return new DynamicQrResponse( entity.getId(),
+                                      entity.getQrKey(),
+                                      entity.getQrName(),
+                                      entity.getCurrentDestinationUrl(),
+                                      "/api/rd/dyqr/" + entity.getQrKey() + "/image",
+                                      generateRedirectUrl( entity.getQrKey() ),
+                                      entity.getCampaignId(),
+                                      entity.getUserEmail(),
+                                      entity.getIsActive(),
+                                      entity.getTotalScans(),
+                                      entity.getCreatedAt(),
+                                      entity.getUpdatedAt(),
+                                      entity.getLastScanned() );
     }
 
     private String generateRedirectUrl( String qrKey )

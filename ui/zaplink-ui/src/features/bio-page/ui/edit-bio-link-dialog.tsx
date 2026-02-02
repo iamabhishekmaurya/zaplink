@@ -8,18 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { showSuccessToast, showErrorToast } from '@/lib/toast'
-
-interface BioLink {
-  id: string
-  pageId: string
-  title: string
-  url?: string
-  type: string
-  isActive: boolean
-  sortOrder: number
-  price?: number
-  currency?: string
-}
+import { BioLink } from '@/services/bioPageService'
 
 interface EditBioLinkDialogProps {
   link: BioLink
@@ -41,7 +30,7 @@ export function EditBioLinkDialog({ link, open, onOpenChange, onUpdateLink }: Ed
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!formData.title.trim()) {
       showErrorToast("Error", "Title is required")
       return
@@ -55,7 +44,7 @@ export function EditBioLinkDialog({ link, open, onOpenChange, onUpdateLink }: Ed
         currency: formData.type === 'PRODUCT' ? formData.currency : undefined,
         url: formData.type === 'PRODUCT' ? undefined : formData.url
       }
-      
+
       await onUpdateLink(linkData)
     } finally {
       setLoading(false)
