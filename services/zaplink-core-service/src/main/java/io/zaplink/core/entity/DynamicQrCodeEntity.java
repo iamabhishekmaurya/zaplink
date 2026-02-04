@@ -26,7 +26,7 @@ public class DynamicQrCodeEntity
     private String        qrKey;
     @Column(name = "qr_name")
     private String        qrName;
-    @Column(name = "current_destination_url", nullable = false, length = 2048)
+    @Column(name = "current_destination_url", nullable = false)
     private String        currentDestinationUrl;
     @JdbcTypeCode(SqlTypes.JSON) @Column(name = "qr_config", columnDefinition = "JSONB")
     private String        qrConfig;

@@ -1,19 +1,19 @@
 package io.zaplink.manager.controller;
 
-import io.zaplink.manager.dto.bio.BioLinkResponse;
-import io.zaplink.manager.dto.bio.BioPageResponse;
-import io.zaplink.manager.service.BioReadService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import io.zaplink.manager.dto.bio.BioLinkResponse;
+import io.zaplink.manager.dto.bio.BioPageResponse;
+import io.zaplink.manager.service.BioReadService;
+import lombok.RequiredArgsConstructor;
 
-@RestController @RequestMapping("/") // Root, as paths will be specific
-@RequiredArgsConstructor
+@RestController @RequestMapping("/") @RequiredArgsConstructor
 public class BioReadController
 {
     private final BioReadService bioReadService;

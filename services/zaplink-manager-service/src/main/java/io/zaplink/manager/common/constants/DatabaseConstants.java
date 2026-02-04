@@ -17,9 +17,9 @@ public final class DatabaseConstants
     }
     // ==================== TABLE NAMES ====================
     // Read Model Tables
-    public static final String TABLE_TEAM_MEMBER_VIEW         = "zaplink_manager.team_member_view";
-    public static final String TABLE_PENDING_POST_VIEW        = "zaplink_manager.pending_post_view";
-    public static final String TABLE_INFLUENCER_CAMPAIGN_VIEW = "zaplink_manager.influencer_campaign_view";
+    public static final String TABLE_TEAM_MEMBER_VIEW         = "manager.team_member_view";
+    public static final String TABLE_PENDING_POST_VIEW        = "manager.pending_post_view";
+    public static final String TABLE_INFLUENCER_CAMPAIGN_VIEW = "manager.influencer_campaign_view";
     // ==================== COLUMN NAMES ====================
     // Common columns
     public static final String COLUMN_ID                      = "id";

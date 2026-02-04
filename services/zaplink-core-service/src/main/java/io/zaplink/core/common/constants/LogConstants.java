@@ -38,9 +38,11 @@ public final class LogConstants
     public static final String LOG_URL_MAPPING_NOT_CREATED       = "URL mapping entity not created.";
     public static final String LOG_URL_SHORTENING_EXCEPTION      = "Exception while shorting the url. Error: {}";
     public static final String LOG_CREATING_URL_MAPPING          = "Creating URL mapping entity. key: {}";
+    public static final String LOG_UPDATING_SHORT_URL            = "Going to update short URL: {}";
+    public static final String LOG_URL_MAPPING_UPDATED           = "URL mapping updated successfully: {}";
     // ==================== EVENT PUBLISHING LOGS ====================
     public static final String EVENT_PUBLISHING                  = "Publishing event: {}";
-    public static final String EVENT_PUBLISHED                    = "Event published successfully: {}";
+    public static final String EVENT_PUBLISHED                   = "Event published successfully: {}";
     public static final String EVENT_PUBLISH_ERROR               = "Failed to publish event: {}";
     // ==================== TEAM MANAGEMENT LOGS ====================
     public static final String TEAM_MEMBER_INVITING              = "Inviting team member: {}";
