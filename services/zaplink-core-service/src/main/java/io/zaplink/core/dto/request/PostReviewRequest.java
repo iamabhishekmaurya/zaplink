@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.request;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.MessageConstants;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,10 +16,10 @@ import jakarta.validation.constraints.NotNull;
  * @version 1.0
  * @since 2026-01-31
  */
-public record PostReviewRequest( @NotNull(message = "Post ID is required") Long postId,
-                                 @NotBlank(message = "Decision is required") String decision,
+public record PostReviewRequest( @NotNull(message = ErrorConstant.VALIDATION_POST_ID_REQUIRED) Long postId,
+                                 @NotBlank(message = ErrorConstant.VALIDATION_DECISION_REQUIRED) String decision,
                                  String comments,
-                                 @NotNull(message = "Reviewer ID is required") Long reviewerId )
+                                 @NotNull(message = ErrorConstant.VALIDATION_REVIEWER_ID_REQUIRED) Long reviewerId )
 {
     /**
      * Compact constructor for validation.
@@ -28,26 +30,27 @@ public record PostReviewRequest( @NotNull(message = "Post ID is required") Long 
         // Validate decision value
         if ( decision != null )
         {
-            boolean validDecision = decision.equals( "APPROVE" ) || decision.equals( "REJECT" );
+            boolean validDecision = decision.equals( MessageConstants.DECISION_APPROVE )
+                    || decision.equals( MessageConstants.DECISION_REJECT );
             if ( !validDecision )
             {
-                throw new IllegalArgumentException( "Decision must be either APPROVE or REJECT" );
+                throw new IllegalArgumentException( ErrorConstant.ERROR_DECISION_MUST_BE_APPROVE_OR_REJECT );
             }
         }
         // Validate post ID
         if ( postId != null && postId <= 0 )
         {
-            throw new IllegalArgumentException( "Post ID must be positive" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_POST_ID_MUST_BE_POSITIVE );
         }
         // Validate reviewer ID
         if ( reviewerId != null && reviewerId <= 0 )
         {
-            throw new IllegalArgumentException( "Reviewer ID must be positive" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_REVIEWER_ID_MUST_BE_POSITIVE );
         }
         // Validate comments length
         if ( comments != null && comments.length() > 1000 )
         {
-            throw new IllegalArgumentException( "Comments cannot exceed 1000 characters" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_COMMENTS_CANNOT_EXCEED_1000_CHARACTERS );
         }
     }
 
@@ -60,7 +63,7 @@ public record PostReviewRequest( @NotNull(message = "Post ID is required") Long 
      */
     public static PostReviewRequest approve( Long postId, Long reviewerId )
     {
-        return new PostReviewRequest( postId, "APPROVE", null, reviewerId );
+        return new PostReviewRequest( postId, MessageConstants.DECISION_APPROVE, null, reviewerId );
     }
 
     /**
@@ -73,7 +76,7 @@ public record PostReviewRequest( @NotNull(message = "Post ID is required") Long 
      */
     public static PostReviewRequest approveWithComments( Long postId, String comments, Long reviewerId )
     {
-        return new PostReviewRequest( postId, "APPROVE", comments, reviewerId );
+        return new PostReviewRequest( postId, MessageConstants.DECISION_APPROVE, comments, reviewerId );
     }
 
     /**
@@ -85,7 +88,7 @@ public record PostReviewRequest( @NotNull(message = "Post ID is required") Long 
      */
     public static PostReviewRequest reject( Long postId, Long reviewerId )
     {
-        return new PostReviewRequest( postId, "REJECT", null, reviewerId );
+        return new PostReviewRequest( postId, MessageConstants.DECISION_REJECT, null, reviewerId );
     }
 
     /**
@@ -98,7 +101,7 @@ public record PostReviewRequest( @NotNull(message = "Post ID is required") Long 
      */
     public static PostReviewRequest rejectWithComments( Long postId, String comments, Long reviewerId )
     {
-        return new PostReviewRequest( postId, "REJECT", comments, reviewerId );
+        return new PostReviewRequest( postId, MessageConstants.DECISION_REJECT, comments, reviewerId );
     }
 
     /**
@@ -108,7 +111,7 @@ public record PostReviewRequest( @NotNull(message = "Post ID is required") Long 
      */
     public boolean isApproval()
     {
-        return "APPROVE".equals( decision );
+        return MessageConstants.DECISION_APPROVE.equals( decision );
     }
 
     /**
@@ -118,7 +121,7 @@ public record PostReviewRequest( @NotNull(message = "Post ID is required") Long 
      */
     public boolean isRejection()
     {
-        return "REJECT".equals( decision );
+        return MessageConstants.DECISION_REJECT.equals( decision );
     }
 
     /**
@@ -138,6 +141,7 @@ public record PostReviewRequest( @NotNull(message = "Post ID is required") Long 
      */
     public String getDecisionDescription()
     {
-        return isApproval() ? "Approved" : "Rejected";
+        return isApproval() ? MessageConstants.DECISION_DESCRIPTION_APPROVED
+                            : MessageConstants.DECISION_DESCRIPTION_REJECTED;
     }
 }

@@ -1,4 +1,4 @@
-package io.zaplink.core.exception;
+package io.zaplink.core.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

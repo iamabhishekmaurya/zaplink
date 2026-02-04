@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.QrConstants;
+
 /**
  * Request DTO for updating an existing bio link in the Core Service (CQRS Write Side).
  * 
@@ -38,7 +41,7 @@ import java.math.BigDecimal;
 public record UpdateBioLinkRequest(
     String title,
     
-    @Size(max = 500, message = "URL must be less than 500 characters")
+    @Size(max = 500, message = ErrorConstant.VALIDATION_URL_MAX_LENGTH)
     String url,
     
     String type,
@@ -83,30 +86,30 @@ public record UpdateBioLinkRequest(
      */
     private void validateTypeSpecificFields(String type, String url, BigDecimal price, String currency) {
         switch (type) {
-            case "LINK", "SOCIAL" -> {
-                if (url != null && !url.isEmpty() && !url.matches("^https?://.*")) {
-                    throw new IllegalArgumentException("URL must start with http:// or https://");
+            case QrConstants.LINK_TYPE_LINK, QrConstants.LINK_TYPE_SOCIAL -> {
+                if (url != null && !url.isEmpty() && !url.matches(QrConstants.URL_PATTERN)) {
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_URL_FORMAT );
                 }
             }
-            case "PRODUCT" -> {
+            case QrConstants.LINK_TYPE_PRODUCT -> {
                 if (price != null && price.compareTo(BigDecimal.ZERO) < 0) {
-                    throw new IllegalArgumentException("Price cannot be negative for PRODUCT links");
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_PRICE_NEGATIVE );
                 }
                 if (currency != null && currency.length() != 3) {
-                    throw new IllegalArgumentException("Currency must be a 3-letter code for PRODUCT links");
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_CURRENCY_LENGTH );
                 }
             }
-            case "EMAIL" -> {
-                if (url != null && !url.isEmpty() && !url.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                    throw new IllegalArgumentException("Invalid email format");
+            case QrConstants.LINK_TYPE_EMAIL -> {
+                if (url != null && !url.isEmpty() && !url.matches(QrConstants.EMAIL_PATTERN)) {
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_EMAIL_FORMAT );
                 }
             }
-            case "PHONE" -> {
-                if (url != null && !url.isEmpty() && !url.matches("^[+]?[0-9\\s\\-\\(\\)]+$")) {
-                    throw new IllegalArgumentException("Invalid phone number format");
+            case QrConstants.LINK_TYPE_PHONE -> {
+                if (url != null && !url.isEmpty() && !url.matches(QrConstants.PHONE_PATTERN)) {
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_PHONE_FORMAT );
                 }
             }
-            default -> throw new IllegalArgumentException("Unknown link type: " + type);
+            default -> throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_UNKNOWN_LINK_TYPE, type ) );
         }
     }
 }

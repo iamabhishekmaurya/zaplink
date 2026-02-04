@@ -3,6 +3,8 @@ package io.zaplink.core.dto.event;
 import java.time.Instant;
 import java.util.UUID;
 
+import io.zaplink.core.common.constants.MessageConstants;
+
 /**
  * Kafka event for workflow status changes.
  * Published when a post status changes in the workflow.
@@ -159,8 +161,8 @@ public record WorkflowStatusChangedEvent( String eventType,
                                                null,
                                                postId,
                                                title,
-                                               "SUBMITTED",
-                                               "APPROVED",
+                                               MessageConstants.POST_STATUS_SUBMITTED,
+                                               MessageConstants.POST_STATUS_APPROVED,
                                                authorId,
                                                authorName,
                                                null,
@@ -205,8 +207,8 @@ public record WorkflowStatusChangedEvent( String eventType,
                                                null,
                                                postId,
                                                title,
-                                               "SUBMITTED",
-                                               "REJECTED",
+                                               MessageConstants.POST_STATUS_SUBMITTED,
+                                               MessageConstants.POST_STATUS_REJECTED,
                                                authorId,
                                                authorName,
                                                null,
@@ -229,7 +231,7 @@ public record WorkflowStatusChangedEvent( String eventType,
      */
     public boolean isApproval()
     {
-        return "APPROVED".equals( newStatus );
+        return MessageConstants.POST_STATUS_APPROVED.equals( newStatus );
     }
 
     /**
@@ -239,7 +241,7 @@ public record WorkflowStatusChangedEvent( String eventType,
      */
     public boolean isRejection()
     {
-        return "REJECTED".equals( newStatus );
+        return MessageConstants.POST_STATUS_REJECTED.equals( newStatus );
     }
 
     /**
@@ -249,7 +251,7 @@ public record WorkflowStatusChangedEvent( String eventType,
      */
     public boolean isSubmission()
     {
-        return "SUBMITTED".equals( newStatus );
+        return MessageConstants.POST_STATUS_SUBMITTED.equals( newStatus );
     }
 
     /**

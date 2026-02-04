@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.enums.TeamMemberRole;
 import io.zaplink.core.common.enums.TeamMemberStatus;
@@ -48,14 +49,14 @@ public class TeamManagementService
                 log.info( LogConstants.TEAM_MEMBER_INVITING, "Email: {}, Role: {}, Team: {}", request.email(),
                           request.role(), request.teamId() );
                 // Validate team exists
-                Team team = teamRepository.findById( request.teamId() )
-                                .orElseThrow( () -> new RuntimeException( "Team not found: " + request.teamId() ) );
+                Team team = teamRepository.findById( request.teamId() ).orElseThrow( () -> new RuntimeException( String
+                                .format( ErrorConstant.ERROR_TEAM_NOT_FOUND, request.teamId() ) ) );
                 // Check if user is already a member
                 // Note: In a real implementation, you would look up the user by email
                 // For now, we'll create a placeholder user ID
                 Long userId = generateUserIdFromEmail( request.email() );
                 teamMemberRepository.findByTeamIdAndUserId( request.teamId(), userId ).ifPresent( existing -> {
-                        throw new RuntimeException( "User is already a member of this team" );
+                        throw new RuntimeException( ErrorConstant.ERROR_USER_ALREADY_MEMBER_OF_TEAM );
                 } );
                 // Create team member
                 TeamMember teamMember = TeamMember.builder().teamId( team.getId() ).userId( userId )
@@ -87,8 +88,9 @@ public class TeamManagementService
                 log.info( LogConstants.TEAM_MEMBER_ROLE_CHANGING, "User: {}, New Role: {}", request.userId(),
                           request.newRole() );
                 TeamMember teamMember = teamMemberRepository.findByUserId( request.userId() ).stream().findFirst()
-                                .orElseThrow( () -> new RuntimeException( "Team member not found: "
-                                                + request.userId() ) );
+                                .orElseThrow( () -> new RuntimeException( String
+                                                .format( ErrorConstant.ERROR_TEAM_MEMBER_NOT_FOUND,
+                                                         request.userId() ) ) );
                 TeamMemberRole previousRole = teamMember.getRole();
                 teamMember.setRole( TeamMemberRole.valueOf( request.newRole() ) );
                 TeamMember savedTeamMember = teamMemberRepository.save( teamMember );
@@ -96,8 +98,9 @@ public class TeamManagementService
                 log.info( LogConstants.TEAM_MEMBER_ROLE_CHANGED, "Team member role changed successfully: {}",
                           savedTeamMember.getId() );
                 Team team = teamRepository.findById( savedTeamMember.getTeamId() )
-                                .orElseThrow( () -> new RuntimeException( "Team not found: "
-                                                + savedTeamMember.getTeamId() ) );
+                                .orElseThrow( () -> new RuntimeException( String
+                                                .format( ErrorConstant.ERROR_TEAM_NOT_FOUND,
+                                                         savedTeamMember.getTeamId() ) ) );
                 return mapToTeamMemberResponse( savedTeamMember, team );
         }
 
@@ -112,7 +115,7 @@ public class TeamManagementService
         {
                 log.info( LogConstants.TEAM_MEMBER_REMOVING, "User: {}, Team: {}", userId, teamId );
                 TeamMember teamMember = teamMemberRepository.findByTeamIdAndUserId( teamId, userId )
-                                .orElseThrow( () -> new RuntimeException( "Team member not found" ) );
+                                .orElseThrow( () -> new RuntimeException( ErrorConstant.ERROR_TEAM_MEMBER_NOT_FOUND_SIMPLE ) );
                 teamMemberRepository.delete( teamMember );
                 // Note: In a real implementation, you might want to publish a member removed event
                 log.info( LogConstants.TEAM_MEMBER_REMOVED, "Team member removed successfully: {}",
@@ -128,8 +131,8 @@ public class TeamManagementService
         public List<TeamMemberResponse> getTeamMembers( Long teamId )
         {
                 List<TeamMember> members = teamMemberRepository.findByTeamId( teamId );
-                Team team = teamRepository.findById( teamId )
-                                .orElseThrow( () -> new RuntimeException( "Team not found: " + teamId ) );
+                Team team = teamRepository.findById( teamId ).orElseThrow( () -> new RuntimeException( String
+                                .format( ErrorConstant.ERROR_TEAM_NOT_FOUND, teamId ) ) );
                 return members.stream().map( member -> mapToTeamMemberResponse( member, team ) )
                                 .collect( Collectors.toList() );
         }

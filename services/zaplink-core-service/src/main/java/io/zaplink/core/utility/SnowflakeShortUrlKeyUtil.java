@@ -1,5 +1,8 @@
 package io.zaplink.core.utility;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.QrConstants;
+
 public class SnowflakeShortUrlKeyUtil
 {
     // Custom epoch (e.g., Jan 1, 2021)
@@ -15,12 +18,12 @@ public class SnowflakeShortUrlKeyUtil
     private long                lastTimestamp    = -1L;
     private long                sequence         = 0L;
     // Base62 character set
-    private static final String BASE62           = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final String BASE62           = QrConstants.BASE62_CHARSET;
     public SnowflakeShortUrlKeyUtil( long machineId )
     {
         if ( machineId < 0 || machineId > MAX_MACHINE_ID )
         {
-            throw new IllegalArgumentException( "Machine ID must be between 0 and " + MAX_MACHINE_ID );
+            throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_MACHINE_ID_RANGE, MAX_MACHINE_ID ) );
         }
         this.machineId = machineId;
     }
@@ -31,7 +34,7 @@ public class SnowflakeShortUrlKeyUtil
         long timestamp = System.currentTimeMillis();
         if ( timestamp < lastTimestamp )
         {
-            throw new RuntimeException( "Clock moved backwards. Refusing to generate id." );
+            throw new RuntimeException( ErrorConstant.ERROR_CLOCK_MOVED_BACKWARDS );
         }
         if ( timestamp == lastTimestamp )
         {

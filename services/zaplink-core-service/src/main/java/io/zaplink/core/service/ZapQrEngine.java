@@ -12,6 +12,9 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.common.constants.MessageConstants;
 import io.zaplink.core.dto.request.qr.QRConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +29,13 @@ public class ZapQrEngine
         {
             Map<EncodeHintType, Object> hints = new HashMap<>();
             hints.put( EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H );
-            hints.put( EncodeHintType.CHARACTER_SET, "UTF-8" );
+            hints.put( EncodeHintType.CHARACTER_SET, MessageConstants.ENCODING_UTF_8 );
             hints.put( EncodeHintType.MARGIN, config.margin() ); // Default 1 usually
-            log.info( "ZXing margin hint set to: {}", config.margin() );
+            log.info( LogConstants.QR_ZXING_MARGIN_HINT_SET, config.margin() );
             // Let ZXing determine the smallest version that fits the data
             // Passing 0, 0 instructs the writer to just wrap the content
             BitMatrix bitMatrix = new MultiFormatWriter().encode( config.data(), BarcodeFormat.QR_CODE, 0, 0, hints );
-            log.info( "Generated QR matrix: {}x{} for data: {}", bitMatrix.getWidth(), bitMatrix.getHeight(),
-                      config.data() );
+            log.info( LogConstants.QR_GENERATED_MATRIX, bitMatrix.getWidth(), bitMatrix.getHeight(), config.data() );
             // Dynamic detection of ZXing's enforced margin
             int[] topLeft = bitMatrix.getTopLeftOnBit();
             if ( topLeft != null )
@@ -41,14 +43,14 @@ public class ZapQrEngine
                 int zxingMargin = topLeft[0];
                 if ( zxingMargin > config.margin() )
                 {
-                    log.info( "ZXing enforced additional margin: {} (requested: {})", zxingMargin, config.margin() );
+                    log.info( LogConstants.QR_ZXING_ENFORCED_MARGIN, zxingMargin, config.margin() );
                     // If we requested 0 (or less than what we got) and got more, crop IF user wanted 0
                     // The original logic was specifically targeting config.margin() == 0
                     if ( config.margin() == 0 && zxingMargin > 0 )
                     {
-                        log.info( "Cropping matrix to remove ZXing enforced margin..." );
+                        log.info( LogConstants.QR_CROPPING_MATRIX );
                         bitMatrix = cropMatrix( bitMatrix, zxingMargin );
-                        log.info( "Cropped matrix size: {}x{}", bitMatrix.getWidth(), bitMatrix.getHeight() );
+                        log.info( LogConstants.QR_CROPPED_MATRIX_SIZE, bitMatrix.getWidth(), bitMatrix.getHeight() );
                     }
                 }
             }
@@ -56,8 +58,8 @@ public class ZapQrEngine
         }
         catch ( Exception e )
         {
-            log.error( "Failed to generate advanced QR", e );
-            throw new RuntimeException( "Adv QR Generation failed", e );
+            log.error( LogConstants.QR_FAILED_TO_GENERATE_ADVANCED, e );
+            throw new RuntimeException( ErrorConstant.ERROR_ADV_QR_GENERATION_FAILED, e );
         }
     }
 
@@ -68,7 +70,7 @@ public class ZapQrEngine
         int newSize = originalSize - ( marginToRemove * 2 );
         if ( newSize <= 0 )
         {
-            log.warn( "Cannot crop matrix - new size would be {}x{}", newSize, newSize );
+            log.warn( LogConstants.QR_CANNOT_CROP_MATRIX, newSize, newSize );
             return matrix;
         }
         BitMatrix cropped = new BitMatrix( newSize );

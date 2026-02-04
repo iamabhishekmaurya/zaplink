@@ -1,23 +1,25 @@
 package io.zaplink.core.dto.request.dynamicqr;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import io.zaplink.core.dto.request.qr.QRConfig;
 import io.zaplink.core.dto.request.RedirectRuleDto;
-import java.util.List;
+import io.zaplink.core.common.constants.ErrorConstant;
 
 public record CreateDynamicQrRequest(
-    @NotBlank(message = "QR name is required") @Size(max = 255, message = "QR name must not exceed 255 characters")
+    @NotBlank(message = ErrorConstant.VALIDATION_QR_NAME_REQUIRED) @Size(max = 255, message = ErrorConstant.VALIDATION_QR_NAME_MAX_LENGTH)
     String qrName,
     
-    @NotBlank(message = "Destination URL is required") @Size(max = 2048, message = "Destination URL must not exceed 2048 characters")
+    @NotBlank(message = ErrorConstant.VALIDATION_DESTINATION_URL_REQUIRED) @Size(max = 2048, message = ErrorConstant.VALIDATION_DESTINATION_URL_MAX_LENGTH)
     String destinationUrl,
     
     String campaignId,
     
-    @NotNull(message = "QR configuration is required")
+    @NotNull(message = ErrorConstant.VALIDATION_QR_CONFIG_REQUIRED)
     QRConfig qrConfig,
     
     // Advanced Features

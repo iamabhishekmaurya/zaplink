@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.QrConstants;
+
 /**
  * Request DTO for creating a new bio page in the Core Service (CQRS Write Side).
  * 
@@ -32,23 +35,23 @@ import jakarta.validation.constraints.Size;
  * @param bioText optional bio/description text (max 500 characters)
  */
 public record CreateBioPageRequest(
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+    @NotBlank(message = ErrorConstant.VALIDATION_USERNAME_REQUIRED)
+    @Size(min = 3, max = 50, message = ErrorConstant.VALIDATION_USERNAME_SIZE_RANGE)
     String username,
     
     @JsonProperty("owner_id")
-    @NotBlank(message = "Owner ID is required")
+    @NotBlank(message = ErrorConstant.VALIDATION_OWNER_ID_REQUIRED)
     String ownerId,
     
     @JsonProperty("theme_config")
     String themeConfig,
     
     @JsonProperty("avatar_url")
-    @Size(max = 500, message = "Avatar URL must be less than 500 characters")
+    @Size(max = 500, message = ErrorConstant.VALIDATION_AVATAR_URL_MAX_LENGTH)
     String avatarUrl,
     
     @JsonProperty("bio_text")
-    @Size(max = 500, message = "Bio text must be less than 500 characters")
+    @Size(max = 500, message = ErrorConstant.VALIDATION_BIO_TEXT_MAX_LENGTH)
     String bioText
 ) {
     
@@ -75,17 +78,17 @@ public record CreateBioPageRequest(
      */
     private void validateUsername(String username) {
         if (username == null) {
-            throw new IllegalArgumentException("Username cannot be null");
+            throw new IllegalArgumentException(ErrorConstant.ERROR_USERNAME_CANNOT_BE_NULL);
         }
         
         // Enhanced switch expression for validation
         switch (username) {
             case String uname when uname.trim().isEmpty() -> 
-                throw new IllegalArgumentException("Username cannot be empty");
-            case String uname when !uname.matches("^[a-zA-Z0-9_-]+$") -> 
-                throw new IllegalArgumentException("Username can only contain letters, numbers, underscores, and hyphens");
+                throw new IllegalArgumentException(ErrorConstant.ERROR_USERNAME_CANNOT_BE_EMPTY);
+            case String uname when !uname.matches(QrConstants.USERNAME_PATTERN) -> 
+                throw new IllegalArgumentException(ErrorConstant.ERROR_USERNAME_FORMAT);
             case String uname when uname.startsWith("-") || uname.startsWith("_") -> 
-                throw new IllegalArgumentException("Username cannot start with underscore or hyphen");
+                throw new IllegalArgumentException(ErrorConstant.ERROR_USERNAME_CANNOT_START_WITH_UNDERSCORE_OR_HYPHEN);
             default -> {
                 // Valid username
             }

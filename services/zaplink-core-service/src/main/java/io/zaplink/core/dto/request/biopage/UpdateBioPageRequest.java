@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Size;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.QrConstants;
+
 /**
  * Request DTO for updating an existing bio page in the Core Service (CQRS Write Side).
  * 
@@ -39,11 +42,11 @@ public record UpdateBioPageRequest(
     String themeConfig,
     
     @JsonProperty("avatar_url")
-    @Size(max = 500, message = "Avatar URL must be less than 500 characters")
+    @Size(max = 500, message = ErrorConstant.VALIDATION_AVATAR_URL_MAX_LENGTH)
     String avatarUrl,
     
     @JsonProperty("bio_text")
-    @Size(max = 500, message = "Bio text must be less than 500 characters")
+    @Size(max = 500, message = ErrorConstant.VALIDATION_BIO_TEXT_MAX_LENGTH)
     String bioText,
     
     @JsonProperty("is_active")
@@ -77,11 +80,11 @@ public record UpdateBioPageRequest(
     private void validateUrl(String url) {
         switch (url) {
             case String u when u.trim().isEmpty() -> 
-                throw new IllegalArgumentException("URL cannot be empty");
-            case String u when !u.matches("^https?://.*") -> 
-                throw new IllegalArgumentException("URL must start with http:// or https://");
-            case String u when u.length() > 500 -> 
-                throw new IllegalArgumentException("URL must be less than 500 characters");
+                throw new IllegalArgumentException(ErrorConstant.ERROR_URL_CANNOT_BE_EMPTY);
+            case String u when !u.matches(QrConstants.URL_PATTERN) -> 
+                throw new IllegalArgumentException( ErrorConstant.ERROR_URL_TOO_LONG );
+            case String u when u.length() > QrConstants.MAX_AVATAR_URL_LENGTH -> 
+                throw new IllegalArgumentException( ErrorConstant.ERROR_URL_TOO_LONG );
             default -> {
                 // Valid URL
             }

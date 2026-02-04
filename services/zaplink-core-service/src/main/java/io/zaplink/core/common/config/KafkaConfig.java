@@ -1,5 +1,8 @@
 package io.zaplink.core.common.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +14,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Kafka configuration for the Core Service.
  * Configures Kafka producers for publishing team and workflow events.
@@ -22,39 +22,38 @@ import java.util.Map;
  * @version 1.0
  * @since 2026-01-31
  */
-@Configuration
-@EnableKafka
-public class KafkaConfig {
-    
+@Configuration @EnableKafka
+public class KafkaConfig
+{
     @Value("${spring.kafka.bootstrap-servers:localhost:9092}")
     private String bootstrapServers;
-    
     /**
      * Creates producer factory configuration for Kafka.
      * 
      * @return ProducerFactory with JSON serialization
      */
     @Bean
-    public ProducerFactory<String, Object> producerFactory() {
+    public ProducerFactory<String, Object> producerFactory()
+    {
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        configProps.put(ProducerConfig.ACKS_CONFIG, "all");
-        configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
-        configProps.put(ProducerConfig.LINGER_MS_CONFIG, 10);
-        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-        
-        return new DefaultKafkaProducerFactory<>(configProps);
+        configProps.put( ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers );
+        configProps.put( ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class );
+        configProps.put( ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class );
+        configProps.put( ProducerConfig.ACKS_CONFIG, "all" );
+        configProps.put( ProducerConfig.RETRIES_CONFIG, 3 );
+        configProps.put( ProducerConfig.LINGER_MS_CONFIG, 10 );
+        configProps.put( ProducerConfig.BATCH_SIZE_CONFIG, 16384 );
+        return new DefaultKafkaProducerFactory<>( configProps );
     }
-    
+
     /**
      * Creates KafkaTemplate for sending messages.
      * 
      * @return KafkaTemplate configured with the producer factory
      */
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
-        return new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, Object> kafkaTemplate()
+    {
+        return new KafkaTemplate<>( producerFactory() );
     }
 }

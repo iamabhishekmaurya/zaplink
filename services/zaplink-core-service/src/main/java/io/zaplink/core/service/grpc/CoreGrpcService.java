@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.grpc.stub.StreamObserver;
+import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.entity.UrlMappingEntity;
 import io.zaplink.core.grpc.CoreServiceGrpc;
 import io.zaplink.core.grpc.CoreServiceProto;
@@ -58,8 +59,9 @@ public class CoreGrpcService
                 {
                         log.info( "gRPC: Getting URL by ID: {}", request.getUrlId() );
                         UrlMappingEntity url = urlMappingRepository.findById( Long.parseLong( request.getUrlId() ) )
-                                        .orElseThrow( () -> new RuntimeException( "URL not found: "
-                                                        + request.getUrlId() ) );
+                                        .orElseThrow( () -> new RuntimeException( String
+                                                        .format( ErrorConstant.ERROR_URL_NOT_FOUND,
+                                                                 request.getUrlId() ) ) );
                         CoreServiceProto.GetUrlByIdResponse response = CoreServiceProto.GetUrlByIdResponse.newBuilder()
                                         .setUrl( mapToUrlData( url ) ).build();
                         responseObserver.onNext( response );

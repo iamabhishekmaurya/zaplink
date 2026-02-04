@@ -1,5 +1,8 @@
 package io.zaplink.core.utility;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.QrConstants;
+
 /**
  * SnowflakeShortKeyGenerator
  *
@@ -26,20 +29,20 @@ public class SnowflakeShortKeyGenerator
 {
     // ---------------- Base62 Encoding ----------------
     /** Character set for Base62 encoding (0-9, A-Z, a-z). */
-    private static final String BASE62           = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final String BASE62           = QrConstants.BASE62_CHARSET;
     /** Total possible unique 8-character Base62 combinations = 62^8. */
-    private static final long   SPACE            = (long) Math.pow( 62, 8 );
+    private static final long   SPACE            = QrConstants.TOTAL_BASE62_COMBINATIONS;
     // ---------------- Snowflake Configuration ----------------
     /** Custom epoch (Jan 1, 2021 UTC) to reduce timestamp size. */
     private static final long   EPOCH            = 1609459200000L;
     /** Number of bits allocated for machine ID (10 bits → 0–1023). */
-    private static final long   MACHINE_ID_BITS  = 10L;
+    private static final long   MACHINE_ID_BITS  = QrConstants.MACHINE_ID_BITS;
     /** Number of bits allocated for sequence number (12 bits → 0–4095). */
-    private static final long   SEQUENCE_BITS    = 12L;
+    private static final long   SEQUENCE_BITS    = QrConstants.SEQUENCE_BITS;
     /** Maximum allowed machine ID (1023). */
-    private static final long   MAX_MACHINE_ID   = ~ ( -1L << MACHINE_ID_BITS );
+    private static final long   MAX_MACHINE_ID   = QrConstants.MAX_MACHINE_ID;
     /** Maximum allowed sequence number per millisecond (4095). */
-    private static final long   MAX_SEQUENCE     = ~ ( -1L << SEQUENCE_BITS );
+    private static final long   MAX_SEQUENCE     = QrConstants.MAX_SEQUENCE;
     /** Bit shift for machine ID (12 bits for sequence). */
     private static final long   MACHINE_ID_SHIFT = SEQUENCE_BITS;
     /** Bit shift for timestamp (12 + 10 bits). */
@@ -60,7 +63,7 @@ public class SnowflakeShortKeyGenerator
     {
         if ( machineId < 0 || machineId > MAX_MACHINE_ID )
         {
-            throw new IllegalArgumentException( "Machine ID must be between 0 and " + MAX_MACHINE_ID );
+            throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_MACHINE_ID_RANGE, MAX_MACHINE_ID ) );
         }
         this.machineId = machineId;
     }
@@ -81,7 +84,7 @@ public class SnowflakeShortKeyGenerator
         // Handle clock rollback (system clock moved backwards)
         if ( timestamp < lastTimestamp )
         {
-            throw new RuntimeException( "Clock moved backwards. Refusing to generate id." );
+            throw new RuntimeException( ErrorConstant.ERROR_CLOCK_MOVED_BACKWARDS );
         }
         if ( timestamp == lastTimestamp )
         {

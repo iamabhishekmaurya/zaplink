@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.request;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.MessageConstants;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,8 +16,8 @@ import jakarta.validation.constraints.NotNull;
  * @version 1.0
  * @since 2026-01-31
  */
-public record TeamMemberRoleChangeRequest( @NotNull(message = "User ID is required") Long userId,
-                                           @NotBlank(message = "New role is required") String newRole,
+public record TeamMemberRoleChangeRequest( @NotNull(message = ErrorConstant.VALIDATION_USER_ID_REQUIRED) Long userId,
+                                           @NotBlank(message = ErrorConstant.VALIDATION_NEW_ROLE_REQUIRED) String newRole,
                                            String reason )
 {
     /**
@@ -27,22 +29,25 @@ public record TeamMemberRoleChangeRequest( @NotNull(message = "User ID is requir
         // Validate role is one of the allowed values
         if ( newRole != null )
         {
-            boolean validRole = newRole.equals( "ADMIN" ) || newRole.equals( "EDITOR" ) || newRole.equals( "APPROVER" )
-                    || newRole.equals( "VIEWER" ) || newRole.equals( "INFLUENCER" );
+            boolean validRole = newRole.equals( MessageConstants.ROLE_ADMIN )
+                    || newRole.equals( MessageConstants.ROLE_EDITOR )
+                    || newRole.equals( MessageConstants.ROLE_APPROVER )
+                    || newRole.equals( MessageConstants.ROLE_VIEWER )
+                    || newRole.equals( MessageConstants.ROLE_INFLUENCER );
             if ( !validRole )
             {
-                throw new IllegalArgumentException( "New role must be one of: ADMIN, EDITOR, APPROVER, VIEWER, INFLUENCER" );
+                throw new IllegalArgumentException( ErrorConstant.ERROR_ROLE_NOT_ALLOWED );
             }
         }
         // Validate user ID
         if ( userId != null && userId <= 0 )
         {
-            throw new IllegalArgumentException( "User ID must be positive" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_USER_ID_MUST_BE_POSITIVE );
         }
         // Validate reason length
         if ( reason != null && reason.length() > 500 )
         {
-            throw new IllegalArgumentException( "Reason cannot exceed 500 characters" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_REASON_LENGTH_TOO_LONG );
         }
     }
 
@@ -78,7 +83,7 @@ public record TeamMemberRoleChangeRequest( @NotNull(message = "User ID is requir
      */
     public boolean isAdminPromotion()
     {
-        return "ADMIN".equals( newRole );
+        return MessageConstants.ROLE_ADMIN.equals( newRole );
     }
 
     /**
@@ -88,7 +93,7 @@ public record TeamMemberRoleChangeRequest( @NotNull(message = "User ID is requir
      */
     public boolean isDemotion()
     {
-        return "VIEWER".equals( newRole );
+        return MessageConstants.ROLE_VIEWER.equals( newRole );
     }
 
     /**
@@ -98,7 +103,7 @@ public record TeamMemberRoleChangeRequest( @NotNull(message = "User ID is requir
      */
     public boolean isInfluencerAssignment()
     {
-        return "INFLUENCER".equals( newRole );
+        return MessageConstants.ROLE_INFLUENCER.equals( newRole );
     }
 
     /**
@@ -108,7 +113,7 @@ public record TeamMemberRoleChangeRequest( @NotNull(message = "User ID is requir
      */
     public boolean isApproverAssignment()
     {
-        return "APPROVER".equals( newRole );
+        return MessageConstants.ROLE_APPROVER.equals( newRole );
     }
 
     /**
@@ -118,7 +123,7 @@ public record TeamMemberRoleChangeRequest( @NotNull(message = "User ID is requir
      */
     public boolean isEditorAssignment()
     {
-        return "EDITOR".equals( newRole );
+        return MessageConstants.ROLE_EDITOR.equals( newRole );
     }
 
     /**
@@ -141,11 +146,11 @@ public record TeamMemberRoleChangeRequest( @NotNull(message = "User ID is requir
     {
         return switch ( newRole )
         {
-            case "ADMIN" -> 4;
-            case "APPROVER" -> 3;
-            case "EDITOR" -> 2;
-            case "INFLUENCER" -> 1;
-            case "VIEWER" -> 0;
+            case MessageConstants.ROLE_ADMIN -> 4;
+            case MessageConstants.ROLE_APPROVER -> 3;
+            case MessageConstants.ROLE_EDITOR -> 2;
+            case MessageConstants.ROLE_INFLUENCER -> 1;
+            case MessageConstants.ROLE_VIEWER -> 0;
             default -> -1;
         };
     }

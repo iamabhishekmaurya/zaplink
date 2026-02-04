@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.enums.UrlStatusEnum;
 import io.zaplink.core.dto.request.ShortnerRequest;
@@ -14,8 +15,8 @@ import io.zaplink.core.dto.request.UpdateShortLinkRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
 import io.zaplink.core.entity.RedirectRuleEntity;
 import io.zaplink.core.entity.UrlMappingEntity;
-import io.zaplink.core.exception.ResourceNotFoundException;
-import io.zaplink.core.exception.UnauthorizedException;
+import io.zaplink.core.common.exception.ResourceNotFoundException;
+import io.zaplink.core.common.exception.UnauthorizedException;
 import io.zaplink.core.repository.RedirectRuleRepository;
 import io.zaplink.core.repository.UrlMappingRepository;
 import io.zaplink.core.utility.SnowflakeShortKeyGenerator;
@@ -107,8 +108,8 @@ public class UrlShortnerService
     {
         log.info( LogConstants.LOG_UPDATING_SHORT_URL, updateRequest.shortUrlKey() );
         UrlMappingEntity urlMappingEntity = urlMappingRepository.findByShortUrlKey( updateRequest.shortUrlKey() )
-                .orElseThrow( () -> new ResourceNotFoundException( "Link not found with key: "
-                        + updateRequest.shortUrlKey() ) );
+                .orElseThrow( () -> new ResourceNotFoundException( String.format( ErrorConstant.ERROR_LINK_NOT_FOUND_WITH_KEY,
+                        updateRequest.shortUrlKey() ) ) );
         if ( !urlMappingEntity.getUserEmail().equals( userEmail ) )
         {
             throw new UnauthorizedException( "You are not authorized to update this link" );

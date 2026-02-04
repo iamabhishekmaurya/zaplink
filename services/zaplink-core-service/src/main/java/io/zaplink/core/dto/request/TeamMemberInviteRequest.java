@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.request;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.MessageConstants;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,9 +17,9 @@ import jakarta.validation.constraints.NotNull;
  * @version 1.0
  * @since 2026-01-31
  */
-public record TeamMemberInviteRequest( @NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email,
-                                       @NotBlank(message = "Role is required") String role,
-                                       @NotNull(message = "Team ID is required") Long teamId,
+public record TeamMemberInviteRequest( @NotBlank(message = ErrorConstant.VALIDATION_EMAIL_REQUIRED) @Email(message = ErrorConstant.VALIDATION_INVALID_EMAIL) String email,
+                                       @NotBlank(message = ErrorConstant.VALIDATION_ROLE_REQUIRED) String role,
+                                       @NotNull(message = ErrorConstant.VALIDATION_TEAM_ID_REQUIRED) Long teamId,
                                        String message )
 {
     /**
@@ -29,17 +31,18 @@ public record TeamMemberInviteRequest( @NotBlank(message = "Email is required") 
         // Validate role is one of the allowed values
         if ( role != null )
         {
-            boolean validRole = role.equals( "ADMIN" ) || role.equals( "EDITOR" ) || role.equals( "APPROVER" )
-                    || role.equals( "VIEWER" ) || role.equals( "INFLUENCER" );
+            boolean validRole = role.equals( MessageConstants.ROLE_ADMIN )
+                    || role.equals( MessageConstants.ROLE_EDITOR ) || role.equals( MessageConstants.ROLE_APPROVER )
+                    || role.equals( MessageConstants.ROLE_VIEWER ) || role.equals( MessageConstants.ROLE_INFLUENCER );
             if ( !validRole )
             {
-                throw new IllegalArgumentException( "Role must be one of: ADMIN, EDITOR, APPROVER, VIEWER, INFLUENCER" );
+                throw new IllegalArgumentException( ErrorConstant.ERROR_ROLE_NOT_ALLOWED );
             }
         }
         // Validate team ID is positive
         if ( teamId != null && teamId <= 0 )
         {
-            throw new IllegalArgumentException( "Team ID must be positive" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_TEAM_ID_MUST_BE_POSITIVE );
         }
     }
 
@@ -63,7 +66,7 @@ public record TeamMemberInviteRequest( @NotBlank(message = "Email is required") 
      */
     public boolean isAdminInvitation()
     {
-        return "ADMIN".equals( role );
+        return MessageConstants.ROLE_ADMIN.equals( role );
     }
 
     /**
@@ -73,6 +76,6 @@ public record TeamMemberInviteRequest( @NotBlank(message = "Email is required") 
      */
     public boolean isInfluencerInvitation()
     {
-        return "INFLUENCER".equals( role );
+        return MessageConstants.ROLE_INFLUENCER.equals( role );
     }
 }

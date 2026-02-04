@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.enums.BioLinkType;
 import io.zaplink.core.dto.error.BioPageCreatedEvent;
 import io.zaplink.core.dto.request.biopage.CreateBioPageRequest;
@@ -96,7 +97,8 @@ public class BioPageService
         if ( bioPageRepository.existsByUsername( request.username() ) )
         {
             log.warn( "Username conflict attempted: {}", request.username() );
-            throw new IllegalArgumentException( "Username '" + request.username() + "' already exists" );
+            throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_USERNAME_ALREADY_EXISTS,
+                                                               request.username() ) );
         }
         try
         {
@@ -159,7 +161,7 @@ public class BioPageService
         log.info( "Updating bio page with ID: {}", id );
         BioPageEntity entity = bioPageRepository.findById( id ).orElseThrow( () -> {
             log.warn( "Attempted to update non-existent bio page with ID: {}", id );
-            return new IllegalArgumentException( "Bio page not found with ID: " + id );
+            return new IllegalArgumentException( String.format( ErrorConstant.ERROR_BIO_PAGE_NOT_FOUND_WITH_ID, id ) );
         } );
         // Update fields using Java 21 Optional chaining
         Optional.ofNullable( request.bioText() ).ifPresent( entity::setBioText );
@@ -356,17 +358,18 @@ public class BioPageService
             // Validate event
             if ( event == null )
             {
-                throw new IllegalArgumentException( "BioPageCreatedEvent cannot be null" );
+                throw new IllegalArgumentException( ErrorConstant.ERROR_BIOPAGE_CREATED_EVENT_CANNOT_BE_NULL );
             }
             // Retrieve the created bio page to verify it exists
             BioPageEntity bioPage = bioPageRepository.findById( event.id() )
-                    .orElseThrow( () -> new IllegalArgumentException( "BioPage not found with ID: " + event.id() ) );
+                    .orElseThrow( () -> new IllegalArgumentException( String
+                            .format( ErrorConstant.ERROR_BIOPAGE_NOT_FOUND_WITH_ID, event.id() ) ) );
             // Verify the username matches
             if ( !bioPage.getUsername().equals( event.username() ) )
             {
                 log.warn( "Username mismatch in BioPageCreatedEvent. Event: {}, Actual: {}", event.username(),
                           bioPage.getUsername() );
-                throw new IllegalArgumentException( "Username mismatch in event data" );
+                throw new IllegalArgumentException( ErrorConstant.ERROR_USERNAME_MISMATCH );
             }
             log.debug( "Successfully validated bio page: {} ({})", bioPage.getUsername(), bioPage.getId() );
             // Initialize default bio links if this is a new page with no links

@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -226,20 +227,20 @@ public class BioPageEntity
         // Validate username using switch expression with pattern matching
         switch ( username )
         {
-            case null -> throw new IllegalArgumentException( "Username cannot be null or empty" );
-            case "" -> throw new IllegalArgumentException( "Username cannot be null or empty" );
+            case null -> throw new IllegalArgumentException( ErrorConstant.ERROR_USERNAME_CANNOT_BE_NULL );
+            case "" -> throw new IllegalArgumentException( ErrorConstant.ERROR_USERNAME_CANNOT_BE_EMPTY );
             case String uname when uname
-                    .length() < 3 -> throw new IllegalArgumentException( "Username must be at least 3 characters long" );
+                    .length() < 3 -> throw new IllegalArgumentException( ErrorConstant.ERROR_USERNAME_MUST_BE_AT_LEAST_3_CHARACTERS );
             case String uname when uname
-                    .length() > 50 -> throw new IllegalArgumentException( "Username cannot exceed 50 characters" );
+                    .length() > 50 -> throw new IllegalArgumentException( ErrorConstant.ERROR_USERNAME_CANNOT_EXCEED_50_CHARACTERS );
             case String uname when !uname
-                    .matches( "^[a-zA-Z0-9_-]+$" ) -> throw new IllegalArgumentException( "Username can only contain letters, numbers, underscores, and hyphens" );
+                    .matches( "^[a-zA-Z0-9_-]+$" ) -> throw new IllegalArgumentException( ErrorConstant.ERROR_USERNAME_CAN_ONLY_CONTAIN_LETTERS_NUMBERS_UNDERSCORES_AND_HYPHENS );
             default -> log.trace( "Username validation passed: {}", username );
         }
         // Validate owner ID
         if ( ownerId == null || ownerId.trim().isEmpty() )
         {
-            throw new IllegalArgumentException( "Owner ID cannot be null or empty" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_OWNER_ID_CANNOT_BE_NULL_OR_EMPTY );
         }
         // Validate theme configuration if present
         if ( themeConfig != null && !themeConfig.trim().isEmpty() )

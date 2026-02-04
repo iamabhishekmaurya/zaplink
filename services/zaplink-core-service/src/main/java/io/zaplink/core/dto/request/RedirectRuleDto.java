@@ -3,10 +3,11 @@ package io.zaplink.core.dto.request;
 import io.zaplink.core.common.enums.RuleDimension;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import io.zaplink.core.common.constants.ErrorConstant;
 
-public record RedirectRuleDto( @NotNull(message = "Dimension is required") RuleDimension dimension,
-                               @NotBlank(message = "Value is required") String value,
-                               @NotBlank(message = "Destination URL is required") String destinationUrl,
-                               @NotNull(message = "Priority is required") Integer priority )
+public record RedirectRuleDto( @NotNull(message = ErrorConstant.VALIDATION_DIMENSION_REQUIRED) RuleDimension dimension,
+                               @NotBlank(message = ErrorConstant.VALIDATION_VALUE_REQUIRED) String value,
+                               @NotBlank(message = ErrorConstant.VALIDATION_DESTINATION_URL_REQUIRED) String destinationUrl,
+                               @NotNull(message = ErrorConstant.VALIDATION_PRIORITY_REQUIRED) Integer priority )
 {
 }

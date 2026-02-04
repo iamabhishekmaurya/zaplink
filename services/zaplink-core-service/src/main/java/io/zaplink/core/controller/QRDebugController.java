@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.zaplink.core.common.enums.QRBodyShapeEnum;
+import io.zaplink.core.common.constants.MessageConstants;
+import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.enums.QREyeShapeEnum;
 import io.zaplink.core.dto.request.qr.QRBodyConfig;
 import io.zaplink.core.dto.request.qr.QRConfig;
@@ -122,15 +124,15 @@ public class QRDebugController
             com.google.zxing.BinaryBitmap bitmap = new com.google.zxing.BinaryBitmap( new com.google.zxing.common.HybridBinarizer( source ) );
             com.google.zxing.Result result = new com.google.zxing.MultiFormatReader().decode( bitmap );
             String decodedData = result.getText();
-            log.info( "QR decoded successfully! Original: {}, Decoded: {}", data, decodedData );
-            return ResponseEntity.ok( java.util.Map.of( "success", true, "originalData", data, "decodedData",
-                                                        decodedData, "match", data.equals( decodedData ) ) );
+            log.info( LogConstants.QR_VERIFICATION_SUCCESS, data, decodedData );
+            return ResponseEntity.ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_DECODED_DATA,
+                                                        decodedData, MessageConstants.RESPONSE_KEY_MATCH, data.equals( decodedData ) ) );
         }
         catch ( Exception e )
         {
-            log.error( "QR verification failed", e );
+            log.error( LogConstants.QR_VERIFICATION_FAILED, e );
             return ResponseEntity
-                    .ok( java.util.Map.of( "success", false, "originalData", data, "error", e.getMessage() ) );
+                    .ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, false, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_ERROR, e.getMessage() ) );
         }
     }
 
@@ -145,7 +147,7 @@ public class QRDebugController
             java.util.Map<com.google.zxing.EncodeHintType, Object> hints = new java.util.HashMap<>();
             hints.put( com.google.zxing.EncodeHintType.ERROR_CORRECTION,
                        com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.H );
-            hints.put( com.google.zxing.EncodeHintType.CHARACTER_SET, "UTF-8" );
+            hints.put( com.google.zxing.EncodeHintType.CHARACTER_SET, MessageConstants.ENCODING_UTF_8 );
             hints.put( com.google.zxing.EncodeHintType.MARGIN, 1 );
             com.google.zxing.common.BitMatrix bitMatrix = new com.google.zxing.MultiFormatWriter()
                     .encode( data, com.google.zxing.BarcodeFormat.QR_CODE, 512, 512, hints );
@@ -156,16 +158,16 @@ public class QRDebugController
             com.google.zxing.BinaryBitmap bitmap = new com.google.zxing.BinaryBitmap( new com.google.zxing.common.HybridBinarizer( source ) );
             com.google.zxing.Result result = new com.google.zxing.MultiFormatReader().decode( bitmap );
             String decodedData = result.getText();
-            log.info( "NATIVE QR decoded! Original: {}, Decoded: {}", data, decodedData );
+            log.info( LogConstants.QR_NATIVE_VERIFICATION_SUCCESS, data, decodedData );
             return ResponseEntity
-                    .ok( java.util.Map.of( "success", true, "renderer", "NATIVE_ZXING", "originalData", data,
-                                           "decodedData", decodedData, "match", data.equals( decodedData ) ) );
+                    .ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_RENDERER, MessageConstants.RENDERER_NATIVE_ZXING, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data,
+                                           MessageConstants.RESPONSE_KEY_DECODED_DATA, decodedData, MessageConstants.RESPONSE_KEY_MATCH, data.equals( decodedData ) ) );
         }
         catch ( Exception e )
         {
-            log.error( "NATIVE QR verification failed", e );
-            return ResponseEntity.ok( java.util.Map.of( "success", false, "renderer", "NATIVE_ZXING", "originalData",
-                                                        data, "error", e.getMessage() ) );
+            log.error( LogConstants.QR_NATIVE_VERIFICATION_FAILED, e );
+            return ResponseEntity.ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, false, MessageConstants.RESPONSE_KEY_RENDERER, MessageConstants.RENDERER_NATIVE_ZXING, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA,
+                                                        data, MessageConstants.RESPONSE_KEY_ERROR, e.getMessage() ) );
         }
     }
 
@@ -197,16 +199,16 @@ public class QRDebugController
             com.google.zxing.BinaryBitmap bitmap = new com.google.zxing.BinaryBitmap( new com.google.zxing.common.HybridBinarizer( source ) );
             com.google.zxing.Result result = new com.google.zxing.MultiFormatReader().decode( bitmap );
             String decodedData = result.getText();
-            log.info( "STYLED QR decoded! bodyShape: {}, eyeShape: {}, Decoded: {}", bodyShape, eyeShape, decodedData );
-            return ResponseEntity.ok( java.util.Map.of( "success", true, "bodyShape", bodyShape, "eyeShape", eyeShape,
-                                                        "originalData", data, "decodedData", decodedData, "match",
+            log.info( LogConstants.QR_STYLED_VERIFICATION_SUCCESS, bodyShape, eyeShape, decodedData );
+            return ResponseEntity.ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_BODY_SHAPE, bodyShape, MessageConstants.RESPONSE_KEY_EYE_SHAPE, eyeShape,
+                                                        MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_DECODED_DATA, decodedData, MessageConstants.RESPONSE_KEY_MATCH,
                                                         data.equals( decodedData ) ) );
         }
         catch ( Exception e )
         {
-            log.error( "STYLED QR verification failed for body: {}, eye: {}", bodyShape, eyeShape, e );
+            log.error( LogConstants.QR_STYLED_VERIFICATION_FAILED, bodyShape, eyeShape, e );
             return ResponseEntity.ok( java.util.Map
-                    .of( "success", false, "bodyShape", bodyShape, "eyeShape", eyeShape, "originalData", data, "error",
+                    .of( MessageConstants.RESPONSE_KEY_SUCCESS, false, MessageConstants.RESPONSE_KEY_BODY_SHAPE, bodyShape, MessageConstants.RESPONSE_KEY_EYE_SHAPE, eyeShape, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_ERROR,
                          e.getMessage() != null ? e.getMessage() : "NotFoundException" ) );
         }
     }

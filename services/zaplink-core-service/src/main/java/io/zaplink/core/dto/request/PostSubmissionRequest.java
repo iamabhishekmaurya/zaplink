@@ -3,6 +3,8 @@ package io.zaplink.core.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+
 /**
  * DTO for submitting a post for approval in the workflow.
  * Contains the post content and campaign information.
@@ -14,10 +16,10 @@ import jakarta.validation.constraints.NotNull;
  * @version 1.0
  * @since 2026-01-31
  */
-public record PostSubmissionRequest( @NotBlank(message = "Title is required") String title,
+public record PostSubmissionRequest( @NotBlank(message = ErrorConstant.VALIDATION_TITLE_REQUIRED) String title,
                                      String content,
                                      Long campaignId,
-                                     @NotNull(message = "Author ID is required") Long authorId,
+                                     @NotNull(message = ErrorConstant.VALIDATION_AUTHOR_ID_REQUIRED) Long authorId,
                                      String reviewerNotes )
 {
     /**

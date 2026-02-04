@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.dto.event.TeamMemberAddedEvent;
 import io.zaplink.core.dto.event.WorkflowStatusChangedEvent;
@@ -77,7 +78,7 @@ public class EventPublisherService
         catch ( Exception ex )
         {
             log.error( LogConstants.EVENT_PUBLISH_ERROR, "Error publishing team member added event", ex );
-            throw new RuntimeException( "Failed to publish team member added event", ex );
+            throw new RuntimeException( ErrorConstant.ERROR_FAILED_TO_PUBLISH_TEAM_MEMBER_ADDED_EVENT, ex );
         }
     }
 
@@ -131,7 +132,7 @@ public class EventPublisherService
         catch ( Exception ex )
         {
             log.error( LogConstants.EVENT_PUBLISH_ERROR, "Error publishing workflow status changed event", ex );
-            throw new RuntimeException( "Failed to publish workflow status changed event", ex );
+            throw new RuntimeException( ErrorConstant.ERROR_FAILED_TO_PUBLISH_WORKFLOW_STATUS_CHANGED_EVENT, ex );
         }
     }
 

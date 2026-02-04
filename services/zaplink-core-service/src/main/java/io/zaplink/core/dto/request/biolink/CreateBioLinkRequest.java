@@ -2,6 +2,7 @@ package io.zaplink.core.dto.request.biolink;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,12 +28,12 @@ import jakarta.validation.constraints.Size;
  * @since 2024-01-30
  * @see io.zaplink.manager.entity.BioLinkEntity.BioLinkType
  */
-public record CreateBioLinkRequest( @JsonProperty("page_id") @NotNull(message = "Page ID is required") Long pageId,
-                                    @NotBlank(message = "Title is required") @Size(max = 200, message = "Title must be less than 200 characters") String title,
-                                    @Size(max = 2048, message = "URL must be less than 2048 characters") String url,
-                                    @NotBlank(message = "Type is required") String type,
+public record CreateBioLinkRequest( @JsonProperty("page_id") @NotNull(message = ErrorConstant.VALIDATION_PAGE_ID_REQUIRED) Long pageId,
+                                    @NotBlank(message = ErrorConstant.VALIDATION_TITLE_REQUIRED) @Size(max = 200, message = ErrorConstant.VALIDATION_TITLE_MAX_LENGTH) String title,
+                                    @Size(max = 2048, message = ErrorConstant.VALIDATION_URL_MAX_LENGTH) String url,
+                                    @NotBlank(message = ErrorConstant.VALIDATION_TYPE_REQUIRED) String type,
                                     @JsonProperty("is_active") Boolean isActive,
-                                    @JsonProperty("sort_order") @Min(value = 0, message = "Sort order must be non-negative") Integer sortOrder,
+                                    @JsonProperty("sort_order") @Min(value = 0, message = ErrorConstant.VALIDATION_MIN_VALUE) Integer sortOrder,
                                     Double price,
                                     String currency )
 {

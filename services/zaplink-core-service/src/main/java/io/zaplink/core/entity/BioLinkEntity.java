@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.enums.BioLinkType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -247,25 +248,25 @@ public class BioLinkEntity
         // Validate title
         if ( title == null )
         {
-            throw new IllegalArgumentException( "Title cannot be null" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_TITLE_CANNOT_BE_NULL );
         }
         if ( title.isEmpty() )
         {
-            throw new IllegalArgumentException( "Title cannot be empty" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_TITLE_CANNOT_BE_EMPTY );
         }
         if ( title.length() < 1 )
         {
-            throw new IllegalArgumentException( "Title must be at least 1 character long" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_TITLE_MUST_BE_AT_LEAST_1_CHARACTER_LONG );
         }
         if ( title.length() > 200 )
         {
-            throw new IllegalArgumentException( "Title cannot exceed 200 characters" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_TITLE_CANNOT_EXCEED_200_CHARACTERS );
         }
         log.trace( "Title validation passed: {}", title );
         // Validate type-specific requirements
         if ( type == null )
         {
-            throw new IllegalArgumentException( "Link type cannot be null" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_LINK_TYPE_CANNOT_BE_NULL );
         }
         // Use Java 21 switch expression for type validation
         switch ( type )
@@ -273,13 +274,13 @@ public class BioLinkEntity
             case LINK -> {
                 if ( url == null || url.trim().isEmpty() )
                 {
-                    throw new IllegalArgumentException( "Website links must have a valid URL" );
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_WEBSITE_LINKS_MUST_HAVE_VALID_URL );
                 }
             }
             case SOCIAL -> {
                 if ( url == null || url.trim().isEmpty() )
                 {
-                    throw new IllegalArgumentException( "Social media links must have a valid URL" );
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_SOCIAL_MEDIA_LINKS_MUST_HAVE_VALID_URL );
                 }
             }
             case PRODUCT -> validateProductLink();
@@ -289,7 +290,7 @@ public class BioLinkEntity
         // Validate sort order
         if ( sortOrder == null || sortOrder < 0 )
         {
-            throw new IllegalArgumentException( "Sort order must be a non-negative integer" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_SORT_ORDER_MUST_BE_NON_NEGATIVE );
         }
     }
 
@@ -300,19 +301,19 @@ public class BioLinkEntity
     {
         if ( price == null )
         {
-            throw new IllegalArgumentException( "Product links must have a price" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_PRODUCT_LINKS_MUST_HAVE_PRICE );
         }
         if ( price.compareTo( BigDecimal.ZERO ) < 0 )
         {
-            throw new IllegalArgumentException( "Product price cannot be negative" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_PRODUCT_PRICE_CANNOT_BE_NEGATIVE );
         }
         if ( currency == null || currency.trim().isEmpty() )
         {
-            throw new IllegalArgumentException( "Product links must have a currency" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_PRODUCT_LINKS_MUST_HAVE_CURRENCY );
         }
         if ( !currency.matches( "^[A-Z]{3}$" ) )
         {
-            throw new IllegalArgumentException( "Currency must be a valid 3-letter ISO code" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_CURRENCY_MUST_BE_VALID_ISO_CODE );
         }
         log.trace( "Product link validation passed: price {}, currency {}", price, currency );
     }

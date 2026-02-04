@@ -7,8 +7,10 @@ import io.zaplink.core.dto.request.RedirectRuleDto;
 import io.zaplink.core.dto.request.qr.QRConfig;
 import jakarta.validation.constraints.NotBlank;
 
-public record UpdateDynamicQrRequest( @NotBlank(message = "QR Name is required") String qrName,
-                                      @NotBlank(message = "Destination URL is required") String destinationUrl,
+import io.zaplink.core.common.constants.ErrorConstant;
+
+public record UpdateDynamicQrRequest( @NotBlank(message = ErrorConstant.VALIDATION_QR_NAME_REQUIRED) String qrName,
+                                      @NotBlank(message = ErrorConstant.VALIDATION_DESTINATION_URL_REQUIRED) String destinationUrl,
                                       QRConfig qrConfig,
                                       String campaignId,
                                       // Advanced Features

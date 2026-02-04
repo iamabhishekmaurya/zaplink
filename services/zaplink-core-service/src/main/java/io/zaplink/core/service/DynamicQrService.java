@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.common.constants.MessageConstants;
 import io.zaplink.core.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.core.dto.request.dynamicqr.UpdateDestinationRequest;
 import io.zaplink.core.dto.response.dynamicqr.DynamicQrResponse;
@@ -34,7 +37,7 @@ public class DynamicQrService
     {
         try
         {
-            log.info( "Creating dynamic QR code. Name: {}, User: {}", request.qrName(), userEmail );
+            log.info( LogConstants.DYNAMIC_QR_CREATING, request.qrName(), userEmail );
             String qrKey = SnowflakeShortUrlKeyUtil.generateShortKey();
             // Convert QR config to JSON string
             String qrConfigJson = objectMapper.writeValueAsString( request.qrConfig() );
@@ -47,8 +50,9 @@ public class DynamicQrService
             if ( request.allowedDomains() != null && !request.allowedDomains().isEmpty() )
             {
                 // Convert CSV to JSON Array
-                List<String> domains = Arrays.stream( request.allowedDomains().split( "," ) ).map( String::trim )
-                        .filter( s -> !s.isEmpty() ).collect( Collectors.toList() );
+                List<String> domains = Arrays
+                        .stream( request.allowedDomains().split( MessageConstants.SEPARATOR_COMMA ) )
+                        .map( String::trim ).filter( s -> !s.isEmpty() ).collect( Collectors.toList() );
                 allowedDomainsJson = objectMapper.writeValueAsString( domains );
             }
             DynamicQrCodeEntity entity = DynamicQrCodeEntity.builder().qrKey( qrKey ).qrName( request.qrName() )
@@ -69,13 +73,13 @@ public class DynamicQrService
                         .collect( Collectors.toList() );
                 redirectRuleRepository.saveAll( ruleEntities );
             }
-            log.info( "Created dynamic QR with key: {} for user: {}", qrKey, userEmail );
+            log.info( LogConstants.DYNAMIC_QR_CREATED, qrKey, userEmail );
             return convertToResponse( entity );
         }
         catch ( JsonProcessingException e )
         {
-            log.error( "Error converting QR config to JSON", e );
-            throw new RuntimeException( "Failed to process QR configuration", e );
+            log.error( LogConstants.DYNAMIC_QR_ERROR_CONVERTING_CONFIG, e );
+            throw new RuntimeException( ErrorConstant.ERROR_FAILED_TO_PROCESS_QR_CONFIG, e );
         }
     }
 
@@ -85,7 +89,7 @@ public class DynamicQrService
         Optional<DynamicQrCodeEntity> entityOpt = dynamicQrCodeRepository.findByQrKey( qrKey );
         if ( entityOpt.isEmpty() || !entityOpt.get().getUserEmail().equals( userEmail ) )
         {
-            throw new IllegalArgumentException( "Dynamic QR not found or access denied" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_DYNAMIC_QR_NOT_FOUND_OR_ACCESS_DENIED );
         }
         DynamicQrCodeEntity entity = entityOpt.get();
         entity.setCurrentDestinationUrl( request.destinationUrl() );
@@ -106,7 +110,7 @@ public class DynamicQrService
                 redirectRuleRepository.saveAll( ruleEntities );
             }
         }
-        log.info( "Updated destination for QR key: {} by user: {}", qrKey, userEmail );
+        log.info( LogConstants.DYNAMIC_QR_UPDATING_DESTINATION, qrKey, userEmail );
         return convertToResponse( entity );
     }
 
@@ -116,13 +120,13 @@ public class DynamicQrService
         Optional<DynamicQrCodeEntity> entityOpt = dynamicQrCodeRepository.findByQrKey( qrKey );
         if ( entityOpt.isEmpty() || !entityOpt.get().getUserEmail().equals( userEmail ) )
         {
-            throw new IllegalArgumentException( "Dynamic QR not found or access denied" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_DYNAMIC_QR_NOT_FOUND_OR_ACCESS_DENIED );
         }
         DynamicQrCodeEntity entity = entityOpt.get();
         entity.setIsActive( !entity.getIsActive() );
         entity.setUpdatedAt( LocalDateTime.now() );
         dynamicQrCodeRepository.save( entity );
-        log.info( "Toggled status for QR key: {} to {} by user: {}", qrKey, entity.getIsActive(), userEmail );
+        log.info( LogConstants.DYNAMIC_QR_TOGGLING_STATUS, qrKey, entity.getIsActive(), userEmail );
     }
 
     @Transactional
@@ -131,10 +135,10 @@ public class DynamicQrService
         Optional<DynamicQrCodeEntity> entityOpt = dynamicQrCodeRepository.findByQrKey( qrKey );
         if ( entityOpt.isEmpty() || !entityOpt.get().getUserEmail().equals( userEmail ) )
         {
-            throw new IllegalArgumentException( "Dynamic QR not found or access denied" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_DYNAMIC_QR_NOT_FOUND_OR_ACCESS_DENIED );
         }
         dynamicQrCodeRepository.delete( entityOpt.get() );
-        log.info( "Deleted dynamic QR with key: {} by user: {}", qrKey, userEmail );
+        log.info( LogConstants.DYNAMIC_QR_DELETING, qrKey, userEmail );
     }
 
     @Transactional
@@ -145,7 +149,7 @@ public class DynamicQrService
         Optional<DynamicQrCodeEntity> entityOpt = dynamicQrCodeRepository.findByQrKey( qrKey );
         if ( entityOpt.isEmpty() || !entityOpt.get().getUserEmail().equals( userEmail ) )
         {
-            throw new IllegalArgumentException( "Dynamic QR not found or access denied" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_DYNAMIC_QR_NOT_FOUND_OR_ACCESS_DENIED );
         }
         DynamicQrCodeEntity entity = entityOpt.get();
         try
@@ -187,12 +191,12 @@ public class DynamicQrService
                         .collect( Collectors.toList() );
                 redirectRuleRepository.saveAll( ruleEntities );
             }
-            log.info( "Updated dynamic QR with key: {} for user: {}", qrKey, userEmail );
+            log.info( LogConstants.DYNAMIC_QR_UPDATED, qrKey, userEmail );
             return convertToResponse( entity );
         }
         catch ( JsonProcessingException e )
         {
-            throw new RuntimeException( "Failed to process QR configuration update", e );
+            throw new RuntimeException( ErrorConstant.ERROR_FAILED_TO_PROCESS_QR_CONFIG, e );
         }
     }
 
@@ -214,7 +218,7 @@ public class DynamicQrService
         }
         catch ( JsonProcessingException e )
         {
-            log.error( "Error parsing JSON fields for response", e );
+            log.error( LogConstants.DYNAMIC_QR_ERROR_PARSING_JSON, e );
             // Fallback to null or ignore, but logging is important
         }
         return new DynamicQrResponse( entity.getId(),

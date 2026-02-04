@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
+import io.zaplink.core.common.constants.ErrorConstant;
+
 /**
  * Request DTO for reordering bio links in the Core Service (CQRS Write Side).
  * 
@@ -34,10 +36,10 @@ import java.util.List;
  */
 public record ReorderLinksRequest(
     @JsonProperty("page_id")
-    @NotNull(message = "Page ID is required")
+    @NotNull(message = ErrorConstant.VALIDATION_PAGE_ID_REQUIRED)
     Long pageId,
     
-    @NotEmpty(message = "At least one link order is required")
+    @NotEmpty(message = ErrorConstant.VALIDATION_NOT_EMPTY)
     List<LinkOrder> linkOrders
 ) {
     
@@ -52,11 +54,11 @@ public record ReorderLinksRequest(
      */
     public record LinkOrder(
         @JsonProperty("link_id")
-        @NotNull(message = "Link ID is required")
+        @NotNull(message = ErrorConstant.VALIDATION_LINK_ID_REQUIRED)
         Long linkId,
         
         @JsonProperty("sort_order")
-        @NotNull(message = "Sort order is required")
+        @NotNull(message = ErrorConstant.VALIDATION_SORT_ORDER_REQUIRED)
         Integer sortOrder
     ) {
         /**
@@ -64,7 +66,7 @@ public record ReorderLinksRequest(
          */
         public LinkOrder {
             if (sortOrder < 0) {
-                throw new IllegalArgumentException("Sort order cannot be negative");
+                throw new IllegalArgumentException(ErrorConstant.ERROR_SORT_ORDER_CANNOT_BE_NEGATIVE);
             }
         }
     }
@@ -87,7 +89,7 @@ public record ReorderLinksRequest(
      */
     private void validateLinkOrders(List<LinkOrder> linkOrders) {
         if (linkOrders == null || linkOrders.isEmpty()) {
-            throw new IllegalArgumentException("Link orders cannot be null or empty");
+            throw new IllegalArgumentException(ErrorConstant.ERROR_LINK_ORDERS_CANNOT_BE_NULL_OR_EMPTY);
         }
         
         // Check for duplicate link IDs
@@ -97,7 +99,7 @@ public record ReorderLinksRequest(
             .count();
         
         if (uniqueLinkIds != linkOrders.size()) {
-            throw new IllegalArgumentException("Duplicate link IDs are not allowed");
+            throw new IllegalArgumentException(ErrorConstant.ERROR_DUPLICATE_LINK_IDS_NOT_ALLOWED);
         }
         
         // Check for duplicate sort orders
@@ -107,7 +109,7 @@ public record ReorderLinksRequest(
             .count();
         
         if (uniqueSortOrders != linkOrders.size()) {
-            throw new IllegalArgumentException("Duplicate sort orders are not allowed");
+            throw new IllegalArgumentException(ErrorConstant.ERROR_DUPLICATE_SORT_ORDERS_NOT_ALLOWED);
         }
         
         // Validate sort order sequence (should be 0, 1, 2, ...)
@@ -117,7 +119,7 @@ public record ReorderLinksRequest(
                 .anyMatch(order -> order.sortOrder().equals(index));
             
             if (!found) {
-                throw new IllegalArgumentException("Sort orders must form a valid sequence starting from 0");
+                throw new IllegalArgumentException(ErrorConstant.ERROR_SORT_ORDERS_MUST_FORM_VALID_SEQUENCE);
             }
         }
     }

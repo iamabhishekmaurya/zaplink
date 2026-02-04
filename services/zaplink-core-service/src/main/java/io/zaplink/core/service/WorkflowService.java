@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.common.constants.MessageConstants;
 import io.zaplink.core.common.enums.PostStatus;
 import io.zaplink.core.dto.event.WorkflowStatusChangedEvent;
 import io.zaplink.core.dto.request.PostReviewRequest;
@@ -46,8 +48,8 @@ public class WorkflowService
         log.info( LogConstants.POST_SUBMITTING, "Title: {}, Author: {}", request.title(), request.authorId() );
         // Validate author is an active team member
         TeamMember authorMember = teamMemberRepository.findByUserId( request.authorId() ).stream()
-                .filter( member -> "ACTIVE".equals( member.getStatus() ) ).findFirst()
-                .orElseThrow( () -> new RuntimeException( "Author is not an active team member" ) );
+                .filter( member -> MessageConstants.STATUS_ACTIVE.equals( member.getStatus() ) ).findFirst()
+                .orElseThrow( () -> new RuntimeException( ErrorConstant.ERROR_AUTHOR_NOT_ACTIVE_TEAM_MEMBER ) );
         // Create post
         Post post = Post.builder().title( request.title() ).content( request.content() )
                 .campaignId( request.campaignId() ).authorId( request.authorId() ).status( PostStatus.SUBMITTED )
@@ -55,7 +57,8 @@ public class WorkflowService
         post = postRepository.save( post );
         // Publish workflow status change event
         WorkflowStatusChangedEvent event = WorkflowStatusChangedEvent
-                .create( post.getId(), post.getTitle(), "DRAFT", "SUBMITTED", request.authorId(),
+                .create( post.getId(), post.getTitle(), MessageConstants.POST_STATUS_DRAFT,
+                         MessageConstants.POST_STATUS_SUBMITTED, request.authorId(),
                          generateUsernameFromUserId( request.authorId() ),
                          generateEmailFromUserId( request.authorId() ), 1L, "" );
         eventPublisherService.publishWorkflowStatusChangedEvent( event );
@@ -76,20 +79,21 @@ public class WorkflowService
                   request.decision(), request.reviewerId() );
         // Validate reviewer is an active team member with approver role
         TeamMember reviewerMember = teamMemberRepository.findByUserId( request.reviewerId() ).stream()
-                .filter( member -> "ACTIVE".equals( member.getStatus() )
-                        && ( "APPROVER".equals( member.getRole() ) || "ADMIN".equals( member.getRole() ) ) )
+                .filter( member -> MessageConstants.STATUS_ACTIVE.equals( member.getStatus() )
+                        && ( MessageConstants.ROLE_APPROVER.equals( member.getRole() )
+                                || MessageConstants.ROLE_ADMIN.equals( member.getRole() ) ) )
                 .findFirst()
-                .orElseThrow( () -> new RuntimeException( "Reviewer is not an active team member with approver role" ) );
-        Post post = postRepository.findById( request.postId() )
-                .orElseThrow( () -> new RuntimeException( "Post not found: " + request.postId() ) );
+                .orElseThrow( () -> new RuntimeException( ErrorConstant.ERROR_REVIEWER_NOT_ACTIVE_APPROVER ) );
+        Post post = postRepository.findById( request.postId() ).orElseThrow( () -> new RuntimeException( String
+                .format( ErrorConstant.ERROR_POST_NOT_FOUND, request.postId() ) ) );
         // Validate post is in submitted status
         if ( !PostStatus.SUBMITTED.equals( post.getStatus() ) )
         {
-            throw new RuntimeException( "Post is not in submitted status" );
+            throw new RuntimeException( ErrorConstant.ERROR_POST_NOT_SUBMITTED_STATUS );
         }
         PostStatus previousStatus = post.getStatus();
-        PostStatus newStatus = "APPROVE".equalsIgnoreCase( request.decision() ) ? PostStatus.APPROVED
-                                                                                : PostStatus.REJECTED;
+        PostStatus newStatus = MessageConstants.DECISION_APPROVE
+                .equalsIgnoreCase( request.decision() ) ? PostStatus.APPROVED : PostStatus.REJECTED;
         // Update post
         post.setStatus( newStatus );
         post.setReviewedBy( request.reviewerId() );

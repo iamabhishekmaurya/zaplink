@@ -3,6 +3,8 @@ package io.zaplink.core.dto.event;
 import java.time.Instant;
 import java.util.UUID;
 
+import io.zaplink.core.common.constants.MessageConstants;
+
 /**
  * Kafka event for team member addition.
  * Published when a new member is added to a team.
@@ -144,7 +146,7 @@ public record TeamMemberAddedEvent( String eventType,
      */
     public boolean isAdminInvitation()
     {
-        return "ADMIN".equals( role );
+        return MessageConstants.ROLE_ADMIN.equals( role );
     }
 
     /**
@@ -154,7 +156,7 @@ public record TeamMemberAddedEvent( String eventType,
      */
     public boolean isInfluencerInvitation()
     {
-        return "INFLUENCER".equals( role );
+        return MessageConstants.ROLE_INFLUENCER.equals( role );
     }
 
     /**
@@ -164,7 +166,7 @@ public record TeamMemberAddedEvent( String eventType,
      */
     public boolean isPending()
     {
-        return "PENDING".equals( status );
+        return MessageConstants.STATUS_PENDING.equals( status );
     }
 
     /**
@@ -174,7 +176,7 @@ public record TeamMemberAddedEvent( String eventType,
      */
     public boolean isActive()
     {
-        return "ACTIVE".equals( status );
+        return MessageConstants.STATUS_ACTIVE.equals( status );
     }
 
     /**

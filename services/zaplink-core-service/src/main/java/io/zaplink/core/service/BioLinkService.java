@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.dto.request.biolink.CreateBioLinkRequest;
 import io.zaplink.core.dto.request.biolink.ReorderLinksRequest;
 import io.zaplink.core.dto.request.biolink.UpdateBioLinkRequest;
@@ -91,7 +92,8 @@ public class BioLinkService
         // Validate bio page existence
         BioPageEntity bioPage = bioPageRepository.findById( request.pageId() ).orElseThrow( () -> {
             log.warn( "Attempted to create link for non-existent bio page ID: {}", request.pageId() );
-            return new IllegalArgumentException( "Bio page not found with ID: " + request.pageId() );
+            return new IllegalArgumentException( String.format( ErrorConstant.ERROR_BIO_PAGE_NOT_FOUND_WITH_ID,
+                                                                request.pageId() ) );
         } );
         // Validate request using Java 21 pattern matching
         validateCreateRequest( request );
@@ -304,7 +306,7 @@ public class BioLinkService
         // Validate required fields
         if ( request.title() == null || request.title().trim().isEmpty() )
         {
-            throw new IllegalArgumentException( "Title is required" );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_TITLE_IS_REQUIRED );
         }
         // Validate type-specific requirements using Java 21 switch expression
         switch ( request.type().toUpperCase() )
@@ -312,21 +314,22 @@ public class BioLinkService
             case "LINK", "SOCIAL" -> {
                 if ( request.url() == null || request.url().trim().isEmpty() )
                 {
-                    throw new IllegalArgumentException( "URL is required for " + request.type() + " links" );
+                    throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_URL_REQUIRED_FOR_LINK_TYPE,
+                                                                       request.type() ) );
                 }
             }
             case "PRODUCT" -> {
                 if ( request.price() == null || request.currency() == null )
                 {
-                    throw new IllegalArgumentException( "Product links must have both price and currency" );
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_PRODUCT_LINKS_MUST_HAVE_PRICE_AND_CURRENCY );
                 }
                 if ( request.price() <= 0 )
                 {
-                    throw new IllegalArgumentException( "Product price must be positive" );
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_PRODUCT_PRICE_MUST_BE_POSITIVE );
                 }
                 if ( !request.currency().matches( "^[A-Z]{3}$" ) )
                 {
-                    throw new IllegalArgumentException( "Currency must be a valid 3-letter ISO code" );
+                    throw new IllegalArgumentException( ErrorConstant.ERROR_CURRENCY_MUST_BE_VALID_ISO_CODE );
                 }
             }
             case "EMAIL" -> {
@@ -334,7 +337,7 @@ public class BioLinkService
                 {
                     if ( !request.url().matches( "^[A-Za-z0-9+_.-]+@(.+)$" ) )
                     {
-                        throw new IllegalArgumentException( "Invalid email format" );
+                        throw new IllegalArgumentException( ErrorConstant.ERROR_EMAIL_FORMAT );
                     }
                 }
             }
@@ -343,11 +346,12 @@ public class BioLinkService
                 {
                     if ( !request.url().matches( "^[+0-9\\-\\s\\(\\)]+$" ) )
                     {
-                        throw new IllegalArgumentException( "Invalid phone number format" );
+                        throw new IllegalArgumentException( ErrorConstant.ERROR_PHONE_FORMAT );
                     }
                 }
             }
-            default -> throw new IllegalArgumentException( "Unknown link type: " + request.type() );
+            default -> throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_UNKNOWN_LINK_TYPE,
+                                                                          request.type() ) );
         }
         log.trace( "Create bio link request validation passed" );
     }

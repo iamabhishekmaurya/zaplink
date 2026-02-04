@@ -16,6 +16,8 @@ import org.springframework.web.context.request.WebRequest;
 import io.zaplink.core.dto.error.ErrorResponse;
 import io.zaplink.core.dto.error.FieldError;
 import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.MessageConstants;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -60,8 +62,8 @@ public class GlobalExceptionHandler
                 ErrorResponse errorResponse = new ErrorResponse(
                                 LocalDateTime.now().toString(),
                                 HttpStatus.BAD_REQUEST.name(), 
-                                "Validation failed",
-                                request.getDescription( false ).replace( "uri=", "" ),
+                                ErrorConstant.ERROR_VALIDATION_FAILED,
+                                request.getDescription( false ).replace( MessageConstants.SEPARATOR_URI_EQUALS, "" ),
                                 fieldErrors
                 );
                 return ResponseEntity.badRequest().contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
@@ -143,9 +145,9 @@ public class GlobalExceptionHandler
                 ErrorResponse errorResponse = new ErrorResponse(
                                 LocalDateTime.now().toString(),
                                 HttpStatus.INTERNAL_SERVER_ERROR.name(), 
-                                "Internal server error",
-                                request.getDescription( false ).replace( "uri=", "" ),
-                                List.of( new FieldError( "global", ex.getMessage(), null ) )
+                                ErrorConstant.ERROR_INTERNAL_SERVER_ERROR,
+                                request.getDescription( false ).replace( MessageConstants.SEPARATOR_URI_EQUALS, "" ),
+                                List.of( new FieldError( MessageConstants.FIELD_GLOBAL, ex.getMessage(), null ) )
                 );
                 return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR )
                                 .contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
