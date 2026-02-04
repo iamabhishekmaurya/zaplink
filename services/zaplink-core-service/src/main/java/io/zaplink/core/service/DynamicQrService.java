@@ -34,52 +34,38 @@ public class DynamicQrService
     {
         try
         {
-            log.info( "Creating dynamic QR code. Name: {}, User: {}", request.getQrName(), userEmail );
+            log.info( "Creating dynamic QR code. Name: {}, User: {}", request.qrName(), userEmail );
             String qrKey = SnowflakeShortUrlKeyUtil.generateShortKey();
             // Convert QR config to JSON string
-            String qrConfigJson = objectMapper.writeValueAsString( request.getQrConfig() );
+            String qrConfigJson = objectMapper.writeValueAsString( request.qrConfig() );
             LocalDateTime expirationDate = null;
-            if ( request.getExpirationDays() != null && request.getExpirationDays() > 0 )
+            if ( request.expirationDays() != null && request.expirationDays() > 0 )
             {
-                expirationDate = LocalDateTime.now().plusDays( request.getExpirationDays() );
+                expirationDate = LocalDateTime.now().plusDays( request.expirationDays() );
             }
             String allowedDomainsJson = null;
-            if ( request.getAllowedDomains() != null && !request.getAllowedDomains().isEmpty() )
+            if ( request.allowedDomains() != null && !request.allowedDomains().isEmpty() )
             {
                 // Convert CSV to JSON Array
-                List<String> domains = Arrays.stream( request.getAllowedDomains().split( "," ) ).map( String::trim )
+                List<String> domains = Arrays.stream( request.allowedDomains().split( "," ) ).map( String::trim )
                         .filter( s -> !s.isEmpty() ).collect( Collectors.toList() );
                 allowedDomainsJson = objectMapper.writeValueAsString( domains );
             }
-            DynamicQrCodeEntity entity = DynamicQrCodeEntity.builder()
-            .qrKey( qrKey )
-            .qrName( request.getQrName() )
-            .currentDestinationUrl( request.getDestinationUrl() )
-            .qrConfig( qrConfigJson )
-            .userEmail( userEmail )
-            .campaignId( request.getCampaignId() )
-            .isActive( true )
-            .createdAt( LocalDateTime.now() )
-            .updatedAt( LocalDateTime.now() )
-            .totalScans( 0L )
-            .expirationDate( expirationDate )
-            .password( request.getPassword() )
-            .scanLimit( request.getScanLimit() )
-            .allowedDomains( allowedDomainsJson )
-            .trackAnalytics( request.getTrackAnalytics() != null ? request.getTrackAnalytics() : true ).build();
+            DynamicQrCodeEntity entity = DynamicQrCodeEntity.builder().qrKey( qrKey ).qrName( request.qrName() )
+                    .currentDestinationUrl( request.destinationUrl() ).qrConfig( qrConfigJson ).userEmail( userEmail )
+                    .campaignId( request.campaignId() ).isActive( true ).createdAt( LocalDateTime.now() )
+                    .updatedAt( LocalDateTime.now() ).totalScans( 0L ).expirationDate( expirationDate )
+                    .password( request.password() ).scanLimit( request.scanLimit() )
+                    .allowedDomains( allowedDomainsJson )
+                    .trackAnalytics( request.trackAnalytics() != null ? request.trackAnalytics() : true ).build();
             entity = dynamicQrCodeRepository.save( entity );
-            if ( request.getRules() != null && !request.getRules().isEmpty() )
+            if ( request.rules() != null && !request.rules().isEmpty() )
             {
                 final Long qrId = entity.getId();
-                List<RedirectRuleEntity> ruleEntities = request.getRules().stream()
-                        .map( r -> RedirectRuleEntity.builder()
-                        .dynamicQrCodeId( qrId )
-                        .dimension( r.dimension() )
-                        .value( r.value() )
-                        .destinationUrl( r.destinationUrl() )
-                        .priority( r.priority() )
-                        .createdAt( LocalDateTime.now() )
-                        .build() )
+                List<RedirectRuleEntity> ruleEntities = request.rules().stream()
+                        .map( r -> RedirectRuleEntity.builder().dynamicQrCodeId( qrId ).dimension( r.dimension() )
+                                .value( r.value() ).destinationUrl( r.destinationUrl() ).priority( r.priority() )
+                                .createdAt( LocalDateTime.now() ).build() )
                         .collect( Collectors.toList() );
                 redirectRuleRepository.saveAll( ruleEntities );
             }
@@ -102,17 +88,17 @@ public class DynamicQrService
             throw new IllegalArgumentException( "Dynamic QR not found or access denied" );
         }
         DynamicQrCodeEntity entity = entityOpt.get();
-        entity.setCurrentDestinationUrl( request.getDestinationUrl() );
+        entity.setCurrentDestinationUrl( request.destinationUrl() );
         entity.setUpdatedAt( LocalDateTime.now() );
         entity = dynamicQrCodeRepository.save( entity );
         // Update Rules
-        if ( request.getRules() != null )
+        if ( request.rules() != null )
         {
             redirectRuleRepository.deleteByDynamicQrCodeId( entity.getId() );
-            if ( !request.getRules().isEmpty() )
+            if ( !request.rules().isEmpty() )
             {
                 final Long qrId = entity.getId();
-                List<RedirectRuleEntity> ruleEntities = request.getRules().stream()
+                List<RedirectRuleEntity> ruleEntities = request.rules().stream()
                         .map( r -> RedirectRuleEntity.builder().dynamicQrCodeId( qrId ).dimension( r.dimension() )
                                 .value( r.value() ).destinationUrl( r.destinationUrl() ).priority( r.priority() )
                                 .createdAt( LocalDateTime.now() ).build() )
@@ -212,30 +198,18 @@ public class DynamicQrService
 
     private DynamicQrResponse convertToResponse( DynamicQrCodeEntity entity )
     {
-        DynamicQrResponse response = new DynamicQrResponse();
-        response.setId( entity.getId() );
-        response.setQrKey( entity.getQrKey() );
-        response.setQrName( entity.getQrName() );
-        response.setCurrentDestinationUrl( entity.getCurrentDestinationUrl() );
-        response.setQrImageUrl( "/api/v1/dynamic-qr/" + entity.getQrKey() + "/image" );
-        response.setRedirectUrl( generateRedirectUrl( entity.getQrKey() ) );
-        response.setCampaignId( entity.getCampaignId() );
-        response.setUserEmail( entity.getUserEmail() );
-        response.setIsActive( entity.getIsActive() );
-        response.setTotalScans( entity.getTotalScans() );
-        response.setCreatedAt( entity.getCreatedAt() );
-        response.setUpdatedAt( entity.getUpdatedAt() );
-        response.setLastScanned( entity.getLastScanned() );
-        // Advanced Fields
+        // Advanced Fields - parse JSON to objects
+        Object qrConfig = null;
+        Object allowedDomains = null;
         try
         {
             if ( entity.getQrConfig() != null )
             {
-                response.setQrConfig( objectMapper.readTree( entity.getQrConfig() ) );
+                qrConfig = objectMapper.readTree( entity.getQrConfig() );
             }
             if ( entity.getAllowedDomains() != null )
             {
-                response.setAllowedDomains( objectMapper.readTree( entity.getAllowedDomains() ) );
+                allowedDomains = objectMapper.readTree( entity.getAllowedDomains() );
             }
         }
         catch ( JsonProcessingException e )
@@ -243,11 +217,26 @@ public class DynamicQrService
             log.error( "Error parsing JSON fields for response", e );
             // Fallback to null or ignore, but logging is important
         }
-        response.setPassword( entity.getPassword() );
-        response.setScanLimit( entity.getScanLimit() );
-        response.setExpirationDate( entity.getExpirationDate() );
-        response.setTrackAnalytics( entity.getTrackAnalytics() );
-        return response;
+        return new DynamicQrResponse( entity.getId(),
+                                      entity.getQrKey(),
+                                      entity.getQrName(),
+                                      entity.getCurrentDestinationUrl(),
+                                      "/api/v1/dynamic-qr/" + entity.getQrKey() + "/image",
+                                      generateRedirectUrl( entity.getQrKey() ),
+                                      entity.getCampaignId(),
+                                      entity.getUserEmail(),
+                                      entity.getIsActive(),
+                                      entity.getTotalScans(),
+                                      entity.getCreatedAt(),
+                                      entity.getUpdatedAt(),
+                                      entity.getLastScanned(),
+                                      // Advanced Fields
+                                      qrConfig,
+                                      allowedDomains,
+                                      entity.getPassword(),
+                                      entity.getScanLimit(),
+                                      entity.getExpirationDate(),
+                                      entity.getTrackAnalytics() );
     }
 
     private String generateRedirectUrl( String qrKey )

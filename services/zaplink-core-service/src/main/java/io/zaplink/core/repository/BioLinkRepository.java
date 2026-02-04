@@ -1,10 +1,11 @@
 package io.zaplink.core.repository;
 
-import io.zaplink.core.entity.BioLinkEntity;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import io.zaplink.core.entity.BioLinkEntity;
 
 @Repository
 public interface BioLinkRepository

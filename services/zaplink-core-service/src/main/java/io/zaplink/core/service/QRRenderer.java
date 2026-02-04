@@ -37,7 +37,7 @@ public class QRRenderer
     {
         log.info( "Starting QR rendering with config: {}", config );
         int matrixSize = matrix.getWidth();
-        int imageSize = config.getSize();
+        int imageSize = config.size();
         // Use integer module size to prevent gaps/overlaps
         int moduleSize = imageSize / matrixSize;
         // Recalculate actual image size to fit modules exactly
@@ -58,10 +58,9 @@ public class QRRenderer
                   actualImageSize, moduleSize, offsetX, offsetY );
         // Pre-load logo to determine if we should apply logo logic
         BufferedImage logoConfigured = null;
-        if ( config.getLogo() != null && config.getLogo().getLogoPath() != null
-                && !config.getLogo().getLogoPath().isEmpty() )
+        if ( config.logo() != null && config.logo().logoPath() != null && !config.logo().logoPath().isEmpty() )
         {
-            logoConfigured = loadLogo( config.getLogo() );
+            logoConfigured = loadLogo( config.logo() );
         }
         final BufferedImage logo = logoConfigured;
         BufferedImage image = new BufferedImage( actualImageSize, actualImageSize, BufferedImage.TYPE_INT_RGB );
@@ -72,7 +71,7 @@ public class QRRenderer
         // Draw background
         drawBackground( g2d, config, actualImageSize );
         // Check if we want styled eyes
-        boolean customEyes = config.getEye() != null && config.getEye().getShape() != QREyeShapeEnum.SQUARE;
+        boolean customEyes = config.eye() != null && config.eye().shape() != QREyeShapeEnum.SQUARE;
         // Draw QR body - skip finder patterns if we're drawing them separately with custom eyes
         drawBodyInteger( g2d, matrix, config, moduleSize, actualImageSize, logo != null, customEyes, offsetX, offsetY );
         // Draw eye patterns separately if custom styling requested
@@ -89,18 +88,18 @@ public class QRRenderer
         drawBorder( g2d, config, actualImageSize );
         g2d.dispose();
         log.info( "QR rendering completed successfully | Size: {}px | Shapes: {}/{}", actualImageSize,
-                  config.getBody().getShape(), config.getEye().getShape() );
+                  config.body().shape(), config.eye().shape() );
         return image;
     }
 
     private void drawBackground( Graphics2D g2d, QRConfig config, int size )
     {
-        log.debug( "Drawing background with color: {}", config.getBackgroundColor() );
-        if ( config.isTransparentBackground() )
+        log.debug( "Drawing background with color: {}", config.backgroundColor() );
+        if ( config.transparentBackground() )
         {
             return;
         }
-        Color bgColor = parseColor( config.getBackgroundColor() );
+        Color bgColor = parseColor( config.backgroundColor() );
         g2d.setColor( bgColor );
         g2d.fillRect( 0, 0, size, size );
     }
@@ -113,7 +112,7 @@ public class QRRenderer
                            boolean hasLogo )
     {
         int matrixSize = matrix.getWidth();
-        QRBodyConfig bodyConfig = config.getBody();
+        QRBodyConfig bodyConfig = config.body();
         int modulesDrawn = 0;
         // Prepare Paint (Solid or Gradient)
         Paint bodyPaint = getBodyPaint( bodyConfig, imageSize );
@@ -134,7 +133,7 @@ public class QRRenderer
                     {
                         continue;
                     }
-                    drawModule( g2d, bodyConfig.getShape(), x, y, moduleSize, matrix );
+                    drawModule( g2d, bodyConfig.shape(), x, y, moduleSize, matrix );
                     modulesDrawn++;
                 }
             }
@@ -154,9 +153,9 @@ public class QRRenderer
                                   int offsetY )
     {
         int matrixSize = matrix.getWidth();
-        int margin = config.getMargin();
-        QRBodyConfig bodyConfig = config.getBody();
-        QRBodyShapeEnum shape = bodyConfig.getShape();
+        int margin = config.margin();
+        QRBodyConfig bodyConfig = config.body();
+        QRBodyShapeEnum shape = bodyConfig.shape();
         int modulesDrawn = 0;
         // Prepare Paint (Solid or Gradient)
         Paint bodyPaint = getBodyPaint( bodyConfig, imageSize );
@@ -302,8 +301,8 @@ public class QRRenderer
                                   int offsetY )
     {
         int matrixSize = matrix.getWidth();
-        int margin = config.getMargin();
-        QREyeConfig eyeConfig = config.getEye();
+        int margin = config.margin();
+        QREyeConfig eyeConfig = config.eye();
         // Draw three finder patterns at the correct margin-aware locations
         drawEyeInteger( g2d, margin, margin, eyeConfig, moduleSize, offsetX, offsetY );
         drawEyeInteger( g2d, matrixSize - margin - 7, margin, eyeConfig, moduleSize, offsetX, offsetY );
@@ -321,9 +320,9 @@ public class QRRenderer
         int px = startX * moduleSize + offsetX;
         int py = startY * moduleSize + offsetY;
         int size = 7 * moduleSize;
-        Color outerColor = parseColor( eyeConfig.getColorOuter() );
-        Color innerColor = parseColor( eyeConfig.getColorInner() );
-        QREyeShapeEnum shape = eyeConfig.getShape();
+        Color outerColor = parseColor( eyeConfig.colorOuter() );
+        Color innerColor = parseColor( eyeConfig.colorInner() );
+        QREyeShapeEnum shape = eyeConfig.shape();
         // Outer Frame (7x7 with 5x5 hole)
         g2d.setColor( outerColor );
         Shape outerShape = createEyeFrame( shape, px, py, size, moduleSize );
@@ -338,17 +337,17 @@ public class QRRenderer
 
     private boolean shouldSkipForLogoPixel( int x, int y, int moduleSize, int imageSize, QRConfig config )
     {
-        QRLogoConfig logoConfig = config.getLogo();
-        if ( logoConfig == null || logoConfig.getLogoPath() == null || !logoConfig.isRemoveQuietZone() )
+        QRLogoConfig logoConfig = config.logo();
+        if ( logoConfig == null || logoConfig.logoPath() == null || !logoConfig.removeQuietZone() )
         {
             return false;
         }
         // Calculate the area occupied by the logo + padding in pixels
-        int logoSize = (int) ( imageSize * logoConfig.getSizeRatio() );
+        int logoSize = (int) ( imageSize * logoConfig.sizeRatio() );
         int logoX = ( imageSize - logoSize ) / 2;
         int logoY = ( imageSize - logoSize ) / 2;
-        int padding = logoConfig.isBackgroundEnabled() ? logoConfig.getPadding() : 0;
-        int marginPixels = logoConfig.getMarginSize() * moduleSize;
+        int padding = logoConfig.backgroundEnabled() ? logoConfig.padding() : 0;
+        int marginPixels = logoConfig.marginSize() * moduleSize;
         int skipX = logoX - padding - marginPixels;
         int skipY = logoY - padding - marginPixels;
         int skipSize = logoSize + 2 * ( padding + marginPixels );
@@ -366,13 +365,12 @@ public class QRRenderer
     {
         // Legacy method, redirects to new pixel-based logic if possible or uses old logic
         // This is still used by drawBody (double version)
-        if ( config.getLogo() != null && config.getLogo().getLogoPath() != null
-                && config.getLogo().isRemoveQuietZone() )
+        if ( config.logo() != null && config.logo().logoPath() != null && config.logo().removeQuietZone() )
         {
-            double ratio = config.getLogo().getSizeRatio();
+            double ratio = config.logo().sizeRatio();
             int centerStart = (int) ( matrixSize * ( 0.5 - ratio / 2 ) );
             int centerEnd = (int) ( matrixSize * ( 0.5 + ratio / 2 ) );
-            int margin = config.getLogo().getMarginSize();
+            int margin = config.logo().marginSize();
             centerStart -= margin;
             centerEnd += margin;
             return x >= centerStart && x <= centerEnd && y >= centerStart && y <= centerEnd;
@@ -382,11 +380,11 @@ public class QRRenderer
 
     private Paint getBodyPaint( QRBodyConfig bodyConfig, int size )
     {
-        Color c1 = parseColor( bodyConfig.getColor() );
-        if ( bodyConfig.getColorDark() != null )
+        Color c1 = parseColor( bodyConfig.color() );
+        if ( bodyConfig.colorDark() != null )
         {
-            Color c2 = parseColor( bodyConfig.getColorDark() );
-            if ( bodyConfig.isGradientLinear() )
+            Color c2 = parseColor( bodyConfig.colorDark() );
+            if ( bodyConfig.gradientLinear() )
             {
                 return new GradientPaint( 0, 0, c1, size, size, c2 );
             }
@@ -503,7 +501,7 @@ public class QRRenderer
     private void drawEyes( Graphics2D g2d, BitMatrix matrix, QRConfig config, double moduleSize )
     {
         int matrixSize = matrix.getWidth();
-        QREyeConfig eyeConfig = config.getEye();
+        QREyeConfig eyeConfig = config.eye();
         // Draw three finder patterns
         drawEye( g2d, 0, 0, eyeConfig, moduleSize );
         drawEye( g2d, matrixSize - 7, 0, eyeConfig, moduleSize );
@@ -515,9 +513,9 @@ public class QRRenderer
         double px = startX * moduleSize;
         double py = startY * moduleSize;
         double size = 7 * moduleSize;
-        Color outerColor = parseColor( eyeConfig.getColorOuter() );
-        Color innerColor = parseColor( eyeConfig.getColorInner() );
-        QREyeShapeEnum shape = eyeConfig.getShape();
+        Color outerColor = parseColor( eyeConfig.colorOuter() );
+        Color innerColor = parseColor( eyeConfig.colorInner() );
+        QREyeShapeEnum shape = eyeConfig.shape();
         // Standard QR finder pattern structure (in modules):
         // 7x7 total: 1 black border, 1 white gap, 3x3 black center, 1 white gap, 1 black border
         // So we draw: outer frame (7x7 with 5x5 hole), then inner dot (3x3 at offset 2,2)
@@ -620,17 +618,17 @@ public class QRRenderer
     {
         try
         {
-            if ( logoConfig.getLogoPath().startsWith( "http" ) )
+            if ( logoConfig.logoPath().startsWith( "http" ) )
             {
-                return ImageIO.read( new URL( logoConfig.getLogoPath() ) );
+                return ImageIO.read( new URL( logoConfig.logoPath() ) );
             }
             else
             {
                 // Try to load from classpath
-                java.io.InputStream is = getClass().getResourceAsStream( logoConfig.getLogoPath() );
-                if ( is == null && !logoConfig.getLogoPath().startsWith( "/" ) )
+                java.io.InputStream is = getClass().getResourceAsStream( logoConfig.logoPath() );
+                if ( is == null && !logoConfig.logoPath().startsWith( "/" ) )
                 {
-                    is = getClass().getResourceAsStream( "/" + logoConfig.getLogoPath() );
+                    is = getClass().getResourceAsStream( "/" + logoConfig.logoPath() );
                 }
                 if ( is != null )
                 {
@@ -640,7 +638,7 @@ public class QRRenderer
         }
         catch ( Exception e )
         {
-            log.warn( "Could not load logo from path: {}", logoConfig.getLogoPath() );
+            log.warn( "Could not load logo from path: {}", logoConfig.logoPath() );
         }
         return null;
     }
@@ -649,22 +647,22 @@ public class QRRenderer
     {
         try
         {
-            QRLogoConfig logoConfig = config.getLogo();
-            int logoSize = (int) ( imageSize * logoConfig.getSizeRatio() );
+            QRLogoConfig logoConfig = config.logo();
+            int logoSize = (int) ( imageSize * logoConfig.sizeRatio() );
             int logoX = ( imageSize - logoSize ) / 2;
             int logoY = ( imageSize - logoSize ) / 2;
             // Draw logo background
-            if ( logoConfig.isBackgroundEnabled() )
+            if ( logoConfig.backgroundEnabled() )
             {
-                Color bgColor = parseColor( logoConfig.getBackgroundColor() );
+                Color bgColor = parseColor( logoConfig.backgroundColor() );
                 g2d.setColor( bgColor );
-                int padding = logoConfig.getPadding();
+                int padding = logoConfig.padding();
                 int bgSize = logoSize + 2 * padding;
                 int bgX = logoX - padding;
                 int bgY = logoY - padding;
-                if ( logoConfig.isBackgroundRounded() )
+                if ( logoConfig.backgroundRounded() )
                 {
-                    int cornerRadius = logoConfig.getBackgroundCornerRadius();
+                    int cornerRadius = logoConfig.backgroundCornerRadius();
                     g2d.fillRoundRect( bgX, bgY, bgSize, bgSize, cornerRadius, cornerRadius );
                 }
                 else

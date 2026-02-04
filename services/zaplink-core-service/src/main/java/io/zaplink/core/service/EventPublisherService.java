@@ -1,17 +1,18 @@
 package io.zaplink.core.service;
 
-import io.zaplink.core.common.constants.LogConstants;
-import io.zaplink.core.dto.event.TeamMemberAddedEvent;
-import io.zaplink.core.dto.event.WorkflowStatusChangedEvent;
-import io.zaplink.core.dto.response.biopage.BioPageResponse;
-import io.zaplink.core.dto.response.biolink.BioLinkResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.Instant;
+import java.util.UUID;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.UUID;
+import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.dto.event.TeamMemberAddedEvent;
+import io.zaplink.core.dto.event.WorkflowStatusChangedEvent;
+import io.zaplink.core.dto.response.biolink.BioLinkResponse;
+import io.zaplink.core.dto.response.biopage.BioPageResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service for publishing Kafka events for team and workflow changes.

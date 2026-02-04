@@ -1,17 +1,31 @@
 package io.zaplink.core.dto.request.qr;
 
-import lombok.Data;
-
-@Data
-public class QRConfig
-{
-    private String       data;
-    private int          size                  = 1024;
-    private int          margin                = 1;
-    private String       errorCorrectionLevel  = "H";
-    private boolean      transparentBackground = false;
-    private String       backgroundColor       = "#FFFFFF";
-    private QRBodyConfig body                  = new QRBodyConfig();
-    private QREyeConfig  eye                   = new QREyeConfig();
-    private QRLogoConfig logo;
+public record QRConfig(
+    String data,
+    int size,
+    int margin,
+    String errorCorrectionLevel,
+    boolean transparentBackground,
+    String backgroundColor,
+    QRBodyConfig body,
+    QREyeConfig eye,
+    QRLogoConfig logo
+) {
+    public QRConfig() {
+        this(null, 1024, 1, "H", false, "#FFFFFF", new QRBodyConfig(), new QREyeConfig(), null);
+    }
+    
+    public QRConfig(String data, int size, int margin, String errorCorrectionLevel, 
+                   boolean transparentBackground, String backgroundColor, 
+                   QRBodyConfig body, QREyeConfig eye, QRLogoConfig logo) {
+        this.data = data;
+        this.size = size;
+        this.margin = margin;
+        this.errorCorrectionLevel = errorCorrectionLevel;
+        this.transparentBackground = transparentBackground;
+        this.backgroundColor = backgroundColor;
+        this.body = body;
+        this.eye = eye;
+        this.logo = logo;
+    }
 }

@@ -14,26 +14,10 @@ import jakarta.validation.constraints.NotNull;
  * @version 1.0
  * @since 2026-01-31
  */
-public record PostSubmissionRequest(
-                                     /**
-                                      * Title of the post.
-                                      */
-                                     @NotBlank(message = "Title is required") String title,
-                                     /**
-                                      * Content of the post.
-                                      */
+public record PostSubmissionRequest( @NotBlank(message = "Title is required") String title,
                                      String content,
-                                     /**
-                                      * Campaign ID if the post is part of a campaign.
-                                      */
                                      Long campaignId,
-                                     /**
-                                      * Author ID of the post.
-                                      */
                                      @NotNull(message = "Author ID is required") Long authorId,
-                                     /**
-                                      * Reviewer notes or comments.
-                                      */
                                      String reviewerNotes )
 {
     /**

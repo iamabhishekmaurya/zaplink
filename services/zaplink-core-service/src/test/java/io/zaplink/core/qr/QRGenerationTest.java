@@ -1,18 +1,21 @@
 package io.zaplink.core.qr;
 
-import io.zaplink.core.common.enums.QRBodyShapeEnum;
-import io.zaplink.core.common.enums.QREyeShapeEnum;
-import io.zaplink.core.dto.request.qr.*;
-import io.zaplink.core.service.QRRenderer;
-import io.zaplink.core.service.ZapQrEngine;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import io.zaplink.core.common.enums.QRBodyShapeEnum;
+import io.zaplink.core.common.enums.QREyeShapeEnum;
+import io.zaplink.core.dto.request.qr.QRBodyConfig;
+import io.zaplink.core.dto.request.qr.QRConfig;
+import io.zaplink.core.dto.request.qr.QREyeConfig;
+import io.zaplink.core.service.QRRenderer;
+import io.zaplink.core.service.ZapQrEngine;
 
 @SpringBootTest
 public class QRGenerationTest
@@ -22,20 +25,17 @@ public class QRGenerationTest
     public void testBasicQRGeneration()
         throws IOException
     {
-        QRConfig config = new QRConfig();
-        config.setData( "https://zaplink.io" );
-        config.setSize( 512 );
-        config.setMargin( 1 );
-        config.setBackgroundColor( "#FFFFFF" );
-        QRBodyConfig bodyConfig = new QRBodyConfig();
-        bodyConfig.setShape( QRBodyShapeEnum.SQUARE );
-        bodyConfig.setColor( "#000000" );
-        config.setBody( bodyConfig );
-        QREyeConfig eyeConfig = new QREyeConfig();
-        eyeConfig.setShape( QREyeShapeEnum.SQUARE );
-        eyeConfig.setColorOuter( "#000000" );
-        eyeConfig.setColorInner( "#000000" );
-        config.setEye( eyeConfig );
+        QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, "#000000", null, true );
+        QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, "#000000", "#000000" );
+        QRConfig config = new QRConfig( "https://zaplink.io",
+                                        512,
+                                        1,
+                                        "H",
+                                        false,
+                                        "#FFFFFF",
+                                        bodyConfig,
+                                        eyeConfig,
+                                        null );
         System.out.println( "Generating basic QR..." );
         BufferedImage image = qrEngine.generate( config );
         // Save to file
@@ -47,20 +47,17 @@ public class QRGenerationTest
     public void testRoundedQRGeneration()
         throws IOException
     {
-        QRConfig config = new QRConfig();
-        config.setData( "https://zaplink.io" );
-        config.setSize( 512 );
-        config.setMargin( 2 );
-        config.setBackgroundColor( "#FFFFFF" );
-        QRBodyConfig bodyConfig = new QRBodyConfig();
-        bodyConfig.setShape( QRBodyShapeEnum.ROUNDED );
-        bodyConfig.setColor( "#0066FF" );
-        config.setBody( bodyConfig );
-        QREyeConfig eyeConfig = new QREyeConfig();
-        eyeConfig.setShape( QREyeShapeEnum.ROUNDED );
-        eyeConfig.setColorOuter( "#0066FF" );
-        eyeConfig.setColorInner( "#003D99" );
-        config.setEye( eyeConfig );
+        QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.ROUNDED, "#0066FF", null, true );
+        QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.ROUNDED, "#0066FF", "#003D99" );
+        QRConfig config = new QRConfig( "https://zaplink.io",
+                                        512,
+                                        2,
+                                        "H",
+                                        false,
+                                        "#FFFFFF",
+                                        bodyConfig,
+                                        eyeConfig,
+                                        null );
         System.out.println( "Generating rounded QR..." );
         BufferedImage image = qrEngine.generate( config );
         // Save to file
@@ -72,22 +69,17 @@ public class QRGenerationTest
     public void testGradientQRGeneration()
         throws IOException
     {
-        QRConfig config = new QRConfig();
-        config.setData( "https://zaplink.io" );
-        config.setSize( 512 );
-        config.setMargin( 2 );
-        config.setBackgroundColor( "#FFFFFF" );
-        QRBodyConfig bodyConfig = new QRBodyConfig();
-        bodyConfig.setShape( QRBodyShapeEnum.CIRCLE );
-        bodyConfig.setColor( "#FF6B6B" );
-        bodyConfig.setColorDark( "#4ECDC4" );
-        bodyConfig.setGradientLinear( true );
-        config.setBody( bodyConfig );
-        QREyeConfig eyeConfig = new QREyeConfig();
-        eyeConfig.setShape( QREyeShapeEnum.CIRCLE );
-        eyeConfig.setColorOuter( "#FF6B6B" );
-        eyeConfig.setColorInner( "#4ECDC4" );
-        config.setEye( eyeConfig );
+        QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.CIRCLE, "#FF6B6B", "#4ECDC4", true );
+        QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.CIRCLE, "#FF6B6B", "#4ECDC4" );
+        QRConfig config = new QRConfig( "https://zaplink.io",
+                                        512,
+                                        2,
+                                        "H",
+                                        false,
+                                        "#FFFFFF",
+                                        bodyConfig,
+                                        eyeConfig,
+                                        null );
         System.out.println( "Generating gradient QR..." );
         BufferedImage image = qrEngine.generate( config );
         // Save to file
@@ -102,20 +94,9 @@ public class QRGenerationTest
         String testData = "https://zaplink.io/test";
         for ( QRBodyShapeEnum shape : QRBodyShapeEnum.values() )
         {
-            QRConfig config = new QRConfig();
-            config.setData( testData );
-            config.setSize( 256 ); // Smaller size for testing
-            config.setMargin( 1 );
-            config.setBackgroundColor( "#FFFFFF" );
-            QRBodyConfig bodyConfig = new QRBodyConfig();
-            bodyConfig.setShape( shape );
-            bodyConfig.setColor( "#2563EB" );
-            config.setBody( bodyConfig );
-            QREyeConfig eyeConfig = new QREyeConfig();
-            eyeConfig.setShape( QREyeShapeEnum.ROUNDED );
-            eyeConfig.setColorOuter( "#2563EB" );
-            eyeConfig.setColorInner( "#1E40AF" );
-            config.setEye( eyeConfig );
+            QRBodyConfig bodyConfig = new QRBodyConfig( shape, "#2563EB", null, true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.ROUNDED, "#2563EB", "#1E40AF" );
+            QRConfig config = new QRConfig( testData, 256, 1, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
             System.out.println( "Generating QR with shape: " + shape );
             BufferedImage image = qrEngine.generate( config );
             // Save each shape

@@ -14,154 +14,76 @@ import java.util.UUID;
  * @version 1.0
  * @since 2026-01-31
  */
-public record WorkflowStatusChangedEvent(
-    
-    /**
-     * Event type identifier.
-     */
-    String eventType,
-    
-    /**
-     * Unique event ID for tracing.
-     */
-    String eventId,
-    
-    /**
-     * Timestamp when the event was created.
-     */
-    Instant timestamp,
-    
-    /**
-     * Post ID.
-     */
-    Long postId,
-    
-    /**
-     * Post title.
-     */
-    String title,
-    
-    /**
-     * Previous status.
-     */
-    String previousStatus,
-    
-    /**
-     * New status.
-     */
-    String newStatus,
-    
-    /**
-     * Author ID.
-     */
-    Long authorId,
-    
-    /**
-     * Author name.
-     */
-    String authorName,
-    
-    /**
-     * Author email.
-     */
-    String authorEmail,
-    
-    /**
-     * Campaign ID if applicable.
-     */
-    Long campaignId,
-    
-    /**
-     * Campaign name if applicable.
-     */
-    String campaignName,
-    
-    /**
-     * Team ID.
-     */
-    Long teamId,
-    
-    /**
-     * Team name.
-     */
-    String teamName,
-    
-    /**
-     * Organization ID.
-     */
-    Long organizationId,
-    
-    /**
-     * Organization name.
-     */
-    String organizationName,
-    
-    /**
-     * Reviewer ID if applicable.
-     */
-    Long reviewerId,
-    
-    /**
-     * Reviewer name if applicable.
-     */
-    String reviewerName,
-    
-    /**
-     * Review comments if applicable.
-     */
-    String reviewComments,
-    
-    /**
-     * When the status change occurred.
-     */
-    Instant changedAt
-) {
-    
+public record WorkflowStatusChangedEvent( String eventType,
+                                          String eventId,
+                                          Instant timestamp,
+                                          Long postId,
+                                          String title,
+                                          String previousStatus,
+                                          String newStatus,
+                                          Long authorId,
+                                          String authorName,
+                                          String authorEmail,
+                                          Long campaignId,
+                                          String campaignName,
+                                          Long teamId,
+                                          String teamName,
+                                          Long organizationId,
+                                          String organizationName,
+                                          Long reviewerId,
+                                          String reviewerName,
+                                          String reviewComments,
+                                          Instant changedAt )
+{
     /**
      * Event type identifier constant.
      */
     public static final String EVENT_TYPE = "workflow.status-changed";
-    
     /**
      * Compact constructor for initialization and validation.
      * Generates event ID and timestamp if not provided.
      */
-    public WorkflowStatusChangedEvent {
+    public WorkflowStatusChangedEvent
+    {
         // Set default event type if not provided
-        if (eventType == null) {
+        if ( eventType == null )
+        {
             eventType = EVENT_TYPE;
         }
-        
         // Generate event ID if not provided
-        if (eventId == null) {
+        if ( eventId == null )
+        {
             eventId = UUID.randomUUID().toString();
         }
-        
         // Generate timestamp if not provided
-        if (timestamp == null) {
+        if ( timestamp == null )
+        {
             timestamp = Instant.now();
         }
-        
         // Set changedAt to timestamp if not provided
-        if (changedAt == null) {
+        if ( changedAt == null )
+        {
             changedAt = timestamp;
         }
-        
         // Validate required fields
-        if (postId == null) {
-            throw new IllegalArgumentException("Post ID cannot be null");
+        if ( postId == null )
+        {
+            throw new IllegalArgumentException( "Post ID cannot be null" );
         }
-        if (newStatus == null) {
-            throw new IllegalArgumentException("New status cannot be null");
+        if ( newStatus == null )
+        {
+            throw new IllegalArgumentException( "New status cannot be null" );
         }
-        if (authorId == null) {
-            throw new IllegalArgumentException("Author ID cannot be null");
+        if ( authorId == null )
+        {
+            throw new IllegalArgumentException( "Author ID cannot be null" );
         }
-        if (organizationId == null) {
-            throw new IllegalArgumentException("Organization ID cannot be null");
+        if ( organizationId == null )
+        {
+            throw new IllegalArgumentException( "Organization ID cannot be null" );
         }
     }
-    
+
     /**
      * Factory method for creating a workflow status change event.
      * 
@@ -176,24 +98,38 @@ public record WorkflowStatusChangedEvent(
      * @param organizationName Organization name
      * @return WorkflowStatusChangedEvent instance
      */
-    public static WorkflowStatusChangedEvent create(
-        Long postId,
-        String title,
-        String previousStatus,
-        String newStatus,
-        Long authorId,
-        String authorName,
-        String authorEmail,
-        Long organizationId,
-        String organizationName
-    ) {
-        return new WorkflowStatusChangedEvent(
-            EVENT_TYPE, null, null, postId, title, previousStatus, newStatus,
-            authorId, authorName, authorEmail, null, null, null, null,
-            organizationId, organizationName, null, null, null, null
-        );
+    public static WorkflowStatusChangedEvent create( Long postId,
+                                                     String title,
+                                                     String previousStatus,
+                                                     String newStatus,
+                                                     Long authorId,
+                                                     String authorName,
+                                                     String authorEmail,
+                                                     Long organizationId,
+                                                     String organizationName )
+    {
+        return new WorkflowStatusChangedEvent( EVENT_TYPE,
+                                               null,
+                                               null,
+                                               postId,
+                                               title,
+                                               previousStatus,
+                                               newStatus,
+                                               authorId,
+                                               authorName,
+                                               authorEmail,
+                                               null,
+                                               null,
+                                               null,
+                                               null,
+                                               organizationId,
+                                               organizationName,
+                                               null,
+                                               null,
+                                               null,
+                                               null );
     }
-    
+
     /**
      * Factory method for creating an approval event.
      * 
@@ -208,25 +144,38 @@ public record WorkflowStatusChangedEvent(
      * @param organizationName Organization name
      * @return WorkflowStatusChangedEvent instance
      */
-    public static WorkflowStatusChangedEvent approved(
-        Long postId,
-        String title,
-        Long authorId,
-        String authorName,
-        Long reviewerId,
-        String reviewerName,
-        String reviewComments,
-        Long organizationId,
-        String organizationName
-    ) {
-        return new WorkflowStatusChangedEvent(
-            EVENT_TYPE, null, null, postId, title, "SUBMITTED", "APPROVED",
-            authorId, authorName, null, null, null, null, null,
-            organizationId, organizationName, reviewerId, reviewerName,
-            reviewComments, null
-        );
+    public static WorkflowStatusChangedEvent approved( Long postId,
+                                                       String title,
+                                                       Long authorId,
+                                                       String authorName,
+                                                       Long reviewerId,
+                                                       String reviewerName,
+                                                       String reviewComments,
+                                                       Long organizationId,
+                                                       String organizationName )
+    {
+        return new WorkflowStatusChangedEvent( EVENT_TYPE,
+                                               null,
+                                               null,
+                                               postId,
+                                               title,
+                                               "SUBMITTED",
+                                               "APPROVED",
+                                               authorId,
+                                               authorName,
+                                               null,
+                                               null,
+                                               null,
+                                               null,
+                                               null,
+                                               organizationId,
+                                               organizationName,
+                                               reviewerId,
+                                               reviewerName,
+                                               reviewComments,
+                                               null );
     }
-    
+
     /**
      * Factory method for creating a rejection event.
      * 
@@ -241,68 +190,87 @@ public record WorkflowStatusChangedEvent(
      * @param organizationName Organization name
      * @return WorkflowStatusChangedEvent instance
      */
-    public static WorkflowStatusChangedEvent rejected(
-        Long postId,
-        String title,
-        Long authorId,
-        String authorName,
-        Long reviewerId,
-        String reviewerName,
-        String reviewComments,
-        Long organizationId,
-        String organizationName
-    ) {
-        return new WorkflowStatusChangedEvent(
-            EVENT_TYPE, null, null, postId, title, "SUBMITTED", "REJECTED",
-            authorId, authorName, null, null, null, null, null,
-            organizationId, organizationName, reviewerId, reviewerName,
-            reviewComments, null
-        );
+    public static WorkflowStatusChangedEvent rejected( Long postId,
+                                                       String title,
+                                                       Long authorId,
+                                                       String authorName,
+                                                       Long reviewerId,
+                                                       String reviewerName,
+                                                       String reviewComments,
+                                                       Long organizationId,
+                                                       String organizationName )
+    {
+        return new WorkflowStatusChangedEvent( EVENT_TYPE,
+                                               null,
+                                               null,
+                                               postId,
+                                               title,
+                                               "SUBMITTED",
+                                               "REJECTED",
+                                               authorId,
+                                               authorName,
+                                               null,
+                                               null,
+                                               null,
+                                               null,
+                                               null,
+                                               organizationId,
+                                               organizationName,
+                                               reviewerId,
+                                               reviewerName,
+                                               reviewComments,
+                                               null );
     }
-    
+
     /**
      * Checks if this is an approval event.
      * 
      * @return true if new status is APPROVED
      */
-    public boolean isApproval() {
-        return "APPROVED".equals(newStatus);
+    public boolean isApproval()
+    {
+        return "APPROVED".equals( newStatus );
     }
-    
+
     /**
      * Checks if this is a rejection event.
      * 
      * @return true if new status is REJECTED
      */
-    public boolean isRejection() {
-        return "REJECTED".equals(newStatus);
+    public boolean isRejection()
+    {
+        return "REJECTED".equals( newStatus );
     }
-    
+
     /**
      * Checks if this is a submission event.
      * 
      * @return true if new status is SUBMITTED
      */
-    public boolean isSubmission() {
-        return "SUBMITTED".equals(newStatus);
+    public boolean isSubmission()
+    {
+        return "SUBMITTED".equals( newStatus );
     }
-    
+
     /**
      * Checks if this event has a reviewer.
      * 
      * @return true if reviewer ID is not null
      */
-    public boolean hasReviewer() {
+    public boolean hasReviewer()
+    {
         return reviewerId != null;
     }
-    
+
     /**
      * Gets the status change description.
      * 
      * @return Human-readable status change description
      */
-    public String getStatusChangeDescription() {
-        if (previousStatus == null) {
+    public String getStatusChangeDescription()
+    {
+        if ( previousStatus == null )
+        {
             return "Created with status: " + newStatus;
         }
         return "Status changed from " + previousStatus + " to " + newStatus;

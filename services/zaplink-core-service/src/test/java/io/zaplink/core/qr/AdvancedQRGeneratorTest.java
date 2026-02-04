@@ -1,48 +1,43 @@
 package io.zaplink.core.qr;
 
-import io.zaplink.core.common.enums.QRBodyShapeEnum;
-import io.zaplink.core.common.enums.QREyeShapeEnum;
-import io.zaplink.core.dto.request.qr.*;
-import io.zaplink.core.service.QRRenderer;
-import io.zaplink.core.service.QRService;
-import io.zaplink.core.service.ZapQrEngine;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import io.zaplink.core.common.enums.QRBodyShapeEnum;
+import io.zaplink.core.common.enums.QREyeShapeEnum;
+import io.zaplink.core.dto.request.qr.QRBodyConfig;
+import io.zaplink.core.dto.request.qr.QRConfig;
+import io.zaplink.core.dto.request.qr.QREyeConfig;
+import io.zaplink.core.service.QRRenderer;
+import io.zaplink.core.service.QRService;
+import io.zaplink.core.service.ZapQrEngine;
 
 @SpringBootTest
 public class AdvancedQRGeneratorTest
 {
     private final QRService qrService = new QRService( new ZapQrEngine( new QRRenderer() ) );
-
     @Test
     public void testCustomStyledQR()
         throws IOException
     {
-        // Create a custom configuration
-        QRConfig config = new QRConfig();
-        config.setData( "https://zaplink.io" );
-        config.setSize( 512 );
-        config.setMargin( 3 );
-        config.setBackgroundColor( "#F0F9FF" );
-        // Custom body configuration
-        QRBodyConfig bodyConfig = new QRBodyConfig();
-        bodyConfig.setShape( QRBodyShapeEnum.LIQUID );
-        bodyConfig.setColor( "#7C3AED" );
-        bodyConfig.setColorDark( "#EC4899" );
-        bodyConfig.setGradientLinear( true );
-        config.setBody( bodyConfig );
-        // Custom eye configuration
-        QREyeConfig eyeConfig = new QREyeConfig();
-        eyeConfig.setShape( QREyeShapeEnum.LEAF );
-        eyeConfig.setColorOuter( "#7C3AED" );
-        eyeConfig.setColorInner( "#EC4899" );
-        config.setEye( eyeConfig );
+        // Create a custom configuration using record constructor
+        QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.LIQUID, "#7C3AED", "#EC4899", true );
+        QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.LEAF, "#7C3AED", "#EC4899" );
+        QRConfig config = new QRConfig( "https://zaplink.io",
+                                        512,
+                                        3,
+                                        "H",
+                                        false,
+                                        "#F0F9FF",
+                                        bodyConfig,
+                                        eyeConfig,
+                                        null );
         byte[] qrImage = qrService.generateStyledQrCode( config );
         // Save to file for visual inspection
         BufferedImage image = ImageIO.read( new java.io.ByteArrayInputStream( qrImage ) );
@@ -58,19 +53,9 @@ public class AdvancedQRGeneratorTest
         int testSize = 256;
         for ( QRBodyShapeEnum shape : QRBodyShapeEnum.values() )
         {
-            QRConfig config = new QRConfig();
-            config.setData( testUrl );
-            config.setSize( testSize );
-            config.setMargin( 2 );
-            QRBodyConfig bodyConfig = new QRBodyConfig();
-            bodyConfig.setShape( shape );
-            bodyConfig.setColor( "#2563EB" );
-            config.setBody( bodyConfig );
-            QREyeConfig eyeConfig = new QREyeConfig();
-            eyeConfig.setShape( QREyeShapeEnum.ROUNDED );
-            eyeConfig.setColorOuter( "#2563EB" );
-            eyeConfig.setColorInner( "#1E40AF" );
-            config.setEye( eyeConfig );
+            QRBodyConfig bodyConfig = new QRBodyConfig( shape, "#2563EB", null, true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.ROUNDED, "#2563EB", "#1E40AF" );
+            QRConfig config = new QRConfig( testUrl, testSize, 2, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
             byte[] qrImage = qrService.generateStyledQrCode( config );
             // Save each shape
             BufferedImage image = ImageIO.read( new java.io.ByteArrayInputStream( qrImage ) );
@@ -87,19 +72,9 @@ public class AdvancedQRGeneratorTest
         int testSize = 256;
         for ( QREyeShapeEnum shape : QREyeShapeEnum.values() )
         {
-            QRConfig config = new QRConfig();
-            config.setData( testUrl );
-            config.setSize( testSize );
-            config.setMargin( 2 );
-            QRBodyConfig bodyConfig = new QRBodyConfig();
-            bodyConfig.setShape( QRBodyShapeEnum.ROUNDED );
-            bodyConfig.setColor( "#059669" );
-            config.setBody( bodyConfig );
-            QREyeConfig eyeConfig = new QREyeConfig();
-            eyeConfig.setShape( shape );
-            eyeConfig.setColorOuter( "#059669" );
-            eyeConfig.setColorInner( "#047857" );
-            config.setEye( eyeConfig );
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.ROUNDED, "#059669", null, true );
+            QREyeConfig eyeConfig = new QREyeConfig( shape, "#059669", "#047857" );
+            QRConfig config = new QRConfig( testUrl, testSize, 2, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
             byte[] qrImage = qrService.generateStyledQrCode( config );
             // Save each eye shape
             BufferedImage image = ImageIO.read( new java.io.ByteArrayInputStream( qrImage ) );
@@ -115,28 +90,32 @@ public class AdvancedQRGeneratorTest
         String testUrl = "https://zaplink.io";
         int testSize = 512;
         // Test linear gradient
-        QRConfig linearConfig = new QRConfig();
-        linearConfig.setData( testUrl );
-        linearConfig.setSize( testSize );
-        QRBodyConfig linearBody = new QRBodyConfig();
-        linearBody.setShape( QRBodyShapeEnum.ROUNDED );
-        linearBody.setColor( "#FF6B6B" );
-        linearBody.setColorDark( "#4ECDC4" );
-        linearBody.setGradientLinear( true );
-        linearConfig.setBody( linearBody );
+        QRBodyConfig linearBody = new QRBodyConfig( QRBodyShapeEnum.ROUNDED, "#FF6B6B", "#4ECDC4", true );
+        QREyeConfig linearEye = new QREyeConfig( QREyeShapeEnum.SQUARE, "#000000", "#000000" );
+        QRConfig linearConfig = new QRConfig( testUrl,
+                                              testSize,
+                                              1,
+                                              "H",
+                                              false,
+                                              "#FFFFFF",
+                                              linearBody,
+                                              linearEye,
+                                              null );
         byte[] linearImage = qrService.generateStyledQrCode( linearConfig );
         BufferedImage linearBuffered = ImageIO.read( new java.io.ByteArrayInputStream( linearImage ) );
         ImageIO.write( linearBuffered, "PNG", new File( "test-linear-gradient.png" ) );
         // Test radial gradient
-        QRConfig radialConfig = new QRConfig();
-        radialConfig.setData( testUrl );
-        radialConfig.setSize( testSize );
-        QRBodyConfig radialBody = new QRBodyConfig();
-        radialBody.setShape( QRBodyShapeEnum.CIRCLE );
-        radialBody.setColor( "#FF6B6B" );
-        radialBody.setColorDark( "#4ECDC4" );
-        radialBody.setGradientLinear( false ); // Radial
-        radialConfig.setBody( radialBody );
+        QRBodyConfig radialBody = new QRBodyConfig( QRBodyShapeEnum.CIRCLE, "#FF6B6B", "#4ECDC4", false );
+        QREyeConfig radialEye = new QREyeConfig( QREyeShapeEnum.SQUARE, "#000000", "#000000" );
+        QRConfig radialConfig = new QRConfig( testUrl,
+                                              testSize,
+                                              1,
+                                              "H",
+                                              false,
+                                              "#FFFFFF",
+                                              radialBody,
+                                              radialEye,
+                                              null );
         byte[] radialImage = qrService.generateStyledQrCode( radialConfig );
         BufferedImage radialBuffered = ImageIO.read( new java.io.ByteArrayInputStream( radialImage ) );
         ImageIO.write( radialBuffered, "PNG", new File( "test-radial-gradient.png" ) );

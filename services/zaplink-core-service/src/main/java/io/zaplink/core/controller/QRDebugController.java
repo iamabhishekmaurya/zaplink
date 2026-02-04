@@ -32,24 +32,10 @@ public class QRDebugController
         try
         {
             log.info( "Generating simple QR with data: {}, size: {}", data, size );
-            // Create a basic config
-            QRConfig config = new QRConfig();
-            config.setData( data );
-            config.setSize( size );
-            config.setMargin( 1 );
-            config.setBackgroundColor( "#FFFFFF" );
-            config.setTransparentBackground( false );
-            // Set basic body config
-            QRBodyConfig bodyConfig = new QRBodyConfig();
-            bodyConfig.setShape( QRBodyShapeEnum.SQUARE );
-            bodyConfig.setColor( "#000000" );
-            config.setBody( bodyConfig );
-            // Set basic eye config
-            QREyeConfig eyeConfig = new QREyeConfig();
-            eyeConfig.setShape( QREyeShapeEnum.SQUARE );
-            eyeConfig.setColorOuter( "#000000" );
-            eyeConfig.setColorInner( "#000000" );
-            config.setEye( eyeConfig );
+            // Create a basic config using record constructor
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, "#000000", null, true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, "#000000", "#000000" );
+            QRConfig config = new QRConfig( data, size, 1, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
             log.info( "Config created: {}", config );
             BufferedImage image = zapQrEngine.generate( config );
             // Convert to byte array
@@ -75,24 +61,19 @@ public class QRDebugController
         {
             log.info( "Generating styled QR with data: {}, size: {}, shape: {}, color: {}", data, size, bodyShape,
                       color );
-            QRConfig config = new QRConfig();
-            config.setData( data );
-            config.setSize( size );
-            config.setMargin( 2 );
-            config.setBackgroundColor( "#FFFFFF" );
-            // Set body config
-            QRBodyConfig bodyConfig = new QRBodyConfig();
-            bodyConfig.setShape( QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ) );
-            bodyConfig.setColor( color );
-            bodyConfig.setColorDark( "#003D99" );
-            bodyConfig.setGradientLinear( true );
-            config.setBody( bodyConfig );
-            // Set eye config
-            QREyeConfig eyeConfig = new QREyeConfig();
-            eyeConfig.setShape( QREyeShapeEnum.ROUNDED );
-            eyeConfig.setColorOuter( color );
-            eyeConfig.setColorInner( "#003D99" );
-            config.setEye( eyeConfig );
+            // Create styled config using record constructor
+            QRBodyConfig bodyConfig = new QRBodyConfig( 
+                QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ), 
+                color, 
+                "#003D99", 
+                true 
+            );
+            QREyeConfig eyeConfig = new QREyeConfig( 
+                QREyeShapeEnum.ROUNDED, 
+                color, 
+                "#003D99" 
+            );
+            QRConfig config = new QRConfig( data, size, 2, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
             log.info( "Styled config created: {}", config );
             BufferedImage image = zapQrEngine.generate( config );
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -110,22 +91,18 @@ public class QRDebugController
     @GetMapping("/test-config")
     public ResponseEntity<QRConfig> getTestConfig()
     {
-        QRConfig config = new QRConfig();
-        config.setData( "https://zaplink.io" );
-        config.setSize( 512 );
-        config.setMargin( 2 );
-        config.setBackgroundColor( "#FFFFFF" );
-        QRBodyConfig bodyConfig = new QRBodyConfig();
-        bodyConfig.setShape( QRBodyShapeEnum.ROUNDED );
-        bodyConfig.setColor( "#0066FF" );
-        bodyConfig.setColorDark( "#003D99" );
-        bodyConfig.setGradientLinear( true );
-        config.setBody( bodyConfig );
-        QREyeConfig eyeConfig = new QREyeConfig();
-        eyeConfig.setShape( QREyeShapeEnum.ROUNDED );
-        eyeConfig.setColorOuter( "#0066FF" );
-        eyeConfig.setColorInner( "#003D99" );
-        config.setEye( eyeConfig );
+        QRBodyConfig bodyConfig = new QRBodyConfig( 
+            QRBodyShapeEnum.ROUNDED, 
+            "#0066FF", 
+            "#003D99", 
+            true 
+        );
+        QREyeConfig eyeConfig = new QREyeConfig( 
+            QREyeShapeEnum.ROUNDED, 
+            "#0066FF", 
+            "#003D99" 
+        );
+        QRConfig config = new QRConfig( "https://zaplink.io", 512, 2, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
         return ResponseEntity.ok( config );
     }
 
@@ -135,22 +112,10 @@ public class QRDebugController
         try
         {
             log.info( "Verifying QR generation and decode for data: {}", data );
-            // Generate QR
-            QRConfig config = new QRConfig();
-            config.setData( data );
-            config.setSize( 512 );
-            config.setMargin( 1 );
-            config.setBackgroundColor( "#FFFFFF" );
-            config.setTransparentBackground( false );
-            QRBodyConfig bodyConfig = new QRBodyConfig();
-            bodyConfig.setShape( QRBodyShapeEnum.SQUARE );
-            bodyConfig.setColor( "#000000" );
-            config.setBody( bodyConfig );
-            QREyeConfig eyeConfig = new QREyeConfig();
-            eyeConfig.setShape( QREyeShapeEnum.SQUARE );
-            eyeConfig.setColorOuter( "#000000" );
-            eyeConfig.setColorInner( "#000000" );
-            config.setEye( eyeConfig );
+            // Generate QR using record constructor
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, "#000000", null, true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, "#000000", "#000000" );
+            QRConfig config = new QRConfig( data, 512, 1, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
             BufferedImage image = zapQrEngine.generate( config );
             // Decode it back using ZXing
             com.google.zxing.LuminanceSource source = new com.google.zxing.client.j2se.BufferedImageLuminanceSource( image );
@@ -213,21 +178,19 @@ public class QRDebugController
         try
         {
             log.info( "Verifying STYLED QR for data: {}, body: {}, eye: {}", data, bodyShape, eyeShape );
-            QRConfig config = new QRConfig();
-            config.setData( data );
-            config.setSize( 512 );
-            config.setMargin( 1 );
-            config.setBackgroundColor( "#FFFFFF" );
-            config.setTransparentBackground( false );
-            QRBodyConfig bodyConfig = new QRBodyConfig();
-            bodyConfig.setShape( QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ) );
-            bodyConfig.setColor( "#000000" );
-            config.setBody( bodyConfig );
-            QREyeConfig eyeConfig = new QREyeConfig();
-            eyeConfig.setShape( QREyeShapeEnum.valueOf( eyeShape.toUpperCase() ) );
-            eyeConfig.setColorOuter( "#000000" );
-            eyeConfig.setColorInner( "#000000" );
-            config.setEye( eyeConfig );
+            // Create styled config using record constructor
+            QRBodyConfig bodyConfig = new QRBodyConfig( 
+                QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ), 
+                "#000000", 
+                null, 
+                true 
+            );
+            QREyeConfig eyeConfig = new QREyeConfig( 
+                QREyeShapeEnum.valueOf( eyeShape.toUpperCase() ), 
+                "#000000", 
+                "#000000" 
+            );
+            QRConfig config = new QRConfig( data, 512, 1, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
             BufferedImage image = zapQrEngine.generate( config );
             // Decode it back
             com.google.zxing.LuminanceSource source = new com.google.zxing.client.j2se.BufferedImageLuminanceSource( image );

@@ -1,12 +1,19 @@
 package io.zaplink.core.dto.request.qr;
 
 import io.zaplink.core.common.enums.QREyeShapeEnum;
-import lombok.Data;
 
-@Data
-public class QREyeConfig
-{
-    private QREyeShapeEnum shape      = QREyeShapeEnum.SQUARE;
-    private String         colorOuter = "#000000";
-    private String         colorInner = "#000000";
+public record QREyeConfig(
+    QREyeShapeEnum shape,
+    String colorOuter,
+    String colorInner
+) {
+    public QREyeConfig() {
+        this(QREyeShapeEnum.SQUARE, "#000000", "#000000");
+    }
+    
+    public QREyeConfig(QREyeShapeEnum shape, String colorOuter, String colorInner) {
+        this.shape = shape;
+        this.colorOuter = colorOuter;
+        this.colorInner = colorInner;
+    }
 }

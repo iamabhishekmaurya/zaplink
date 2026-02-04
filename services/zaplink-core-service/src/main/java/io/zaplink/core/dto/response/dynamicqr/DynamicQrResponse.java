@@ -2,29 +2,25 @@ package io.zaplink.core.dto.response.dynamicqr;
 
 import java.time.LocalDateTime;
 
-import lombok.Data;
-
-@Data
-public class DynamicQrResponse
+public record DynamicQrResponse( Long id,
+                                 String qrKey,
+                                 String qrName,
+                                 String currentDestinationUrl,
+                                 String qrImageUrl,
+                                 String redirectUrl,
+                                 String campaignId,
+                                 String userEmail,
+                                 Boolean isActive,
+                                 Long totalScans,
+                                 LocalDateTime createdAt,
+                                 LocalDateTime updatedAt,
+                                 LocalDateTime lastScanned,
+                                 // Advanced Fields
+                                 Object qrConfig,
+                                 Object allowedDomains,
+                                 String password,
+                                 Integer scanLimit,
+                                 LocalDateTime expirationDate,
+                                 Boolean trackAnalytics )
 {
-    private Long          id;
-    private String        qrKey;
-    private String        qrName;
-    private String        currentDestinationUrl;
-    private String        qrImageUrl;
-    private String        redirectUrl;
-    private String        campaignId;
-    private String        userEmail;
-    private Boolean       isActive;
-    private Long          totalScans;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime lastScanned;
-    // Advanced Fields
-    private Object        qrConfig;
-    private Object        allowedDomains;
-    private String        password;
-    private Integer       scanLimit;
-    private LocalDateTime expirationDate;
-    private Boolean       trackAnalytics;
 }

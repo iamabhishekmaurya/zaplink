@@ -52,15 +52,18 @@ public class GlobalExceptionHandler
                         return ResponseEntity.badRequest().contentType( MediaType.TEXT_PLAIN )
                                         .body( "# VALIDATION ERROR: " + ex.getMessage() + "\n" );
                 }
-                List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream().map( error -> FieldError
-                                .builder().field( error.getField() ).message( error.getDefaultMessage() )
-                                .rejectedValue( error.getRejectedValue() != null ? error.getRejectedValue().toString()
-                                                                                 : null )
-                                .build() ).collect( Collectors.toList() );
-                ErrorResponse errorResponse = ErrorResponse.builder().timestamp( LocalDateTime.now().toString() )
-                                .status( HttpStatus.BAD_REQUEST.name() ).message( "Validation failed" )
-                                .path( request.getDescription( false ).replace( "uri=", "" ) )
-                                .fieldErrors( fieldErrors ).build();
+                List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream().map( error -> new FieldError(
+                                error.getField(), 
+                                error.getDefaultMessage(),
+                                error.getRejectedValue() != null ? error.getRejectedValue().toString() : null
+                ) ).collect( Collectors.toList() );
+                ErrorResponse errorResponse = new ErrorResponse(
+                                LocalDateTime.now().toString(),
+                                HttpStatus.BAD_REQUEST.name(), 
+                                "Validation failed",
+                                request.getDescription( false ).replace( "uri=", "" ),
+                                fieldErrors
+                );
                 return ResponseEntity.badRequest().contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
         }
 
@@ -77,13 +80,13 @@ public class GlobalExceptionHandler
                 
                 log.error("Resource not found: {}", ex.getMessage());
                 
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                        .timestamp(LocalDateTime.now().toString())
-                        .status(HttpStatus.NOT_FOUND.name())
-                        .message(ex.getMessage())
-                        .path(request.getDescription(false).replace("uri=", ""))
-                        .fieldErrors(List.of())
-                        .build();
+                ErrorResponse errorResponse = new ErrorResponse(
+                        LocalDateTime.now().toString(),
+                        HttpStatus.NOT_FOUND.name(),
+                        ex.getMessage(),
+                        request.getDescription(false).replace("uri=", ""),
+                        List.of()
+                );
                 
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -103,13 +106,13 @@ public class GlobalExceptionHandler
                 
                 log.error("Business rule violation: {}", ex.getMessage());
                 
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                        .timestamp(LocalDateTime.now().toString())
-                        .status(HttpStatus.UNPROCESSABLE_ENTITY.name())
-                        .message(ex.getMessage())
-                        .path(request.getDescription(false).replace("uri=", ""))
-                        .fieldErrors(List.of())
-                        .build();
+                ErrorResponse errorResponse = new ErrorResponse(
+                        LocalDateTime.now().toString(),
+                        HttpStatus.UNPROCESSABLE_ENTITY.name(),
+                        ex.getMessage(),
+                        request.getDescription(false).replace("uri=", ""),
+                        List.of()
+                );
                 
                 return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -137,12 +140,13 @@ public class GlobalExceptionHandler
                                         .contentType( MediaType.TEXT_PLAIN )
                                         .body( "# ERROR: " + ex.getMessage() + "\n" );
                 }
-                ErrorResponse errorResponse = ErrorResponse.builder().timestamp( LocalDateTime.now().toString() )
-                                .status( HttpStatus.INTERNAL_SERVER_ERROR.name() ).message( "Internal server error" )
-                                .path( request.getDescription( false ).replace( "uri=", "" ) )
-                                .fieldErrors( List.of( FieldError.builder().field( "global" ).message( ex.getMessage() )
-                                                .rejectedValue( null ).build() ) )
-                                .build();
+                ErrorResponse errorResponse = new ErrorResponse(
+                                LocalDateTime.now().toString(),
+                                HttpStatus.INTERNAL_SERVER_ERROR.name(), 
+                                "Internal server error",
+                                request.getDescription( false ).replace( "uri=", "" ),
+                                List.of( new FieldError( "global", ex.getMessage(), null ) )
+                );
                 return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR )
                                 .contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
         }

@@ -6,9 +6,7 @@ import java.util.List;
 import io.zaplink.core.dto.request.RedirectRuleDto;
 import io.zaplink.core.dto.request.qr.QRConfig;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
 
-@Builder
 public record UpdateDynamicQrRequest( @NotBlank(message = "QR Name is required") String qrName,
                                       @NotBlank(message = "Destination URL is required") String destinationUrl,
                                       QRConfig qrConfig,

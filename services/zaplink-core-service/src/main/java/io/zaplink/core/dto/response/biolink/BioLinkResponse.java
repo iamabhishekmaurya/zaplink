@@ -1,6 +1,5 @@
 package io.zaplink.core.dto.response.biolink;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

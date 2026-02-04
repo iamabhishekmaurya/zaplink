@@ -44,54 +44,52 @@ public class TeamMember
      * Primary key for the team member.
      */
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long    id;
+    private Long             id;
     /**
      * Team ID this member belongs to.
      */
     @NotNull @Column(name = DatabaseConstants.COLUMN_TEAM_ID, nullable = false)
-    private Long    teamId;
+    private Long             teamId;
     /**
      * User ID of the team member.
      */
     @NotNull @Column(name = DatabaseConstants.COLUMN_USER_ID, nullable = false)
-    private Long    userId;
+    private Long             userId;
     /**
      * Role of the team member within the team.
      * Valid values: ADMIN, EDITOR, APPROVER, VIEWER, INFLUENCER
      */
-    @NotBlank @Column(name = DatabaseConstants.COLUMN_ROLE, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TeamMemberRole role;
+    @NotBlank @Column(name = DatabaseConstants.COLUMN_ROLE, nullable = false) @Enumerated(EnumType.STRING)
+    private TeamMemberRole   role;
     /**
      * Status of the team member.
      * Valid values: ACTIVE, INACTIVE, PENDING
      */
-    @Builder.Default @Column(name = DatabaseConstants.COLUMN_STATUS)
-    @Enumerated(EnumType.STRING)
+    @Builder.Default @Column(name = DatabaseConstants.COLUMN_STATUS) @Enumerated(EnumType.STRING)
     private TeamMemberStatus status = TeamMemberStatus.ACTIVE;
     /**
      * User ID who invited this member.
      */
     @NotNull @Column(name = DatabaseConstants.COLUMN_INVITED_BY, nullable = false)
-    private Long    invitedBy;
+    private Long             invitedBy;
     /**
      * Timestamp when the member was invited.
      */
     @CreatedDate @Column(name = DatabaseConstants.COLUMN_INVITED_AT, nullable = false, updatable = false)
-    private Instant invitedAt;
+    private Instant          invitedAt;
     /**
      * Timestamp when the member joined the team.
      */
     @Column(name = DatabaseConstants.COLUMN_JOINED_AT)
-    private Instant joinedAt;
+    private Instant          joinedAt;
     /**
      * Timestamp when the team member record was created.
      */
     @CreatedDate @Column(name = DatabaseConstants.COLUMN_CREATED_AT, nullable = false, updatable = false)
-    private Instant createdAt;
+    private Instant          createdAt;
     /**
      * Timestamp when the team member record was last updated.
      */
     @LastModifiedDate @Column(name = DatabaseConstants.COLUMN_UPDATED_AT)
-    private Instant updatedAt;
+    private Instant          updatedAt;
 }

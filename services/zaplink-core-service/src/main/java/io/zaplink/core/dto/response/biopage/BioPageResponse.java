@@ -61,8 +61,7 @@ public record BioPageResponse( Long id,
     @Override
     public String toString()
     {
-        return String
-                .format( "BioPageResponse{id=%d, username='%s', ownerId='%s', createdAt=%s}",
-                         id, username, ownerId, createdAt );
+        return String.format( "BioPageResponse{id=%d, username='%s', ownerId='%s', createdAt=%s}", id, username,
+                              ownerId, createdAt );
     }
 }
