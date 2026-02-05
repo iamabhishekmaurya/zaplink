@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.dto.request.qr.QRConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ public class QRService
         }
         catch ( Exception e )
         {
-            log.error( "Failed to generate styled QR code", e );
+            log.error( LogConstants.QR_SERVICE_GENERATION_FAILED, e );
             throw new RuntimeException( ErrorConstant.ERROR_STYLED_QR_CODE_GENERATION_FAILED, e );
         }
     }

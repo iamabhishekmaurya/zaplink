@@ -18,7 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.zaplink.core.common.constants.ControllerConstants;
+import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.common.constants.StatusConstants;
 import io.zaplink.core.dto.request.TeamMemberInviteRequest;
 import io.zaplink.core.dto.request.TeamMemberRoleChangeRequest;
 import io.zaplink.core.dto.response.TeamMemberResponse;
@@ -35,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2026-01-31
  */
-@Slf4j @RestController @RequestMapping("/teams") @RequiredArgsConstructor @Validated @Tag(name = "Team Management", description = "APIs for managing team members and roles")
+@Slf4j @RestController @RequestMapping(ControllerConstants.TEAM_BASE_PATH) @RequiredArgsConstructor @Validated @Tag(name = ControllerConstants.TAG_TEAM_MANAGEMENT, description = ControllerConstants.TAG_TEAM_MANAGEMENT_DESC)
 public class TeamManagementController
 {
     private final TeamManagementService teamManagementService;
@@ -46,11 +53,15 @@ public class TeamManagementController
      * @param invitedBy User ID of the person sending the invitation (from JWT token)
      * @return TeamMemberResponse with the created team member information
      */
-    @PostMapping("/invite") @Operation(summary = "Invite team member", description = "Invites a user to join a team with a specific role")
+    @PostMapping(ControllerConstants.TEAM_INVITE_PATH) @Operation(summary = ControllerConstants.TEAM_INVITE_MEMBER_SUMMARY, description = ControllerConstants.TEAM_INVITE_MEMBER_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_201_CREATED, description = ControllerConstants.RESPONSE_201_TEAM_MEMBER_INVITED, content = @Content(schema = @Schema(implementation = TeamMemberResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_INVITATION_DATA),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_TEAM_NOT_FOUND),
+      @ApiResponse(responseCode = StatusConstants.STATUS_409_CONFLICT, description = ControllerConstants.RESPONSE_409_USER_ALREADY_MEMBER) })
     public ResponseEntity<TeamMemberResponse> inviteTeamMember( @Valid @RequestBody TeamMemberInviteRequest request,
-                                                                @RequestHeader("X-User-Id") Long invitedBy )
+                                                                @RequestHeader(ControllerConstants.HEADER_USER_ID) Long invitedBy )
     {
-        log.info( "Inviting team member: {} by user: {}", request.email(), invitedBy );
+        log.info( LogConstants.TEAM_MEMBER_INVITING_WITH_USER, request.email(), invitedBy );
         TeamMemberResponse response = teamManagementService.inviteTeamMember( request, invitedBy );
         return ResponseEntity.status( HttpStatus.CREATED ).body( response );
     }
@@ -61,11 +72,14 @@ public class TeamManagementController
      * @param request The role change request
      * @return Updated TeamMemberResponse
      */
-    @PutMapping("/members/{userId}/role") @Operation(summary = "Change team member role", description = "Changes the role of an existing team member")
-    public ResponseEntity<TeamMemberResponse> changeTeamMemberRole( @Parameter(description = "User ID of the team member") @PathVariable Long userId,
+    @PutMapping(ControllerConstants.TEAM_MEMBER_ROLE_PATH) @Operation(summary = ControllerConstants.TEAM_CHANGE_ROLE_SUMMARY, description = ControllerConstants.TEAM_CHANGE_ROLE_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_TEAM_ROLE_CHANGED, content = @Content(schema = @Schema(implementation = TeamMemberResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_ROLE_DATA),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_TEAM_MEMBER_NOT_FOUND) })
+    public ResponseEntity<TeamMemberResponse> changeTeamMemberRole( @Parameter(description = ControllerConstants.PARAM_DESC_USER_ID) @PathVariable Long userId,
                                                                     @Valid @RequestBody TeamMemberRoleChangeRequest request )
     {
-        log.info( "Changing role for user: {} to: {}", userId, request.newRole() );
+        log.info( LogConstants.TEAM_MEMBER_ROLE_CHANGING_WITH_USER, userId, request.newRole() );
         // Create new request with userId from path variable (records are immutable)
         TeamMemberRoleChangeRequest roleChangeRequest = new TeamMemberRoleChangeRequest( userId,
                                                                                          request.newRole(),
@@ -81,11 +95,14 @@ public class TeamManagementController
      * @param teamId The team ID to remove from
      * @return No content response
      */
-    @DeleteMapping("/members/{userId}") @Operation(summary = "Remove team member", description = "Removes a team member from a team")
-    public ResponseEntity<Void> removeTeamMember( @Parameter(description = "User ID of the team member to remove") @PathVariable Long userId,
-                                                  @Parameter(description = "Team ID to remove from") @RequestParam Long teamId )
+    @DeleteMapping(ControllerConstants.TEAM_MEMBER_REMOVE_PATH) @Operation(summary = ControllerConstants.TEAM_REMOVE_MEMBER_SUMMARY, description = ControllerConstants.TEAM_REMOVE_MEMBER_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_204_NO_CONTENT, description = ControllerConstants.RESPONSE_204_TEAM_MEMBER_REMOVED),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_TEAM_DATA),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_TEAM_MEMBER_NOT_FOUND) })
+    public ResponseEntity<Void> removeTeamMember( @Parameter(description = ControllerConstants.PARAM_DESC_USER_ID_REMOVE) @PathVariable Long userId,
+                                                  @Parameter(description = ControllerConstants.PARAM_DESC_TEAM_ID_REMOVE) @RequestParam(ControllerConstants.PARAM_TEAM_ID) Long teamId )
     {
-        log.info( "Removing team member: {} from team: {}", userId, teamId );
+        log.info( LogConstants.TEAM_MEMBER_REMOVING_FROM_TEAM, userId, teamId );
         teamManagementService.removeTeamMember( userId, teamId );
         return ResponseEntity.noContent().build();
     }
@@ -96,10 +113,12 @@ public class TeamManagementController
      * @param teamId The team ID
      * @return List of TeamMemberResponse
      */
-    @GetMapping("/{teamId}/members") @Operation(summary = "Get team members", description = "Retrieves all team members for a specific team")
-    public ResponseEntity<List<TeamMemberResponse>> getTeamMembers( @Parameter(description = "Team ID") @PathVariable Long teamId )
+    @GetMapping(ControllerConstants.TEAM_MEMBERS_PATH) @Operation(summary = ControllerConstants.TEAM_GET_MEMBERS_SUMMARY, description = ControllerConstants.TEAM_GET_MEMBERS_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_TEAM_MEMBERS_RETRIEVED, content = @Content(schema = @Schema(implementation = List.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_TEAM_NOT_FOUND) })
+    public ResponseEntity<List<TeamMemberResponse>> getTeamMembers( @Parameter(description = ControllerConstants.PARAM_DESC_TEAM_ID) @PathVariable Long teamId )
     {
-        log.info( "Retrieving team members for team: {}", teamId );
+        log.info( LogConstants.TEAM_MEMBERS_RETRIEVING_FOR_TEAM, teamId );
         List<TeamMemberResponse> members = teamManagementService.getTeamMembers( teamId );
         return ResponseEntity.ok( members );
     }

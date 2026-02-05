@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.common.constants.MessageConstants;
 import io.zaplink.core.dto.request.biolink.CreateBioLinkRequest;
 import io.zaplink.core.dto.request.biolink.ReorderLinksRequest;
 import io.zaplink.core.dto.request.biolink.UpdateBioLinkRequest;
@@ -87,11 +89,10 @@ public class BioLinkService
     // @CacheEvict(value = {"bioLinks", "bioLinksByPage", "bioPagesByUsername"}, allEntries = true)
     public BioLinkResponse createBioLink( CreateBioLinkRequest request, String userEmail )
     {
-        log.info( "Creating bio link for page ID: {}, title: {}, type: {}", request.pageId(), request.title(),
-                  request.type() );
+        log.info( LogConstants.BIOLINK_CREATING_FOR_PAGE, request.pageId(), request.title(), request.type() );
         // Validate bio page existence
         BioPageEntity bioPage = bioPageRepository.findById( request.pageId() ).orElseThrow( () -> {
-            log.warn( "Attempted to create link for non-existent bio page ID: {}", request.pageId() );
+            log.warn( LogConstants.BIOLINK_PAGE_NOT_FOUND_WARNING, request.pageId() );
             return new IllegalArgumentException( String.format( ErrorConstant.ERROR_BIO_PAGE_NOT_FOUND_WITH_ID,
                                                                 request.pageId() ) );
         } );
@@ -113,16 +114,15 @@ public class BioLinkService
                 entity.setCurrency( request.currency() );
             }
             BioLinkEntity saved = bioLinkRepository.save( entity );
-            log.info( "Successfully created bio link with ID: {}, title: {}, type: {}", saved.getId(), saved.getTitle(),
-                      saved.getTypeName() );
+            log.info( LogConstants.BIOLINK_CREATE_SUCCESS, saved.getId(), saved.getTitle(), saved.getTypeName() );
             BioLinkResponse response = convertToDto( saved );
-            eventPublisherService.publishBioLinkEvent( "bio.link-created", response, bioPage.getId() );
+            eventPublisherService.publishBioLinkEvent( LogConstants.BIOLINK_EVENT_CREATED, response, bioPage.getId() );
             return response;
         }
         catch ( Exception e )
         {
-            log.error( "Failed to create bio link for page ID: {}, title: {}", request.pageId(), request.title(), e );
-            throw new RuntimeException( "Failed to create bio link", e );
+            log.error( LogConstants.BIOLINK_CREATE_FAILED, request.pageId(), request.title(), e );
+            throw new RuntimeException( MessageConstants.ERROR_FAILED_TO_CREATE_BIO_LINK, e );
         }
     }
 
@@ -154,17 +154,17 @@ public class BioLinkService
      */
     public BioLinkResponse updateBioLink( Long id, UpdateBioLinkRequest request, String userEmail )
     {
-        log.info( "Updating bio link with ID: {}", id );
-        BioLinkEntity entity = bioLinkRepository.findById( id )
-                .orElseThrow( () -> new IllegalArgumentException( "Bio link not found with ID: " + id ) );
+        log.info( LogConstants.BIOLINK_UPDATING_WITH_ID, id );
+        BioLinkEntity entity = bioLinkRepository.findById( id ).orElseThrow( () -> new IllegalArgumentException( String
+                .format( MessageConstants.ERROR_BIO_LINK_NOT_FOUND_WITH_ID, id ) ) );
         // Validate product-specific fields if type is being changed to PRODUCT
-        if ( request.type() != null && "PRODUCT".equals( request.type() ) )
+        if ( request.type() != null && MessageConstants.LINK_TYPE_PRODUCT.equals( request.type() ) )
         {
             boolean hasPrice = request.price() != null || entity.getPrice() != null;
             boolean hasCurrency = request.currency() != null || entity.getCurrency() != null;
             if ( !hasPrice || !hasCurrency )
             {
-                throw new IllegalArgumentException( "Product links must have both price and currency" );
+                throw new IllegalArgumentException( MessageConstants.ERROR_PRODUCT_LINKS_MUST_HAVE_PRICE_AND_CURRENCY );
             }
         }
         Optional.ofNullable( request.title() ).ifPresent( entity::setTitle );
@@ -179,9 +179,10 @@ public class BioLinkService
             Optional.ofNullable( request.currency() ).ifPresent( entity::setCurrency );
         }
         BioLinkEntity saved = bioLinkRepository.save( entity );
-        log.info( "Updated bio link with ID: {}", saved.getId() );
+        log.info( LogConstants.BIOLINK_UPDATE_SUCCESS, saved.getId() );
         BioLinkResponse response = convertToDto( saved );
-        eventPublisherService.publishBioLinkEvent( "bio.link-updated", response, entity.getBioPage().getId() );
+        eventPublisherService.publishBioLinkEvent( LogConstants.BIOLINK_EVENT_UPDATED, response,
+                                                   entity.getBioPage().getId() );
         return response;
     }
 
@@ -204,14 +205,14 @@ public class BioLinkService
      */
     public boolean deleteBioLink( Long id, String userEmail )
     {
-        log.info( "Deleting bio link with ID: {}", id );
-        BioLinkEntity entity = bioLinkRepository.findById( id )
-                .orElseThrow( () -> new IllegalArgumentException( "Bio link not found with ID: " + id ) );
+        log.info( LogConstants.BIOLINK_DELETING_WITH_ID, id );
+        BioLinkEntity entity = bioLinkRepository.findById( id ).orElseThrow( () -> new IllegalArgumentException( String
+                .format( MessageConstants.ERROR_BIO_LINK_NOT_FOUND_WITH_ID, id ) ) );
         Long pageId = entity.getBioPage().getId();
         BioLinkResponse response = convertToDto( entity );
         bioLinkRepository.deleteById( id );
-        log.info( "Deleted bio link with ID: {}", id );
-        eventPublisherService.publishBioLinkEvent( "bio.link-deleted", response, pageId );
+        log.info( LogConstants.BIOLINK_DELETE_SUCCESS, id );
+        eventPublisherService.publishBioLinkEvent( LogConstants.BIOLINK_EVENT_DELETED, response, pageId );
         return true;
     }
 
@@ -240,7 +241,7 @@ public class BioLinkService
      */
     public boolean reorderLinks( Long pageId, ReorderLinksRequest request, String userEmail )
     {
-        log.info( "Reordering links for page ID: {}", pageId );
+        log.info( LogConstants.BIOLINK_REORDERING_FOR_PAGE, pageId );
         // Validate that all links belong to the specified page
         List<Long> linkIds = request.linkOrders().stream().map( ReorderLinksRequest.LinkOrder::linkId )
                 .collect( Collectors.toList() );
@@ -249,20 +250,20 @@ public class BioLinkService
         {
             if ( !link.getBioPage().getId().equals( pageId ) )
             {
-                throw new IllegalArgumentException( "Link ID " + link.getId() + " does not belong to page ID "
-                        + pageId );
+                throw new IllegalArgumentException( String.format( MessageConstants.ERROR_LINK_DOES_NOT_BELONG_TO_PAGE,
+                                                                   link.getId(), pageId ) );
             }
         }
         // Update sort orders
         for ( ReorderLinksRequest.LinkOrder linkOrder : request.linkOrders() )
         {
             BioLinkEntity link = links.stream().filter( l -> l.getId().equals( linkOrder.linkId() ) ).findFirst()
-                    .orElseThrow( () -> new IllegalArgumentException( "Link not found with ID: "
-                            + linkOrder.linkId() ) );
+                    .orElseThrow( () -> new IllegalArgumentException( String
+                            .format( MessageConstants.ERROR_LINK_NOT_FOUND_WITH_ID, linkOrder.linkId() ) ) );
             link.setSortOrder( linkOrder.sortOrder() );
         }
         List<BioLinkEntity> saveAllRecordLinks = bioLinkRepository.saveAll( links );
-        log.info( "Reordered {} links for page ID: {}", request.linkOrders().size(), pageId );
+        log.info( LogConstants.BIOLINK_REORDER_SUCCESS, request.linkOrders().size(), pageId );
         // Publish reorder event (using bio.links-reordered which Manager Service should handle)
         // Ideally we would send the full page structure, but let's just trigger a generic update or page-updated
         // Since we don't have getBioPage here easily returning Response, we'll skip or just send a signal.
@@ -311,14 +312,14 @@ public class BioLinkService
         // Validate type-specific requirements using Java 21 switch expression
         switch ( request.type().toUpperCase() )
         {
-            case "LINK", "SOCIAL" -> {
+            case MessageConstants.LINK_TYPE_LINK, MessageConstants.LINK_TYPE_SOCIAL -> {
                 if ( request.url() == null || request.url().trim().isEmpty() )
                 {
                     throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_URL_REQUIRED_FOR_LINK_TYPE,
                                                                        request.type() ) );
                 }
             }
-            case "PRODUCT" -> {
+            case MessageConstants.LINK_TYPE_PRODUCT -> {
                 if ( request.price() == null || request.currency() == null )
                 {
                     throw new IllegalArgumentException( ErrorConstant.ERROR_PRODUCT_LINKS_MUST_HAVE_PRICE_AND_CURRENCY );
@@ -332,7 +333,7 @@ public class BioLinkService
                     throw new IllegalArgumentException( ErrorConstant.ERROR_CURRENCY_MUST_BE_VALID_ISO_CODE );
                 }
             }
-            case "EMAIL" -> {
+            case MessageConstants.LINK_TYPE_EMAIL -> {
                 if ( request.url() != null && !request.url().trim().isEmpty() )
                 {
                     if ( !request.url().matches( "^[A-Za-z0-9+_.-]+@(.+)$" ) )
@@ -341,7 +342,7 @@ public class BioLinkService
                     }
                 }
             }
-            case "PHONE" -> {
+            case MessageConstants.LINK_TYPE_PHONE -> {
                 if ( request.url() != null && !request.url().trim().isEmpty() )
                 {
                     if ( !request.url().matches( "^[+0-9\\-\\s\\(\\)]+$" ) )
@@ -353,7 +354,7 @@ public class BioLinkService
             default -> throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_UNKNOWN_LINK_TYPE,
                                                                           request.type() ) );
         }
-        log.trace( "Create bio link request validation passed" );
+        log.trace( LogConstants.BIOLINK_CREATE_VALIDATION_PASSED );
     }
 
     /**
@@ -382,7 +383,7 @@ public class BioLinkService
      */
     private BioLinkResponse convertToDto( BioLinkEntity entity )
     {
-        log.trace( "Converting BioLinkEntity to DTO for ID: {}", entity.getId() );
+        log.trace( LogConstants.BIOLINK_CONVERTING_TO_DTO, entity.getId() );
         try
         {
             return new BioLinkResponse( entity.getId(),
@@ -399,8 +400,8 @@ public class BioLinkService
         }
         catch ( Exception e )
         {
-            log.error( "Failed to convert BioLinkEntity to DTO for ID: {}", entity.getId(), e );
-            throw new RuntimeException( "Failed to convert entity to DTO", e );
+            log.error( LogConstants.BIOLINK_CONVERT_TO_DTO_FAILED, entity.getId(), e );
+            throw new RuntimeException( MessageConstants.ERROR_FAILED_TO_CONVERT_ENTITY_TO_DTO, e );
         }
     }
 }

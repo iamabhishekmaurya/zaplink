@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.common.constants.MessageConstants;
 import io.zaplink.core.common.enums.BioLinkType;
 import io.zaplink.core.dto.error.BioPageCreatedEvent;
 import io.zaplink.core.dto.request.biopage.CreateBioPageRequest;
@@ -92,11 +94,11 @@ public class BioPageService
     { "bioPages", "bioPagesByOwner" }, allEntries = true)
     public BioPageResponse createBioPage( CreateBioPageRequest request, String userEmail )
     {
-        log.info( "Creating bio page for username: {}, owner: {}", request.username(), request.ownerId() );
+        log.info( LogConstants.BIOPAGE_CREATING_FOR_USERNAME, request.username(), request.ownerId() );
         // Validate username uniqueness using Java 21 pattern matching
         if ( bioPageRepository.existsByUsername( request.username() ) )
         {
-            log.warn( "Username conflict attempted: {}", request.username() );
+            log.warn( LogConstants.BIOPAGE_USERNAME_CONFLICT_WARNING, request.username() );
             throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_USERNAME_ALREADY_EXISTS,
                                                                request.username() ) );
         }
@@ -109,15 +111,15 @@ public class BioPageService
             entity.setAvatarUrl( request.avatarUrl() );
             entity.setBioText( request.bioText() );
             BioPageEntity saved = bioPageRepository.save( entity );
-            log.info( "Successfully created bio page with ID: {}, username: {}", saved.getId(), saved.getUsername() );
+            log.info( LogConstants.BIOPAGE_CREATE_SUCCESS, saved.getId(), saved.getUsername() );
             BioPageResponse response = convertToDto( saved );
-            eventPublisherService.publishBioPageEvent( "bio.page-created", response );
+            eventPublisherService.publishBioPageEvent( LogConstants.BIOPAGE_EVENT_CREATED, response );
             return response;
         }
         catch ( Exception e )
         {
-            log.error( "Failed to create bio page for username: {}", request.username(), e );
-            throw new RuntimeException( "Failed to create bio page", e );
+            log.error( LogConstants.BIOPAGE_CREATE_FAILED, request.username(), e );
+            throw new RuntimeException( MessageConstants.ERROR_FAILED_TO_CREATE_BIO_PAGE, e );
         }
     }
 
@@ -158,19 +160,20 @@ public class BioPageService
     { "bioPagesByUsername", "bioPagesByOwner", "bioPagesByOwnerList" }, allEntries = true)
     public BioPageResponse updateBioPage( Long id, UpdateBioPageRequest request, String userEmail )
     {
-        log.info( "Updating bio page with ID: {}", id );
+        log.info( LogConstants.BIOPAGE_UPDATING_WITH_ID, id );
         BioPageEntity entity = bioPageRepository.findById( id ).orElseThrow( () -> {
-            log.warn( "Attempted to update non-existent bio page with ID: {}", id );
-            return new IllegalArgumentException( String.format( ErrorConstant.ERROR_BIO_PAGE_NOT_FOUND_WITH_ID, id ) );
+            log.warn( LogConstants.BIOPAGE_NOT_FOUND_WARNING, id );
+            return new IllegalArgumentException( String.format( MessageConstants.ERROR_BIO_PAGE_NOT_FOUND_WITH_ID,
+                                                                id ) );
         } );
         // Update fields using Java 21 Optional chaining
         Optional.ofNullable( request.bioText() ).ifPresent( entity::setBioText );
         Optional.ofNullable( request.avatarUrl() ).ifPresent( entity::setAvatarUrl );
         Optional.ofNullable( request.themeConfig() ).ifPresent( entity::setThemeConfig );
         BioPageEntity saved = bioPageRepository.save( entity );
-        log.info( "Successfully updated bio page with ID: {}", id );
+        log.info( LogConstants.BIOPAGE_UPDATE_SUCCESS, id );
         BioPageResponse response = convertToDto( saved );
-        eventPublisherService.publishBioPageEvent( "bio.page-updated", response );
+        eventPublisherService.publishBioPageEvent( LogConstants.BIOPAGE_EVENT_UPDATED, response );
         return response;
     }
 
@@ -209,19 +212,19 @@ public class BioPageService
     { "bioPages", "bioPagesByUsername", "bioPagesByOwner" }, allEntries = true)
     public boolean deleteBioPage( Long id, String userEmail )
     {
-        log.info( "Attempting to delete bio page with ID: {}", id );
+        log.info( LogConstants.BIOPAGE_DELETING_WITH_ID, id );
         return bioPageRepository.findById( id ).map( entity -> {
             // Log deletion details for audit
             int linkCount = entity.getBioLinks() != null ? entity.getBioLinks().size() : 0;
-            log.info( "Deleting bio page '{}' with {} associated links", entity.getUsername(), linkCount );
+            log.info( LogConstants.BIOPAGE_DELETING_WITH_LINKS, entity.getUsername(), linkCount );
             // Should convert before deleting to send last state
             BioPageResponse response = convertToDto( entity );
             bioPageRepository.delete( entity );
-            log.info( "Successfully deleted bio page with ID: {}", id );
-            eventPublisherService.publishBioPageEvent( "bio.page-deleted", response );
+            log.info( LogConstants.BIOPAGE_DELETE_SUCCESS, id );
+            eventPublisherService.publishBioPageEvent( LogConstants.BIOPAGE_EVENT_DELETED, response );
             return true;
         } ).orElseGet( () -> {
-            log.warn( "Attempted to delete non-existent bio page with ID: {}", id );
+            log.warn( LogConstants.BIOPAGE_DELETE_NOT_FOUND_WARNING, id );
             return false;
         } );
     }
@@ -260,7 +263,7 @@ public class BioPageService
      */
     private BioPageResponse convertToDto( BioPageEntity entity )
     {
-        log.trace( "Converting BioPageEntity to DTO for ID: {}", entity.getId() );
+        log.trace( LogConstants.BIOPAGE_CONVERTING_TO_DTO, entity.getId() );
         try
         {
             // Use Java 21 enhanced Stream API for link conversion
@@ -282,8 +285,8 @@ public class BioPageService
         }
         catch ( Exception e )
         {
-            log.error( "Failed to convert BioPageEntity to DTO for ID: {}", entity.getId(), e );
-            throw new RuntimeException( "Failed to convert entity to DTO", e );
+            log.error( LogConstants.BIOPAGE_CONVERT_TO_DTO_FAILED, entity.getId(), e );
+            throw new RuntimeException( MessageConstants.ERROR_FAILED_TO_CONVERT_ENTITY_TO_DTO, e );
         }
     }
 
@@ -352,14 +355,9 @@ public class BioPageService
     @TransactionalEventListener @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleBioPageCreated( BioPageCreatedEvent event )
     {
-        log.info( "Processing bio page created event for username: {}, pageId: {}", event.username(), event.id() );
+        log.info( LogConstants.BIOPAGE_EVENT_PROCESSING_FOR_USERNAME, event.username(), event.id() );
         try
         {
-            // Validate event
-            if ( event == null )
-            {
-                throw new IllegalArgumentException( ErrorConstant.ERROR_BIOPAGE_CREATED_EVENT_CANNOT_BE_NULL );
-            }
             // Retrieve the created bio page to verify it exists
             BioPageEntity bioPage = bioPageRepository.findById( event.id() )
                     .orElseThrow( () -> new IllegalArgumentException( String
@@ -367,16 +365,16 @@ public class BioPageService
             // Verify the username matches
             if ( !bioPage.getUsername().equals( event.username() ) )
             {
-                log.warn( "Username mismatch in BioPageCreatedEvent. Event: {}, Actual: {}", event.username(),
-                          bioPage.getUsername() );
-                throw new IllegalArgumentException( ErrorConstant.ERROR_USERNAME_MISMATCH );
+                log.warn( LogConstants.BIOPAGE_USERNAME_MISMATCH_WARNING, event.username(),
+                      bioPage.getUsername() );
+                throw new IllegalArgumentException( MessageConstants.ERROR_USERNAME_MISMATCH );
             }
-            log.debug( "Successfully validated bio page: {} ({})", bioPage.getUsername(), bioPage.getId() );
+            log.debug( LogConstants.BIOPAGE_VALIDATED_SUCCESS, bioPage.getUsername(), bioPage.getId() );
             // Initialize default bio links if this is a new page with no links
             if ( bioPage.getBioLinks() == null || bioPage.getBioLinks().isEmpty() )
             {
                 initializeDefaultBioLinks( bioPage );
-                log.info( "Initialized default bio links for page: {}", bioPage.getUsername() );
+                log.info( LogConstants.BIOPAGE_DEFAULT_LINKS_INITIALIZED, bioPage.getUsername() );
             }
             // Update analytics - track new bio page creation
             updateAnalyticsForNewPage( bioPage );
@@ -384,12 +382,12 @@ public class BioPageService
             sendCreationNotification( bioPage );
             // Cache the new bio page for faster access
             cacheBioPage( bioPage );
-            log.info( "Successfully processed bio page created event for username: {}, pageId: {}", event.username(),
+            log.info( LogConstants.BIOPAGE_EVENT_PROCESSED_SUCCESS, event.username(),
                       event.id() );
         }
         catch ( Exception e )
         {
-            log.error( "Failed to process BioPageCreatedEvent for username: {}, pageId: {}", event.username(),
+            log.error( LogConstants.BIOPAGE_EVENT_PROCESSING_FAILED, event.username(),
                        event.id(), e );
             // Re-throw to mark the transaction as failed
             throw new RuntimeException( "Failed to process BioPageCreatedEvent", e );
@@ -403,17 +401,17 @@ public class BioPageService
      */
     private void initializeDefaultBioLinks( BioPageEntity bioPage )
     {
-        log.debug( "Initializing default bio links for page: {}", bioPage.getUsername() );
+        log.debug( LogConstants.BIOPAGE_INITIALIZING_DEFAULT_LINKS, bioPage.getUsername() );
         // Create a welcome link
         BioLinkEntity welcomeLink = new BioLinkEntity();
         welcomeLink.setBioPage( bioPage );
-        welcomeLink.setTitle( "Welcome to my page!" );
-        welcomeLink.setUrl( "https://zaplink.io" );
+        welcomeLink.setTitle( MessageConstants.WELCOME_LINK_TITLE );
+        welcomeLink.setUrl( MessageConstants.WELCOME_LINK_URL );
         welcomeLink.setType( BioLinkType.LINK );
         welcomeLink.setIsActive( true );
         welcomeLink.setSortOrder( 1 );
         bioLinkRepository.save( welcomeLink );
-        log.debug( "Created welcome link for page: {}", bioPage.getUsername() );
+        log.debug( LogConstants.BIOPAGE_WELCOME_LINK_CREATED, bioPage.getUsername() );
         // Note: computeActiveLinksCount() is handled by entity lifecycle methods
         // The entity will automatically recompute when loaded or after save
         bioPageRepository.save( bioPage );
@@ -421,22 +419,10 @@ public class BioPageService
 
     /**
      * Updates analytics for a newly created bio page.
-     * 
-     * @param bioPage the newly created bio page
-     */
-    private void updateAnalyticsForNewPage( BioPageEntity bioPage )
-    {
-        log.debug( "Updating analytics for new bio page: {}", bioPage.getUsername() );
-        // In a real implementation, this would:
-        // 1. Increment total bio pages count
-        // 2. Track creation timestamp for analytics
-        // 3. Update user metrics
-        // 4. Store in time-series database
-        // For now, just log the analytics event
-        log.info( "Analytics: New bio page created - Username: {}, CreatedAt: {}, OwnerId: {}", bioPage.getUsername(),
+        log.info( LogConstants.BIOPAGE_ANALYTICS_NEW_PAGE_CREATED, bioPage.getUsername(),
                   bioPage.getCreatedAt(), bioPage.getOwnerId() );
     }
-
+    
     /**
      * Sends creation notification to external systems.
      * 
@@ -444,15 +430,14 @@ public class BioPageService
      */
     private void sendCreationNotification( BioPageEntity bioPage )
     {
-        log.debug( "Sending creation notification for page: {}", bioPage.getUsername() );
+        log.debug( LogConstants.BIOPAGE_NOTIFICATION_SENDING, bioPage.getUsername() );
         // In a real implementation, this would:
         // 1. Send email notification to user
         // 2. Publish to message queue for async processing
         // 3. Notify external services
         // 4. Update search index
         // For now, just log the notification
-        log.info( "Notification: Bio page created - Username: {}, Public URL: {}", bioPage.getUsername(),
-                  bioPage.getPublicUrl() );
+        log.info( LogConstants.BIOPAGE_NOTIFICATION_SENT, bioPage.getUsername(), bioPage.getPublicUrl() );
     }
 
     /**
@@ -462,12 +447,30 @@ public class BioPageService
      */
     private void cacheBioPage( BioPageEntity bioPage )
     {
-        log.debug( "Caching bio page: {}", bioPage.getUsername() );
+        log.debug( LogConstants.BIOPAGE_CACHING_PAGE, bioPage.getUsername() );
         // In a real implementation, this would:
         // 1. Store in Redis cache
         // 2. Set appropriate TTL
         // 3. Update CDN if configured
         // For now, just log the cache operation
-        log.info( "Cache: Bio page cached - Username: {}, PageId: {}", bioPage.getUsername(), bioPage.getId() );
+        log.info( LogConstants.BIOPAGE_CACHE_PAGE_STORED, bioPage.getUsername(), bioPage.getId() );
+    }
+
+    /**
+     * Updates analytics for a newly created bio page.
+     * 
+     * @param bioPage the newly created bio page
+     */
+    private void updateAnalyticsForNewPage( BioPageEntity bioPage )
+    {
+        log.info( LogConstants.BIOPAGE_ANALYTICS_UPDATING_NEW_PAGE, bioPage.getUsername() );
+        // In a real implementation, this would:
+        // 1. Increment total bio pages count
+        // 2. Track creation timestamp for analytics
+        // 3. Update user metrics
+        // 4. Store in time-series database
+        // For now, just log the analytics event
+        log.info( LogConstants.BIOPAGE_ANALYTICS_NEW_PAGE_CREATED, bioPage.getUsername(), bioPage.getCreatedAt(),
+                  bioPage.getOwnerId() );
     }
 }

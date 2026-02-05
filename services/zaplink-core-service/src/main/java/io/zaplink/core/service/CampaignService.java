@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.enums.CampaignStatus;
 import io.zaplink.core.common.enums.CampaignType;
 import io.zaplink.core.entity.Campaign;
@@ -25,7 +26,7 @@ public class CampaignService
         Campaign campaign = Campaign.createQrCampaign( campaignId, campaignName, userEmail, description,
                                                        organizationId );
         campaign = campaignRepository.save( campaign );
-        log.info( "Created QR campaign: {} for user: {}", campaignId, userEmail );
+        log.info( LogConstants.CAMPAIGN_QR_CREATED, campaignId, userEmail );
         return campaign;
     }
 
@@ -34,7 +35,7 @@ public class CampaignService
     {
         Campaign campaign = Campaign.createGeneralCampaign( name, description, organizationId, createdBy );
         campaign = campaignRepository.save( campaign );
-        log.info( "Created general campaign: {} for organization: {}", name, organizationId );
+        log.info( LogConstants.CAMPAIGN_GENERAL_CREATED, name, organizationId );
         return campaign;
     }
 
@@ -74,7 +75,7 @@ public class CampaignService
         campaign.setName( campaignName );
         campaign.setDescription( description );
         campaign = campaignRepository.save( campaign );
-        log.info( "Updated campaign: {} by user: {}", campaignId, userEmail );
+        log.info( LogConstants.CAMPAIGN_UPDATED, campaignId, userEmail );
         return Optional.of( campaign );
     }
 
@@ -87,7 +88,7 @@ public class CampaignService
             return false;
         }
         campaignRepository.delete( campaignOpt.get() );
-        log.info( "Deleted campaign: {} by user: {}", campaignId, userEmail );
+        log.info( LogConstants.CAMPAIGN_DELETED, campaignId, userEmail );
         return true;
     }
 
@@ -110,7 +111,7 @@ public class CampaignService
             campaign.setStatus( CampaignStatus.ACTIVE );
         }
         campaignRepository.save( campaign );
-        log.info( "Toggled status for campaign: {} to {} by user: {}", campaignId, campaign.getStatus(), userEmail );
+        log.info( LogConstants.CAMPAIGN_STATUS_TOGGLED, campaignId, campaign.getStatus(), userEmail );
         return true;
     }
 

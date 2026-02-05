@@ -20,104 +20,104 @@ import io.zaplink.core.dto.request.qr.QRBodyConfig;
 import io.zaplink.core.dto.request.qr.QRConfig;
 import io.zaplink.core.dto.request.qr.QREyeConfig;
 import io.zaplink.core.service.ZapQrEngine;
+import io.zaplink.core.common.constants.ControllerConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@RestController @RequestMapping("/qr/debug") @RequiredArgsConstructor @Slf4j
+@RestController @RequestMapping(ControllerConstants.QR_DEBUG_BASE_PATH) @RequiredArgsConstructor @Slf4j
 public class QRDebugController
 {
     private final ZapQrEngine zapQrEngine;
-    @GetMapping(value = "/simple", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> generateSimpleQR( @RequestParam(name = "data", defaultValue = "https://zaplink.io") String data,
-                                                    @RequestParam(name = "size", defaultValue = "512") int size )
+    @GetMapping(value = ControllerConstants.QR_DEBUG_SIMPLE_PATH, produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> generateSimpleQR( @RequestParam(name = ControllerConstants.PARAM_DATA, defaultValue = ControllerConstants.DEFAULT_QR_DATA) String data,
+                                                    @RequestParam(name = ControllerConstants.PARAM_SIZE, defaultValue = "512") int size )
     {
         try
         {
-            log.info( "Generating simple QR with data: {}, size: {}", data, size );
+            log.info( LogConstants.CONTROLLER_GENERATING_SIMPLE_QR, data, size );
             // Create a basic config using record constructor
-            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, "#000000", null, true );
-            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, "#000000", "#000000" );
-            QRConfig config = new QRConfig( data, size, 1, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
-            log.info( "Config created: {}", config );
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, ControllerConstants.DEFAULT_FOREGROUND_COLOR, null, true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, ControllerConstants.DEFAULT_FOREGROUND_COLOR, ControllerConstants.DEFAULT_FOREGROUND_COLOR );
+            QRConfig config = new QRConfig( data, size, ControllerConstants.DEFAULT_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
+            log.info( LogConstants.CONTROLLER_CONFIG_CREATED, config );
             BufferedImage image = zapQrEngine.generate( config );
             // Convert to byte array
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write( image, "PNG", baos );
-            log.info( "QR generated successfully, image size: {}x{}", image.getWidth(), image.getHeight() );
+            log.info( LogConstants.CONTROLLER_QR_GENERATED_SUCCESS, image.getWidth(), image.getHeight() );
             return ResponseEntity.ok().contentType( MediaType.IMAGE_PNG ).body( baos.toByteArray() );
         }
         catch ( Exception e )
         {
-            log.error( "Error generating QR", e );
+            log.error( LogConstants.CONTROLLER_ERROR_GENERATING_QR, e );
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    @GetMapping(value = "/styled", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> generateStyledQR( @RequestParam(name = "data", defaultValue = "https://zaplink.io") String data,
-                                                    @RequestParam(name = "size", defaultValue = "512") int size,
-                                                    @RequestParam(name = "bodyShape", defaultValue = "ROUNDED") String bodyShape,
-                                                    @RequestParam(name = "color", defaultValue = "#0066FF") String color )
+    @GetMapping(value = ControllerConstants.QR_DEBUG_STYLED_PATH, produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> generateStyledQR( @RequestParam(name = ControllerConstants.PARAM_DATA, defaultValue = ControllerConstants.DEFAULT_QR_DATA) String data,
+                                                    @RequestParam(name = ControllerConstants.PARAM_SIZE, defaultValue = "512") int size,
+                                                    @RequestParam(name = ControllerConstants.PARAM_BODY_SHAPE, defaultValue = "ROUNDED") String bodyShape,
+                                                    @RequestParam(name = ControllerConstants.PARAM_COLOR, defaultValue = "#0066FF") String color )
     {
         try
         {
-            log.info( "Generating styled QR with data: {}, size: {}, shape: {}, color: {}", data, size, bodyShape,
-                      color );
+            log.info( LogConstants.CONTROLLER_GENERATING_STYLED_QR, data, size, bodyShape, color );
             // Create styled config using record constructor
             QRBodyConfig bodyConfig = new QRBodyConfig( 
                 QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ), 
                 color, 
-                "#003D99", 
+                ControllerConstants.DEFAULT_BACKGROUND_COLOR, 
                 true 
             );
             QREyeConfig eyeConfig = new QREyeConfig( 
                 QREyeShapeEnum.ROUNDED, 
                 color, 
-                "#003D99" 
+                ControllerConstants.DEFAULT_BACKGROUND_COLOR 
             );
-            QRConfig config = new QRConfig( data, size, 2, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
-            log.info( "Styled config created: {}", config );
+            QRConfig config = new QRConfig( data, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_STYLED_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
+            log.info( LogConstants.CONTROLLER_STYLED_CONFIG_CREATED, config );
             BufferedImage image = zapQrEngine.generate( config );
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write( image, "PNG", baos );
-            log.info( "Styled QR generated successfully" );
+            log.info( LogConstants.CONTROLLER_STYLED_QR_GENERATED );
             return ResponseEntity.ok().contentType( MediaType.IMAGE_PNG ).body( baos.toByteArray() );
         }
         catch ( Exception e )
         {
-            log.error( "Error generating styled QR", e );
+            log.error( LogConstants.CONTROLLER_ERROR_GENERATING_STYLED_QR, e );
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    @GetMapping("/test-config")
+    @GetMapping(ControllerConstants.QR_DEBUG_TEST_CONFIG_PATH)
     public ResponseEntity<QRConfig> getTestConfig()
     {
         QRBodyConfig bodyConfig = new QRBodyConfig( 
             QRBodyShapeEnum.ROUNDED, 
-            "#0066FF", 
-            "#003D99", 
+            ControllerConstants.DEFAULT_COLOR, 
+            ControllerConstants.DEFAULT_BACKGROUND_COLOR, 
             true 
         );
         QREyeConfig eyeConfig = new QREyeConfig( 
             QREyeShapeEnum.ROUNDED, 
-            "#0066FF", 
-            "#003D99" 
+            ControllerConstants.DEFAULT_COLOR, 
+            ControllerConstants.DEFAULT_BACKGROUND_COLOR 
         );
-        QRConfig config = new QRConfig( "https://zaplink.io", 512, 2, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
+        QRConfig config = new QRConfig( ControllerConstants.DEFAULT_QR_DATA, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_STYLED_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
         return ResponseEntity.ok( config );
     }
 
-    @GetMapping("/verify")
-    public ResponseEntity<java.util.Map<String, Object>> verifyQR( @RequestParam(name = "data", defaultValue = "TEST") String data )
+    @GetMapping(ControllerConstants.QR_DEBUG_VERIFY_PATH)
+    public ResponseEntity<java.util.Map<String, Object>> verifyQR( @RequestParam(name = ControllerConstants.PARAM_DATA, defaultValue = "TEST") String data )
     {
         try
         {
-            log.info( "Verifying QR generation and decode for data: {}", data );
+            log.info( LogConstants.CONTROLLER_VERIFYING_QR_GENERATION, data );
             // Generate QR using record constructor
-            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, "#000000", null, true );
-            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, "#000000", "#000000" );
-            QRConfig config = new QRConfig( data, 512, 1, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, ControllerConstants.DEFAULT_FOREGROUND_COLOR, null, true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, ControllerConstants.DEFAULT_FOREGROUND_COLOR, ControllerConstants.DEFAULT_FOREGROUND_COLOR );
+            QRConfig config = new QRConfig( data, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
             BufferedImage image = zapQrEngine.generate( config );
             // Decode it back using ZXing
             com.google.zxing.LuminanceSource source = new com.google.zxing.client.j2se.BufferedImageLuminanceSource( image );
@@ -137,20 +137,20 @@ public class QRDebugController
     }
 
     // Baseline test using ZXing's native renderer (should always work)
-    @GetMapping("/verify-native")
-    public ResponseEntity<java.util.Map<String, Object>> verifyNativeQR( @RequestParam(name = "data", defaultValue = "TEST") String data )
+    @GetMapping(ControllerConstants.QR_DEBUG_VERIFY_NATIVE_PATH)
+    public ResponseEntity<java.util.Map<String, Object>> verifyNativeQR( @RequestParam(name = ControllerConstants.PARAM_DATA, defaultValue = "TEST") String data )
     {
         try
         {
-            log.info( "Verifying QR with NATIVE ZXing renderer for data: {}", data );
+            log.info( LogConstants.CONTROLLER_VERIFYING_NATIVE_QR, data );
             // Generate BitMatrix using ZXing
             java.util.Map<com.google.zxing.EncodeHintType, Object> hints = new java.util.HashMap<>();
             hints.put( com.google.zxing.EncodeHintType.ERROR_CORRECTION,
                        com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.H );
             hints.put( com.google.zxing.EncodeHintType.CHARACTER_SET, MessageConstants.ENCODING_UTF_8 );
-            hints.put( com.google.zxing.EncodeHintType.MARGIN, 1 );
+            hints.put( com.google.zxing.EncodeHintType.MARGIN, ControllerConstants.DEFAULT_MARGIN );
             com.google.zxing.common.BitMatrix bitMatrix = new com.google.zxing.MultiFormatWriter()
-                    .encode( data, com.google.zxing.BarcodeFormat.QR_CODE, 512, 512, hints );
+                    .encode( data, com.google.zxing.BarcodeFormat.QR_CODE, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_QR_SIZE, hints );
             // Use ZXing's NATIVE renderer (MatrixToImageWriter)
             BufferedImage image = com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage( bitMatrix );
             // Decode it back
@@ -172,27 +172,27 @@ public class QRDebugController
     }
 
     // Verify styled QR codes with custom shapes
-    @GetMapping("/verify-styled")
-    public ResponseEntity<java.util.Map<String, Object>> verifyStyledQR( @RequestParam(name = "data", defaultValue = "TEST") String data,
-                                                                         @RequestParam(name = "bodyShape", defaultValue = "SQUARE") String bodyShape,
-                                                                         @RequestParam(name = "eyeShape", defaultValue = "SQUARE") String eyeShape )
+    @GetMapping(ControllerConstants.QR_DEBUG_VERIFY_STYLED_PATH)
+    public ResponseEntity<java.util.Map<String, Object>> verifyStyledQR( @RequestParam(name = ControllerConstants.PARAM_DATA, defaultValue = "TEST") String data,
+                                                                         @RequestParam(name = ControllerConstants.PARAM_BODY_SHAPE, defaultValue = "SQUARE") String bodyShape,
+                                                                         @RequestParam(name = ControllerConstants.PARAM_EYE_SHAPE, defaultValue = "SQUARE") String eyeShape )
     {
         try
         {
-            log.info( "Verifying STYLED QR for data: {}, body: {}, eye: {}", data, bodyShape, eyeShape );
+            log.info( LogConstants.CONTROLLER_VERIFYING_STYLED_QR, data, bodyShape, eyeShape );
             // Create styled config using record constructor
             QRBodyConfig bodyConfig = new QRBodyConfig( 
                 QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ), 
-                "#000000", 
+                ControllerConstants.DEFAULT_FOREGROUND_COLOR, 
                 null, 
                 true 
             );
             QREyeConfig eyeConfig = new QREyeConfig( 
                 QREyeShapeEnum.valueOf( eyeShape.toUpperCase() ), 
-                "#000000", 
-                "#000000" 
+                ControllerConstants.DEFAULT_FOREGROUND_COLOR, 
+                ControllerConstants.DEFAULT_FOREGROUND_COLOR 
             );
-            QRConfig config = new QRConfig( data, 512, 1, "H", false, "#FFFFFF", bodyConfig, eyeConfig, null );
+            QRConfig config = new QRConfig( data, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
             BufferedImage image = zapQrEngine.generate( config );
             // Decode it back
             com.google.zxing.LuminanceSource source = new com.google.zxing.client.j2se.BufferedImageLuminanceSource( image );

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.zxing.common.BitMatrix;
 
+import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.enums.QRBodyShapeEnum;
 import io.zaplink.core.common.enums.QREyeShapeEnum;
 import io.zaplink.core.dto.request.qr.QRBodyConfig;
@@ -35,7 +36,7 @@ public class QRRenderer
 {
     public BufferedImage render( BitMatrix matrix, QRConfig config )
     {
-        log.info( "Starting QR rendering with config: {}", config );
+        log.info( LogConstants.QR_RENDERING_STARTING, config );
         int matrixSize = matrix.getWidth();
         int imageSize = config.size();
         // Use integer module size to prevent gaps/overlaps
@@ -51,10 +52,10 @@ public class QRRenderer
             // Distribute extra pixels evenly around the QR
             offsetX = extraPixels / 2;
             offsetY = extraPixels / 2;
-            log.info( "Adding {} extra pixels ({} each side) to achieve exact size", extraPixels, offsetX );
+            log.info( LogConstants.QR_ADDING_EXTRA_PIXELS, extraPixels, offsetX );
             actualImageSize = imageSize;
         }
-        log.info( "Matrix size: {}, Image size: {}, Module size: {} (integer), Offset: X={}, Y={}", matrixSize,
+        log.info( LogConstants.QR_RENDERING_MATRIX_INFO, matrixSize,
                   actualImageSize, moduleSize, offsetX, offsetY );
         // Pre-load logo to determine if we should apply logo logic
         BufferedImage logoConfigured = null;
@@ -87,14 +88,14 @@ public class QRRenderer
         // Draw decorative border
         drawBorder( g2d, config, actualImageSize );
         g2d.dispose();
-        log.info( "QR rendering completed successfully | Size: {}px | Shapes: {}/{}", actualImageSize,
+        log.info( LogConstants.QR_RENDERING_COMPLETED, actualImageSize,
                   config.body().shape(), config.eye().shape() );
         return image;
     }
 
     private void drawBackground( Graphics2D g2d, QRConfig config, int size )
     {
-        log.debug( "Drawing background with color: {}", config.backgroundColor() );
+        log.debug( LogConstants.QR_DRAWING_BACKGROUND, config.backgroundColor() );
         if ( config.transparentBackground() )
         {
             return;
@@ -138,7 +139,7 @@ public class QRRenderer
                 }
             }
         }
-        log.debug( "Drew {} body modules", modulesDrawn );
+        log.debug( LogConstants.QR_DRAWING_BODY_MODULES, modulesDrawn );
     }
 
     // Integer-based body drawing with styled modules
@@ -192,7 +193,7 @@ public class QRRenderer
                 }
             }
         }
-        log.debug( "Drew {} modules (styled body mode)", modulesDrawn );
+        log.debug( LogConstants.QR_DRAWING_STYLED_MODULES, modulesDrawn );
     }
 
     // Draw a single styled module using integer coordinates
@@ -638,7 +639,7 @@ public class QRRenderer
         }
         catch ( Exception e )
         {
-            log.warn( "Could not load logo from path: {}", logoConfig.logoPath() );
+            log.warn( LogConstants.QR_LOGO_LOAD_FAILED, logoConfig.logoPath() );
         }
         return null;
     }
@@ -674,7 +675,7 @@ public class QRRenderer
         }
         catch ( Exception e )
         {
-            log.error( "Error drawing logo", e );
+            log.error( LogConstants.QR_LOGO_DRAW_ERROR, e );
         }
     }
 
@@ -719,7 +720,7 @@ public class QRRenderer
         }
         catch ( Exception e )
         {
-            log.warn( "Invalid color: " + colorString + ", using black instead" );
+            log.warn( LogConstants.QR_INVALID_COLOR_WARNING, colorString );
             return Color.BLACK;
         }
     }

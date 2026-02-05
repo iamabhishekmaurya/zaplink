@@ -15,7 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.zaplink.core.common.constants.ControllerConstants;
+import io.zaplink.core.common.constants.LogConstants;
+import io.zaplink.core.common.constants.StatusConstants;
 import io.zaplink.core.dto.request.PostReviewRequest;
 import io.zaplink.core.dto.request.PostSubmissionRequest;
 import io.zaplink.core.dto.response.PostResponse;
@@ -32,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2026-01-31
  */
-@Slf4j @RestController @RequestMapping("/workflow") @RequiredArgsConstructor @Validated @Tag(name = "Workflow Management", description = "APIs for managing post approval workflows")
+@Slf4j @RestController @RequestMapping(ControllerConstants.WORKFLOW_BASE_PATH) @RequiredArgsConstructor @Validated @Tag(name = ControllerConstants.TAG_WORKFLOW_MANAGEMENT, description = ControllerConstants.TAG_WORKFLOW_MANAGEMENT_DESC)
 public class WorkflowController
 {
     private final WorkflowService workflowService;
@@ -42,10 +49,14 @@ public class WorkflowController
      * @param request The post submission request
      * @return PostResponse with the submitted post information
      */
-    @PostMapping("/submit") @Operation(summary = "Submit post for approval", description = "Submits a post for approval in the workflow")
+    @PostMapping(ControllerConstants.WORKFLOW_SUBMIT_PATH) @Operation(summary = ControllerConstants.WORKFLOW_SUBMIT_POST_SUMMARY, description = ControllerConstants.WORKFLOW_SUBMIT_POST_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_201_CREATED, description = ControllerConstants.RESPONSE_201_POST_SUBMITTED, content = @Content(schema = @Schema(implementation = PostResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_POST_DATA),
+      @ApiResponse(responseCode = StatusConstants.STATUS_403_FORBIDDEN, description = ControllerConstants.RESPONSE_403_AUTHOR_NOT_ACTIVE),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_TEAM_NOT_FOUND) })
     public ResponseEntity<PostResponse> submitPost( @Valid @RequestBody PostSubmissionRequest request )
     {
-        log.info( "Submitting post for approval: {}", request.title() );
+        log.info( LogConstants.POST_SUBMITTING, request.title() );
         PostResponse response = workflowService.submitPost( request );
         return ResponseEntity.status( HttpStatus.CREATED ).body( response );
     }
@@ -56,10 +67,15 @@ public class WorkflowController
      * @param request The post review request
      * @return PostResponse with the reviewed post information
      */
-    @PostMapping("/approve-reject") @Operation(summary = "Approve or reject post", description = "Approves or rejects a submitted post")
+    @PostMapping(ControllerConstants.WORKFLOW_APPROVE_REJECT_PATH) @Operation(summary = ControllerConstants.WORKFLOW_REVIEW_POST_SUMMARY, description = ControllerConstants.WORKFLOW_REVIEW_POST_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_POST_REVIEWED, content = @Content(schema = @Schema(implementation = PostResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_REVIEW_DATA),
+      @ApiResponse(responseCode = StatusConstants.STATUS_403_FORBIDDEN, description = ControllerConstants.RESPONSE_403_REVIEWER_NOT_APPROVER),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_POST_NOT_FOUND),
+      @ApiResponse(responseCode = StatusConstants.STATUS_409_CONFLICT, description = ControllerConstants.RESPONSE_409_POST_NOT_SUBMITTED) })
     public ResponseEntity<PostResponse> reviewPost( @Valid @RequestBody PostReviewRequest request )
     {
-        log.info( "Reviewing post: {} with decision: {}", request.postId(), request.decision() );
+        log.info( LogConstants.POST_REVIEWING_WITH_DECISION, request.postId(), request.decision() );
         PostResponse response = workflowService.reviewPost( request );
         return ResponseEntity.ok( response );
     }
@@ -70,10 +86,13 @@ public class WorkflowController
      * @param organizationId The organization ID (from JWT token)
      * @return List of PostResponse for pending posts
      */
-    @GetMapping("/pending") @Operation(summary = "Get pending posts", description = "Retrieves all posts pending approval")
-    public ResponseEntity<List<PostResponse>> getPendingPosts( @Parameter(description = "Organization ID") @RequestHeader("X-Org-Id") Long organizationId )
+    @GetMapping(ControllerConstants.WORKFLOW_PENDING_PATH) @Operation(summary = ControllerConstants.WORKFLOW_GET_PENDING_SUMMARY, description = ControllerConstants.WORKFLOW_GET_PENDING_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_PENDING_POSTS_RETRIEVED, content = @Content(schema = @Schema(implementation = List.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_403_FORBIDDEN, description = ControllerConstants.RESPONSE_403_INVALID_ORG_ACCESS),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_ORGANIZATION_NOT_FOUND) })
+    public ResponseEntity<List<PostResponse>> getPendingPosts( @Parameter(description = ControllerConstants.PARAM_DESC_ORG_ID) @RequestHeader(ControllerConstants.HEADER_ORG_ID) Long organizationId )
     {
-        log.info( "Retrieving pending posts for organization: {}", organizationId );
+        log.info( LogConstants.POST_PENDING_RETRIEVING_FOR_ORG, organizationId );
         List<PostResponse> pendingPosts = workflowService.getPendingPosts( organizationId );
         return ResponseEntity.ok( pendingPosts );
     }
@@ -84,10 +103,12 @@ public class WorkflowController
      * @param authorId The author ID
      * @return List of PostResponse for the author's posts
      */
-    @GetMapping("/posts/author/{authorId}") @Operation(summary = "Get posts by author", description = "Retrieves all posts created by a specific author")
-    public ResponseEntity<List<PostResponse>> getPostsByAuthor( @Parameter(description = "Author ID") @PathVariable Long authorId )
+    @GetMapping(ControllerConstants.WORKFLOW_POSTS_AUTHOR_PATH) @Operation(summary = ControllerConstants.WORKFLOW_GET_POSTS_BY_AUTHOR_SUMMARY, description = ControllerConstants.WORKFLOW_GET_POSTS_BY_AUTHOR_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_AUTHOR_POSTS_RETRIEVED, content = @Content(schema = @Schema(implementation = List.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_AUTHOR_NOT_FOUND) })
+    public ResponseEntity<List<PostResponse>> getPostsByAuthor( @Parameter(description = ControllerConstants.PARAM_DESC_AUTHOR_ID) @PathVariable Long authorId )
     {
-        log.info( "Retrieving posts for author: {}", authorId );
+        log.info( LogConstants.POST_RETRIEVING_FOR_AUTHOR, authorId );
         List<PostResponse> posts = workflowService.getPostsByAuthor( authorId );
         return ResponseEntity.ok( posts );
     }

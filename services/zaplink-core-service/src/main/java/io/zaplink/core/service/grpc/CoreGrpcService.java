@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import io.grpc.stub.StreamObserver;
 import io.zaplink.core.common.constants.ErrorConstant;
+import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.entity.UrlMappingEntity;
 import io.zaplink.core.grpc.CoreServiceGrpc;
 import io.zaplink.core.grpc.CoreServiceProto;
@@ -27,7 +28,7 @@ public class CoreGrpcService
         {
                 try
                 {
-                        log.info( "gRPC: Getting URLs for user: {}", request.getUserEmail() );
+                        log.info( LogConstants.GRPC_GETTING_URLS_FOR_USER, request.getUserEmail() );
                         // Get all URLs for user and sort manually since repository doesn't have the method
                         List<UrlMappingEntity> allUrls = urlMappingRepository.findAll();
                         List<UrlMappingEntity> userUrls = allUrls.stream()
@@ -42,11 +43,11 @@ public class CoreGrpcService
                                         .build();
                         responseObserver.onNext( response );
                         responseObserver.onCompleted();
-                        log.info( "gRPC: Retrieved {} URLs for user: {}", userUrls.size(), request.getUserEmail() );
+                        log.info( LogConstants.GRPC_RETRIEVED_URLS_FOR_USER, userUrls.size(), request.getUserEmail() );
                 }
                 catch ( Exception e )
                 {
-                        log.error( "gRPC: Error getting URLs for user: {}", request.getUserEmail(), e );
+                        log.error( LogConstants.GRPC_ERROR_GETTING_URLS_FOR_USER, request.getUserEmail(), e );
                         responseObserver.onError( e );
                 }
         }
@@ -57,7 +58,7 @@ public class CoreGrpcService
         {
                 try
                 {
-                        log.info( "gRPC: Getting URL by ID: {}", request.getUrlId() );
+                        log.info( LogConstants.GRPC_GETTING_URL_BY_ID, request.getUrlId() );
                         UrlMappingEntity url = urlMappingRepository.findById( Long.parseLong( request.getUrlId() ) )
                                         .orElseThrow( () -> new RuntimeException( String
                                                         .format( ErrorConstant.ERROR_URL_NOT_FOUND,
@@ -66,11 +67,11 @@ public class CoreGrpcService
                                         .setUrl( mapToUrlData( url ) ).build();
                         responseObserver.onNext( response );
                         responseObserver.onCompleted();
-                        log.info( "gRPC: Retrieved URL: {}", url.getShortUrl() );
+                        log.info( LogConstants.GRPC_RETRIEVED_URL, url.getShortUrl() );
                 }
                 catch ( Exception e )
                 {
-                        log.error( "gRPC: Error getting URL by ID: {}", request.getUrlId(), e );
+                        log.error( LogConstants.GRPC_ERROR_GETTING_URL_BY_ID, request.getUrlId(), e );
                         responseObserver.onError( e );
                 }
         }
@@ -81,7 +82,7 @@ public class CoreGrpcService
         {
                 try
                 {
-                        log.info( "gRPC: Getting URLs by status: {} for user: {}", request.getStatus(),
+                        log.info( LogConstants.GRPC_GETTING_URLS_BY_STATUS, request.getStatus(),
                                   request.getUserEmail() );
                         // Get URLs by status and filter by user email
                         List<UrlMappingEntity> urlsByStatus = urlMappingRepository.findByStatus( request.getStatus() );
@@ -94,12 +95,12 @@ public class CoreGrpcService
                                         .newBuilder().addAllUrls( urlDataList ).build();
                         responseObserver.onNext( response );
                         responseObserver.onCompleted();
-                        log.info( "gRPC: Retrieved {} URLs with status: {} for user: {}", userUrls.size(),
+                        log.info( LogConstants.GRPC_RETRIEVED_URLS_BY_STATUS, userUrls.size(),
                                   request.getStatus(), request.getUserEmail() );
                 }
                 catch ( Exception e )
                 {
-                        log.error( "gRPC: Error getting URLs by status: {} for user: {}", request.getStatus(),
+                        log.error( LogConstants.GRPC_ERROR_GETTING_URLS_BY_STATUS, request.getStatus(),
                                    request.getUserEmail(), e );
                         responseObserver.onError( e );
                 }

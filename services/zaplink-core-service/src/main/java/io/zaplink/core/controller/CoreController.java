@@ -1,12 +1,5 @@
 package io.zaplink.core.controller;
 
-import java.util.Map;
-
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,164 +7,43 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.zaplink.core.common.enums.QRBodyShapeEnum;
-import io.zaplink.core.common.enums.QREyeShapeEnum;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.zaplink.core.common.constants.ControllerConstants;
+import io.zaplink.core.common.constants.StatusConstants;
 import io.zaplink.core.dto.request.ShortnerRequest;
 import io.zaplink.core.dto.request.UpdateShortLinkRequest;
-import io.zaplink.core.dto.request.biolink.CreateBioLinkRequest;
-import io.zaplink.core.dto.request.biolink.ReorderLinksRequest;
-import io.zaplink.core.dto.request.biolink.UpdateBioLinkRequest;
-import io.zaplink.core.dto.request.biopage.CreateBioPageRequest;
-import io.zaplink.core.dto.request.biopage.UpdateBioPageRequest;
-import io.zaplink.core.dto.request.dynamicqr.CreateDynamicQrRequest;
-import io.zaplink.core.dto.request.dynamicqr.UpdateDestinationRequest;
-import io.zaplink.core.dto.request.qr.QRConfig;
 import io.zaplink.core.dto.response.ShortnerResponse;
-import io.zaplink.core.dto.response.biolink.BioLinkResponse;
-import io.zaplink.core.dto.response.biopage.BioPageResponse;
-import io.zaplink.core.dto.response.dynamicqr.DynamicQrResponse;
-import io.zaplink.core.service.BioLinkService;
-import io.zaplink.core.service.BioPageService;
-import io.zaplink.core.service.DynamicQrService;
-import io.zaplink.core.service.QRService;
 import io.zaplink.core.service.UrlShortnerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@RestController @RequiredArgsConstructor @RequestMapping("/core")
+@RestController @RequiredArgsConstructor @RequestMapping(ControllerConstants.CORE_BASE_PATH) @Tag(name = ControllerConstants.TAG_URL_SHORTENER, description = ControllerConstants.TAG_URL_SHORTENER_DESC)
 public class CoreController
 {
     private final UrlShortnerService urlServiceProvider;
-    private final DynamicQrService   dynamicQrService;
-    private final QRService          qrService;
-    private final BioPageService     bioPageWriteService;
-    private final BioLinkService     bioLinkWriteService;
-    @PostMapping(value = "/url")
+    @PostMapping(value = ControllerConstants.CORE_URL_PATH) @Operation(summary = ControllerConstants.CORE_CREATE_SHORT_URL_SUMMARY, description = ControllerConstants.CORE_CREATE_SHORT_URL_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_SHORT_URL_CREATED, content = @Content(schema = @Schema(implementation = ShortnerResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_URL_DATA),
+      @ApiResponse(responseCode = StatusConstants.STATUS_409_CONFLICT, description = ControllerConstants.RESPONSE_409_SHORT_URL_EXISTS) })
     public ShortnerResponse createShortUrl( @Valid @RequestBody ShortnerRequest urlRequest,
-                                            @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+                                            @RequestHeader(value = ControllerConstants.HEADER_USER_EMAIL, required = false) String userEmail )
     {
         return urlServiceProvider.createShortUrl( urlRequest, userEmail );
     }
 
-    @PutMapping(value = "/url")
+    @PutMapping(value = ControllerConstants.CORE_URL_PATH
+            + "/{shortUrl}") @Operation(summary = ControllerConstants.CORE_UPDATE_SHORT_URL_SUMMARY, description = ControllerConstants.CORE_UPDATE_SHORT_URL_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_SHORT_URL_UPDATED, content = @Content(schema = @Schema(implementation = ShortnerResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_URL_DATA),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_SHORT_URL_NOT_FOUND) })
     public ShortnerResponse updateShortUrl( @Valid @RequestBody UpdateShortLinkRequest updateRequest,
-                                            @RequestHeader(value = "X-User-Email", required = false) String userEmail )
+                                            @RequestHeader(value = ControllerConstants.HEADER_USER_EMAIL, required = false) String userEmail )
     {
         return urlServiceProvider.updateShortUrl( updateRequest, userEmail );
-    }
-
-    @PostMapping(value = "/dyqr")
-    public ResponseEntity<DynamicQrResponse> createDynamicQr( @Valid @RequestBody CreateDynamicQrRequest request,
-                                                              @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        DynamicQrResponse response = dynamicQrService.createDynamicQr( request, userEmail );
-        return ResponseEntity.ok( response );
-    }
-
-    @PutMapping(value = "/dyqr/{qrKey}")
-    public ResponseEntity<DynamicQrResponse> updateDynamicQr( @PathVariable("qrKey") String qrKey,
-                                                              @Valid @RequestBody io.zaplink.core.dto.request.dynamicqr.UpdateDynamicQrRequest request,
-                                                              @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        DynamicQrResponse response = dynamicQrService.updateDynamicQr( qrKey, request, userEmail );
-        return ResponseEntity.ok( response );
-    }
-
-    @PutMapping(value = "/dyqr/{qrKey}/destination")
-    public ResponseEntity<DynamicQrResponse> updateDestination( @PathVariable("qrKey") String qrKey,
-                                                                @Valid @RequestBody UpdateDestinationRequest request,
-                                                                @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        DynamicQrResponse response = dynamicQrService.updateDestination( qrKey, request, userEmail );
-        return ResponseEntity.ok( response );
-    }
-
-    @PutMapping(value = "/dyqr/{qrKey}/status")
-    public ResponseEntity<Void> toggleQrStatus( @PathVariable("qrKey") String qrKey,
-                                                @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        dynamicQrService.toggleQrStatus( qrKey, userEmail );
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping(value = "/dyqr/{qrKey}")
-    public ResponseEntity<Void> deleteDynamicQr( @PathVariable("qrKey") String qrKey,
-                                                 @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        dynamicQrService.deleteDynamicQr( qrKey, userEmail );
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping(value = "/qr/styled", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> generateStyledQR( @RequestBody QRConfig config )
-    {
-        byte[] qrImage = qrService.generateStyledQrCode( config );
-        return ResponseEntity.ok().contentType( MediaType.IMAGE_PNG ).body( qrImage );
-    }
-
-    @GetMapping(value = "/qr/options")
-    public ResponseEntity<Map<String, Object>> getQROptions()
-    {
-        return ResponseEntity.ok( Map.of( "bodyShapes", QRBodyShapeEnum.values(), "eyeShapes", QREyeShapeEnum.values(),
-                                          "gradientTypes", Map.of( "linear", true, "radial", false ), "exampleColors",
-                                          Map.of( "blue", "#0066FF", "red", "#FF6B6B", "green", "#4ECDC4", "purple",
-                                                  "#6366F1", "black", "#000000", "darkGray", "#1A1A1A" ) ) );
-    }
-    // ========== BioPage Write Operations (CQRS Command Side) ==========
-
-    @PostMapping(value = "/bio-pages")
-    public BioPageResponse createBioPage( @Valid @RequestBody CreateBioPageRequest request,
-                                          @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        return bioPageWriteService.createBioPage( request, userEmail );
-    }
-
-    @PutMapping(value = "/bio-pages/{pageId}")
-    public BioPageResponse updateBioPage( @PathVariable Long pageId,
-                                          @Valid @RequestBody UpdateBioPageRequest request,
-                                          @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        return bioPageWriteService.updateBioPage( pageId, request, userEmail );
-    }
-
-    @DeleteMapping(value = "/bio-pages/{pageId}")
-    public ResponseEntity<Void> deleteBioPage( @PathVariable Long pageId,
-                                               @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        boolean deleted = bioPageWriteService.deleteBioPage( pageId, userEmail );
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
-    }
-    // ========== BioLink Write Operations (CQRS Command Side) ==========
-
-    @PostMapping(value = "/bio-links")
-    public BioLinkResponse createBioLink( @Valid @RequestBody CreateBioLinkRequest request,
-                                          @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        return bioLinkWriteService.createBioLink( request, userEmail );
-    }
-
-    @PutMapping(value = "/bio-links/{linkId}")
-    public BioLinkResponse updateBioLink( @PathVariable Long linkId,
-                                          @Valid @RequestBody UpdateBioLinkRequest request,
-                                          @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        return bioLinkWriteService.updateBioLink( linkId, request, userEmail );
-    }
-
-    @DeleteMapping(value = "/bio-links/{linkId}")
-    public ResponseEntity<Void> deleteBioLink( @PathVariable("linkId") Long linkId,
-                                               @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        boolean deleted = bioLinkWriteService.deleteBioLink( linkId, userEmail );
-        return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
-    }
-
-    @PutMapping(value = "/bio-links/{pageId}/reorder")
-    public ResponseEntity<Void> reorderLinks( @Valid @RequestBody ReorderLinksRequest request,
-                                              @PathVariable("pageId") Long pageId,
-                                              @RequestHeader(value = "X-User-Email", required = false) String userEmail )
-    {
-        boolean reordered = bioLinkWriteService.reorderLinks( pageId, request, userEmail );
-        return reordered ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 }
