@@ -36,9 +36,22 @@ public class QRDebugController
         {
             log.info( LogConstants.CONTROLLER_GENERATING_SIMPLE_QR, data, size );
             // Create a basic config using record constructor
-            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, ControllerConstants.DEFAULT_FOREGROUND_COLOR, null, true );
-            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, ControllerConstants.DEFAULT_FOREGROUND_COLOR, ControllerConstants.DEFAULT_FOREGROUND_COLOR );
-            QRConfig config = new QRConfig( data, size, ControllerConstants.DEFAULT_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE,
+                                                        ControllerConstants.DEFAULT_FOREGROUND_COLOR,
+                                                        null,
+                                                        true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE,
+                                                     ControllerConstants.DEFAULT_FOREGROUND_COLOR,
+                                                     ControllerConstants.DEFAULT_FOREGROUND_COLOR );
+            QRConfig config = new QRConfig( data,
+                                            size,
+                                            ControllerConstants.DEFAULT_MARGIN,
+                                            ControllerConstants.DEFAULT_ERROR_CORRECTION,
+                                            ControllerConstants.DEFAULT_TRANSPARENT,
+                                            ControllerConstants.DEFAULT_WHITE_COLOR,
+                                            bodyConfig,
+                                            eyeConfig,
+                                            null );
             log.info( LogConstants.CONTROLLER_CONFIG_CREATED, config );
             BufferedImage image = zapQrEngine.generate( config );
             // Convert to byte array
@@ -64,18 +77,22 @@ public class QRDebugController
         {
             log.info( LogConstants.CONTROLLER_GENERATING_STYLED_QR, data, size, bodyShape, color );
             // Create styled config using record constructor
-            QRBodyConfig bodyConfig = new QRBodyConfig( 
-                QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ), 
-                color, 
-                ControllerConstants.DEFAULT_BACKGROUND_COLOR, 
-                true 
-            );
-            QREyeConfig eyeConfig = new QREyeConfig( 
-                QREyeShapeEnum.ROUNDED, 
-                color, 
-                ControllerConstants.DEFAULT_BACKGROUND_COLOR 
-            );
-            QRConfig config = new QRConfig( data, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_STYLED_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ),
+                                                        color,
+                                                        ControllerConstants.DEFAULT_BACKGROUND_COLOR,
+                                                        true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.ROUNDED,
+                                                     color,
+                                                     ControllerConstants.DEFAULT_BACKGROUND_COLOR );
+            QRConfig config = new QRConfig( data,
+                                            ControllerConstants.DEFAULT_QR_SIZE,
+                                            ControllerConstants.DEFAULT_STYLED_MARGIN,
+                                            ControllerConstants.DEFAULT_ERROR_CORRECTION,
+                                            ControllerConstants.DEFAULT_TRANSPARENT,
+                                            ControllerConstants.DEFAULT_WHITE_COLOR,
+                                            bodyConfig,
+                                            eyeConfig,
+                                            null );
             log.info( LogConstants.CONTROLLER_STYLED_CONFIG_CREATED, config );
             BufferedImage image = zapQrEngine.generate( config );
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -93,18 +110,22 @@ public class QRDebugController
     @GetMapping(ControllerConstants.QR_DEBUG_TEST_CONFIG_PATH)
     public ResponseEntity<QRConfig> getTestConfig()
     {
-        QRBodyConfig bodyConfig = new QRBodyConfig( 
-            QRBodyShapeEnum.ROUNDED, 
-            ControllerConstants.DEFAULT_COLOR, 
-            ControllerConstants.DEFAULT_BACKGROUND_COLOR, 
-            true 
-        );
-        QREyeConfig eyeConfig = new QREyeConfig( 
-            QREyeShapeEnum.ROUNDED, 
-            ControllerConstants.DEFAULT_COLOR, 
-            ControllerConstants.DEFAULT_BACKGROUND_COLOR 
-        );
-        QRConfig config = new QRConfig( ControllerConstants.DEFAULT_QR_DATA, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_STYLED_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
+        QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.ROUNDED,
+                                                    ControllerConstants.DEFAULT_COLOR,
+                                                    ControllerConstants.DEFAULT_BACKGROUND_COLOR,
+                                                    true );
+        QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.ROUNDED,
+                                                 ControllerConstants.DEFAULT_COLOR,
+                                                 ControllerConstants.DEFAULT_BACKGROUND_COLOR );
+        QRConfig config = new QRConfig( ControllerConstants.DEFAULT_QR_DATA,
+                                        ControllerConstants.DEFAULT_QR_SIZE,
+                                        ControllerConstants.DEFAULT_STYLED_MARGIN,
+                                        ControllerConstants.DEFAULT_ERROR_CORRECTION,
+                                        ControllerConstants.DEFAULT_TRANSPARENT,
+                                        ControllerConstants.DEFAULT_WHITE_COLOR,
+                                        bodyConfig,
+                                        eyeConfig,
+                                        null );
         return ResponseEntity.ok( config );
     }
 
@@ -115,9 +136,22 @@ public class QRDebugController
         {
             log.info( LogConstants.CONTROLLER_VERIFYING_QR_GENERATION, data );
             // Generate QR using record constructor
-            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE, ControllerConstants.DEFAULT_FOREGROUND_COLOR, null, true );
-            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE, ControllerConstants.DEFAULT_FOREGROUND_COLOR, ControllerConstants.DEFAULT_FOREGROUND_COLOR );
-            QRConfig config = new QRConfig( data, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.SQUARE,
+                                                        ControllerConstants.DEFAULT_FOREGROUND_COLOR,
+                                                        null,
+                                                        true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.SQUARE,
+                                                     ControllerConstants.DEFAULT_FOREGROUND_COLOR,
+                                                     ControllerConstants.DEFAULT_FOREGROUND_COLOR );
+            QRConfig config = new QRConfig( data,
+                                            ControllerConstants.DEFAULT_QR_SIZE,
+                                            ControllerConstants.DEFAULT_MARGIN,
+                                            ControllerConstants.DEFAULT_ERROR_CORRECTION,
+                                            ControllerConstants.DEFAULT_TRANSPARENT,
+                                            ControllerConstants.DEFAULT_WHITE_COLOR,
+                                            bodyConfig,
+                                            eyeConfig,
+                                            null );
             BufferedImage image = zapQrEngine.generate( config );
             // Decode it back using ZXing
             com.google.zxing.LuminanceSource source = new com.google.zxing.client.j2se.BufferedImageLuminanceSource( image );
@@ -125,14 +159,17 @@ public class QRDebugController
             com.google.zxing.Result result = new com.google.zxing.MultiFormatReader().decode( bitmap );
             String decodedData = result.getText();
             log.info( LogConstants.QR_VERIFICATION_SUCCESS, data, decodedData );
-            return ResponseEntity.ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_DECODED_DATA,
-                                                        decodedData, MessageConstants.RESPONSE_KEY_MATCH, data.equals( decodedData ) ) );
+            return ResponseEntity.ok( java.util.Map
+                    .of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data,
+                         MessageConstants.RESPONSE_KEY_DECODED_DATA, decodedData, MessageConstants.RESPONSE_KEY_MATCH,
+                         data.equals( decodedData ) ) );
         }
         catch ( Exception e )
         {
             log.error( LogConstants.QR_VERIFICATION_FAILED, e );
-            return ResponseEntity
-                    .ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, false, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_ERROR, e.getMessage() ) );
+            return ResponseEntity.ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, false,
+                                                        MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data,
+                                                        MessageConstants.RESPONSE_KEY_ERROR, e.getMessage() ) );
         }
     }
 
@@ -150,7 +187,8 @@ public class QRDebugController
             hints.put( com.google.zxing.EncodeHintType.CHARACTER_SET, MessageConstants.ENCODING_UTF_8 );
             hints.put( com.google.zxing.EncodeHintType.MARGIN, ControllerConstants.DEFAULT_MARGIN );
             com.google.zxing.common.BitMatrix bitMatrix = new com.google.zxing.MultiFormatWriter()
-                    .encode( data, com.google.zxing.BarcodeFormat.QR_CODE, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_QR_SIZE, hints );
+                    .encode( data, com.google.zxing.BarcodeFormat.QR_CODE, ControllerConstants.DEFAULT_QR_SIZE,
+                             ControllerConstants.DEFAULT_QR_SIZE, hints );
             // Use ZXing's NATIVE renderer (MatrixToImageWriter)
             BufferedImage image = com.google.zxing.client.j2se.MatrixToImageWriter.toBufferedImage( bitMatrix );
             // Decode it back
@@ -159,15 +197,19 @@ public class QRDebugController
             com.google.zxing.Result result = new com.google.zxing.MultiFormatReader().decode( bitmap );
             String decodedData = result.getText();
             log.info( LogConstants.QR_NATIVE_VERIFICATION_SUCCESS, data, decodedData );
-            return ResponseEntity
-                    .ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_RENDERER, MessageConstants.RENDERER_NATIVE_ZXING, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data,
-                                           MessageConstants.RESPONSE_KEY_DECODED_DATA, decodedData, MessageConstants.RESPONSE_KEY_MATCH, data.equals( decodedData ) ) );
+            return ResponseEntity.ok( java.util.Map
+                    .of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_RENDERER,
+                         MessageConstants.RENDERER_NATIVE_ZXING, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data,
+                         MessageConstants.RESPONSE_KEY_DECODED_DATA, decodedData, MessageConstants.RESPONSE_KEY_MATCH,
+                         data.equals( decodedData ) ) );
         }
         catch ( Exception e )
         {
             log.error( LogConstants.QR_NATIVE_VERIFICATION_FAILED, e );
-            return ResponseEntity.ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, false, MessageConstants.RESPONSE_KEY_RENDERER, MessageConstants.RENDERER_NATIVE_ZXING, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA,
-                                                        data, MessageConstants.RESPONSE_KEY_ERROR, e.getMessage() ) );
+            return ResponseEntity.ok( java.util.Map
+                    .of( MessageConstants.RESPONSE_KEY_SUCCESS, false, MessageConstants.RESPONSE_KEY_RENDERER,
+                         MessageConstants.RENDERER_NATIVE_ZXING, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data,
+                         MessageConstants.RESPONSE_KEY_ERROR, e.getMessage() ) );
         }
     }
 
@@ -181,18 +223,22 @@ public class QRDebugController
         {
             log.info( LogConstants.CONTROLLER_VERIFYING_STYLED_QR, data, bodyShape, eyeShape );
             // Create styled config using record constructor
-            QRBodyConfig bodyConfig = new QRBodyConfig( 
-                QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ), 
-                ControllerConstants.DEFAULT_FOREGROUND_COLOR, 
-                null, 
-                true 
-            );
-            QREyeConfig eyeConfig = new QREyeConfig( 
-                QREyeShapeEnum.valueOf( eyeShape.toUpperCase() ), 
-                ControllerConstants.DEFAULT_FOREGROUND_COLOR, 
-                ControllerConstants.DEFAULT_FOREGROUND_COLOR 
-            );
-            QRConfig config = new QRConfig( data, ControllerConstants.DEFAULT_QR_SIZE, ControllerConstants.DEFAULT_MARGIN, ControllerConstants.DEFAULT_ERROR_CORRECTION, ControllerConstants.DEFAULT_TRANSPARENT, ControllerConstants.DEFAULT_WHITE_COLOR, bodyConfig, eyeConfig, null );
+            QRBodyConfig bodyConfig = new QRBodyConfig( QRBodyShapeEnum.valueOf( bodyShape.toUpperCase() ),
+                                                        ControllerConstants.DEFAULT_FOREGROUND_COLOR,
+                                                        null,
+                                                        true );
+            QREyeConfig eyeConfig = new QREyeConfig( QREyeShapeEnum.valueOf( eyeShape.toUpperCase() ),
+                                                     ControllerConstants.DEFAULT_FOREGROUND_COLOR,
+                                                     ControllerConstants.DEFAULT_FOREGROUND_COLOR );
+            QRConfig config = new QRConfig( data,
+                                            ControllerConstants.DEFAULT_QR_SIZE,
+                                            ControllerConstants.DEFAULT_MARGIN,
+                                            ControllerConstants.DEFAULT_ERROR_CORRECTION,
+                                            ControllerConstants.DEFAULT_TRANSPARENT,
+                                            ControllerConstants.DEFAULT_WHITE_COLOR,
+                                            bodyConfig,
+                                            eyeConfig,
+                                            null );
             BufferedImage image = zapQrEngine.generate( config );
             // Decode it back
             com.google.zxing.LuminanceSource source = new com.google.zxing.client.j2se.BufferedImageLuminanceSource( image );
@@ -200,15 +246,19 @@ public class QRDebugController
             com.google.zxing.Result result = new com.google.zxing.MultiFormatReader().decode( bitmap );
             String decodedData = result.getText();
             log.info( LogConstants.QR_STYLED_VERIFICATION_SUCCESS, bodyShape, eyeShape, decodedData );
-            return ResponseEntity.ok( java.util.Map.of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_BODY_SHAPE, bodyShape, MessageConstants.RESPONSE_KEY_EYE_SHAPE, eyeShape,
-                                                        MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_DECODED_DATA, decodedData, MessageConstants.RESPONSE_KEY_MATCH,
-                                                        data.equals( decodedData ) ) );
+            return ResponseEntity.ok( java.util.Map
+                    .of( MessageConstants.RESPONSE_KEY_SUCCESS, true, MessageConstants.RESPONSE_KEY_BODY_SHAPE,
+                         bodyShape, MessageConstants.RESPONSE_KEY_EYE_SHAPE, eyeShape,
+                         MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_DECODED_DATA,
+                         decodedData, MessageConstants.RESPONSE_KEY_MATCH, data.equals( decodedData ) ) );
         }
         catch ( Exception e )
         {
             log.error( LogConstants.QR_STYLED_VERIFICATION_FAILED, bodyShape, eyeShape, e );
             return ResponseEntity.ok( java.util.Map
-                    .of( MessageConstants.RESPONSE_KEY_SUCCESS, false, MessageConstants.RESPONSE_KEY_BODY_SHAPE, bodyShape, MessageConstants.RESPONSE_KEY_EYE_SHAPE, eyeShape, MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_ERROR,
+                    .of( MessageConstants.RESPONSE_KEY_SUCCESS, false, MessageConstants.RESPONSE_KEY_BODY_SHAPE,
+                         bodyShape, MessageConstants.RESPONSE_KEY_EYE_SHAPE, eyeShape,
+                         MessageConstants.RESPONSE_KEY_ORIGINAL_DATA, data, MessageConstants.RESPONSE_KEY_ERROR,
                          e.getMessage() != null ? e.getMessage() : "NotFoundException" ) );
         }
     }

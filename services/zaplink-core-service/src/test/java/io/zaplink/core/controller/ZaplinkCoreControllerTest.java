@@ -19,7 +19,7 @@ import io.zaplink.core.dto.request.ShortnerRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
 import io.zaplink.core.service.UrlShortnerService;
 
-@WebMvcTest(CoreController.class)
+@WebMvcTest(ShortUrlController.class)
 class ZaplinkCoreControllerTest
 {
     @Autowired

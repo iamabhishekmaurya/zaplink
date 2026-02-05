@@ -7,7 +7,7 @@ package io.zaplink.core.common.constants;
  * @author Zaplink Team
  * @version 1.0
  * @since 2026-01-31
- */
+*/
 public final class ControllerConstants
 {
     // Prevent instantiation
@@ -16,6 +16,8 @@ public final class ControllerConstants
         throw new UnsupportedOperationException( "Utility class cannot be instantiated" );
     }
     // ==================== API PATH CONSTANTS ====================
+    // API Version
+    public static final String  API_VERSION_1                        = "1";
     // Bio Controller Paths
     public static final String  BIO_BASE_PATH                        = "/bio";
     public static final String  BIO_PAGE_PATH                        = "/page";
@@ -29,8 +31,8 @@ public final class ControllerConstants
     public static final String  QR_DESTINATION_PATH                  = "/dyqr/{qrKey}/destination";
     public static final String  QR_STATUS_PATH                       = "/dyqr/{qrKey}/status";
     // Core Controller Paths
-    public static final String  CORE_BASE_PATH                       = "/core";
-    public static final String  CORE_URL_PATH                        = "/url";
+    public static final String  SHORT_BASE_PATH                      = "/short";
+    public static final String  SHORT_URL_PATH                       = "/url";
     // Team Management Controller Paths
     public static final String  TEAM_BASE_PATH                       = "/teams";
     public static final String  TEAM_INVITE_PATH                     = "/invite";

@@ -62,8 +62,10 @@ dependencies {
 	//QR CODE
 	implementation 'com.google.zxing:core:3.4.1'
 	implementation 'com.google.zxing:javase:3.4.1'
-	//DOCOUMENTATION
+	//DOCUMENTATION
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
+	// Kotlin reflect - required by springdoc-openapi Kotlin customizer
+	implementation 'org.jetbrains.kotlin:kotlin-reflect'
 	//Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
