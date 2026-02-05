@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2026-01-31
  */
 @Slf4j @Service @RequiredArgsConstructor
-public class TeamMemberQueryService
+public class TeamManagementService
 {
     private final TeamMemberViewRepository teamMemberViewRepository;
     /**

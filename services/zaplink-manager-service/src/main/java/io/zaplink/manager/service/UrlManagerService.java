@@ -10,19 +10,15 @@ import io.zaplink.manager.dto.response.LinkAnalyticsResponse;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
 import io.zaplink.manager.repository.UrlAnalyticsRepository;
-import io.zaplink.manager.service.grpc.AuthGrpcClient;
 import io.zaplink.manager.service.grpc.CoreGrpcClient;
-import io.zaplink.manager.service.helper.RedisServiceHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service @Slf4j @RequiredArgsConstructor
 public class UrlManagerService
 {
-    private final RedisServiceHelper     redisService;
     private final UrlAnalyticsRepository urlAnalyticsRepository;
     private final CoreGrpcClient         coreGrpcClient;
-    private final AuthGrpcClient         authGrpcClient;
     public List<LinkResponse> getLinksByUser( String userEmail )
     {
         log.info( "Going to get links by userEmail: {}", userEmail );
@@ -63,23 +59,6 @@ public class UrlManagerService
         if ( total == null || total == 0 )
             return 0;
         return (int) ( ( value * 100 ) / total );
-    }
-
-    public void deleteLink( Long id, String userEmail )
-    {
-        // Get the URL first to verify ownership
-        LinkResponse link = coreGrpcClient.getUrlById( id.toString() );
-        if ( link != null && link.shortUrl().contains( userEmail ) )
-        {
-            // For now, we'll need to implement a delete method in Core service
-            // This is a placeholder - you'll need to add deleteUrl method to Core gRPC service
-            log.info( "Deleting link {} for user {}", id, userEmail );
-            redisService.deleteValue( link.shortUrlKey() );
-        }
-        else
-        {
-            throw new RuntimeException( "Link not found or unauthorized" );
-        }
     }
 
     public LinkAnalyticsResponse getLinkAnalytics( String shortUrlKey, String userEmail )

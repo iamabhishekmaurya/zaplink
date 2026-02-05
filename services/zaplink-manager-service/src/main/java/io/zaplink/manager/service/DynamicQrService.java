@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.zaplink.manager.common.client.CoreServiceClient;
-import io.zaplink.manager.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.manager.dto.request.qr.QRConfig;
 import io.zaplink.manager.dto.response.dynamicqr.DynamicQrResponse;
 import io.zaplink.manager.dto.response.dynamicqr.QrAnalyticsResponse;
@@ -166,48 +165,6 @@ public class DynamicQrService
     public long countAllQrCodes()
     {
         return dynamicQrCodeRepository.count();
-    }
-
-    public DynamicQrResponse createDynamicQr( CreateDynamicQrRequest request, String userEmail )
-    {
-        try
-        {
-            DynamicQrCodeEntity entity = new DynamicQrCodeEntity();
-            entity.setQrKey( generateUniqueKey() );
-            entity.setQrName( request.qrName() );
-            entity.setCurrentDestinationUrl( request.destinationUrl() );
-            entity.setUserEmail( userEmail );
-            entity.setCampaignId( request.campaignId() );
-            entity.setIsActive( true );
-            entity.setCreatedAt( LocalDateTime.now() );
-            entity.setUpdatedAt( LocalDateTime.now() );
-            entity.setTotalScans( 0L );
-            // Advanced features
-            entity.setPassword( request.password() );
-            entity.setScanLimit( request.scanLimit() );
-            entity.setExpirationDate( request.expirationDate() );
-            if ( request.allowedDomains() != null )
-            {
-                entity.setAllowedDomains( objectMapper.writeValueAsString( request.allowedDomains() ) );
-            }
-            // Save Config
-            if ( request.qrConfig() != null )
-            {
-                entity.setQrConfig( objectMapper.writeValueAsString( request.qrConfig() ) );
-            }
-            DynamicQrCodeEntity saved = dynamicQrCodeRepository.save( entity );
-            return convertToResponse( saved );
-        }
-        catch ( JsonProcessingException e )
-        {
-            log.error( "Error processing JSON for create dynamic QR", e );
-            throw new RuntimeException( "Failed to create dynamic QR", e );
-        }
-    }
-
-    private String generateUniqueKey()
-    {
-        return java.util.UUID.randomUUID().toString().substring( 0, 8 );
     }
 
     private DynamicQrResponse convertToResponse( DynamicQrCodeEntity entity )
