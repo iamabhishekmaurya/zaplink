@@ -9,8 +9,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.zaplink.auth.common.constants.ApiConstants;
 import io.zaplink.auth.common.constants.LogConstants;
+import io.zaplink.auth.common.constants.StatusConstants;
 import io.zaplink.auth.dto.request.LoginRequest;
 import io.zaplink.auth.dto.request.PasswordResetRequest;
 import io.zaplink.auth.dto.request.UserRegistrationRequest;
@@ -33,18 +41,15 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0
  * @since 2025-11-30
  */
-@Slf4j @RestController @RequiredArgsConstructor @RequestMapping("/auth")
+@Slf4j @RestController @RequiredArgsConstructor @RequestMapping("/auth") @Tag(name = ApiConstants.TAG_AUTHENTICATION, description = ApiConstants.TAG_AUTHENTICATION_DESC)
 public class AuthController
 {
     private final RegistrationService registrationService;
     private final AuthService         authService;
-    /**
-     * Registers a new user in the system.
-     * 
-     * @param request The user registration request with user details
-     * @return UserRegistrationResponse with created user information
-     */
-    @PostMapping("/register") @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/register") @ResponseStatus(HttpStatus.CREATED) @Operation(summary = ApiConstants.AUTH_REGISTER_SUMMARY, description = ApiConstants.AUTH_REGISTER_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_201_CREATED, description = ApiConstants.RESPONSE_201_USER_REGISTERED, content = @Content(schema = @Schema(implementation = UserRegistrationResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ApiConstants.RESPONSE_400_INVALID_INPUT),
+      @ApiResponse(responseCode = StatusConstants.STATUS_409_CONFLICT, description = ApiConstants.RESPONSE_409_USER_ALREADY_EXISTS) })
     public UserRegistrationResponse registerUser( @Valid @RequestBody UserRegistrationRequest request )
     {
         log.info( LogConstants.LOG_CREATING_NEW_USER_ACCOUNT, request.email() );
@@ -54,13 +59,9 @@ public class AuthController
         return response;
     }
 
-    /**
-     * Authenticates a user and returns JWT tokens.
-     * 
-     * @param request The login request containing email and password
-     * @return LoginResponse containing JWT access and refresh tokens
-     */
-    @PostMapping("/login")
+    @PostMapping("/login") @Operation(summary = ApiConstants.AUTH_LOGIN_SUMMARY, description = ApiConstants.AUTH_LOGIN_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ApiConstants.RESPONSE_200_LOGIN_SUCCESSFUL, content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_401_UNAUTHORIZED, description = ApiConstants.RESPONSE_401_UNAUTHORIZED) })
     public LoginResponse login( @Valid @RequestBody LoginRequest request )
     {
         log.info( LogConstants.LOG_ATTEMPTING_LOGIN, request.email() );
@@ -70,27 +71,19 @@ public class AuthController
         return response;
     }
 
-    /**
-     * Retrieves the current authenticated user's information.
-     * 
-     * @return UserInfo containing current user details
-     */
-    @GetMapping("/me")
+    @GetMapping("/me") @Operation(summary = ApiConstants.AUTH_GET_CURRENT_USER_SUMMARY, description = ApiConstants.AUTH_GET_CURRENT_USER_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ApiConstants.RESPONSE_200_USER_INFO_RETRIEVED, content = @Content(schema = @Schema(implementation = LoginResponse.UserInfo.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_401_UNAUTHORIZED, description = ApiConstants.RESPONSE_401_UNAUTHORIZED) })
     public LoginResponse.UserInfo getCurrentUser()
     {
         log.info( LogConstants.LOG_PROCESSING_GET_CURRENT_USER_REQUEST );
         return authService.getCurrentUser();
     }
 
-    /**
-     * Refreshes an access token using a valid refresh token.
-     * Implements token rotation for enhanced security.
-     * 
-     * @param refreshToken The refresh token to validate and use
-     * @return LoginResponse containing new JWT tokens
-     */
-    @PostMapping("/refresh")
-    public LoginResponse refreshToken( @RequestParam("refreshToken") String refreshToken )
+    @PostMapping("/refresh") @Operation(summary = ApiConstants.AUTH_REFRESH_TOKEN_SUMMARY, description = ApiConstants.AUTH_REFRESH_TOKEN_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ApiConstants.RESPONSE_200_TOKEN_REFRESHED, content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_401_UNAUTHORIZED, description = ApiConstants.RESPONSE_401_INVALID_REFRESH_TOKEN) })
+    public LoginResponse refreshToken( @Parameter(description = ApiConstants.PARAM_REFRESH_TOKEN) @RequestParam("refreshToken") String refreshToken )
     {
         log.info( LogConstants.LOG_PROCESSING_REFRESH_TOKEN_REQUEST );
         LoginResponse response = authService.refreshToken( refreshToken );
@@ -98,14 +91,9 @@ public class AuthController
         return response;
     }
 
-    /**
-     * Logs out a user by invalidating their refresh token.
-     * 
-     * @param refreshToken The refresh token to invalidate
-     * @return BaseResponse indicating logout success
-     */
-    @PostMapping("/logout")
-    public BaseResponse logout( @RequestParam("refreshToken") String refreshToken )
+    @PostMapping("/logout") @Operation(summary = ApiConstants.AUTH_LOGOUT_SUMMARY, description = ApiConstants.AUTH_LOGOUT_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ApiConstants.RESPONSE_200_LOGOUT_SUCCESSFUL, content = @Content(schema = @Schema(implementation = BaseResponse.class))) })
+    public BaseResponse logout( @Parameter(description = ApiConstants.PARAM_REFRESH_TOKEN) @RequestParam("refreshToken") String refreshToken )
     {
         log.info( LogConstants.LOG_PROCESSING_LOGOUT_REQUEST );
         authService.logout( refreshToken );
@@ -113,14 +101,10 @@ public class AuthController
         return BaseResponse.success( ApiConstants.MESSAGE_LOGOUT_SUCCESSFUL );
     }
 
-    /**
-     * Verifies a user's email address using a verification token.
-     * 
-     * @param token The email verification token
-     * @return BaseResponse indicating verification status
-     */
-    @PostMapping("/verify-email")
-    public BaseResponse verifyEmail( @RequestParam("token") String token )
+    @PostMapping("/verify-email") @Operation(summary = ApiConstants.AUTH_VERIFY_EMAIL_SUMMARY, description = ApiConstants.AUTH_VERIFY_EMAIL_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ApiConstants.RESPONSE_200_EMAIL_VERIFIED, content = @Content(schema = @Schema(implementation = BaseResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ApiConstants.RESPONSE_400_INVALID_TOKEN) })
+    public BaseResponse verifyEmail( @Parameter(description = ApiConstants.PARAM_VERIFICATION_TOKEN) @RequestParam("token") String token )
     {
         log.info( LogConstants.LOG_PROCESSING_EMAIL_VERIFICATION );
         registrationService.verifyEmail( token );
@@ -128,26 +112,16 @@ public class AuthController
         return BaseResponse.success( ApiConstants.MESSAGE_EMAIL_VERIFIED_SUCCESSFULLY );
     }
 
-    /**
-     * Resends the verification email to a user.
-     * 
-     * @param email The email address to send verification to
-     * @return BaseResponse indicating email send status
-     */
-    @PostMapping("/resend-verification")
-    public BaseResponse resendVerificationEmail( @RequestParam("email") String email )
+    @PostMapping("/resend-verification") @Operation(summary = ApiConstants.AUTH_RESEND_VERIFICATION_SUMMARY, description = ApiConstants.AUTH_RESEND_VERIFICATION_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ApiConstants.RESPONSE_200_VERIFICATION_EMAIL_SENT, content = @Content(schema = @Schema(implementation = BaseResponse.class))) })
+    public BaseResponse resendVerificationEmail( @Parameter(description = ApiConstants.PARAM_EMAIL) @RequestParam("email") String email )
     {
         registrationService.resendVerificationEmail( email );
         return BaseResponse.success( ApiConstants.MESSAGE_VERIFICATION_EMAIL_SENT );
     }
 
-    /**
-     * Initiates password reset process by sending reset email.
-     * 
-     * @param request The password reset request containing user email
-     * @return BaseResponse indicating reset initiation status
-     */
-    @PostMapping("/request-password-reset")
+    @PostMapping("/request-password-reset") @Operation(summary = ApiConstants.AUTH_REQUEST_PASSWORD_RESET_SUMMARY, description = ApiConstants.AUTH_REQUEST_PASSWORD_RESET_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ApiConstants.RESPONSE_200_PASSWORD_RESET_EMAIL_SENT, content = @Content(schema = @Schema(implementation = BaseResponse.class))) })
     public BaseResponse requestPasswordReset( @Valid @RequestBody PasswordResetRequest request )
     {
         log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_REQUEST, request.email() );
@@ -156,16 +130,11 @@ public class AuthController
         return BaseResponse.success( ApiConstants.MESSAGE_PASSWORD_RESET_EMAIL_SENT );
     }
 
-    /**
-     * Resets user password using a valid reset token.
-     * 
-     * @param token The password reset token
-     * @param newPassword The new password to set
-     * @return BaseResponse indicating password reset status
-     */
-    @PostMapping("/reset-password")
-    public BaseResponse resetPassword( @RequestParam("token") String token,
-                                       @RequestParam("newPassword") String newPassword )
+    @PostMapping("/reset-password") @Operation(summary = ApiConstants.AUTH_RESET_PASSWORD_SUMMARY, description = ApiConstants.AUTH_RESET_PASSWORD_DESC) @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ApiConstants.RESPONSE_200_PASSWORD_RESET_SUCCESSFUL, content = @Content(schema = @Schema(implementation = BaseResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ApiConstants.RESPONSE_400_INVALID_TOKEN) })
+    public BaseResponse resetPassword( @Parameter(description = ApiConstants.PARAM_RESET_TOKEN) @RequestParam("token") String token,
+                                       @Parameter(description = ApiConstants.PARAM_NEW_PASSWORD) @RequestParam("newPassword") String newPassword )
     {
         log.info( LogConstants.LOG_PROCESSING_PASSWORD_RESET_WITH_TOKEN );
         authService.resetPassword( token, newPassword );
