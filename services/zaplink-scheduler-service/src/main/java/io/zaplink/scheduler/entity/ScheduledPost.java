@@ -2,6 +2,7 @@ package io.zaplink.scheduler.entity;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import io.zaplink.scheduler.common.constants.DbIdentifiers;
+import io.zaplink.scheduler.common.enums.PostStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +38,4 @@ public class ScheduledPost
     private LocalDateTime createdAt;
     @UpdateTimestamp @Column(name = DbIdentifiers.COL_UPDATED_AT)
     private LocalDateTime updatedAt;
-    public enum PostStatus {
-        DRAFT, SCHEDULED, PUBLISHED, FAILED
-    }
 }

@@ -3,6 +3,7 @@ package io.zaplink.scheduler.service;
 import io.zaplink.scheduler.common.constants.DbIdentifiers;
 import io.zaplink.scheduler.common.constants.ErrorMessages;
 import io.zaplink.scheduler.common.constants.LogMessages;
+import io.zaplink.scheduler.common.enums.PostStatus;
 import io.zaplink.scheduler.entity.ScheduledPost;
 import io.zaplink.scheduler.repository.ScheduledPostRepository;
 import io.zaplink.scheduler.service.job.PostPublishJob;
@@ -52,7 +53,7 @@ public class SchedulerService
             throw new IllegalArgumentException( ErrorMessages.CANNOT_SCHEDULE_IN_PAST );
         }
         // 2. Save to Database
-        post.setStatus( ScheduledPost.PostStatus.SCHEDULED );
+        post.setStatus( PostStatus.SCHEDULED );
         ScheduledPost savedPost = scheduledPostRepository.save( post );
         // 3. Schedule Quartz Job
         scheduleQuartzJob( savedPost );
@@ -92,7 +93,7 @@ public class SchedulerService
             return new IllegalArgumentException( ErrorMessages.POST_NOT_FOUND + postId );
         } );
         // 2. Validate Status
-        if ( post.getStatus() == ScheduledPost.PostStatus.PUBLISHED )
+        if ( post.getStatus() == PostStatus.PUBLISHED )
         {
             log.warn( LogMessages.RESCHEDULE_PUBLISHED, postId );
             throw new IllegalArgumentException( ErrorMessages.CANNOT_RESCHEDULE_PUBLISHED );
@@ -110,7 +111,7 @@ public class SchedulerService
         }
         // 4. Update and Save
         post.setScheduledTime( newTime );
-        post.setStatus( ScheduledPost.PostStatus.SCHEDULED ); // Reset status if it was FAILED or DRAFT
+        post.setStatus( PostStatus.SCHEDULED ); // Reset status if it was FAILED or DRAFT
         ScheduledPost savedPost = scheduledPostRepository.save( post );
         // 5. Reschedule Quartz Job
         rescheduleQuartzJob( savedPost );

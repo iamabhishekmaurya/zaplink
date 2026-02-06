@@ -3,6 +3,14 @@ server:
 spring:
   application:
     name: zaplink-scheduler-service
+  # API versioning (path exclusions handled by ApiVersionBypassFilter)
+  mvc:
+    apiversion:
+      required: true
+      use:
+        header: X-API-Version
+      supported:
+      - 1
   datasource:
     url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=scheduler
     username: postgres
