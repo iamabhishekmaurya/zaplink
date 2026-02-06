@@ -1,4 +1,4 @@
-package io.zaplink.redirect.client;
+package io.zaplink.redirect.common.client;
 
 import java.util.List;
 
@@ -10,11 +10,11 @@ import io.zaplink.redirect.dto.BioPageResponse;
 import io.zaplink.redirect.dto.BioLinkResponse;
 
 @FeignClient(name = "zaplink-manager-service", url = "${zaplink.services.manager.url:http://localhost:8083}")
-public interface ManagerServiceClient {
-    
+public interface ManagerServiceClient
+{
     @GetMapping("/api/v1/bio-pages/username/{username}")
-    BioPageResponse getBioPageByUsername(@PathVariable("username") String username);
-    
+    BioPageResponse getBioPageByUsername( @PathVariable("username") String username );
+
     @GetMapping("/api/v1/bio-links/page/{pageId}/active")
-    List<BioLinkResponse> getActiveBioLinksByPageId(@PathVariable("pageId") Long pageId);
+    List<BioLinkResponse> getActiveBioLinksByPageId( @PathVariable("pageId") Long pageId );
 }

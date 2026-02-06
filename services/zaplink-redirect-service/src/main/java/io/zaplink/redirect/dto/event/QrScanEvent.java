@@ -2,6 +2,8 @@ package io.zaplink.redirect.dto.event;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * QR scan event record for Kafka publishing.
  * Uses Java 21 record for immutable event data.
@@ -17,16 +19,16 @@ import java.time.Instant;
  * @param timestamp   event timestamp
  * @param traceId     distributed tracing ID
  */
-public record QrScanEvent( String qrKey,
-                           String ipAddress,
-                           String userAgent,
+public record QrScanEvent( @JsonProperty("qr_key") String qrKey,
+                           @JsonProperty("ip_address") String ipAddress,
+                           @JsonProperty("user_agent") String userAgent,
                            String referrer,
                            String country,
                            String city,
-                           String deviceType,
+                           @JsonProperty("device_type") String deviceType,
                            String browser,
                            Instant timestamp,
-                           String traceId )
+                           @JsonProperty("trace_id") String traceId )
 {
     /**
      * Builder-style factory method for creating QR scan events.

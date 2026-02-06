@@ -2,6 +2,8 @@ package io.zaplink.redirect.dto.event;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * URL click event record for Kafka publishing.
  * Uses Java 21 record for immutable event data.
@@ -17,16 +19,16 @@ import java.time.Instant;
  * @param timestamp   event timestamp
  * @param traceId     distributed tracing ID
  */
-public record UrlClickEvent( String urlKey,
-                             String ipAddress,
-                             String userAgent,
+public record UrlClickEvent( @JsonProperty("url_key") String urlKey,
+                             @JsonProperty("ip_address") String ipAddress,
+                             @JsonProperty("user_agent") String userAgent,
                              String referrer,
                              String country,
                              String city,
-                             String deviceType,
+                             @JsonProperty("device_type") String deviceType,
                              String browser,
                              Instant timestamp,
-                             String traceId )
+                             @JsonProperty("trace_id") String traceId )
 {
     /**
      * Builder-style factory method for creating URL click events.
