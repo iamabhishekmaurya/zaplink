@@ -131,89 +131,92 @@ class BioPageService {
   private readonly baseUrl = '/api';
 
   // ========== BioPage Write Operations (Core Service) ==========
+  // Core BioController: /page (Singular) + /link (Singular)
 
   async createBioPage(request: CreateBioPageRequest): Promise<BioPage> {
-    const response = await apiClient.post<BioPageApiResponse>(`${this.baseUrl}/wr/bio-pages`, request);
+    const response = await apiClient.post<BioPageApiResponse>(`${this.baseUrl}/wr/bio/page`, request);
     return transformBioPage(response.data);
   }
 
   async updateBioPage(pageId: number, request: UpdateBioPageRequest): Promise<BioPage> {
-    const response = await apiClient.put<BioPageApiResponse>(`${this.baseUrl}/wr/bio-pages/${pageId}`, request);
+    const response = await apiClient.put<BioPageApiResponse>(`${this.baseUrl}/wr/bio/page/${pageId}`, request);
     return transformBioPage(response.data);
   }
 
   async deleteBioPage(pageId: number): Promise<void> {
-    await apiClient.delete(`${this.baseUrl}/wr/bio-pages/${pageId}`);
+    await apiClient.delete(`${this.baseUrl}/wr/bio/page/${pageId}`);
   }
 
   // ========== BioPage Read Operations (Manager Service) ==========
+  // Manager BioController: /pages (Plural)
 
   async getBioPageById(id: string | number): Promise<BioPage> {
-    const response = await apiClient.get<BioPageApiResponse>(`${this.baseUrl}/rd/bio-pages/${id}`);
+    const response = await apiClient.get<BioPageApiResponse>(`${this.baseUrl}/rd/bio/pages/${id}`);
     return transformBioPage(response.data);
   }
 
   async getBioPageByUsername(username: string): Promise<BioPage> {
-    const response = await apiClient.get<BioPageApiResponse>(`${this.baseUrl}/rd/bio-pages/username/${username}`);
+    const response = await apiClient.get<BioPageApiResponse>(`${this.baseUrl}/rd/bio/pages/username/${username}`);
     return transformBioPage(response.data);
   }
 
   async getBioPagesByOwnerId(ownerId: string): Promise<BioPage[]> {
-    const response = await apiClient.get<BioPageApiResponse[]>(`${this.baseUrl}/rd/bio-pages/owner/${ownerId}`);
+    const response = await apiClient.get<BioPageApiResponse[]>(`${this.baseUrl}/rd/bio/pages/owner/${ownerId}`);
     return response.data.map(transformBioPage);
   }
 
   async getAllBioPages(): Promise<BioPage[]> {
-    const response = await apiClient.get<BioPageApiResponse[]>(`${this.baseUrl}/rd/bio-pages`);
+    const response = await apiClient.get<BioPageApiResponse[]>(`${this.baseUrl}/rd/bio/pages`);
     return response.data.map(transformBioPage);
   }
 
   // ========== BioLink Write Operations (Core Service) ==========
 
   async createBioLink(request: CreateBioLinkRequest): Promise<BioLink> {
-    const response = await apiClient.post<BioLinkApiResponse>(`${this.baseUrl}/wr/bio-links`, request);
+    const response = await apiClient.post<BioLinkApiResponse>(`${this.baseUrl}/wr/bio/link`, request);
     return transformBioLink(response.data);
   }
 
   async updateBioLink(linkId: number, request: UpdateBioLinkRequest): Promise<BioLink> {
-    const response = await apiClient.put<BioLinkApiResponse>(`${this.baseUrl}/wr/bio-links/${linkId}`, request);
+    const response = await apiClient.put<BioLinkApiResponse>(`${this.baseUrl}/wr/bio/link/${linkId}`, request);
     return transformBioLink(response.data);
   }
 
   async deleteBioLink(linkId: number): Promise<void> {
-    await apiClient.delete(`${this.baseUrl}/wr/bio-links/${linkId}`);
+    await apiClient.delete(`${this.baseUrl}/wr/bio/link/${linkId}`);
   }
 
   async reorderLinks(pageId: number, linkIds: number[]): Promise<void> {
-    await apiClient.put(`${this.baseUrl}/wr/bio-pages/${pageId}/links/reorder`, linkIds);
+    await apiClient.put(`${this.baseUrl}/wr/bio/link/${pageId}/reorder`, { linkOrders: linkIds.map((id, index) => ({ linkId: id, sortOrder: index })) });
   }
 
   // ========== BioLink Read Operations (Manager Service) ==========
+  // Manager BioController: /links (Plural)
 
   async getBioLinkById(id: number): Promise<BioLink> {
-    const response = await apiClient.get<BioLinkApiResponse>(`${this.baseUrl}/rd/bio-links/${id}`);
+    const response = await apiClient.get<BioLinkApiResponse>(`${this.baseUrl}/rd/bio/links/${id}`);
     return transformBioLink(response.data);
   }
 
   async getBioLinksByPageId(pageId: number): Promise<BioLink[]> {
-    const response = await apiClient.get<BioLinkApiResponse[]>(`${this.baseUrl}/rd/bio-links/page/${pageId}`);
+    const response = await apiClient.get<BioLinkApiResponse[]>(`${this.baseUrl}/rd/bio/links/page/${pageId}`);
     return response.data.map(transformBioLink);
   }
 
   async getActiveBioLinksByPageId(pageId: number): Promise<BioLink[]> {
-    const response = await apiClient.get<BioLinkApiResponse[]>(`${this.baseUrl}/rd/bio-links/page/${pageId}/active`);
+    const response = await apiClient.get<BioLinkApiResponse[]>(`${this.baseUrl}/rd/bio/links/page/${pageId}/active`);
     return response.data.map(transformBioLink);
   }
 
   async getAllBioLinks(): Promise<BioLink[]> {
-    const response = await apiClient.get<BioLinkApiResponse[]>(`${this.baseUrl}/rd/bio-links`);
+    const response = await apiClient.get<BioLinkApiResponse[]>(`${this.baseUrl}/rd/bio/links`);
     return response.data.map(transformBioLink);
   }
 
   // ========== Public Bio Page (Redirect Service) ==========
 
   async getPublicBioPage(username: string): Promise<BioPage> {
-    const response = await apiClient.get<BioPageApiResponse>(`/bio/${username}`);
+    const response = await apiClient.get<BioPageApiResponse>(`/b/${username}`);
     return transformBioPage(response.data);
   }
 }

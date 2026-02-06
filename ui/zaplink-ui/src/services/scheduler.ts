@@ -97,8 +97,9 @@ export const schedulerApi = {
     },
 
     // 5. Delete Post
+    // 5. Delete Post
     deletePost: async (id: string): Promise<void> => {
-        await api.delete(`/schedule/${id}`);
+        await api.delete(`/api/schedule/${id}`);
     }
 
 };
