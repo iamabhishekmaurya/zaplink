@@ -4,14 +4,9 @@ import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 
-@Data
-public class CreateFolderRequest
+public record CreateFolderRequest( @NotBlank(message = "Folder name is required") String name,
+                                   UUID parentId,
+                                   @NotNull(message = "Owner ID is required") String ownerId )
 {
-    @NotBlank(message = "Folder name is required")
-    private String name;
-    private UUID   parentId;
-    @NotNull(message = "Owner ID is required")
-    private String ownerId;
 }

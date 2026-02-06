@@ -2,7 +2,6 @@ package io.zaplink.media.common.exception;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,16 +41,17 @@ public class GlobalExceptionHandler
                         return ResponseEntity.badRequest().contentType( MediaType.TEXT_PLAIN )
                                         .body( ExceptionConstants.ERR_PREFIX_VALIDATION + ex.getMessage() + "\n" );
                 }
-                List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream().map( error -> FieldError
-                                .builder().field( error.getField() ).message( error.getDefaultMessage() )
-                                .rejectedValue( error.getRejectedValue() != null ? error.getRejectedValue().toString()
-                                                                                 : null )
-                                .build() ).collect( Collectors.toList() );
-                ErrorResponse errorResponse = ErrorResponse.builder().timestamp( LocalDateTime.now().toString() )
-                                .status( HttpStatus.BAD_REQUEST.name() )
-                                .message( ExceptionConstants.ERR_VALIDATION_FAILED )
-                                .path( request.getDescription( false ).replace( "uri=", "" ) )
-                                .fieldErrors( fieldErrors ).build();
+                List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                                .map( error -> new FieldError( error.getField(),
+                                                               error.getDefaultMessage(),
+                                                               error.getRejectedValue() != null ? error
+                                                                               .getRejectedValue().toString() : null ) )
+                                .toList();
+                ErrorResponse errorResponse = new ErrorResponse( LocalDateTime.now().toString(),
+                                                                 HttpStatus.BAD_REQUEST.name(),
+                                                                 ExceptionConstants.ERR_VALIDATION_FAILED,
+                                                                 request.getDescription( false ).replace( "uri=", "" ),
+                                                                 fieldErrors );
                 return ResponseEntity.badRequest().contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
         }
 
@@ -68,13 +68,13 @@ public class GlobalExceptionHandler
                                         .contentType( MediaType.TEXT_PLAIN )
                                         .body( ExceptionConstants.ERR_PREFIX_ERROR + ex.getMessage() + "\n" );
                 }
-                ErrorResponse errorResponse = ErrorResponse.builder().timestamp( LocalDateTime.now().toString() )
-                                .status( HttpStatus.INTERNAL_SERVER_ERROR.name() )
-                                .message( ExceptionConstants.ERR_INTERNAL_SERVER_ERROR )
-                                .path( request.getDescription( false ).replace( "uri=", "" ) )
-                                .fieldErrors( List.of( FieldError.builder().field( "global" ).message( ex.getMessage() )
-                                                .rejectedValue( null ).build() ) )
-                                .build();
+                ErrorResponse errorResponse = new ErrorResponse( LocalDateTime.now().toString(),
+                                                                 HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                                                                 ExceptionConstants.ERR_INTERNAL_SERVER_ERROR,
+                                                                 request.getDescription( false ).replace( "uri=", "" ),
+                                                                 List.of( new FieldError( "global",
+                                                                                          ex.getMessage(),
+                                                                                          null ) ) );
                 return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR )
                                 .contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
         }
@@ -82,10 +82,11 @@ public class GlobalExceptionHandler
         @ExceptionHandler(AssetNotFoundException.class)
         public ResponseEntity<Object> handleAssetNotFoundException( AssetNotFoundException ex, WebRequest request )
         {
-                ErrorResponse errorResponse = ErrorResponse.builder().timestamp( LocalDateTime.now().toString() )
-                                .status( HttpStatus.NOT_FOUND.name() ).message( ex.getMessage() )
-                                .path( request.getDescription( false ).replace( "uri=", "" ) ).fieldErrors( List.of() )
-                                .build();
+                ErrorResponse errorResponse = new ErrorResponse( LocalDateTime.now().toString(),
+                                                                 HttpStatus.NOT_FOUND.name(),
+                                                                 ex.getMessage(),
+                                                                 request.getDescription( false ).replace( "uri=", "" ),
+                                                                 List.of() );
                 return ResponseEntity.status( HttpStatus.NOT_FOUND ).contentType( MediaType.APPLICATION_JSON )
                                 .body( errorResponse );
         }
@@ -93,10 +94,11 @@ public class GlobalExceptionHandler
         @ExceptionHandler(StorageException.class)
         public ResponseEntity<Object> handleStorageException( StorageException ex, WebRequest request )
         {
-                ErrorResponse errorResponse = ErrorResponse.builder().timestamp( LocalDateTime.now().toString() )
-                                .status( HttpStatus.INTERNAL_SERVER_ERROR.name() ).message( ex.getMessage() )
-                                .path( request.getDescription( false ).replace( "uri=", "" ) ).fieldErrors( List.of() )
-                                .build();
+                ErrorResponse errorResponse = new ErrorResponse( LocalDateTime.now().toString(),
+                                                                 HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                                                                 ex.getMessage(),
+                                                                 request.getDescription( false ).replace( "uri=", "" ),
+                                                                 List.of() );
                 return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR )
                                 .contentType( MediaType.APPLICATION_JSON ).body( errorResponse );
         }

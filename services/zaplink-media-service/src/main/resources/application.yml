@@ -4,10 +4,14 @@ server:
 spring:
   application:
     name: zaplink-media-service
-    api:
-      version:
-        header: X-API-VERSION
-        value: 1
+  # API versioning (path exclusions handled by ApiVersionBypassFilter)
+  mvc:
+    apiversion:
+      required: true
+      use:
+        header: X-API-Version
+      supported:
+      - 1
   
   threads:
     virtual:

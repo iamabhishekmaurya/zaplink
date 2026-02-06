@@ -21,6 +21,7 @@ public final class AppConstants
     // Headers & API
     public static final String HEADER_API_VERSION       = "X-API-VERSION=1";
     public static final String BASE_PATH_MEDIA          = "/media";
+    public static final String BASE_PATH_FOLDERS        = "/folders";
     // Actuator
     public static final String PATH_ACTUATOR            = "/actuator";
     public static final String PATH_HEALTH              = "/health";

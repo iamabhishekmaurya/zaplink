@@ -2,17 +2,10 @@ package io.zaplink.media.dto.error;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class ErrorResponse
+public record ErrorResponse( String timestamp,
+                             String status,
+                             String message,
+                             String path,
+                             List<FieldError> fieldErrors )
 {
-    private String           timestamp;
-    private String           status;
-    private String           message;
-    private String           path;
-    private List<FieldError> fieldErrors;
 }

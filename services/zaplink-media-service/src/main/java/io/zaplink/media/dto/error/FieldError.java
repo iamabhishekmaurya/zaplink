@@ -1,14 +1,5 @@
 package io.zaplink.media.dto.error;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class FieldError
+public record FieldError( String field, String message, String rejectedValue )
 {
-    private String field;
-    private String message;
-    private String rejectedValue;
 }

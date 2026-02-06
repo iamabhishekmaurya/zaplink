@@ -6,6 +6,14 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:local}
   application:
     name: zaplink-manager-service
+  # API versioning (path exclusions handled by ApiVersionBypassFilter)
+  mvc:
+    apiversion:
+      required: true
+      use:
+        header: X-API-Version
+      supported:
+      - 1
   datasource:
     url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=manager
     username: postgres
