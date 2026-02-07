@@ -39,15 +39,18 @@ export const QrCodeCard = ({
 
         const fetchImage = async () => {
             try {
-                // For absolute URLs (like from MinIO), use native fetch with auth token
-                // The axios client would append baseURL and break the request
+                // Use qrImageUrl directly - Next.js proxy handles /api/* routing to Gateway
                 const token = localStorage.getItem('token')
                 const response = await fetch(qr.qrImageUrl, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                    headers: token ? {
+                        'Authorization': `Bearer ${token}`,
+                        'X-API-Version': '1'
+                    } : { 'X-API-Version': '1' },
                     signal: controller.signal
                 })
 
                 if (!response.ok) {
+
                     throw new Error(`Failed to load QR image: ${response.status}`)
                 }
 

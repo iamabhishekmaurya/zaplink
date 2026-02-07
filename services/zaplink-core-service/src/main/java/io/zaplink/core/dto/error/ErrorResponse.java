@@ -2,6 +2,12 @@ package io.zaplink.core.dto.error;
 
 import java.util.List;
 
-public record ErrorResponse( String timestamp, String status, String message, String path, List<FieldError> fieldErrors )
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ErrorResponse( String timestamp,
+                             String status,
+                             String message,
+                             String path,
+                             @JsonProperty("field_errors") List<FieldError> fieldErrors )
 {
 }

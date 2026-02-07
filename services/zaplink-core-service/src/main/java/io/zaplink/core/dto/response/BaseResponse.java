@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.response;
 
-public record BaseResponse( String traceId )
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record BaseResponse( @JsonProperty("trace_id") String traceId )
 {
 }

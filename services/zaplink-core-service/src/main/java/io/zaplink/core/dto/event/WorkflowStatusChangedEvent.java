@@ -3,6 +3,8 @@ package io.zaplink.core.dto.event;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.zaplink.core.common.constants.MessageConstants;
 
 /**
@@ -16,26 +18,26 @@ import io.zaplink.core.common.constants.MessageConstants;
  * @version 1.0
  * @since 2026-01-31
  */
-public record WorkflowStatusChangedEvent( String eventType,
-                                          String eventId,
+public record WorkflowStatusChangedEvent( @JsonProperty("event_type") String eventType,
+                                          @JsonProperty("event_id") String eventId,
                                           Instant timestamp,
-                                          Long postId,
+                                          @JsonProperty("post_id") Long postId,
                                           String title,
-                                          String previousStatus,
-                                          String newStatus,
-                                          Long authorId,
-                                          String authorName,
-                                          String authorEmail,
-                                          Long campaignId,
-                                          String campaignName,
-                                          Long teamId,
-                                          String teamName,
-                                          Long organizationId,
-                                          String organizationName,
-                                          Long reviewerId,
-                                          String reviewerName,
-                                          String reviewComments,
-                                          Instant changedAt )
+                                          @JsonProperty("previous_status") String previousStatus,
+                                          @JsonProperty("new_status") String newStatus,
+                                          @JsonProperty("author_id") Long authorId,
+                                          @JsonProperty("author_name") String authorName,
+                                          @JsonProperty("author_email") String authorEmail,
+                                          @JsonProperty("campaign_id") Long campaignId,
+                                          @JsonProperty("campaign_name") String campaignName,
+                                          @JsonProperty("team_id") Long teamId,
+                                          @JsonProperty("team_name") String teamName,
+                                          @JsonProperty("organization_id") Long organizationId,
+                                          @JsonProperty("organization_name") String organizationName,
+                                          @JsonProperty("reviewer_id") Long reviewerId,
+                                          @JsonProperty("reviewer_name") String reviewerName,
+                                          @JsonProperty("review_comments") String reviewComments,
+                                          @JsonProperty("changed_at") Instant changedAt )
 {
     /**
      * Event type identifier constant.

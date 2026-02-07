@@ -2,6 +2,8 @@ package io.zaplink.core.dto.response;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * DTO for team member information in responses.
  * Contains user details and their role within the team.
@@ -11,18 +13,18 @@ import java.time.Instant;
  * @since 2026-01-31
  */
 public record TeamMemberResponse( Long id,
-                                  Long teamId,
-                                  String teamName,
-                                  Long userId,
+                                  @JsonProperty("team_id") Long teamId,
+                                  @JsonProperty("team_name") String teamName,
+                                  @JsonProperty("user_id") Long userId,
                                   String username,
                                   String email,
-                                  String firstName,
-                                  String lastName,
+                                  @JsonProperty("first_name") String firstName,
+                                  @JsonProperty("last_name") String lastName,
                                   String role,
                                   String status,
-                                  Instant invitedAt,
-                                  Instant joinedAt,
-                                  Long organizationId,
-                                  String organizationName )
+                                  @JsonProperty("invited_at") Instant invitedAt,
+                                  @JsonProperty("joined_at") Instant joinedAt,
+                                  @JsonProperty("organization_id") Long organizationId,
+                                  @JsonProperty("organization_name") String organizationName )
 {
 }

@@ -48,7 +48,7 @@ public record BioPageResponse( Long id,
                                @JsonProperty("bio_text") String bioText,
                                @JsonProperty("created_at") LocalDateTime createdAt,
                                @JsonProperty("updated_at") LocalDateTime updatedAt,
-                               List<BioLinkResponse> bioLinks )
+                               @JsonProperty("bio_links") List<BioLinkResponse> bioLinks )
 {
     /**
      * Custom toString implementation for structured logging.

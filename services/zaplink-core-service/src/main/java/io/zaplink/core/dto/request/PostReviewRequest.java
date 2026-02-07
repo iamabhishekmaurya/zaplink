@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.constants.MessageConstants;
 import jakarta.validation.constraints.NotBlank;
@@ -16,10 +18,10 @@ import jakarta.validation.constraints.NotNull;
  * @version 1.0
  * @since 2026-01-31
  */
-public record PostReviewRequest( @NotNull(message = ErrorConstant.VALIDATION_POST_ID_REQUIRED) Long postId,
+public record PostReviewRequest( @JsonProperty("post_id") @NotNull(message = ErrorConstant.VALIDATION_POST_ID_REQUIRED) Long postId,
                                  @NotBlank(message = ErrorConstant.VALIDATION_DECISION_REQUIRED) String decision,
                                  String comments,
-                                 @NotNull(message = ErrorConstant.VALIDATION_REVIEWER_ID_REQUIRED) Long reviewerId )
+                                 @JsonProperty("reviewer_id") @NotNull(message = ErrorConstant.VALIDATION_REVIEWER_ID_REQUIRED) Long reviewerId )
 {
     /**
      * Compact constructor for validation.

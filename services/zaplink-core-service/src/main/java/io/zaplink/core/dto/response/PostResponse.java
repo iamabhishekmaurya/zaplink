@@ -2,6 +2,8 @@ package io.zaplink.core.dto.response;
 
 import java.time.Instant;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * DTO for post information in responses.
  * Contains post details and workflow status.
@@ -13,19 +15,19 @@ import java.time.Instant;
 public record PostResponse( Long id,
                             String title,
                             String content,
-                            Long campaignId,
-                            String campaignName,
-                            Long authorId,
-                            String authorName,
-                            String authorEmail,
+                            @JsonProperty("campaign_id") Long campaignId,
+                            @JsonProperty("campaign_name") String campaignName,
+                            @JsonProperty("author_id") Long authorId,
+                            @JsonProperty("author_name") String authorName,
+                            @JsonProperty("author_email") String authorEmail,
                             String status,
-                            Instant submittedAt,
-                            Long reviewedBy,
-                            String reviewerName,
-                            Instant reviewedAt,
-                            String reviewComments,
-                            Instant publishedAt,
-                            Instant createdAt,
-                            Instant updatedAt )
+                            @JsonProperty("submitted_at") Instant submittedAt,
+                            @JsonProperty("reviewed_by") Long reviewedBy,
+                            @JsonProperty("reviewer_name") String reviewerName,
+                            @JsonProperty("reviewed_at") Instant reviewedAt,
+                            @JsonProperty("review_comments") String reviewComments,
+                            @JsonProperty("published_at") Instant publishedAt,
+                            @JsonProperty("created_at") Instant createdAt,
+                            @JsonProperty("updated_at") Instant updatedAt )
 {
 }

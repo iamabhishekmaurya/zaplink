@@ -15,7 +15,7 @@ export const API_BASE_URLS = {
   SHORT_STATS: '/rd/short/stats',
   SHORT_ANALYTICS: '/rd/short',
   // Manager QrController: /qr -> /dyqr
-  MANAGER_DYQR: '/rd/qr/dyqr',
+  MANAGER_DYQR: '/rd/qr',
 
   // Media Service
   MEDIA: '/media'

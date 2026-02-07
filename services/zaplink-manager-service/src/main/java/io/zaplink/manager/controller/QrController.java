@@ -10,8 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +24,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.zaplink.manager.common.constants.ControllerConstants;
 import io.zaplink.manager.common.constants.StatusConstants;
-import io.zaplink.manager.dto.request.dynamicqr.CreateDynamicQrRequest;
 import io.zaplink.manager.dto.response.dynamicqr.DynamicQrResponse;
 import io.zaplink.manager.dto.response.dynamicqr.QrAnalyticsResponse;
 import io.zaplink.manager.service.DynamicQrService;
@@ -51,13 +48,16 @@ public class QrController
     {
         try
         {
-            long count = dynamicQrService.countAllQrCodes();
-            return ResponseEntity.ok( "Database connection working! Total QR codes: " + count );
+            // Test gRPC connectivity by fetching QRs for a test user
+            Page<DynamicQrResponse> result = dynamicQrService.getDynamicQrsByUser( "test@test.com",
+                                                                                   PageRequest.of( 0, 1 ) );
+            return ResponseEntity.ok( "gRPC connection to Core Service working! Test query returned "
+                    + result.getTotalElements() + " elements." );
         }
         catch ( Exception e )
         {
-            log.error( "Database test failed", e );
-            return ResponseEntity.status( 500 ).body( "Database test failed: " + e.getMessage() );
+            log.error( "gRPC connection test failed", e );
+            return ResponseEntity.status( 500 ).body( "gRPC connection test failed: " + e.getMessage() );
         }
     }
 

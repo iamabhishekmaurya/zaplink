@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.constants.MessageConstants;
 import jakarta.validation.constraints.NotBlank;
@@ -16,8 +18,8 @@ import jakarta.validation.constraints.NotNull;
  * @version 1.0
  * @since 2026-01-31
  */
-public record TeamMemberRoleChangeRequest( @NotNull(message = ErrorConstant.VALIDATION_USER_ID_REQUIRED) Long userId,
-                                           @NotBlank(message = ErrorConstant.VALIDATION_NEW_ROLE_REQUIRED) String newRole,
+public record TeamMemberRoleChangeRequest( @JsonProperty("user_id") @NotNull(message = ErrorConstant.VALIDATION_USER_ID_REQUIRED) Long userId,
+                                           @JsonProperty("new_role") @NotBlank(message = ErrorConstant.VALIDATION_NEW_ROLE_REQUIRED) String newRole,
                                            String reason )
 {
     /**

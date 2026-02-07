@@ -92,6 +92,10 @@ public class GatewayConfig
                                  * Manager Service QR Routes (Read Operations)
                                  * Port: 8083
                                  */
+                                .route( "manager-qr-read-exact",
+                                        r -> r.path( readPath + "/qr" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.rewritePath( readPath + "/qr", "/qr" ) )
+                                                        .uri( "http://localhost:8083" ) )
                                 .route( "manager-qr-read",
                                         r -> r.path( readPath + "/qr/**" ).and().header( "X-API-Version", "1" )
                                                         .filters( f -> f.rewritePath( readPath + "/qr/(?<segment>.*)",

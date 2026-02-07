@@ -1,30 +1,31 @@
 package io.zaplink.core.dto.request.qr;
 
-public record QRLogoConfig( String logoPath,
-                            double sizeRatio, // Logo size as ratio of QR size (0.1 to 0.3)
-                            int padding, // Padding around logo (reduced from 8)
-                            String backgroundColor, // Background color for logo
-                            boolean backgroundEnabled, // Whether to draw background
-                            boolean backgroundRounded, // Rounded background corners
-                            int backgroundCornerRadius, // Corner radius for background
-                            boolean removeQuietZone, // Remove QR modules behind logo
-                            int marginSize// Margin around logo where modules are removed (default 0 for tight fit)
-)
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record QRLogoConfig( @JsonProperty("logo_path") String logoPath,
+                            @JsonProperty("size_ratio") double sizeRatio,
+                            int padding,
+                            @JsonProperty("background_color") String backgroundColor,
+                            @JsonProperty("background_enabled") boolean backgroundEnabled,
+                            @JsonProperty("background_rounded") boolean backgroundRounded,
+                            @JsonProperty("background_corner_radius") int backgroundCornerRadius,
+                            @JsonProperty("remove_quiet_zone") boolean removeQuietZone,
+                            @JsonProperty("margin_size") int marginSize )
 {
     public QRLogoConfig()
     {
         this( null, 0.2, 2, "#FFFFFF", true, true, 20, true, 0 );
     }
 
-    public QRLogoConfig( String logoPath,
-                         double sizeRatio,
+    public QRLogoConfig( @JsonProperty("logo_path") String logoPath,
+                         @JsonProperty("size_ratio") double sizeRatio,
                          int padding,
-                         String backgroundColor,
-                         boolean backgroundEnabled,
-                         boolean backgroundRounded,
-                         int backgroundCornerRadius,
-                         boolean removeQuietZone,
-                         int marginSize )
+                         @JsonProperty("background_color") String backgroundColor,
+                         @JsonProperty("background_enabled") boolean backgroundEnabled,
+                         @JsonProperty("background_rounded") boolean backgroundRounded,
+                         @JsonProperty("background_corner_radius") int backgroundCornerRadius,
+                         @JsonProperty("remove_quiet_zone") boolean removeQuietZone,
+                         @JsonProperty("margin_size") int marginSize )
     {
         this.logoPath = logoPath;
         this.sizeRatio = sizeRatio;

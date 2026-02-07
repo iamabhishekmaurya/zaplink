@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.constants.MessageConstants;
 import jakarta.validation.constraints.Email;
@@ -19,7 +21,7 @@ import jakarta.validation.constraints.NotNull;
  */
 public record TeamMemberInviteRequest( @NotBlank(message = ErrorConstant.VALIDATION_EMAIL_REQUIRED) @Email(message = ErrorConstant.VALIDATION_INVALID_EMAIL) String email,
                                        @NotBlank(message = ErrorConstant.VALIDATION_ROLE_REQUIRED) String role,
-                                       @NotNull(message = ErrorConstant.VALIDATION_TEAM_ID_REQUIRED) Long teamId,
+                                       @JsonProperty("team_id") @NotNull(message = ErrorConstant.VALIDATION_TEAM_ID_REQUIRED) Long teamId,
                                        String message )
 {
     /**

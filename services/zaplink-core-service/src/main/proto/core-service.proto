@@ -7,9 +7,13 @@ option java_outer_classname = "CoreServiceProto";
 
 // Core Service gRPC definition
 service CoreService {
+  // URL operations
   rpc GetUrlByUser(GetUrlByUserRequest) returns (GetUrlByUserResponse);
   rpc GetUrlById(GetUrlByIdRequest) returns (GetUrlByIdResponse);
   rpc GetUrlsByStatus(GetUrlsByStatusRequest) returns (GetUrlsByStatusResponse);
+  // Dynamic QR operations
+  rpc GetDynamicQrsByUser(GetDynamicQrsRequest) returns (GetDynamicQrsResponse);
+  rpc GetDynamicQrByKey(GetDynamicQrByKeyRequest) returns (DynamicQrData);
 }
 
 message GetUrlByUserRequest {
@@ -52,4 +56,44 @@ message UrlData {
   string title = 9;
   string description = 10;
   string qr_code_url = 11;
+}
+
+// Dynamic QR Messages
+message GetDynamicQrsRequest {
+  string user_email = 1;
+  int32 page = 2;
+  int32 size = 3;
+}
+
+message GetDynamicQrsResponse {
+  repeated DynamicQrData qrs = 1;
+  int32 total_count = 2;
+  int32 total_pages = 3;
+}
+
+message GetDynamicQrByKeyRequest {
+  string qr_key = 1;
+  string user_email = 2;
+}
+
+message DynamicQrData {
+  int64 id = 1;
+  string qr_key = 2;
+  string qr_name = 3;
+  string current_destination_url = 4;
+  string qr_image_url = 5;
+  string redirect_url = 6;
+  string campaign_id = 7;
+  string user_email = 8;
+  bool is_active = 9;
+  int64 total_scans = 10;
+  string created_at = 11;
+  string updated_at = 12;
+  string last_scanned = 13;
+  string qr_config = 14;
+  string allowed_domains = 15;
+  string password = 16;
+  int32 scan_limit = 17;
+  string expiration_date = 18;
+  bool track_analytics = 19;
 }

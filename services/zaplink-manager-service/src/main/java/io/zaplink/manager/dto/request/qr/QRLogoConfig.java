@@ -1,16 +1,17 @@
 package io.zaplink.manager.dto.request.qr;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record QRLogoConfig( @JsonProperty("logo_path") String logoPath,
-                            @JsonProperty("size_ratio") double sizeRatio,
+public record QRLogoConfig( @JsonProperty("logo_path") @JsonAlias("logoPath") String logoPath,
+                            @JsonProperty("size_ratio") @JsonAlias("sizeRatio") double sizeRatio,
                             int padding,
-                            @JsonProperty("background_color") String backgroundColor,
-                            @JsonProperty("background_enabled") boolean backgroundEnabled,
-                            @JsonProperty("background_rounded") boolean backgroundRounded,
-                            @JsonProperty("background_corner_radius") int backgroundCornerRadius,
-                            @JsonProperty("remove_quiet_zone") boolean removeQuietZone,
-                            @JsonProperty("margin_size") int marginSize )
+                            @JsonProperty("background_color") @JsonAlias("backgroundColor") String backgroundColor,
+                            @JsonProperty("background_enabled") @JsonAlias("backgroundEnabled") boolean backgroundEnabled,
+                            @JsonProperty("background_rounded") @JsonAlias("backgroundRounded") boolean backgroundRounded,
+                            @JsonProperty("background_corner_radius") @JsonAlias("backgroundCornerRadius") int backgroundCornerRadius,
+                            @JsonProperty("remove_quiet_zone") @JsonAlias("removeQuietZone") boolean removeQuietZone,
+                            @JsonProperty("margin_size") @JsonAlias("marginSize") int marginSize )
 {
     public QRLogoConfig()
     {

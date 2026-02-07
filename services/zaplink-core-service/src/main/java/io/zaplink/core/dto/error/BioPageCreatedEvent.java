@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.error;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
 * Record representing a bio page creation event for event-driven architecture.
 * 
@@ -27,6 +29,6 @@ package io.zaplink.core.dto.error;
 * @param username the username of the created bio page
 * @param ownerId the owner identifier of the created bio page
 */
-public record BioPageCreatedEvent( Long id, String username, String ownerId )
+public record BioPageCreatedEvent( Long id, String username, @JsonProperty("owner_id") String ownerId )
 {
 }

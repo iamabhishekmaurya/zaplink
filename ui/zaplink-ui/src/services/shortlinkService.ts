@@ -85,12 +85,12 @@ export const extractPlatformFromUrl = (url: string): string => {
 
 // ============ Request Types ============
 export interface CreateShortLinkRequest {
-  original_url: string;
+  originalUrl: string;
   title?: string;
   platform?: string;
   tags?: string[];
   rules?: RedirectRuleDto[];
-  trace_id?: string;
+  traceId?: string;
 }
 
 export interface UpdateShortLinkRequest {
@@ -136,13 +136,14 @@ export const shortlinkService = {
   }): Promise<ShortLink> => {
     try {
       const request: CreateShortLinkRequest = {
-        original_url: data.originalUrl,
+        originalUrl: data.originalUrl,
         title: data.title,
         platform: data.platform,
         tags: data.tags,
         rules: data.rules
       };
       const response = await api.post<LinkApiResponse>(API_ENDPOINTS.SHORTEN_URL, request);
+
       return transformLinkResponse(response.data);
     } catch (error) {
       console.error('Error creating short link:', error);

@@ -3,6 +3,8 @@ package io.zaplink.core.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.zaplink.core.common.constants.ErrorConstant;
 
 /**
@@ -18,9 +20,9 @@ import io.zaplink.core.common.constants.ErrorConstant;
  */
 public record PostSubmissionRequest( @NotBlank(message = ErrorConstant.VALIDATION_TITLE_REQUIRED) String title,
                                      String content,
-                                     Long campaignId,
-                                     @NotNull(message = ErrorConstant.VALIDATION_AUTHOR_ID_REQUIRED) Long authorId,
-                                     String reviewerNotes )
+                                     @JsonProperty("campaign_id") Long campaignId,
+                                     @JsonProperty("author_id") @NotNull(message = ErrorConstant.VALIDATION_AUTHOR_ID_REQUIRED) Long authorId,
+                                     @JsonProperty("reviewer_notes") String reviewerNotes )
 {
     /**
      * Compact constructor for validation.

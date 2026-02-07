@@ -34,15 +34,9 @@ import io.zaplink.core.common.constants.ErrorConstant;
  * @param pageId identifier of the bio page containing the links
  * @param linkOrders list of link order specifications
  */
-public record ReorderLinksRequest(
-    @JsonProperty("page_id")
-    @NotNull(message = ErrorConstant.VALIDATION_PAGE_ID_REQUIRED)
-    Long pageId,
-    
-    @NotEmpty(message = ErrorConstant.VALIDATION_NOT_EMPTY)
-    List<LinkOrder> linkOrders
-) {
-    
+public record ReorderLinksRequest( @JsonProperty("page_id") @NotNull(message = ErrorConstant.VALIDATION_PAGE_ID_REQUIRED) Long pageId,
+                                   @JsonProperty("link_orders") @NotEmpty(message = ErrorConstant.VALIDATION_NOT_EMPTY) List<LinkOrder> linkOrders )
+{
     /**
      * Nested record representing individual link order information.
      * 
@@ -52,74 +46,63 @@ public record ReorderLinksRequest(
      * @param linkId unique identifier of the bio link
      * @param sortOrder desired sort order position (0-based)
      */
-    public record LinkOrder(
-        @JsonProperty("link_id")
-        @NotNull(message = ErrorConstant.VALIDATION_LINK_ID_REQUIRED)
-        Long linkId,
-        
-        @JsonProperty("sort_order")
-        @NotNull(message = ErrorConstant.VALIDATION_SORT_ORDER_REQUIRED)
-        Integer sortOrder
-    ) {
+    public record LinkOrder( @JsonProperty("link_id") @NotNull(message = ErrorConstant.VALIDATION_LINK_ID_REQUIRED) Long linkId,
+                             @JsonProperty("sort_order") @NotNull(message = ErrorConstant.VALIDATION_SORT_ORDER_REQUIRED) Integer sortOrder )
+    {
         /**
          * Compact constructor that validates the link order data.
          */
-        public LinkOrder {
-            if (sortOrder < 0) {
-                throw new IllegalArgumentException(ErrorConstant.ERROR_SORT_ORDER_CANNOT_BE_NEGATIVE);
+        public LinkOrder
+        {
+            if ( sortOrder < 0 )
+            {
+                throw new IllegalArgumentException( ErrorConstant.ERROR_SORT_ORDER_CANNOT_BE_NEGATIVE );
             }
         }
     }
-    
     /**
      * Compact constructor that validates the reorder request.
      * 
      * <p>This constructor performs comprehensive validation including
      * duplicate prevention and sort order sequence validation.</p>
      */
-    public ReorderLinksRequest {
-        validateLinkOrders(linkOrders);
+    public ReorderLinksRequest
+    {
+        validateLinkOrders( linkOrders );
     }
-    
+
     /**
      * Validates the list of link orders for business rule compliance.
      * 
      * @param linkOrders the list of link orders to validate
      * @throws IllegalArgumentException if validation fails
      */
-    private void validateLinkOrders(List<LinkOrder> linkOrders) {
-        if (linkOrders == null || linkOrders.isEmpty()) {
-            throw new IllegalArgumentException(ErrorConstant.ERROR_LINK_ORDERS_CANNOT_BE_NULL_OR_EMPTY);
+    private void validateLinkOrders( List<LinkOrder> linkOrders )
+    {
+        if ( linkOrders == null || linkOrders.isEmpty() )
+        {
+            throw new IllegalArgumentException( ErrorConstant.ERROR_LINK_ORDERS_CANNOT_BE_NULL_OR_EMPTY );
         }
-        
         // Check for duplicate link IDs
-        long uniqueLinkIds = linkOrders.stream()
-            .map(LinkOrder::linkId)
-            .distinct()
-            .count();
-        
-        if (uniqueLinkIds != linkOrders.size()) {
-            throw new IllegalArgumentException(ErrorConstant.ERROR_DUPLICATE_LINK_IDS_NOT_ALLOWED);
+        long uniqueLinkIds = linkOrders.stream().map( LinkOrder::linkId ).distinct().count();
+        if ( uniqueLinkIds != linkOrders.size() )
+        {
+            throw new IllegalArgumentException( ErrorConstant.ERROR_DUPLICATE_LINK_IDS_NOT_ALLOWED );
         }
-        
         // Check for duplicate sort orders
-        long uniqueSortOrders = linkOrders.stream()
-            .map(LinkOrder::sortOrder)
-            .distinct()
-            .count();
-        
-        if (uniqueSortOrders != linkOrders.size()) {
-            throw new IllegalArgumentException(ErrorConstant.ERROR_DUPLICATE_SORT_ORDERS_NOT_ALLOWED);
+        long uniqueSortOrders = linkOrders.stream().map( LinkOrder::sortOrder ).distinct().count();
+        if ( uniqueSortOrders != linkOrders.size() )
+        {
+            throw new IllegalArgumentException( ErrorConstant.ERROR_DUPLICATE_SORT_ORDERS_NOT_ALLOWED );
         }
-        
         // Validate sort order sequence (should be 0, 1, 2, ...)
-        for (int i = 0; i < linkOrders.size(); i++) {
+        for ( int i = 0; i < linkOrders.size(); i++ )
+        {
             final int index = i; // effectively final for lambda
-            boolean found = linkOrders.stream()
-                .anyMatch(order -> order.sortOrder().equals(index));
-            
-            if (!found) {
-                throw new IllegalArgumentException(ErrorConstant.ERROR_SORT_ORDERS_MUST_FORM_VALID_SEQUENCE);
+            boolean found = linkOrders.stream().anyMatch( order -> order.sortOrder().equals( index ) );
+            if ( !found )
+            {
+                throw new IllegalArgumentException( ErrorConstant.ERROR_SORT_ORDERS_MUST_FORM_VALID_SEQUENCE );
             }
         }
     }

@@ -3,6 +3,8 @@ package io.zaplink.core.dto.event;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.zaplink.core.common.constants.MessageConstants;
 
 /**
@@ -16,23 +18,23 @@ import io.zaplink.core.common.constants.MessageConstants;
  * @version 1.0
  * @since 2026-01-31
  */
-public record TeamMemberAddedEvent( String eventType,
-                                    String eventId,
+public record TeamMemberAddedEvent( @JsonProperty("event_type") String eventType,
+                                    @JsonProperty("event_id") String eventId,
                                     Instant timestamp,
-                                    Long teamMemberId,
-                                    Long teamId,
-                                    String teamName,
-                                    Long userId,
+                                    @JsonProperty("team_member_id") Long teamMemberId,
+                                    @JsonProperty("team_id") Long teamId,
+                                    @JsonProperty("team_name") String teamName,
+                                    @JsonProperty("user_id") Long userId,
                                     String username,
                                     String email,
-                                    String firstName,
-                                    String lastName,
+                                    @JsonProperty("first_name") String firstName,
+                                    @JsonProperty("last_name") String lastName,
                                     String role,
                                     String status,
-                                    Long organizationId,
-                                    String organizationName,
-                                    Long invitedBy,
-                                    Instant invitedAt )
+                                    @JsonProperty("organization_id") Long organizationId,
+                                    @JsonProperty("organization_name") String organizationName,
+                                    @JsonProperty("invited_by") Long invitedBy,
+                                    @JsonProperty("invited_at") Instant invitedAt )
 {
     /**
      * Event type identifier constant.

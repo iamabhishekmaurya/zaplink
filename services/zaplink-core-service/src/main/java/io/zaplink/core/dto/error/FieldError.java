@@ -1,5 +1,7 @@
 package io.zaplink.core.dto.error;
 
-public record FieldError( String field, String message, String rejectedValue )
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record FieldError( String field, String message, @JsonProperty("rejected_value") String rejectedValue )
 {
 }
