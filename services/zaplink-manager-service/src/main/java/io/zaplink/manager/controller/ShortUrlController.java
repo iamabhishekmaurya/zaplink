@@ -2,8 +2,6 @@ package io.zaplink.manager.controller;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -34,6 +32,15 @@ public class ShortUrlController
     public List<LinkResponse> getLinks( @RequestHeader(value = ControllerConstants.HEADER_USER_EMAIL, required = false) String userEmail )
     {
         return urlProvider.getLinksByUser( userEmail );
+    }
+
+    @GetMapping("/links/{id}") @Operation(summary = "Get short link by ID", description = "Retrieves a specific short link by its ID") @ApiResponses(value =
+    { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = "Link retrieved successfully", content = @Content(schema = @Schema(implementation = LinkResponse.class))),
+      @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_LINK_NOT_FOUND) })
+    public LinkResponse getLinkById( @Parameter(description = "Link ID") @PathVariable("id") String id,
+                                   @RequestHeader(value = ControllerConstants.HEADER_USER_EMAIL, required = false) String userEmail )
+    {
+        return urlProvider.getLinkById( id, userEmail );
     }
 
     @GetMapping("/stats") @Operation(summary = ControllerConstants.SHORT_GET_STATS_SUMMARY, description = ControllerConstants.SHORT_GET_STATS_DESC) @ApiResponses(value =

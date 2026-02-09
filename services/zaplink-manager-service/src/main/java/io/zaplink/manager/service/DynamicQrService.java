@@ -1,8 +1,6 @@
 package io.zaplink.manager.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,41 +11,52 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.zaplink.core.grpc.CoreServiceProto;
-import io.zaplink.manager.common.client.CoreQrGrpcClient;
 import io.zaplink.manager.common.client.CoreServiceClient;
 import io.zaplink.manager.dto.request.qr.QRConfig;
 import io.zaplink.manager.dto.response.dynamicqr.DynamicQrResponse;
 import io.zaplink.manager.dto.response.dynamicqr.QrAnalyticsResponse;
+import io.zaplink.manager.entity.DynamicQrCodeEntity;
+import io.zaplink.manager.repository.DynamicQrCodeRepository;
 import io.zaplink.manager.repository.QrScanAnalyticsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service for Dynamic QR operations.
- * Uses gRPC to fetch QR data from Core Service.
+ * Uses direct database access for QR data.
  * Analytics data is fetched from local repository.
  */
 @Slf4j @Service @RequiredArgsConstructor
 public class DynamicQrService
 {
     private final CoreServiceClient         coreServiceClient;
-    private final CoreQrGrpcClient          coreQrGrpcClient;
+    private final DynamicQrCodeRepository   dynamicQrCodeRepository;
     private final ObjectMapper              objectMapper;
     private final QrScanAnalyticsRepository qrScanAnalyticsRepository;
-    private static final DateTimeFormatter  FORMATTER = DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm:ss" );
     public Optional<DynamicQrResponse> getDynamicQr( String qrKey, String userEmail )
     {
         try
         {
-            CoreServiceProto.DynamicQrData qrData = coreQrGrpcClient.getDynamicQrByKey( qrKey, userEmail );
-            return Optional.of( convertGrpcToResponse( qrData ) );
+            Optional<DynamicQrCodeEntity> entityOpt = dynamicQrCodeRepository.findByQrKey( qrKey );
+            if ( entityOpt.isEmpty() )
+            {
+                return Optional.empty();
+            }
+            DynamicQrCodeEntity entity = entityOpt.get();
+            // Verify ownership if userEmail provided
+            if ( userEmail != null && !userEmail.isEmpty() && !userEmail.equals( entity.getUserEmail() ) )
+            {
+                log.warn( "Access denied to QR: {} for user: {}", qrKey, userEmail );
+                return Optional.empty();
+            }
+            return Optional.of( convertEntityToResponse( entity ) );
         }
         catch ( Exception e )
         {
-            log.error( "Error getting dynamic QR by key via gRPC: {}", qrKey, e );
+            log.error( "Error getting dynamic QR by key: {}", qrKey, e );
             return Optional.empty();
         }
     }
@@ -58,19 +67,17 @@ public class DynamicQrService
         {
             if ( userEmail == null || userEmail.trim().isEmpty() )
             {
-                return new PageImpl<>( Collections.emptyList(), pageable, 0 );
+                return Page.empty( pageable );
             }
-            // Call Core Service via gRPC
-            CoreServiceProto.GetDynamicQrsResponse grpcResponse = coreQrGrpcClient
-                    .getDynamicQrsByUser( userEmail, pageable.getPageNumber(), pageable.getPageSize() );
-            List<DynamicQrResponse> responses = grpcResponse.getQrsList().stream().map( this::convertGrpcToResponse )
+            Page<DynamicQrCodeEntity> entityPage = dynamicQrCodeRepository.findByUserEmail( userEmail, pageable );
+            List<DynamicQrResponse> responses = entityPage.getContent().stream().map( this::convertEntityToResponse )
                     .collect( Collectors.toList() );
-            return new PageImpl<>( responses, pageable, grpcResponse.getTotalCount() );
+            return new PageImpl<>( responses, pageable, entityPage.getTotalElements() );
         }
         catch ( Exception e )
         {
-            log.error( "Error getting dynamic QRs by user via gRPC: {}", userEmail, e );
-            return new PageImpl<>( Collections.emptyList(), pageable, 0 );
+            log.error( "Error getting dynamic QRs by user: {}", userEmail, e );
+            return Page.empty( pageable );
         }
     }
 
@@ -79,7 +86,7 @@ public class DynamicQrService
                                                LocalDateTime startDate,
                                                LocalDateTime endDate )
     {
-        // Get QR data from Core via gRPC
+        // Get QR data from DB
         Optional<DynamicQrResponse> qrOpt = getDynamicQr( qrKey, userEmail );
         if ( qrOpt.isEmpty() )
         {
@@ -140,13 +147,19 @@ public class DynamicQrService
 
     public byte[] generateQrImage( String qrKey, String userEmail )
     {
-        // Get QR data from Core via gRPC
+        // Get QR data from DB
         try
         {
-            CoreServiceProto.DynamicQrData qrData = coreQrGrpcClient.getDynamicQrByKey( qrKey, userEmail );
+            DynamicQrCodeEntity entity = dynamicQrCodeRepository.findByQrKey( qrKey )
+                    .orElseThrow( () -> new RuntimeException( "Dynamic QR not found: " + qrKey ) );
+            // Verify ownership
+            if ( userEmail != null && !userEmail.isEmpty() && !userEmail.equals( entity.getUserEmail() ) )
+            {
+                throw new RuntimeException( "Access denied to QR: " + qrKey );
+            }
             String redirectUrl = generateRedirectUrl( qrKey );
             // Parse QR config from JSON
-            QRConfig qrConfig = objectMapper.readValue( qrData.getQrConfig(), QRConfig.class );
+            QRConfig qrConfig = objectMapper.readValue( entity.getQrConfig(), QRConfig.class );
             // Create new QRConfig with updated data since records are immutable
             QRConfig updatedQrConfig = new QRConfig( redirectUrl,
                                                      qrConfig.size(),
@@ -166,7 +179,7 @@ public class DynamicQrService
         }
         catch ( Exception e )
         {
-            log.error( "Error generating QR image via gRPC", e );
+            log.error( "Error generating QR image", e );
             throw new RuntimeException( "Failed to generate QR image", e );
         }
     }
@@ -174,39 +187,39 @@ public class DynamicQrService
     private String generateRedirectUrl( String qrKey )
     {
         // This should be configurable based on your domain
-        return "https://zaplink.app/r/" + qrKey;
+        return "http://localhost:8090/s/" + qrKey;
     }
 
-    private DynamicQrResponse convertGrpcToResponse( CoreServiceProto.DynamicQrData grpcData )
+    private DynamicQrResponse convertEntityToResponse( DynamicQrCodeEntity entity )
     {
-        LocalDateTime createdAt = null;
-        LocalDateTime updatedAt = null;
-        LocalDateTime lastScanned = null;
+        log.info( "Converting entity to response: {}", entity.getQrKey() );
+        QRConfig qrConfig = null;
         try
         {
-            if ( !grpcData.getCreatedAt().isEmpty() )
-                createdAt = LocalDateTime.parse( grpcData.getCreatedAt(), FORMATTER );
-            if ( !grpcData.getUpdatedAt().isEmpty() )
-                updatedAt = LocalDateTime.parse( grpcData.getUpdatedAt(), FORMATTER );
-            if ( !grpcData.getLastScanned().isEmpty() )
-                lastScanned = LocalDateTime.parse( grpcData.getLastScanned(), FORMATTER );
+            qrConfig = objectMapper.readValue( entity.getQrConfig(), QRConfig.class );
         }
-        catch ( Exception e )
+        catch ( JsonMappingException e )
         {
-            log.warn( "Error parsing date from gRPC response", e );
+            log.error( "Error parsing QR config from JSON", e );
+            throw new RuntimeException( "Failed to parse QR configuration", e );
         }
-        return new DynamicQrResponse( grpcData.getId(),
-                                      grpcData.getQrKey(),
-                                      grpcData.getQrName(),
-                                      grpcData.getCurrentDestinationUrl(),
-                                      grpcData.getQrImageUrl(),
-                                      grpcData.getRedirectUrl(),
-                                      grpcData.getCampaignId(),
-                                      grpcData.getUserEmail(),
-                                      grpcData.getIsActive(),
-                                      grpcData.getTotalScans(),
-                                      createdAt,
-                                      updatedAt,
-                                      lastScanned );
+        catch ( JsonProcessingException e )
+        {
+            log.error( "Error parsing QR config from JSON", e );
+            throw new RuntimeException( "Failed to parse QR configuration", e );
+        }
+        return new DynamicQrResponse( entity.getId(),
+                                      entity.getQrKey(),
+                                      entity.getQrName(),
+                                      entity.getCurrentDestinationUrl(),
+                                      qrConfig,
+                                      generateRedirectUrl( entity.getQrKey() ),
+                                      entity.getCampaignId(),
+                                      entity.getUserEmail(),
+                                      entity.getIsActive(),
+                                      entity.getTotalScans(),
+                                      entity.getCreatedAt(),
+                                      entity.getUpdatedAt(),
+                                      entity.getLastScanned() );
     }
 }

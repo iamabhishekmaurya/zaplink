@@ -2,30 +2,30 @@ export interface QRConfigType {
   data: string;
   size: number;
   margin: number;
-  errorCorrectionLevel: string;
-  transparentBackground: boolean;
-  backgroundColor: string;
+  error_correction_level: string;
+  transparent_background: boolean;
+  background_color: string;
   body: {
     shape: string;
     color: string;
-    colorDark?: string;
-    gradientLinear: boolean;
+    color_dark?: string;
+    gradient_linear: boolean;
   };
   eye: {
     shape: string;
-    colorOuter: string;
-    colorInner: string;
+    color_outer: string;
+    color_inner: string;
   };
   logo?: {
-    logoPath?: string;
-    sizeRatio: number;
+    logo_path?: string;
+    size_ratio: number;
     padding: number;
-    backgroundColor: string;
-    backgroundEnabled: boolean;
-    backgroundRounded: boolean;
-    backgroundCornerRadius: number;
-    removeQuietZone: boolean;
-    marginSize: number;
+    background_color: string;
+    background_enabled: boolean;
+    background_rounded: boolean;
+    background_corner_radius: number;
+    remove_quiet_zone: boolean;
+    margin_size: number;
   };
 }
 
@@ -105,7 +105,7 @@ export interface VerifyEmailResponse {
 export interface RedirectRuleDto {
   dimension: 'DEVICE_TYPE' | 'OS' | 'COUNTRY';
   value: string;
-  destinationUrl: string;
+  destination_url: string;
   priority: number;
 }
 

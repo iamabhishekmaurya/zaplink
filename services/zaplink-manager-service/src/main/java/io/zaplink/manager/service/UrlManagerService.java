@@ -1,16 +1,21 @@
 package io.zaplink.manager.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import io.zaplink.manager.common.enums.UrlStatusEnum;
+import io.zaplink.manager.dto.RedirectRuleDto;
 import io.zaplink.manager.dto.response.LinkAnalyticsResponse;
 import io.zaplink.manager.dto.response.LinkResponse;
 import io.zaplink.manager.dto.response.StatsResponse;
+import io.zaplink.manager.entity.RedirectRuleEntity;
+import io.zaplink.manager.entity.UrlMappingEntity;
+import io.zaplink.manager.repository.RedirectRuleRepository;
 import io.zaplink.manager.repository.UrlAnalyticsRepository;
-import io.zaplink.manager.service.grpc.CoreGrpcClient;
+import io.zaplink.manager.repository.UrlMappingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,19 +23,36 @@ import lombok.extern.slf4j.Slf4j;
 public class UrlManagerService
 {
     private final UrlAnalyticsRepository urlAnalyticsRepository;
-    private final CoreGrpcClient         coreGrpcClient;
+    private final UrlMappingRepository   urlMappingRepository;
+    private final RedirectRuleRepository redirectRuleRepository;
+    
     public List<LinkResponse> getLinksByUser( String userEmail )
     {
         log.info( "Going to get links by userEmail: {}", userEmail );
-        List<LinkResponse> urlsList = coreGrpcClient.getUrlsByUser( userEmail );
-        log.info( "Urls List: {}", urlsList );
+        List<UrlMappingEntity> entities = urlMappingRepository.findByUserEmailOrderByCreatedAtDesc( userEmail );
+        List<LinkResponse> urlsList = entities.stream().map( this::mapToLinkResponse ).collect( Collectors.toList() );
+        log.info( "Urls List size: {}", urlsList.size() );
         return urlsList;
+    }
+
+    public LinkResponse getLinkById( String id, String userEmail )
+    {
+        log.info( "Going to get link by id: {} for user: {}", id, userEmail );
+        UrlMappingEntity entity = urlMappingRepository.findByIdAndUserEmail( Long.parseLong(id), userEmail )
+                .orElseThrow( () -> new RuntimeException( "Link not found with id: " + id ) );
+        
+        List<RedirectRuleEntity> rules = redirectRuleRepository.findByUrlMappingIdOrderByPriorityDesc( entity.getId() );
+        LinkResponse link = mapToLinkResponse( entity, rules );
+        log.info( "Found link: {}", link.shortUrlKey() );
+        return link;
     }
 
     public StatsResponse getUserStats( String userEmail )
     {
-        // Get URLs from Core service via gRPC
-        List<LinkResponse> userLinks = coreGrpcClient.getUrlsByUser( userEmail );
+        // Get URLs directly from DB
+        List<UrlMappingEntity> userEntities = urlMappingRepository.findByUserEmailOrderByCreatedAtDesc( userEmail );
+        List<LinkResponse> userLinks = userEntities.stream().map( this::mapToLinkResponse )
+                .collect( Collectors.toList() );
         long totalLinks = userLinks.size();
         long activeLinks = userLinks.stream().mapToLong( link -> link.status().equals( UrlStatusEnum.ACTIVE ) ? 1 : 0 )
                 .sum();
@@ -63,10 +85,10 @@ public class UrlManagerService
 
     public LinkAnalyticsResponse getLinkAnalytics( String shortUrlKey, String userEmail )
     {
-        // 1. Get link from Core service via gRPC
-        List<LinkResponse> userLinks = coreGrpcClient.getUrlsByUser( userEmail );
-        LinkResponse link = userLinks.stream().filter( l -> l.shortUrlKey().equals( shortUrlKey ) ).findFirst()
+        // 1. Get link directly from DB
+        UrlMappingEntity entity = urlMappingRepository.findByShortUrlKey( shortUrlKey )
                 .orElseThrow( () -> new RuntimeException( "Link not found" ) );
+        LinkResponse link = mapToLinkResponse( entity );
         log.info( "Fetching analytics for key: {}", shortUrlKey );
         try
         {
@@ -109,5 +131,26 @@ public class UrlManagerService
             Long count = obj[1] instanceof Number ? ( (Number) obj[1] ).longValue() : 0L;
             return new LinkAnalyticsResponse.Entry( name, count, (double) calculatePercentage( count, total ) );
         } ).collect( Collectors.toList() );
+    }
+
+    private LinkResponse mapToLinkResponse( UrlMappingEntity entity )
+    {
+        return mapToLinkResponse( entity, Collections.emptyList() );
+    }
+
+    private LinkResponse mapToLinkResponse( UrlMappingEntity entity, List<RedirectRuleEntity> rules )
+    {
+        List<RedirectRuleDto> ruleDtos = rules.stream().map( rule -> 
+            new RedirectRuleDto( rule.getDimension(), rule.getValue(), rule.getDestinationUrl(), rule.getPriority() ) 
+        ).collect( Collectors.toList() );
+        return new LinkResponse( entity.getId(),
+                                 entity.getShortUrlKey(),
+                                 entity.getOriginalUrl(),
+                                 entity.getShortUrl(),
+                                 entity.getCreatedAt(),
+                                 entity.getClickCount(),
+                                 entity.getStatus(),
+                                 ruleDtos, // Use the mapped rules instead of empty list
+                                 entity.getTags() != null ? entity.getTags() : Collections.emptyList() );
     }
 }

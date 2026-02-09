@@ -1,9 +1,0 @@
-spring:
-  cloud:
-    gateway:
-      server:
-        webflux:
-          discovery:
-            locator:
-              enabled: false
-          routes: []

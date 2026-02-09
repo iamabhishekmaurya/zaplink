@@ -15,9 +15,7 @@ public record LinkAnalyticsResponse( @JsonProperty("short_url_key") String short
                                      @JsonProperty("top_referrers") List<Entry> topReferrers,
                                      @JsonProperty("daily_clicks") List<Entry> dailyClicks )
 {
-    public record Entry( @JsonProperty("name") String name,
-                         @JsonProperty("value") Long value,
-                         @JsonProperty("percentage") Double percentage )
+    public record Entry( String name, Long value, Double percentage )
     {
     }
 }

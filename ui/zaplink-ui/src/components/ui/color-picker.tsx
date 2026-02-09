@@ -36,6 +36,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
     className,
     disabled = false
 }) => {
+    // Ensure value is never undefined to prevent controlled/uncontrolled input issues
+    const normalizedValue = value || '#000000';
 
     const handlePresetChange = (color: string) => {
         onChange(color.toUpperCase())
@@ -57,11 +59,11 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                 <div className="relative group shrink-0">
                     <div
                         className="w-10 h-10 rounded-md border 2 ring-offset-background group-hover:ring-2 ring-primary/20 transition-all cursor-pointer shadow-sm overflow-hidden"
-                        style={{ backgroundColor: value }}
+                        style={{ backgroundColor: normalizedValue }}
                     />
                     <input
                         type="color"
-                        value={value}
+                        value={normalizedValue}
                         onChange={handleNativeChange}
                         disabled={disabled}
                         className="absolute inset-0 opacity-0 w-full h-full cursor-pointer disabled:cursor-not-allowed"
@@ -71,7 +73,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
                 {/* Hex Input */}
                 <div className="flex-1 min-w-[100px]">
                     <Input
-                        value={value}
+                        value={normalizedValue}
                         onChange={handleHexChange}
                         disabled={disabled}
                         placeholder="#000000"

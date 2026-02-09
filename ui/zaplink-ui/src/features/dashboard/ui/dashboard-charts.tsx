@@ -25,11 +25,11 @@ import { DashboardStats } from '@/hooks/useDashboardData'
 const historyChartConfig = {
     links: {
         label: "Links",
-        color: "hsl(var(--chart-1))",
+        color: "var(--chart-3)",
     },
     qrs: {
         label: "QR Codes",
-        color: "hsl(var(--chart-2))",
+        color: "var(--chart-4)",
     },
 } satisfies ChartConfig
 

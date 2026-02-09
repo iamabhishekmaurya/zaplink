@@ -65,8 +65,16 @@ export const useShortlinks = () => {
 
   const deleteShortlink = async (id: string) => {
     try {
-      await shortlinkService.deleteShortLink(id);
-      setShortlinks(prev => prev.filter(link => link.id !== id));
+      const link = shortlinks.find(l => l.id === id);
+      if (link) {
+        const shortUrlKey = link.shortUrlKey || link.shortlink;
+        if (!shortUrlKey) {
+          throw new Error('Short URL key is required to delete link');
+        }
+        
+        await shortlinkService.deleteByKey(shortUrlKey);
+        setShortlinks(prev => prev.filter(link => link.id !== id));
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete shortlink');
       throw err;
@@ -102,8 +110,14 @@ export const useShortlinks = () => {
   const toggleActive = async (id: string) => {
     try {
       const link = shortlinks.find(l => l.id === id);
-      if (link) {
-        await updateShortlink(id, { isActive: !link.isActive });
+      if (link && link.shortUrlKey) {
+        const newActiveState = !link.isActive;
+        const updatedLink = await shortlinkService.toggleStatus(link.shortUrlKey, newActiveState);
+        // Update the local state with the toggled status
+        setShortlinks(prev =>
+          prev.map(l => l.id === id ? { ...l, isActive: newActiveState } : l)
+        );
+        return updatedLink;
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to toggle shortlink status');

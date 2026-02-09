@@ -41,10 +41,12 @@ export const API_ENDPOINTS = {
   // Link management endpoints
   // Creation (Core Service)
   SHORTEN_URL: API_BASE_URLS.CORE_URL,
+  TOGGLE_STATUS: (shortUrlKey: string, active: boolean) => `${API_BASE_URLS.CORE_URL}/${shortUrlKey}/status?active=${active}`,
+  DELETE_BY_KEY: (shortUrlKey: string) => `${API_BASE_URLS.CORE_URL}/${shortUrlKey}`,
 
   // Listing & Deletion (Manager Service)
   GET_USER_LINKS: API_BASE_URLS.SHORT_LINKS,
-  DELETE_LINK: (id: string) => `${API_BASE_URLS.SHORT_LINKS}/${id}`,
+  GET_LINK_BY_ID: (id: string) => `${API_BASE_URLS.SHORT_LINKS}/${id}`,
 
   // Analytics endpoints (Manager Service)
   GET_STATS: API_BASE_URLS.SHORT_STATS,

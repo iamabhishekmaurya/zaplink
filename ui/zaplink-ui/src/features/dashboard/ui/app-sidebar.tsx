@@ -2,31 +2,26 @@
 
 import {
   AudioWaveform,
+  CalendarDays,
   Command,
+  FileText,
   GalleryVerticalEnd,
+  Image as ImageIcon,
   LayoutDashboard,
   Link2,
+  PieChart,
   ScanLine,
   Settings2,
-  PieChart,
-  CreditCard,
-  User,
-  Bell,
-  Wallet,
-  Globe,
-  Image as ImageIcon,
-  CalendarDays,
-  FileText,
-  Plus,
+  Target,
   Users,
-  Workflow,
-  Target
+  Wallet,
+  Workflow
 } from 'lucide-react'
 import * as React from 'react'
 
+import { NavGeneral } from '@/components/(nav)/nav-general'
 import { NavMain } from '@/components/(nav)/nav-main'
 import { NavUser } from '@/components/(nav)/nav-user'
-import { TeamSwitcher } from '@/features/dashboard/ui/team-switcher'
 import { Separator } from '@/components/ui/separator'
 import {
   Sidebar,
@@ -35,7 +30,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { NavGeneral } from '@/components/(nav)/nav-general'
+import { TeamSwitcher } from '@/features/dashboard/ui/team-switcher'
 
 // This is sample data.
 const data = {
@@ -104,10 +99,6 @@ const data = {
         {
           title: "Create Short Link",
           url: "/dashboard/link/create-short-link",
-        },
-        {
-          title: "Dynamic QR Links",
-          url: "/dashboard/link/dynamic-short-link",
         },
       ],
     },
@@ -224,7 +215,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" className="bg-background/60 backdrop-blur-xl border-r border-border/50 supports-[backdrop-filter]:bg-background/60" {...props}>
+    <Sidebar collapsible="icon" className="bg-background/60 font-bold backdrop-blur-xl border-r border-border/50 supports-[backdrop-filter]:bg-background/60" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>

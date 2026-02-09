@@ -7,14 +7,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TagInput } from '@/components/ui/tag-input'
-import { useShortlinks } from '@/hooks/useShortlinks'
+import { shortlinkService } from '@/services/shortlinkService'
 import { extractPlatformFromUrl, extractTitleFromUrl } from '@/services/shortlinkService'
 import { RedirectRuleDto } from '@/lib/types/apiRequestType'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IconBrandYoutube } from '@tabler/icons-react'
 import { ArrowLeft, Facebook, Github, Globe, Instagram, Link, Link2, Linkedin, Loader2, RefreshCw, Sparkles, Tag, Twitter } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
@@ -31,12 +31,13 @@ type FormValues = z.infer<typeof formSchema>
 const CreateShortLinkContent = () => {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { createShortlink, getShortlink, updateShortlink } = useShortlinks()
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
-    const [isEditMode, setIsEditMode] = useState(false)
     const [initialLoading, setInitialLoading] = useState(false)
+    const [isEditMode, setIsEditMode] = useState(false)
+    const [loadedLink, setLoadedLink] = useState<any>(null) // Store loaded link data for updates
+    const hasLoadedLink = useRef(false) // Track if link has been loaded to prevent duplicate calls
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -53,8 +54,9 @@ const CreateShortLinkContent = () => {
         const editMode = searchParams.get('edit') === 'true'
         const linkId = searchParams.get('id')
 
-        if (editMode && linkId) {
+        if (editMode && linkId && !hasLoadedLink.current) {
             setIsEditMode(true)
+            hasLoadedLink.current = true
             loadLinkData(linkId)
         }
     }, [searchParams])
@@ -62,13 +64,13 @@ const CreateShortLinkContent = () => {
     const loadLinkData = async (linkId: string) => {
         try {
             setInitialLoading(true)
-            const link = await getShortlink(linkId)
-            console.log("DEBUG: Loaded link data:", link)
-            console.log("DEBUG: Tags:", link?.tags, "Type:", typeof link?.tags)
+            const link = await shortlinkService.getShortlink(linkId)
+            
+            // Store the loaded link data
+            setLoadedLink(link)
 
             if (link) {
                 let parsedRules = link.rules || []
-                console.log("DEBUG: Raw rules:", parsedRules, "Type:", typeof parsedRules)
 
                 if (typeof parsedRules === 'string') {
                     try {
@@ -131,11 +133,14 @@ const CreateShortLinkContent = () => {
 
             if (isEditMode) {
                 const linkId = searchParams.get('id')
-                if (linkId) {
-                    await updateShortlink(linkId, linkData)
+                if (linkId && loadedLink) {
+                    await shortlinkService.updateShortLink(linkId, {
+                        ...linkData,
+                        shortUrlKey: loadedLink.shortUrlKey // Pass the stored shortUrlKey
+                    })
                 }
             } else {
-                await createShortlink(linkData)
+                await shortlinkService.createShortLink(linkData)
             }
 
             // Navigate back to short links page after successful operation

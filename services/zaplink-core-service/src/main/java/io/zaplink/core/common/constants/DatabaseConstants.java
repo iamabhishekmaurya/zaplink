@@ -17,12 +17,12 @@ public final class DatabaseConstants
     }
     // ==================== TABLE NAMES ====================
     // Organization and Team Management
-    public static final String TABLE_ORGANIZATIONS             = "zaplink_core.organizations";
-    public static final String TABLE_TEAMS                     = "zaplink_core.teams";
-    public static final String TABLE_TEAM_MEMBERS              = "zaplink_core.team_members";
-    public static final String TABLE_CAMPAIGNS                 = "zaplink_core.campaigns";
-    public static final String TABLE_CAMPAIGN_ASSIGNMENTS      = "zaplink_core.campaign_assignments";
-    public static final String TABLE_POSTS                     = "zaplink_core.posts";
+    public static final String TABLE_ORGANIZATIONS             = "organizations";
+    public static final String TABLE_TEAMS                     = "teams";
+    public static final String TABLE_TEAM_MEMBERS              = "team_members";
+    public static final String TABLE_CAMPAIGNS                 = "campaigns";
+    public static final String TABLE_CAMPAIGN_ASSIGNMENTS      = "campaign_assignments";
+    public static final String TABLE_POSTS                     = "posts";
     // ==================== COLUMN NAMES ====================
     // Common columns
     public static final String COLUMN_ID                       = "id";

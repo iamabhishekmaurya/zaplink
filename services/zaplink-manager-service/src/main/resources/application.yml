@@ -15,7 +15,7 @@ spring:
       supported:
       - 1
   datasource:
-    url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=manager
+    url: jdbc:postgresql://localhost:5432/zaplink_local?currentSchema=core
     username: postgres
     password: 12345
     driver-class-name: org.postgresql.Driver
@@ -28,7 +28,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        '[default_schema]': manager
+        '[default_schema]': core
         # format_sql: true
     # show-sql: true
   kafka:
@@ -57,9 +57,9 @@ spring:
 zaplink:
   services:
     auth:
-      url: http://localhost:8081
+      url: http://localhost:8084
     core:
-      url: http://localhost:8082
+      url: http://localhost:8081
 
 # Distributed Tracing Configuration
 management:
@@ -69,12 +69,3 @@ management:
   otlp:
     tracing:
       endpoint: http://localhost:4318/v1/traces
-
-# gRPC Configuration
-grpc:
-  core-service:
-    host: localhost
-    port: 50051
-  auth-service:
-    host: localhost
-    port: 50052

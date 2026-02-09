@@ -47,6 +47,17 @@ public interface UrlMappingRepository
     List<UrlMappingEntity> findByUserEmailOrderByCreatedAtDesc( String userEmail );
 
     /**
+     * Retrieves a URL mapping by ID and user email for security.
+     * Ensures users can only access their own links.
+     * 
+     * @param id the ID of the URL mapping
+     * @param userEmail email of the link owner
+     * @return Optional containing the URL mapping if found and belongs to user
+     */
+    // @Query("SELECT u FROM UrlMappingEntity u WHERE u.id = :id AND u.userEmail = :userEmail")
+    Optional<UrlMappingEntity> findByIdAndUserEmail(Long id, String userEmail);
+
+    /**
      * Counts all URL mappings associated with a specific user email.
      * 
      * @param userEmail

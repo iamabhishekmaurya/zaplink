@@ -24,13 +24,13 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
     const [newRule, setNewRule] = useState<Partial<RedirectRuleDto>>({
         dimension: 'DEVICE_TYPE',
         value: '',
-        destinationUrl: '',
+        destination_url: '',
         priority: 1
     });
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
     const handleAddOrUpdateRule = () => {
-        if (newRule.dimension && newRule.value && newRule.destinationUrl) {
+        if (newRule.dimension && newRule.value && newRule.destination_url) {
             if (editingIndex !== null) {
                 // Update existing rule
                 const updatedRules = [...rules];
@@ -50,7 +50,7 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
             setNewRule({
                 dimension: 'DEVICE_TYPE',
                 value: '',
-                destinationUrl: '',
+                destination_url: '',
                 priority: rules.length + 2
             });
         }
@@ -67,7 +67,7 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
         setNewRule({
             dimension: 'DEVICE_TYPE',
             value: '',
-            destinationUrl: '',
+            destination_url: '',
             priority: rules.length + 2
         });
     };
@@ -120,8 +120,8 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
                     <label className="text-sm font-medium">Redirect To</label>
                     <Input
                         placeholder="https://example.com/target"
-                        value={newRule.destinationUrl}
-                        onChange={(e) => setNewRule({ ...newRule, destinationUrl: e.target.value })}
+                        value={newRule.destination_url}
+                        onChange={(e) => setNewRule({ ...newRule, destination_url: e.target.value })}
                     />
                 </div>
 
@@ -131,7 +131,7 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
                         <Button
                             type="button"
                             onClick={handleAddOrUpdateRule}
-                            disabled={!newRule.value || !newRule.destinationUrl}
+                            disabled={!newRule.value || !newRule.destination_url}
                             className="w-full"
                             variant={editingIndex !== null ? "default" : "secondary"}
                         >
@@ -177,8 +177,8 @@ export const SmartRoutingRules: React.FC<SmartRoutingRulesProps> = ({ rules = []
                         <div className="flex items-center gap-2 flex-1">
                             <Badge variant="secondary">{rule.value}</Badge>
                             <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm text-primary truncate max-w-[200px] md:max-w-xs" title={rule.destinationUrl}>
-                                {rule.destinationUrl}
+                            <span className="text-sm text-primary truncate max-w-[200px] md:max-w-xs" title={rule.destination_url}>
+                                {rule.destination_url}
                             </span>
                         </div>
 

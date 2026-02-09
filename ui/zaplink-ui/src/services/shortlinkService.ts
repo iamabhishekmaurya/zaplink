@@ -85,7 +85,7 @@ export const extractPlatformFromUrl = (url: string): string => {
 
 // ============ Request Types ============
 export interface CreateShortLinkRequest {
-  originalUrl: string;
+  original_url: string;
   title?: string;
   platform?: string;
   tags?: string[];
@@ -136,7 +136,7 @@ export const shortlinkService = {
   }): Promise<ShortLink> => {
     try {
       const request: CreateShortLinkRequest = {
-        originalUrl: data.originalUrl,
+        original_url: data.originalUrl,
         title: data.title,
         platform: data.platform,
         tags: data.tags,
@@ -154,7 +154,7 @@ export const shortlinkService = {
   // Delete a short link
   deleteShortLink: async (id: string): Promise<void> => {
     try {
-      await api.delete(API_ENDPOINTS.DELETE_LINK(id));
+      await api.delete(API_ENDPOINTS.DELETE_BY_KEY(id));
     } catch (error) {
       console.error('Error deleting short link:', error);
       throw error;
@@ -167,20 +167,19 @@ export const shortlinkService = {
     platform?: string;
     tags?: string[];
     rules?: RedirectRuleDto[];
+    shortUrlKey?: string; // Required for update operation
   }): Promise<ShortLink> => {
     try {
-      // Get the existing link to get the shortUrlKey
-      const existingLink = await shortlinkService.getShortlink(id);
-
       const updatePayload: UpdateShortLinkRequest = {
-        short_url_key: existingLink.shortUrlKey || '',
-        title: data.title || existingLink.title,
-        platform: data.platform || existingLink.platform,
-        tags: data.tags || existingLink.tags,
-        rules: data.rules ?? existingLink.rules
+        short_url_key: data.shortUrlKey || '',
+        title: data.title,
+        platform: data.platform,
+        tags: data.tags,
+        rules: data.rules
       };
 
       const response = await api.put<LinkApiResponse>(API_ENDPOINTS.SHORTEN_URL, updatePayload);
+
       return transformLinkResponse(response.data);
     } catch (error) {
       console.error('Error updating short link:', error);
@@ -191,23 +190,32 @@ export const shortlinkService = {
   // Get a single short link by ID
   getShortlink: async (id: string): Promise<ShortLink> => {
     try {
-      // Fetch all links and find the one with matching ID
-      const allLinks = await shortlinkService.getUserLinks();
-
-      // Try both string and number comparison for robust ID matching
-      const link = allLinks.find(item =>
-        item.id === id ||
-        item.id.toString() === id ||
-        String(item.id) === String(id)
-      );
-
-      if (!link) {
-        throw new Error(`Short link with ID ${id} not found`);
-      }
-
-      return link;
+      // Use the new direct endpoint to get a single link
+      const response = await api.get<LinkApiResponse>(API_ENDPOINTS.GET_LINK_BY_ID(id));
+      return transformLinkResponse(response.data);
     } catch (error) {
       console.error('Error fetching short link:', error);
+      throw error;
+    }
+  },
+
+  // Toggle link status
+  toggleStatus: async (shortUrlKey: string, active: boolean): Promise<ShortLink> => {
+    try {
+      const response = await api.patch<LinkApiResponse>(API_ENDPOINTS.TOGGLE_STATUS(shortUrlKey, active));
+      return transformLinkResponse(response.data);
+    } catch (error) {
+      console.error('Error toggling link status:', error);
+      throw error;
+    }
+  },
+
+  // Delete link by short URL key
+  deleteByKey: async (shortUrlKey: string): Promise<void> => {
+    try {
+      await api.delete(API_ENDPOINTS.DELETE_BY_KEY(shortUrlKey));
+    } catch (error) {
+      console.error('Error deleting link by key:', error);
       throw error;
     }
   },

@@ -32,34 +32,34 @@ const excludeData = (values: FormValues | null) => {
 
 const mapToApiConfig = (values: FormValues): QRConfigType => {
     const logoConfig = values.logo ? {
-        logoPath: values.logo.logoPath || undefined,
-        sizeRatio: values.logo.sizeRatio ?? 0.2,
+        logo_path: values.logo.logoPath || undefined,
+        size_ratio: values.logo.sizeRatio ?? 0.2,
         padding: values.logo.padding ?? 0,
-        backgroundColor: values.logo.backgroundColor ?? '#FFFFFF',
-        backgroundEnabled: values.logo.backgroundEnabled ?? true,
-        backgroundRounded: values.logo.backgroundRounded ?? true,
-        backgroundCornerRadius: values.logo.backgroundCornerRadius ?? 20,
-        removeQuietZone: values.logo.removeQuietZone ?? true,
-        marginSize: values.logo.marginSize ?? 0,
+        background_color: values.logo.backgroundColor ?? '#FFFFFF',
+        background_enabled: values.logo.backgroundEnabled ?? true,
+        background_rounded: values.logo.backgroundRounded ?? true,
+        background_corner_radius: values.logo.backgroundCornerRadius ?? 20,
+        remove_quiet_zone: values.logo.removeQuietZone ?? true,
+        margin_size: values.logo.marginSize ?? 0,
     } : undefined
 
     return {
         data: values.data,
         size: 1024,
         margin: values.margin,
-        errorCorrectionLevel: 'H',
-        transparentBackground: values.transparentBackground,
-        backgroundColor: values.backgroundColor,
+        error_correction_level: 'H',
+        transparent_background: values.transparentBackground,
+        background_color: values.backgroundColor,
         body: {
             shape: values.bodyShape,
             color: values.bodyColor,
-            colorDark: values.bodyColorDark,
-            gradientLinear: values.gradientLinear,
+            color_dark: values.bodyColorDark,
+            gradient_linear: values.gradientLinear,
         },
         eye: {
             shape: values.eyeShape,
-            colorOuter: values.eyeColorOuter,
-            colorInner: values.eyeColorInner,
+            color_outer: values.eyeColorOuter,
+            color_inner: values.eyeColorInner,
         },
         logo: logoConfig
     }
@@ -70,13 +70,14 @@ const QrGeneratorContent = () => {
     const searchParams = useSearchParams()
     const urlParam = searchParams.get('url') // Restored
     const editParam = searchParams.get('edit')
-    const dataParam = searchParams.get('data')
+    // Data is now stored in sessionStorage instead of URL params for cleaner URLs
 
     const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [isGenerating, setIsGenerating] = useState(false)
     const [lastGeneratedValues, setLastGeneratedValues] = useState<FormValues | null>(null)
     const isGeneratingRef = useRef(false)
     const [mounted, setMounted] = useState(false)
+    const [editQrName, setEditQrName] = useState<string>('')  // Store QR name for edit mode
 
     useEffect(() => {
         setMounted(true)
@@ -93,11 +94,17 @@ const QrGeneratorContent = () => {
 
     // Pre-fill form on Edit Mode
     useEffect(() => {
-        if (editParam && dataParam) {
+        if (editParam) {
+            // Read QR data from sessionStorage (set by the list page)
+            const storedData = sessionStorage.getItem(`qr-edit-${editParam}`);
+            if (!storedData) return;
             try {
-                const qrData = JSON.parse(decodeURIComponent(dataParam))
-                // TODO: Map API response back to FormValues properly
-                // This is a simplified mapping, might need valid Deep Merge
+                const qrData = JSON.parse(storedData);
+                sessionStorage.removeItem(`qr-edit-${editParam}`);
+
+                // Store QR name for the save dialog
+                setEditQrName(qrData.qrName || '');
+
                 const qrConfig = typeof qrData.qrConfig === 'string'
                     ? JSON.parse(qrData.qrConfig)
                     : qrData.qrConfig
@@ -108,46 +115,42 @@ const QrGeneratorContent = () => {
                 }
 
                 if (qrConfig) {
-                    console.log("Restoring Config:", qrConfig) // Debug log
                     // Body
                     if (qrConfig.body) {
                         newValues.bodyShape = qrConfig.body.shape
                         newValues.bodyColor = qrConfig.body.color
-                        newValues.bodyColorDark = qrConfig.body.colorDark
-                        newValues.gradientLinear = qrConfig.body.gradientLinear
+                        newValues.bodyColorDark = qrConfig.body.color_dark
+                        newValues.gradientLinear = qrConfig.body.gradient_linear
                     }
-                    // Eye - Map correctly. API might return eyeColorOuter/Inner nested or flat? 
-                    // Based on type definitions it should be nested.
+                    // Eye
                     if (qrConfig.eye) {
                         newValues.eyeShape = qrConfig.eye.shape
-                        newValues.eyeColorOuter = qrConfig.eye.colorOuter
-                        newValues.eyeColorInner = qrConfig.eye.colorInner
+                        newValues.eyeColorOuter = qrConfig.eye.color_outer
+                        newValues.eyeColorInner = qrConfig.eye.color_inner
                     }
                     // General
-                    newValues.backgroundColor = qrConfig.backgroundColor
+                    newValues.backgroundColor = qrConfig.background_color
                     newValues.margin = qrConfig.margin
-                    newValues.transparentBackground = qrConfig.transparentBackground
+                    newValues.transparentBackground = qrConfig.transparent_background
 
                     // Logo
                     if (qrConfig.logo) {
                         newValues.logo = {
-                            logoPath: qrConfig.logo.logoPath || '',
-                            sizeRatio: qrConfig.logo.sizeRatio,
+                            logoPath: qrConfig.logo.logo_path || '',
+                            sizeRatio: qrConfig.logo.size_ratio,
                             padding: qrConfig.logo.padding,
-                            backgroundColor: qrConfig.logo.backgroundColor,
-                            backgroundEnabled: qrConfig.logo.backgroundEnabled,
-                            backgroundRounded: qrConfig.logo.backgroundRounded,
-                            backgroundCornerRadius: qrConfig.logo.backgroundCornerRadius,
-                            removeQuietZone: qrConfig.logo.removeQuietZone,
-                            marginSize: qrConfig.logo.marginSize
+                            backgroundColor: qrConfig.logo.background_color,
+                            backgroundEnabled: qrConfig.logo.background_enabled,
+                            backgroundRounded: qrConfig.logo.background_rounded,
+                            backgroundCornerRadius: qrConfig.logo.background_corner_radius,
+                            removeQuietZone: qrConfig.logo.remove_quiet_zone,
+                            marginSize: qrConfig.logo.margin_size
                         }
                     }
                 }
 
-                // Advanced & Rules
-                // Note: Allowed domains mapping might need adjustment if format differs
+                // Advanced settings
                 if (qrData.allowedDomains) {
-                    // If it comes as JSON string
                     try {
                         const domains = typeof qrData.allowedDomains === 'string' ? JSON.parse(qrData.allowedDomains) : qrData.allowedDomains
                         if (Array.isArray(domains)) newValues.allowedDomains = domains.join(', ')
@@ -167,11 +170,7 @@ const QrGeneratorContent = () => {
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
                     newValues.expirationDays = diffDays
                 }
-                // Rules need to be fetched separately if not in list response, or passed in full object
-                // Assuming basic rules might be there or needing fetch. For now we use what's passed.
-
                 form.reset(newValues)
-                // Trigger generation for preview
                 setTimeout(() => generateQR(newValues), 500)
 
             } catch (e) {
@@ -179,7 +178,7 @@ const QrGeneratorContent = () => {
                 toast.error("Failed to load QR data for editing")
             }
         }
-    }, [editParam, dataParam, form])
+    }, [editParam, form])
 
 
     // Update form if urlParam changes (e.g. navigation)
@@ -219,15 +218,15 @@ const QrGeneratorContent = () => {
             // Map form values to API request type
             // Send logo config if logo object exists in values, even if path is empty (for bg settings)
             const logoConfig = values.logo ? {
-                logoPath: values.logo.logoPath || undefined,
-                sizeRatio: values.logo.sizeRatio ?? 0.2,
+                logo_path: values.logo.logoPath || undefined,
+                size_ratio: values.logo.sizeRatio ?? 0.2,
                 padding: values.logo.padding ?? 0,
-                backgroundColor: values.logo.backgroundColor ?? '#FFFFFF',
-                backgroundEnabled: values.logo.backgroundEnabled ?? true,
-                backgroundRounded: values.logo.backgroundRounded ?? true,
-                backgroundCornerRadius: values.logo.backgroundCornerRadius ?? 20,
-                removeQuietZone: values.logo.removeQuietZone ?? true,
-                marginSize: values.logo.marginSize ?? 0,
+                background_color: values.logo.backgroundColor ?? '#FFFFFF',
+                background_enabled: values.logo.backgroundEnabled ?? true,
+                background_rounded: values.logo.backgroundRounded ?? true,
+                background_corner_radius: values.logo.backgroundCornerRadius ?? 20,
+                remove_quiet_zone: values.logo.removeQuietZone ?? true,
+                margin_size: values.logo.marginSize ?? 0,
             } : undefined
 
             console.log("Generating QR with config", { isGenerating, logoConfig })
@@ -235,20 +234,20 @@ const QrGeneratorContent = () => {
             const config: QRConfigType = {
                 data: values.data,
                 size: 1024, // High res for download
-                margin: values.margin,
-                errorCorrectionLevel: 'H',
-                transparentBackground: values.transparentBackground,
-                backgroundColor: values.backgroundColor,
+                margin: values.margin ?? 1,
+                error_correction_level: 'H',
+                transparent_background: values.transparentBackground ?? false,
+                background_color: values.backgroundColor || '#FFFFFF',
                 body: {
-                    shape: values.bodyShape,
-                    color: values.bodyColor,
-                    colorDark: values.bodyColorDark,
-                    gradientLinear: values.gradientLinear,
+                    shape: values.bodyShape || 'SQUARE',
+                    color: values.bodyColor || '#000000',
+                    color_dark: values.bodyColorDark,
+                    gradient_linear: values.gradientLinear ?? false,
                 },
                 eye: {
-                    shape: values.eyeShape,
-                    colorOuter: values.eyeColorOuter,
-                    colorInner: values.eyeColorInner,
+                    shape: values.eyeShape || 'SQUARE',
+                    color_outer: values.eyeColorOuter || '#000000',
+                    color_inner: values.eyeColorInner || '#000000',
                 },
                 logo: logoConfig
             }
@@ -378,8 +377,8 @@ const QrGeneratorContent = () => {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>
     }
 
-    // Extract name from dataParam if available
-    const initialName = dataParam ? JSON.parse(decodeURIComponent(dataParam)).qrName : ''
+    // Use stored editQrName for the save dialog
+    const initialName = editQrName;
 
     return (
         <div className="min-h-screen bg-background p-4 lg:p-8">

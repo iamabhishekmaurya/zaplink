@@ -1,6 +1,8 @@
 "use client"
 
 import { type LucideIcon } from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import {
   SidebarGroup,
@@ -18,17 +20,29 @@ export function NavGeneral({ general, }: {
     isActive?: boolean
   }[]
 }) {
+  const pathname = usePathname()
+
+  // Determine if an item is active based on the current path
+  const isItemActive = (url: string) => {
+    // For dashboard, only match exact path
+    if (url === "/dashboard") {
+      return pathname === "/dashboard"
+    }
+    // For other routes, match if path starts with the URL
+    return pathname.startsWith(url)
+  }
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>General</SidebarGroupLabel>
       <SidebarMenu>
         {general.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild isActive={item.isActive}>
-              <a href={item.url}>
+            <SidebarMenuButton asChild isActive={isItemActive(item.url)}>
+              <Link href={item.url}>
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}

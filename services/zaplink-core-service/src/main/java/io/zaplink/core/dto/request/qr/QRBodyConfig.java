@@ -6,8 +6,8 @@ import io.zaplink.core.common.enums.QRBodyShapeEnum;
 
 public record QRBodyConfig( QRBodyShapeEnum shape,
                             String color,
-                            @JsonProperty("colorDark") String colorDark,
-                            @JsonProperty("gradientLinear") boolean gradientLinear )
+                            @JsonProperty("color_dark") String colorDark,
+                            @JsonProperty("gradient_linear") Boolean gradientLinear )
 {
     public QRBodyConfig()
     {
@@ -17,11 +17,11 @@ public record QRBodyConfig( QRBodyShapeEnum shape,
     public QRBodyConfig( QRBodyShapeEnum shape,
                          String color,
                          @JsonProperty("color_dark") String colorDark,
-                         @JsonProperty("gradient_linear") boolean gradientLinear )
+                         @JsonProperty("gradient_linear") Boolean gradientLinear )
     {
         this.shape = shape;
         this.color = color;
         this.colorDark = colorDark;
-        this.gradientLinear = gradientLinear;
+        this.gradientLinear = gradientLinear != null ? gradientLinear : true;
     }
 }

@@ -1,15 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { useDynamicQrs } from '@/hooks/useDynamicQrs'
+import { Card } from '@/components/ui/card'
 import { QrCodeCard } from '@/features/qr/ui/qr-code-card'
 import { QrCodeSkeletonList } from '@/features/qr/ui/qr-code-skeleton'
 import { QrSearchAndFilters } from '@/features/qr/ui/qr-search-and-filters'
+import { useDynamicQrs } from '@/hooks/useDynamicQrs'
 import { Plus, QrCode } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import type { DynamicQrResponse } from '@/lib/types/apiRequestType'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 const QrListPage = () => {
     const router = useRouter()

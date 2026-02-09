@@ -1,11 +1,10 @@
 package io.zaplink.manager.dto.response;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.zaplink.manager.common.enums.UrlStatusEnum;
 import io.zaplink.manager.dto.RedirectRuleDto;

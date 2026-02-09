@@ -1,7 +1,7 @@
 import { DynamicQrResponse, ShortLink } from '@/lib/types/apiRequestType';
 import { DynamicQrService } from '@/services/dynamicQr';
 import { shortlinkService } from '@/services/shortlinkService';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface DashboardStats {
     totalLinks: number;
@@ -25,6 +25,8 @@ export interface DashboardStats {
 
 export function useDashboardData() {
     const [refreshKey, setRefreshKey] = useState(0);
+    const isFetching = useRef(false);
+    const hasFetched = useRef(false);
     const [stats, setStats] = useState<DashboardStats>({
         totalLinks: 0,
         activeLinks: 0,
@@ -46,12 +48,19 @@ export function useDashboardData() {
     });
 
     const refetch = useCallback(() => {
+        hasFetched.current = false; // Allow refetch
         setStats(prev => ({ ...prev, isLoading: true, error: null, isNetworkError: false }));
         setRefreshKey(prev => prev + 1);
     }, []);
 
     useEffect(() => {
         async function fetchData() {
+            // Guard against duplicate fetches
+            if (isFetching.current || (hasFetched.current && refreshKey === 0)) {
+                return;
+            }
+            isFetching.current = true;
+
             try {
                 const [links, qrsPage, statsData] = await Promise.all([
                     shortlinkService.getUserLinks(),
@@ -207,6 +216,9 @@ export function useDashboardData() {
                     refetch
                 });
 
+                hasFetched.current = true;
+                isFetching.current = false;
+
             } catch (err: any) {
                 console.error("Failed to fetch dashboard data", err);
 
@@ -226,6 +238,8 @@ export function useDashboardData() {
                     isNetworkError,
                     refetch
                 }));
+
+                isFetching.current = false;
             }
         }
 

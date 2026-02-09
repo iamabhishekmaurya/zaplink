@@ -10,13 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import io.zaplink.core.common.constants.ErrorConstant;
 import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.enums.UrlStatusEnum;
+import io.zaplink.core.common.exception.ResourceNotFoundException;
+import io.zaplink.core.common.exception.UnauthorizedException;
 import io.zaplink.core.dto.request.ShortnerRequest;
 import io.zaplink.core.dto.request.UpdateShortLinkRequest;
 import io.zaplink.core.dto.response.ShortnerResponse;
 import io.zaplink.core.entity.RedirectRuleEntity;
 import io.zaplink.core.entity.UrlMappingEntity;
-import io.zaplink.core.common.exception.ResourceNotFoundException;
-import io.zaplink.core.common.exception.UnauthorizedException;
 import io.zaplink.core.repository.RedirectRuleRepository;
 import io.zaplink.core.repository.UrlMappingRepository;
 import io.zaplink.core.utility.SnowflakeShortKeyGenerator;
@@ -108,8 +108,8 @@ public class UrlShortnerService
     {
         log.info( LogConstants.LOG_UPDATING_SHORT_URL, updateRequest.shortUrlKey() );
         UrlMappingEntity urlMappingEntity = urlMappingRepository.findByShortUrlKey( updateRequest.shortUrlKey() )
-                .orElseThrow( () -> new ResourceNotFoundException( String.format( ErrorConstant.ERROR_LINK_NOT_FOUND_WITH_KEY,
-                        updateRequest.shortUrlKey() ) ) );
+                .orElseThrow( () -> new ResourceNotFoundException( String
+                        .format( ErrorConstant.ERROR_LINK_NOT_FOUND_WITH_KEY, updateRequest.shortUrlKey() ) ) );
         if ( !urlMappingEntity.getUserEmail().equals( userEmail ) )
         {
             throw new UnauthorizedException( "You are not authorized to update this link" );
@@ -123,14 +123,58 @@ public class UrlShortnerService
         if ( updateRequest.rules() != null && !updateRequest.rules().isEmpty() )
         {
             List<RedirectRuleEntity> ruleEntities = updateRequest.rules().stream()
-                    .map( r -> RedirectRuleEntity.builder().urlMappingId( urlMappingEntity.getId() ).dimension( r.dimension() )
-                            .value( r.value() ).destinationUrl( r.destinationUrl() ).priority( r.priority() )
-                            .createdAt( LocalDateTime.now() ).build() )
+                    .map( r -> RedirectRuleEntity.builder().urlMappingId( urlMappingEntity.getId() )
+                            .dimension( r.dimension() ).value( r.value() ).destinationUrl( r.destinationUrl() )
+                            .priority( r.priority() ).createdAt( LocalDateTime.now() ).build() )
                     .toList();
             redirectRuleRepository.saveAll( ruleEntities );
         }
         UrlMappingEntity savedEntity = urlMappingRepository.save( urlMappingEntity );
         log.info( LogConstants.LOG_URL_MAPPING_UPDATED, savedEntity.getShortUrlKey() );
         return new ShortnerResponse( savedEntity.getShortUrl(), savedEntity.getTraceId(), savedEntity.getTags() );
+    }
+
+    @Transactional
+    public ShortnerResponse toggleShortUrlStatus( String shortUrlKey, boolean active, String userEmail )
+    {
+        log.info( LogConstants.LOG_TOGGLING_SHORT_URL_STATUS, shortUrlKey, active );
+        UrlMappingEntity urlMappingEntity = urlMappingRepository.findByShortUrlKey( shortUrlKey )
+                .orElseThrow( () -> new ResourceNotFoundException( String
+                        .format( ErrorConstant.ERROR_LINK_NOT_FOUND_WITH_KEY, shortUrlKey ) ) );
+        if ( !urlMappingEntity.getUserEmail().equals( userEmail ) )
+        {
+            throw new UnauthorizedException( "You are not authorized to modify this link" );
+        }
+        UrlStatusEnum newStatus = active ? UrlStatusEnum.ACTIVE : UrlStatusEnum.DISABLED;
+        urlMappingEntity.setStatus( newStatus );
+        UrlMappingEntity savedEntity = urlMappingRepository.save( urlMappingEntity );
+        log.info( LogConstants.LOG_SHORT_URL_STATUS_TOGGLED, savedEntity.getShortUrlKey(), newStatus );
+        return new ShortnerResponse( savedEntity.getShortUrl(), savedEntity.getTraceId(), savedEntity.getTags() );
+    }
+
+    @Transactional
+    public ShortnerResponse deleteShortUrlByKey( String shortUrlKey, String userEmail )
+    {
+        log.info( "Going to delete short URL by key: {} for user: {}", shortUrlKey, userEmail );
+        UrlMappingEntity urlMappingEntity = urlMappingRepository.findByShortUrlKey( shortUrlKey )
+                .orElseThrow( () -> new ResourceNotFoundException( String
+                        .format( ErrorConstant.ERROR_LINK_NOT_FOUND_WITH_KEY, shortUrlKey ) ) );
+        if ( !urlMappingEntity.getUserEmail().equals( userEmail ) )
+        {
+            throw new UnauthorizedException( "You are not authorized to delete this link" );
+        }
+        // Delete associated redirect rules first
+        List<RedirectRuleEntity> redirectRules = redirectRuleRepository
+                .findByUrlMappingIdOrderByPriorityDesc( urlMappingEntity.getId() );
+        if ( !redirectRules.isEmpty() )
+        {
+            redirectRuleRepository.deleteAll( redirectRules );
+        }
+        // Delete the URL mapping
+        urlMappingRepository.delete( urlMappingEntity );
+        log.info( "Successfully deleted short URL: {}", shortUrlKey );
+        return new ShortnerResponse( urlMappingEntity.getShortUrl(),
+                                     urlMappingEntity.getTraceId(),
+                                     urlMappingEntity.getTags() );
     }
 }

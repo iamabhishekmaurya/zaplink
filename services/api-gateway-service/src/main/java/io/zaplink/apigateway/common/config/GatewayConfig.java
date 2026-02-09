@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j @Configuration
 public class GatewayConfig
 {
-        @Value("${api.base-path:/v1/api}")
+        @Value("${api.base-path:/api}")
         private String apiBasePath;
         @Bean
         public RouteLocator customRouteLocator( RouteLocatorBuilder builder )

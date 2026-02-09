@@ -40,6 +40,8 @@ public final class LogConstants
     public static final String LOG_CREATING_URL_MAPPING              = "Creating URL mapping with key: {}";
     public static final String LOG_UPDATING_SHORT_URL                = "Updating short URL for key: {}";
     public static final String LOG_URL_MAPPING_UPDATED               = "URL mapping updated successfully for key: {}";
+    public static final String LOG_TOGGLING_SHORT_URL_STATUS         = "Toggling status for short URL key: {} to active: {}";
+    public static final String LOG_SHORT_URL_STATUS_TOGGLED          = "Short URL status toggled successfully for key: {} to: {}";
     // ==================== EVENT PUBLISHING LOGS ====================
     public static final String EVENT_PUBLISHING                      = "Publishing event: {}";
     public static final String EVENT_PUBLISHED                       = "Event published successfully: {}";

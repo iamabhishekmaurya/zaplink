@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { DynamicQrResponse } from '@/lib/types/apiRequestType'
+import { QRService } from '@/services/QRServerApi'
 import {
     BarChart3,
     Calendar,
@@ -25,58 +26,105 @@ interface QrCodeCardProps {
     onDownload: (qr: DynamicQrResponse) => void
 }
 
+// Global cache for QR image URLs - persists across component lifecycles
+const qrImageCache = new Map<string, string>();
+// Track in-flight requests to prevent duplicate API calls
+const pendingRequests = new Map<string, Promise<string>>();
+
+// Helper to ensure all required fields have default values
+const normalizeQrConfig = (config: any) => ({
+    data: config.data || '',
+    size: config.size || 1024,
+    margin: config.margin ?? 1,
+    error_correction_level: config.error_correction_level || 'H',
+    transparent_background: config.transparent_background ?? false,
+    background_color: config.background_color || '#FFFFFF',
+    body: {
+        shape: config.body?.shape || 'SQUARE',
+        color: config.body?.color || '#000000',
+        color_dark: config.body?.color_dark,
+        gradient_linear: config.body?.gradient_linear ?? false,
+    },
+    eye: {
+        shape: config.eye?.shape || 'SQUARE',
+        color_outer: config.eye?.color_outer || '#000000',
+        color_inner: config.eye?.color_inner || '#000000',
+    },
+    logo: config.logo,
+});
+
 export const QrCodeCard = ({
     qr,
     onDelete,
     onDownload
 }: QrCodeCardProps) => {
-    const [imageUrl, setImageUrl] = useState<string | null>(null)
+    const [imageUrl, setImageUrl] = useState<string | null>(() => {
+        // Initialize from cache if available
+        return qrImageCache.get(qr.qrKey) || null;
+    })
     const router = useRouter()
 
     useEffect(() => {
-        const controller = new AbortController();
-        let objectUrl: string | null = null;
+        let isCancelled = false;
 
-        const fetchImage = async () => {
+        const generateImage = async () => {
+            // Check cache first
+            const cachedUrl = qrImageCache.get(qr.qrKey);
+            if (cachedUrl) {
+                setImageUrl(cachedUrl);
+                return;
+            }
+
+            // Check if there's already a pending request for this qrKey
+            const pendingRequest = pendingRequests.get(qr.qrKey);
+            if (pendingRequest) {
+                try {
+                    const url = await pendingRequest;
+                    if (!isCancelled) {
+                        setImageUrl(url);
+                    }
+                } catch {
+                    // Request failed, will be handled by the original requestor
+                }
+                return;
+            }
+
+            if (!qr.qrConfig) {
+                console.warn('No QR config available for', qr.qrKey);
+                return;
+            }
+
+            // Normalize config to ensure all required fields have default values
+            const normalizedConfig = normalizeQrConfig(qr.qrConfig);
+
+            // Create a new request and store it
+            const requestPromise = QRService.generateStyledQR(normalizedConfig);
+            pendingRequests.set(qr.qrKey, requestPromise);
+
             try {
-                // Use qrImageUrl directly - Next.js proxy handles /api/* routing to Gateway
-                const token = localStorage.getItem('token')
-                const response = await fetch(qr.qrImageUrl, {
-                    headers: token ? {
-                        'Authorization': `Bearer ${token}`,
-                        'X-API-Version': '1'
-                    } : { 'X-API-Version': '1' },
-                    signal: controller.signal
-                })
+                const url = await requestPromise;
 
-                if (!response.ok) {
+                // Cache the result
+                qrImageCache.set(qr.qrKey, url);
+                pendingRequests.delete(qr.qrKey);
 
-                    throw new Error(`Failed to load QR image: ${response.status}`)
+                if (!isCancelled) {
+                    setImageUrl(url);
                 }
-
-                const blob = await response.blob()
-                const url = URL.createObjectURL(blob)
-                objectUrl = url
-                setImageUrl(url)
             } catch (error: any) {
-                if (error.name !== 'AbortError') {
-                    console.error('Failed to load QR image', error)
+                pendingRequests.delete(qr.qrKey);
+                if (!isCancelled) {
+                    console.error('Failed to generate QR image', error);
                 }
             }
-        }
+        };
 
-        if (qr.qrImageUrl) {
-            fetchImage()
-        }
+        generateImage();
 
-        // Cleanup blob URL on unmount
         return () => {
-            controller.abort()
-            if (objectUrl) {
-                URL.revokeObjectURL(objectUrl)
-            }
-        }
-    }, [qr.qrImageUrl])
+            isCancelled = true;
+        };
+    }, [qr.qrKey]) // Only depend on qrKey
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString)
@@ -142,7 +190,11 @@ export const QrCodeCard = ({
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
                                             className="cursor-pointer"
-                                            onClick={() => router.push(`/dashboard/qr/qr-gen?edit=${qr.qrKey}&data=${encodeURIComponent(JSON.stringify(qr))}`)}
+                                            onClick={() => {
+                                                // Store QR data in sessionStorage to avoid long URLs
+                                                sessionStorage.setItem(`qr-edit-${qr.qrKey}`, JSON.stringify(qr));
+                                                router.push(`/dashboard/qr/qr-gen?edit=${qr.qrKey}`);
+                                            }}
                                         >
                                             <Pencil className="h-4 w-4 mr-2" />
                                             Edit
