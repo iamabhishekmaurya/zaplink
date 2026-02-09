@@ -38,7 +38,7 @@ export function NavGeneral({ general, }: {
       <SidebarMenu>
         {general.map((item) => (
           <SidebarMenuItem key={item.title}>
-            <SidebarMenuButton asChild isActive={isItemActive(item.url)}>
+            <SidebarMenuButton asChild isActive={isItemActive(item.url)} tooltip={item.title}>
               <Link href={item.url}>
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
