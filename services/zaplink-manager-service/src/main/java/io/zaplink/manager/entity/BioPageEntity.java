@@ -5,6 +5,9 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -62,72 +65,96 @@ import lombok.extern.slf4j.Slf4j;
   @jakarta.persistence.Index(name = "idx_bio_pages_created_at", columnList = "created_at") })
 public class BioPageEntity
 {
-    /**
-     * Primary key identifier for the BioPage.
-     * Auto-generated using PostgreSQL IDENTITY strategy.
-     */
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id", nullable = false, updatable = false)
-    private Long                id;
-    /**
-     * Unique username for the bio page.
-     * Used in public URLs (e.g., zap.link/{username}).
-     * Must be between 3-50 characters and unique across all pages.
-     */
-    @Column(name = "username", nullable = false, unique = true, length = 50)
-    private String              username;
-    /**
-     * Owner identifier for the bio page.
-     * References the user who owns this page (could be user ID, email, etc.).
-     */
-    @Column(name = "owner_id", nullable = false, length = 255)
-    private String              ownerId;
-    /**
-     * Theme configuration in JSON format.
-     * Allows customization of colors, fonts, and layout.
-     * Example: {"primaryColor": "#3b82f6", "backgroundColor": "#ffffff"}
-     */
-    @Column(name = "theme_config", columnDefinition = "jsonb")
-    private String              themeConfig;
-    /**
-     * URL to the avatar image for the bio page.
-     * Should be a valid HTTPS URL. Maximum 500 characters.
-     */
-    @Column(name = "avatar_url", length = 500)
-    private String              avatarUrl;
-    /**
-     * Bio text or description for the page owner.
-     * Supports markdown-like formatting. Maximum 500 characters.
-     */
-    @Column(name = "bio_text", length = 500)
-    private String              bioText;
-    /**
-     * Timestamp when the bio page was created.
-     * Automatically set on creation and immutable.
-     */
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime       createdAt;
-    /**
-     * Timestamp when the bio page was last updated.
-     * Automatically updated on any modification.
-     */
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime       updatedAt;
-    /**
-     * Collection of associated BioLink entities.
-     * Cascade operations are enabled for automatic management.
-     * Links are eagerly fetched for performance in bio page operations.
-     */
-    @OneToMany(mappedBy = "bioPage", cascade =
-    { jakarta.persistence.CascadeType.ALL,
-      jakarta.persistence.CascadeType.REMOVE }, orphanRemoval = true, fetch = FetchType.EAGER) @JsonIgnore // Prevent infinite recursion during JSON serialization
-    private List<BioLinkEntity> bioLinks;
-    /**
-     * JPA lifecycle callback - executed after entity is loaded from database.
-     * Sets up logging for debugging.
-     */
-    @PostLoad
-    protected void onLoad()
-    {
-        log.trace( "Loaded BioPage: {} with {} links", username, bioLinks != null ? bioLinks.size() : 0 );
-    }
+  /**
+   * Primary key identifier for the BioPage.
+   * Auto-generated using PostgreSQL IDENTITY strategy.
+   */
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id", nullable = false, updatable = false)
+  private Long                id;
+  /**
+   * Unique username for the bio page.
+   * Used in public URLs (e.g., zap.link/{username}).
+   * Must be between 3-50 characters and unique across all pages.
+   */
+  @Column(name = "username", nullable = false, unique = true, length = 50)
+  private String              username;
+  /**
+   * Owner identifier for the bio page.
+   * References the user who owns this page (could be user ID, email, etc.).
+   */
+  @Column(name = "owner_id", nullable = false, length = 255)
+  private String              ownerId;
+  /**
+   * Theme configuration in JSON format.
+   * Allows customization of colors, fonts, and layout.
+   * Example: {"primaryColor": "#3b82f6", "backgroundColor": "#ffffff"}
+   */
+  @Column(name = "theme_config", columnDefinition = "jsonb") @JdbcTypeCode(SqlTypes.JSON)
+  private String              themeConfig;
+  /**
+   * URL to the avatar image for the bio page.
+   * Should be a valid HTTPS URL. Maximum 500 characters.
+   */
+  @Column(name = "avatar_url", length = 500)
+  private String              avatarUrl;
+  /**
+   * Bio text or description for the page owner.
+   * Supports markdown-like formatting. Maximum 500 characters.
+   */
+  @Column(name = "bio_text", length = 500)
+  private String              bioText;
+  /**
+   * Display title for the bio page.
+   * Separate from username, used in the header. Maximum 100 characters.
+   */
+  @Column(name = "title", length = 100)
+  private String              title;
+  /**
+   * URL to the cover/banner image for the bio page.
+   * Should be a valid HTTPS URL. Maximum 500 characters.
+   */
+  @Column(name = "cover_url", length = 500)
+  private String              coverUrl;
+  /**
+   * SEO metadata in JSON format.
+   * Structure: {title, description, keywords, jsonLd, openGraph}
+   */
+  @Column(name = "seo_meta", columnDefinition = "jsonb") @JdbcTypeCode(SqlTypes.JSON)
+  private String              seoMeta;
+  /**
+   * Public visibility toggle.
+   * If false, the page is accessible only to the owner (or gated).
+   */
+  @Column(name = "is_public", nullable = false)
+  private Boolean             isPublic = true;
+  /**
+   * Timestamp when the bio page was created.
+   * Automatically set on creation and immutable.
+   */
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime       createdAt;
+  /**
+   * Timestamp when the bio page was last updated.
+   * Automatically updated on any modification.
+   */
+  @Column(name = "updated_at", nullable = false)
+  private LocalDateTime       updatedAt;
+  /**
+   * Collection of associated BioLink entities.
+   * Cascade operations are enabled for automatic management.
+   * Links are eagerly fetched for performance in bio page operations.
+   */
+  @OneToMany(mappedBy = "bioPage", cascade =
+  { jakarta.persistence.CascadeType.ALL,
+    jakarta.persistence.CascadeType.REMOVE }, orphanRemoval = true, fetch = FetchType.EAGER) @JsonIgnore // Prevent infinite recursion during JSON serialization
+  private List<BioLinkEntity> bioLinks;
+  /**
+   * JPA lifecycle callback - executed after entity is loaded from database.
+   * Sets up logging for debugging.
+   */
+  @PostLoad
+  protected void onLoad()
+  {
+    log.trace( "Loaded BioPage: {} with {} links", username, bioLinks != null ? bioLinks.size() : 0 );
+  }
 }

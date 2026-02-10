@@ -24,8 +24,7 @@ export function UploadZone({ ownerId, folderId }: UploadZoneProps) {
         try {
             await uploadAsset.mutateAsync({ file, ownerId, folderId });
             toast.success("Upload successful", { id: toastId });
-        } catch (error) {
-            console.error(error);
+        } catch {
             toast.error("Upload failed", { id: toastId });
         } finally {
             // Reset input

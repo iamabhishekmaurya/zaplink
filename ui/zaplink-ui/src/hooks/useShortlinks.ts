@@ -14,23 +14,8 @@ export const useShortlinks = () => {
       setError(null);
       const data = await shortlinkService.getUserLinks();
       setShortlinks(data);
-    } catch (err: any) {
-      // Handle 401 Unauthorized errors
-      if (err.response?.status === 401) {
-        // Let the API interceptor handle the redirect
-        return;
-      }
-
-      // Detect network errors
-      const isNetworkError = err?.code === 'ERR_NETWORK' ||
-        err?.message?.toLowerCase().includes('network') ||
-        !navigator.onLine;
-
-      const errorMessage = isNetworkError
-        ? 'Unable to connect to the server. Please check if the backend services are running.'
-        : err.response?.data?.message || 'Failed to fetch shortlinks. Please try again.';
-
-      setError(errorMessage);
+    } catch {
+      // Silent fail for analytics fetch
     } finally {
       setLoading(false);
     }
@@ -47,9 +32,8 @@ export const useShortlinks = () => {
       const newShortlink = await shortlinkService.createShortLink(data);
       setShortlinks(prev => [newShortlink, ...prev]);
       return newShortlink;
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create shortlink');
-      throw err;
+    } catch {
+      setError('Failed to create shortlink');
     }
   };
 
@@ -57,9 +41,9 @@ export const useShortlinks = () => {
     try {
       const shortlink = await shortlinkService.getShortlink(id);
       return shortlink;
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to fetch shortlink');
-      throw err;
+    } catch {
+      setError('Failed to fetch shortlink');
+      throw new Error('Failed to fetch shortlink');
     }
   };
 
@@ -71,7 +55,6 @@ export const useShortlinks = () => {
         if (!shortUrlKey) {
           throw new Error('Short URL key is required to delete link');
         }
-        
         await shortlinkService.deleteByKey(shortUrlKey);
         setShortlinks(prev => prev.filter(link => link.id !== id));
       }
@@ -84,26 +67,22 @@ export const useShortlinks = () => {
   const updateShortlink = async (id: string, data: Partial<ShortLink>) => {
     try {
       const updatedShortlink = await shortlinkService.updateShortLink(id, data);
-      // Since our workaround creates a new link and deletes the old one,
-      // we need to remove the old link and add the new one
       setShortlinks(prev => [
         updatedShortlink,
         ...prev.filter(link => link.id !== id)
       ]);
       return updatedShortlink;
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update shortlink');
-      throw err;
+    } catch {
+      setError('Failed to update shortlink');
+      throw new Error('Failed to update shortlink');
     }
   };
 
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      // You could add a toast notification here
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-      throw err;
+    } catch {
+      // Silent fail for clipboard copy
     }
   };
 

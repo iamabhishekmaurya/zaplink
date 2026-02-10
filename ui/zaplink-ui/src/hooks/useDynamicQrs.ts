@@ -22,8 +22,7 @@ export const useDynamicQrs = () => {
             setTotalPages(response.totalPages)
             setTotalElements(response.totalElements)
             setError(null)
-        } catch (err) {
-            console.error('Failed to fetch QRs', err)
+        } catch {
             setError('Failed to load QR codes')
         } finally {
             setLoading(false)
@@ -39,8 +38,7 @@ export const useDynamicQrs = () => {
             await DynamicQrService.deleteDynamicQr(qrKey)
             toast.success('QR Code deleted successfully')
             fetchQrs() // Refresh list
-        } catch (err) {
-            console.error('Failed to delete QR', err)
+        } catch {
             toast.error('Failed to delete QR code')
         }
     }
@@ -60,8 +58,7 @@ export const useDynamicQrs = () => {
             link.click()
             document.body.removeChild(link)
             window.URL.revokeObjectURL(url)
-        } catch (err) {
-            console.error('Failed to download QR', err)
+        } catch {
             toast.error('Failed to download QR image')
         }
     }

@@ -68,4 +68,22 @@ public class GlobalExceptionHandler
                                                                                           null ) ) );
                 return ResponseEntity.status( HttpStatus.INTERNAL_SERVER_ERROR ).body( errorResponse );
         }
+
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<Object> handleIllegalArgumentException( IllegalArgumentException ex, WebRequest request )
+        {
+                log.warn( "Illegal argument exception: {}", ex.getMessage() );
+                HttpStatus status = HttpStatus.BAD_REQUEST;
+                String message = ex.getMessage();
+                if ( message != null && message.toLowerCase().contains( "not found" ) )
+                {
+                        status = HttpStatus.NOT_FOUND;
+                }
+                ErrorResponse errorResponse = new ErrorResponse( LocalDateTime.now().toString(),
+                                                                 status.name(),
+                                                                 message,
+                                                                 request.getDescription( false ).replace( "uri=", "" ),
+                                                                 null );
+                return ResponseEntity.status( status ).body( errorResponse );
+        }
 }

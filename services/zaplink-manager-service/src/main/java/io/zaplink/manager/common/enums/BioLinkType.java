@@ -31,7 +31,26 @@ public enum BioLinkType {
     /**
      * Phone link - requires phone format, no pricing.
      */
-    PHONE("PHONE", false, false);
+    /**
+     * Phone link - requires phone format, no pricing.
+     */
+    PHONE("PHONE", false, false),
+    /**
+     * Embed link - e.g., YouTube, Spotify, etc.
+     */
+    EMBED("EMBED", true, false),
+    /**
+     * Scheduled link - link with start/end time.
+     */
+    SCHEDULED("SCHEDULED", true, false),
+    /**
+     * Gated link - e.g., require email/password/payment.
+     */
+    GATED("GATED", true, false),
+    /**
+     * Payment link - direct payment integration.
+     */
+    PAYMENT("PAYMENT", false, true);
     private final String  typeName;
     private final boolean requiresUrl;
     private final boolean supportsPricing;
@@ -96,6 +115,10 @@ public enum BioLinkType {
             case "PRODUCT" -> PRODUCT;
             case "EMAIL" -> EMAIL;
             case "PHONE" -> PHONE;
+            case "EMBED" -> EMBED;
+            case "SCHEDULED" -> SCHEDULED;
+            case "GATED" -> GATED;
+            case "PAYMENT" -> PAYMENT;
             default -> throw new IllegalArgumentException( "Unknown link type: " + typeName );
         };
     }

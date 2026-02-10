@@ -39,7 +39,10 @@ public record UpdateBioPageRequest( String title,
                                     @JsonProperty("theme_config") String themeConfig,
                                     @JsonProperty("avatar_url") @Size(max = 500, message = ErrorConstant.VALIDATION_AVATAR_URL_MAX_LENGTH) String avatarUrl,
                                     @JsonProperty("bio_text") @Size(max = 500, message = ErrorConstant.VALIDATION_BIO_TEXT_MAX_LENGTH) String bioText,
-                                    @JsonProperty("is_active") Boolean isActive )
+                                    @JsonProperty("is_active") Boolean isActive,
+                                    @JsonProperty("cover_url") @Size(max = 500, message = "Cover URL cannot exceed 500 characters") String coverUrl,
+                                    @JsonProperty("seo_meta") String seoMeta,
+                                    @JsonProperty("is_public") Boolean isPublic )
 {
     /**
      * Compact constructor that validates and sanitizes input data.
@@ -53,10 +56,16 @@ public record UpdateBioPageRequest( String title,
         themeConfig = themeConfig != null ? themeConfig.trim() : null;
         avatarUrl = avatarUrl != null ? avatarUrl.trim() : null;
         bioText = bioText != null ? bioText.trim() : null;
+        coverUrl = coverUrl != null ? coverUrl.trim() : null;
+        seoMeta = seoMeta != null ? seoMeta.trim() : null;
         // Validate URL if provided
         if ( avatarUrl != null && !avatarUrl.isEmpty() )
         {
             validateUrl( avatarUrl );
+        }
+        if ( coverUrl != null && !coverUrl.isEmpty() )
+        {
+            validateUrl( coverUrl );
         }
     }
 

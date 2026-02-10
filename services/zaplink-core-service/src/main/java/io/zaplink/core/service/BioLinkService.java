@@ -107,6 +107,12 @@ public class BioLinkService
             entity.setTypeFromString( request.type() );
             entity.setIsActive( request.isActive() != null ? request.isActive() : true );
             entity.setSortOrder( request.sortOrder() != null ? request.sortOrder() : 0 );
+            // New fields
+            entity.setMetadata( request.metadata() );
+            entity.setScheduleFrom( request.scheduleFrom() );
+            entity.setScheduleTo( request.scheduleTo() );
+            entity.setIconUrl( request.iconUrl() );
+            entity.setThumbnailUrl( request.thumbnailUrl() );
             // Handle product-specific fields if applicable
             if ( entity.isProduct() )
             {
@@ -172,6 +178,12 @@ public class BioLinkService
         Optional.ofNullable( request.type() ).ifPresent( entity::setTypeFromString );
         Optional.ofNullable( request.isActive() ).ifPresent( entity::setIsActive );
         Optional.ofNullable( request.sortOrder() ).ifPresent( entity::setSortOrder );
+        // New fields
+        Optional.ofNullable( request.metadata() ).ifPresent( entity::setMetadata );
+        Optional.ofNullable( request.scheduleFrom() ).ifPresent( entity::setScheduleFrom );
+        Optional.ofNullable( request.scheduleTo() ).ifPresent( entity::setScheduleTo );
+        Optional.ofNullable( request.iconUrl() ).ifPresent( entity::setIconUrl );
+        Optional.ofNullable( request.thumbnailUrl() ).ifPresent( entity::setThumbnailUrl );
         // Handle product-specific updates
         if ( entity.isProduct() )
         {
@@ -312,14 +324,16 @@ public class BioLinkService
         // Validate type-specific requirements using Java 21 switch expression
         switch ( request.type().toUpperCase() )
         {
-            case MessageConstants.LINK_TYPE_LINK, MessageConstants.LINK_TYPE_SOCIAL -> {
+            case MessageConstants.LINK_TYPE_LINK, MessageConstants.LINK_TYPE_SOCIAL,
+                 MessageConstants.LINK_TYPE_EMBED, MessageConstants.LINK_TYPE_SCHEDULED,
+                 MessageConstants.LINK_TYPE_GATED -> {
                 if ( request.url() == null || request.url().trim().isEmpty() )
                 {
                     throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_URL_REQUIRED_FOR_LINK_TYPE,
                                                                        request.type() ) );
                 }
             }
-            case MessageConstants.LINK_TYPE_PRODUCT -> {
+            case MessageConstants.LINK_TYPE_PRODUCT, MessageConstants.LINK_TYPE_PAYMENT -> {
                 if ( request.price() == null || request.currency() == null )
                 {
                     throw new IllegalArgumentException( ErrorConstant.ERROR_PRODUCT_LINKS_MUST_HAVE_PRICE_AND_CURRENCY );
@@ -395,6 +409,11 @@ public class BioLinkService
                                         entity.getSortOrder(),
                                         entity.getPrice() != null ? entity.getPrice().doubleValue() : null,
                                         entity.getCurrency(),
+                                        entity.getMetadata(),
+                                        entity.getScheduleFrom(),
+                                        entity.getScheduleTo(),
+                                        entity.getIconUrl(),
+                                        entity.getThumbnailUrl(),
                                         entity.getCreatedAt(),
                                         entity.getUpdatedAt() );
         }

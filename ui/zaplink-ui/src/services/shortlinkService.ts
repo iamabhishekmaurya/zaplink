@@ -121,7 +121,6 @@ export const shortlinkService = {
       // Transform API response to match our ShortLink interface
       return linksData.map(transformLinkResponse);
     } catch (error) {
-      console.error('Error fetching user links:', error);
       throw error;
     }
   },
@@ -146,7 +145,6 @@ export const shortlinkService = {
 
       return transformLinkResponse(response.data);
     } catch (error) {
-      console.error('Error creating short link:', error);
       throw error;
     }
   },
@@ -156,7 +154,6 @@ export const shortlinkService = {
     try {
       await api.delete(API_ENDPOINTS.DELETE_BY_KEY(id));
     } catch (error) {
-      console.error('Error deleting short link:', error);
       throw error;
     }
   },
@@ -182,7 +179,6 @@ export const shortlinkService = {
 
       return transformLinkResponse(response.data);
     } catch (error) {
-      console.error('Error updating short link:', error);
       throw error;
     }
   },
@@ -194,7 +190,6 @@ export const shortlinkService = {
       const response = await api.get<LinkApiResponse>(API_ENDPOINTS.GET_LINK_BY_ID(id));
       return transformLinkResponse(response.data);
     } catch (error) {
-      console.error('Error fetching short link:', error);
       throw error;
     }
   },
@@ -205,7 +200,6 @@ export const shortlinkService = {
       const response = await api.patch<LinkApiResponse>(API_ENDPOINTS.TOGGLE_STATUS(shortUrlKey, active));
       return transformLinkResponse(response.data);
     } catch (error) {
-      console.error('Error toggling link status:', error);
       throw error;
     }
   },
@@ -215,7 +209,6 @@ export const shortlinkService = {
     try {
       await api.delete(API_ENDPOINTS.DELETE_BY_KEY(shortUrlKey));
     } catch (error) {
-      console.error('Error deleting link by key:', error);
       throw error;
     }
   },
@@ -231,7 +224,6 @@ export const shortlinkService = {
       const response = await api.get<StatsApiResponse>(API_ENDPOINTS.GET_STATS);
       return transformStatsResponse(response.data);
     } catch (error) {
-      console.error('Error fetching user stats:', error);
       throw error;
     }
   }

@@ -5,6 +5,9 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -132,6 +135,37 @@ public class BioLinkEntity
      */
     @Column(name = "currency", length = 3)
     private String        currency;
+    /**
+     * Flexible metadata JSON for link-specific data.
+     * Can contain: thumbnails, SKU, oEmbed data, gate config, etc.
+     */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata", columnDefinition = "jsonb")
+    private String        metadata;
+    /**
+     * Start timestamp for scheduled link visibility.
+     * Link becomes visible after this time.
+     */
+    @Column(name = "schedule_from")
+    private LocalDateTime scheduleFrom;
+    /**
+     * End timestamp for scheduled link visibility.
+     * Link becomes hidden after this time.
+     */
+    @Column(name = "schedule_to")
+    private LocalDateTime scheduleTo;
+    /**
+     * Custom icon URL for the link.
+     * Maximum 500 characters.
+     */
+    @Column(name = "icon_url", length = 500)
+    private String        iconUrl;
+    /**
+     * Thumbnail/preview image URL for the link.
+     * Maximum 500 characters.
+     */
+    @Column(name = "thumbnail_url", length = 500)
+    private String        thumbnailUrl;
     /**
      * Timestamp when the bio link was created.
      * Automatically set on creation and immutable.
@@ -286,6 +320,26 @@ public class BioLinkEntity
             case PRODUCT -> validateProductLink();
             case EMAIL -> validateEmailLink();
             case PHONE -> validatePhoneLink();
+            case EMBED -> {
+                if ( url == null || url.trim().isEmpty() )
+                {
+                    throw new IllegalArgumentException( "Embed links must have a valid URL" );
+                }
+            }
+            case SCHEDULED -> {
+                if ( url == null || url.trim().isEmpty() )
+                {
+                    throw new IllegalArgumentException( "Scheduled links must have a valid URL" );
+                }
+                // Schedule validation is optional - can be set later
+            }
+            case GATED -> {
+                if ( url == null || url.trim().isEmpty() )
+                {
+                    throw new IllegalArgumentException( "Gated links must have a valid URL" );
+                }
+            }
+            case PAYMENT -> validateProductLink();
         }
         // Validate sort order
         if ( sortOrder == null || sortOrder < 0 )

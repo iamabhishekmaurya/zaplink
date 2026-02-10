@@ -31,7 +31,23 @@ public enum BioLinkType {
     /**
      * Phone link - requires phone format, no pricing.
      */
-    PHONE("PHONE", false, false);
+    PHONE("PHONE", false, false),
+    /**
+     * Embed link - requires URL for oEmbed content (YouTube, Spotify, Twitter).
+     */
+    EMBED("EMBED", true, false),
+    /**
+     * Scheduled link - has visibility time window, requires URL.
+     */
+    SCHEDULED("SCHEDULED", true, false),
+    /**
+     * Gated link - password or email capture required, requires URL.
+     */
+    GATED("GATED", true, false),
+    /**
+     * Payment link - for Razorpay checkout integration, supports pricing.
+     */
+    PAYMENT("PAYMENT", false, true);
     private final String  typeName;
     private final boolean requiresUrl;
     private final boolean supportsPricing;
@@ -96,6 +112,10 @@ public enum BioLinkType {
             case "PRODUCT" -> PRODUCT;
             case "EMAIL" -> EMAIL;
             case "PHONE" -> PHONE;
+            case "EMBED" -> EMBED;
+            case "SCHEDULED" -> SCHEDULED;
+            case "GATED" -> GATED;
+            case "PAYMENT" -> PAYMENT;
             default -> throw new IllegalArgumentException( "Unknown link type: " + typeName );
         };
     }

@@ -30,14 +30,12 @@ const safeParseDate = (dateString: string): Date | null => {
             // Try parsing as string format (fallback for legacy format)
             const fallbackDate = new Date(dateString.replace(' ', 'T'));
             if (isNaN(fallbackDate.getTime())) {
-                console.warn('Invalid date format:', dateString);
                 return null;
             }
             return fallbackDate;
         }
         return date;
-    } catch (error) {
-        console.warn('Date parsing error:', error, dateString);
+    } catch {
         return null;
     }
 };

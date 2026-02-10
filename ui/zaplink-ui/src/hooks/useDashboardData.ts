@@ -1,6 +1,8 @@
 import { DynamicQrResponse, ShortLink } from '@/lib/types/apiRequestType';
 import { DynamicQrService } from '@/services/dynamicQr';
 import { shortlinkService } from '@/services/shortlinkService';
+import { bioPageService } from '@/services/bioPageService';
+import { useAuth } from '@/hooks/useAuth';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface DashboardStats {
@@ -13,7 +15,7 @@ export interface DashboardStats {
     isLoading: boolean;
     error: string | null;
     isNetworkError: boolean;
-    recentActivity: ((ShortLink & { type: 'LINK' }) | (DynamicQrResponse & { type: 'QR' }))[];
+    recentActivity: ((ShortLink & { type: 'LINK' }) | (DynamicQrResponse & { type: 'QR' }) | (any & { type: 'BIOPAGE' }))[];
     platformDistribution: { platform: string; count: number; fill: string }[];
     creationHistory: { date: string; links: number; qrs: number }[];
     visitorTrend: { date: string; visitors: number }[];
@@ -24,6 +26,7 @@ export interface DashboardStats {
 }
 
 export function useDashboardData() {
+    const { user } = useAuth();
     const [refreshKey, setRefreshKey] = useState(0);
     const isFetching = useRef(false);
     const hasFetched = useRef(false);
@@ -55,17 +58,27 @@ export function useDashboardData() {
 
     useEffect(() => {
         async function fetchData() {
-            // Guard against duplicate fetches
-            if (isFetching.current || (hasFetched.current && refreshKey === 0)) {
+            // Guard against duplicate fetches and missing user
+            if (isFetching.current || (hasFetched.current && refreshKey === 0) || !user?.id) {
                 return;
             }
             isFetching.current = true;
 
             try {
-                const [links, qrsPage, statsData] = await Promise.all([
-                    shortlinkService.getUserLinks(),
-                    DynamicQrService.getDynamicQrs(0, 50),
-                    shortlinkService.getUserStats()
+                const [links, qrsPage, statsData, bioPages] = await Promise.all([
+                    shortlinkService.getUserLinks().catch(() => {
+                        return [];
+                    }),
+                    DynamicQrService.getDynamicQrs(0, 50).catch(() => {
+                        return { content: [], totalElements: 0 };
+                    }),
+                    shortlinkService.getUserStats().catch(() => {
+                        return { totalClicks: 0, clickTrend: [], referrers: [], avgCtr: 0, topRegion: 'Unknown' };
+                    }),
+                    bioPageService.getBioPagesByOwnerId(user.id.toString()).catch(() => {
+                        // Return empty array as fallback so dashboard doesn't break
+                        return [];
+                    })
                 ]);
 
                 const qrs = qrsPage.content || [];
@@ -77,12 +90,15 @@ export function useDashboardData() {
                 const totalQrs = qrsPage.totalElements || qrs.length;
                 const totalScans = qrs.reduce((acc, q) => acc + (q.totalScans || 0), 0);
 
+                const bioPagesCount = bioPages.length;
+
                 // 2. Prepare Recent Activity
-                // Combine links and QRs, sort by date desc, take top 10
+                // Combine links, QRs, and bio pages, sort by date desc, take top 10
                 const linksWithEpoch = links.map(l => ({ ...l, type: 'LINK' as const, epoch: new Date(l.createdAt).getTime() }));
                 const qrsWithEpoch = qrs.map(q => ({ ...q, type: 'QR' as const, epoch: new Date(q.createdAt).getTime(), title: q.qrName, clicks: q.totalScans }));
+                const bioPagesWithEpoch = bioPages.map(bp => ({ ...bp, type: 'BIOPAGE' as const, epoch: new Date(bp.createdAt).getTime(), title: `@${bp.username}`, clicks: 0 }));
 
-                const recentActivity = [...linksWithEpoch, ...qrsWithEpoch]
+                const recentActivity = [...linksWithEpoch, ...qrsWithEpoch, ...bioPagesWithEpoch]
                     .sort((a, b) => b.epoch - a.epoch)
                     .slice(0, 10);
 
@@ -136,15 +152,13 @@ export function useDashboardData() {
                             // If invalid date, try parsing as string format
                             const fallbackDate = new Date(l.createdAt.replace(' ', 'T'));
                             if (isNaN(fallbackDate.getTime())) {
-                                console.warn('Invalid date format:', l.createdAt);
                                 return; // Skip this entry
                             }
                             dateKey = fallbackDate.toISOString().split('T')[0];
                         } else {
                             dateKey = date.toISOString().split('T')[0];
                         }
-                    } catch (error) {
-                        console.warn('Date parsing error:', error, l.createdAt);
+                    } catch {
                         return; // Skip this entry
                     }
 
@@ -160,15 +174,13 @@ export function useDashboardData() {
                             // If invalid date, try parsing as string format
                             const fallbackDate = new Date(q.createdAt.replace(' ', 'T'));
                             if (isNaN(fallbackDate.getTime())) {
-                                console.warn('Invalid date format:', q.createdAt);
                                 return; // Skip this entry
                             }
                             dateKey = fallbackDate.toISOString().split('T')[0];
                         } else {
                             dateKey = date.toISOString().split('T')[0];
                         }
-                    } catch (error) {
-                        console.warn('Date parsing error:', error, q.createdAt);
+                    } catch {
                         return; // Skip this entry
                     }
 
@@ -202,11 +214,11 @@ export function useDashboardData() {
                     totalClicks,
                     totalQrs,
                     totalScans,
-                    bioPages: 0, // Not available in statsData
+                    bioPages: bioPagesCount,
                     isLoading: false,
                     error: null,
                     isNetworkError: false,
-                    recentActivity,
+                    recentActivity: recentActivity as ((ShortLink & { type: 'LINK' }) | (DynamicQrResponse & { type: 'QR' }) | any & { type: 'BIOPAGE' })[],
                     platformDistribution,
                     creationHistory,
                     visitorTrend,
@@ -220,8 +232,6 @@ export function useDashboardData() {
                 isFetching.current = false;
 
             } catch (err: any) {
-                console.error("Failed to fetch dashboard data", err);
-
                 // Detect network errors vs other errors
                 const isNetworkError = err?.code === 'ERR_NETWORK' ||
                     err?.message?.toLowerCase().includes('network') ||
@@ -244,7 +254,7 @@ export function useDashboardData() {
         }
 
         fetchData();
-    }, [refreshKey, refetch]);
+    }, [refreshKey, refetch, user?.id]);
 
     return stats;
 }

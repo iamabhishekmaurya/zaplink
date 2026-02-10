@@ -1,258 +1,170 @@
-"use client"
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { PublicBioPageViewer } from '@/features/bio-page/ui/public-bio-page-viewer'
+import { BioPageApiResponse, BioPage } from '@/services/bioPageService'
+import { BioPageWithTheme } from '@/features/bio-page/types'
+import { handleApiError } from '@/lib/error-handler'
 
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import { ExternalLink, Loader2, User } from "lucide-react"
-import { useParams } from "next/navigation"
-import { useEffect, useState } from "react"
+// Since we cannot use the client-side axios interceptors in a server component easily
+// without comprehensive cookie handling, we'll use standard fetch for public data.
+// Public bio pages are unauthenticated GET requests, so no token needed.
 
-interface BioPageData {
-  username: string
-  avatar_url?: string
-  bio_text?: string
-  theme_config?: string
-  bioLinks: Array<{
-    title: string
-    url?: string
-    type: string
-    is_active: boolean
-    sort_order: number
-    price?: number
-    currency?: string
-  }>
+async function getBioPage(username: string): Promise<BioPageApiResponse | null> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8090';
+    const res = await fetch(`${baseUrl}/b/${username}`, {
+      next: { revalidate: 60 }, // Revalidate every 60 seconds (ISR)
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        return null;
+      }
+      throw new Error(`Failed to fetch bio page: ${res.status} ${res.statusText}`);
+    }
+
+    return res.json();
+  } catch (error) {
+    throw error;
+  }
 }
 
-export default function BioPage() {
-  const params = useParams()
-  const username = params.username as string
-  const [bioData, setBioData] = useState<BioPageData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchBioData = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch(`/api/rd/bio-pages/${username}`)
-        if (response.ok) {
-          const data = await response.json()
-          setBioData(data)
-        } else if (response.status === 404) {
-          setError("Bio page not found")
-        } else {
-          setError("Failed to load bio page")
-        }
-      } catch (err) {
-        setError("Error loading bio page")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (username) {
-      fetchBioData()
-    }
-  }, [username])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading bio page...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error || !bioData) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="max-w-md w-full mx-4">
-          <CardContent className="p-8 text-center">
-            <User className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h1 className="text-2xl font-bold mb-2">Page Not Found</h1>
-            <p className="text-muted-foreground mb-4">
-              {error || "This bio page doesn't exist or has been removed."}
-            </p>
-            <a
-              href="/"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-            >
-              Go Home
-            </a>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Parse theme config or use defaults
-  let theme = {
-    primaryColor: "#000000",
-    backgroundColor: "#ffffff",
-    textColor: "#000000"
-  }
+// Transform API response to our BioPageWithTheme type
+function transformToBioPageWithTheme(apiData: BioPageApiResponse): BioPageWithTheme {
+  // Parse theme config safely
+  let parsedTheme: any = {
+    colors: {
+      primary: '#000000',
+      background: '#ffffff',
+      text: '#000000',
+      button: '#000000',
+      buttonText: '#ffffff'
+    },
+    typography: {
+      fontFamily: 'Inter'
+    },
+    layout: {
+      style: 'stack', // default
+      spacing: 'md',
+      alignment: 'center'
+    },
+    effects: {}
+  };
 
   try {
-    if (bioData.theme_config) {
-      theme = { ...theme, ...JSON.parse(bioData.theme_config) }
+    if (apiData.theme_config) {
+      const config = JSON.parse(apiData.theme_config);
+      // Merge with defaults to ensure structure
+      if (config.colors) parsedTheme.colors = { ...parsedTheme.colors, ...config.colors };
+      if (config.typography) parsedTheme.typography = { ...parsedTheme.typography, ...config.typography };
+      if (config.layout) parsedTheme.layout = { ...parsedTheme.layout, ...config.layout };
+      if (config.effects) parsedTheme.effects = { ...parsedTheme.effects, ...config.effects };
     }
-  } catch (e) {
-    // Use default theme if JSON is invalid
+  } catch {
+    // Silent fail for theme config parsing - use defaults
   }
 
-  return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: theme.backgroundColor }}
-    >
-      <div className="container mx-auto px-4 py-8 max-w-md">
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-8">
-            {/* Avatar and Bio */}
-            <div className="text-center mb-8">
-              {bioData.avatar_url ? (
-                <img
-                  src={bioData.avatar_url}
-                  alt={`${bioData.username}'s avatar`}
-                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-4 border-white shadow-lg"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full mx-auto mb-4 bg-muted flex items-center justify-center">
-                  <User className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
-              <h1
-                className="text-3xl font-bold mb-2"
-                style={{ color: theme.primaryColor }}
-              >
-                @{bioData.username}
-              </h1>
-              {bioData.bio_text && (
-                <p
-                  className="text-lg leading-relaxed"
-                  style={{ color: theme.textColor }}
-                >
-                  {bioData.bio_text}
-                </p>
-              )}
-            </div>
+  // Transform links (using logic similar to BioPageService but minimal)
+  const bioLinks = (apiData.bioLinks || []).map(link => ({
+    id: link.id,
+    pageId: link.page_id,
+    title: link.title,
+    url: link.url,
+    type: link.type,
+    isActive: link.is_active,
+    sortOrder: link.sort_order,
+    price: link.price,
+    currency: link.currency,
+    metadata: link.metadata,
+    scheduleFrom: link.schedule_from,
+    scheduleTo: link.schedule_to,
+    iconUrl: link.icon_url,
+    thumbnailUrl: link.thumbnail_url,
+    createdAt: link.created_at,
+    updatedAt: link.updated_at,
+  }));
 
-            {/* Links */}
-            <div className="space-y-4">
-              {bioData.bioLinks
-                .filter(link => link.is_active)
-                .sort((a, b) => a.sort_order - b.sort_order)
-                .map((link, index) => (
-                  <div key={index}>
-                    {link.url ? (
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block"
-                      >
-                        <div
-                          className="p-4 rounded-lg border hover:shadow-md transition-all duration-200 transform hover:scale-[1.02] cursor-pointer"
-                          style={{
-                            borderColor: theme.primaryColor,
-                            backgroundColor: theme.backgroundColor
-                          }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span
-                                  className="font-semibold text-lg"
-                                  style={{ color: theme.primaryColor }}
-                                >
-                                  {link.title}
-                                </span>
-                                <Badge
-                                  variant="secondary"
-                                  className="text-xs"
-                                >
-                                  {link.type}
-                                </Badge>
-                              </div>
-                              {link.type === 'PRODUCT' && link.price && (
-                                <p className="text-sm font-bold text-green-600">
-                                  {link.currency} {link.price.toFixed(2)}
-                                </p>
-                              )}
-                            </div>
-                            <ExternalLink
-                              className="h-5 w-5 flex-shrink-0"
-                              style={{ color: theme.primaryColor }}
-                            />
-                          </div>
-                        </div>
-                      </a>
-                    ) : (
-                      <div
-                        className="p-4 rounded-lg border opacity-75"
-                        style={{
-                          borderColor: theme.primaryColor,
-                          backgroundColor: theme.backgroundColor
-                        }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span
-                                className="font-semibold text-lg"
-                                style={{ color: theme.primaryColor }}
-                              >
-                                {link.title}
-                              </span>
-                              <Badge
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {link.type}
-                              </Badge>
-                            </div>
-                            {link.type === 'PRODUCT' && link.price && (
-                              <p className="text-sm font-bold text-green-600">
-                                {link.currency} {link.price.toFixed(2)}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-            </div>
+  // Construct BioPage object
+  const bioPage: BioPage = {
+    id: apiData.id,
+    username: apiData.username,
+    ownerId: apiData.owner_id,
+    bioText: apiData.bio_text,
+    avatarUrl: apiData.avatar_url,
+    themeConfig: apiData.theme_config,
+    title: apiData.title,
+    coverUrl: apiData.cover_url,
+    seoMeta: apiData.seo_meta,
+    isPublic: apiData.is_public ?? true,
+    createdAt: apiData.created_at,
+    updatedAt: apiData.updated_at,
+    bioLinks: bioLinks
+  };
 
-            {bioData.bioLinks.filter(link => link.is_active).length === 0 && (
-              <div className="text-center py-12">
-                <p
-                  className="text-muted-foreground"
-                  style={{ color: theme.textColor }}
-                >
-                  No active links yet
-                </p>
-              </div>
-            )}
+  return {
+    ...bioPage,
+    parsedTheme
+  };
+}
 
-            {/* Footer */}
-            <div className="text-center mt-12 pt-8 border-t">
-              <p className="text-sm text-muted-foreground">
-                Powered by{" "}
-                <a
-                  href="/"
-                  className="font-medium hover:underline"
-                  style={{ color: theme.primaryColor }}
-                >
-                  Zaplink
-                </a>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
+  const data = await getBioPage(params.username);
+
+  if (!data) {
+    return {
+      title: 'Page Not Found',
+    };
+  }
+
+  const title = data.title || `@${data.username} | Zaplink`;
+  const description = data.bio_text || `Check out @${data.username}'s bio page on Zaplink.`;
+
+  return {
+    title: title,
+    description: description,
+    openGraph: {
+      title: title,
+      description: description,
+      images: data.avatar_url ? [data.avatar_url] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: title,
+      description: description,
+      images: data.avatar_url ? [data.avatar_url] : [],
+    }
+  };
+}
+
+export default async function Page({ params }: { params: { username: string } }) {
+  try {
+    const data = await getBioPage(params.username);
+
+    if (!data) {
+      notFound();
+    }
+
+    const bioPage = transformToBioPageWithTheme(data);
+
+    return <PublicBioPageViewer bioPage={bioPage} />;
+  } catch {
+    // Return error page instead of crashing
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4 p-8">
+          <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+          <p className="text-muted-foreground">Unable to load this bio page. Please try again later.</p>
+          <a 
+            href="/" 
+            className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+          >
+            Go Home
+          </a>
+        </div>
       </div>
-    </div>
-  )
+    );
+  }
 }

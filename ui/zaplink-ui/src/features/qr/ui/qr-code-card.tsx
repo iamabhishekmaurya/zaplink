@@ -90,7 +90,6 @@ export const QrCodeCard = ({
             }
 
             if (!qr.qrConfig) {
-                console.warn('No QR config available for', qr.qrKey);
                 return;
             }
 
@@ -111,11 +110,8 @@ export const QrCodeCard = ({
                 if (!isCancelled) {
                     setImageUrl(url);
                 }
-            } catch (error: any) {
+            } catch {
                 pendingRequests.delete(qr.qrKey);
-                if (!isCancelled) {
-                    console.error('Failed to generate QR image', error);
-                }
             }
         };
 

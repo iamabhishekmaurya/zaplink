@@ -48,6 +48,10 @@ public final class MessageConstants
     public static final String LINK_TYPE_SOCIAL                                 = "SOCIAL";
     public static final String LINK_TYPE_EMAIL                                  = "EMAIL";
     public static final String LINK_TYPE_PHONE                                  = "PHONE";
+    public static final String LINK_TYPE_EMBED                                  = "EMBED";
+    public static final String LINK_TYPE_SCHEDULED                              = "SCHEDULED";
+    public static final String LINK_TYPE_GATED                                  = "GATED";
+    public static final String LINK_TYPE_PAYMENT                                = "PAYMENT";
     // ==================== BIO PAGE MESSAGES ====================
     // Bio Page Error Messages
     public static final String ERROR_BIO_PAGE_NOT_FOUND_WITH_ID                 = "Bio page not found with ID: %d";

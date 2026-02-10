@@ -174,12 +174,10 @@ const QrGeneratorContent = () => {
                 setTimeout(() => generateQR(newValues), 500)
 
             } catch (e) {
-                console.error("Failed to parse edit data", e)
                 toast.error("Failed to load QR data for editing")
             }
         }
     }, [editParam, form])
-
 
     // Update form if urlParam changes (e.g. navigation)
     useEffect(() => {
@@ -229,8 +227,6 @@ const QrGeneratorContent = () => {
                 margin_size: values.logo.marginSize ?? 0,
             } : undefined
 
-            console.log("Generating QR with config", { isGenerating, logoConfig })
-
             const config: QRConfigType = {
                 data: values.data,
                 size: 1024, // High res for download
@@ -256,8 +252,7 @@ const QrGeneratorContent = () => {
             setPreviewUrl(url)
             // Deep clone to avoid reference issues
             setLastGeneratedValues(JSON.parse(JSON.stringify(values)))
-        } catch (error) {
-            console.error('Failed to generate QR', error)
+        } catch {
             toast.error('Failed to generate QR code')
         } finally {
             setIsGenerating(false)
@@ -321,8 +316,7 @@ const QrGeneratorContent = () => {
                 toast.success('QR Code saved successfully and is now active!')
             }
 
-        } catch (error) {
-            console.error('Failed to save QR', error)
+        } catch {
             toast.error('Failed to save QR code. Please try again.')
         }
     }

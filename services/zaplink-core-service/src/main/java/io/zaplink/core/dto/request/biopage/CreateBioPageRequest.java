@@ -38,7 +38,11 @@ public record CreateBioPageRequest( @NotBlank(message = ErrorConstant.VALIDATION
                                     @JsonProperty("owner_id") @NotBlank(message = ErrorConstant.VALIDATION_OWNER_ID_REQUIRED) String ownerId,
                                     @JsonProperty("theme_config") String themeConfig,
                                     @JsonProperty("avatar_url") @Size(max = 500, message = ErrorConstant.VALIDATION_AVATAR_URL_MAX_LENGTH) String avatarUrl,
-                                    @JsonProperty("bio_text") @Size(max = 500, message = ErrorConstant.VALIDATION_BIO_TEXT_MAX_LENGTH) String bioText )
+                                    @JsonProperty("bio_text") @Size(max = 500, message = ErrorConstant.VALIDATION_BIO_TEXT_MAX_LENGTH) String bioText,
+                                    @JsonProperty("title") @Size(max = 100, message = "Title cannot exceed 100 characters") String title,
+                                    @JsonProperty("cover_url") @Size(max = 500, message = "Cover URL cannot exceed 500 characters") String coverUrl,
+                                    @JsonProperty("seo_meta") String seoMeta,
+                                    @JsonProperty("is_public") Boolean isPublic )
 {
     /**
      * Compact constructor that validates and sanitizes input data.
@@ -54,6 +58,10 @@ public record CreateBioPageRequest( @NotBlank(message = ErrorConstant.VALIDATION
         themeConfig = themeConfig != null ? themeConfig.trim() : null;
         avatarUrl = avatarUrl != null ? avatarUrl.trim() : null;
         bioText = bioText != null ? bioText.trim() : null;
+        title = title != null ? title.trim() : null;
+        coverUrl = coverUrl != null ? coverUrl.trim() : null;
+        seoMeta = seoMeta != null ? seoMeta.trim() : null;
+        isPublic = isPublic != null ? isPublic : true; // Default to public
     }
 
     /**

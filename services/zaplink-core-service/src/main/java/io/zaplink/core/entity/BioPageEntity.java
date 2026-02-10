@@ -7,6 +7,9 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import io.zaplink.core.common.constants.ErrorConstant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -96,7 +99,7 @@ public class BioPageEntity
      * Allows customization of colors, fonts, and layout.
      * Example: {"primaryColor": "#3b82f6", "backgroundColor": "#ffffff"}
      */
-    @Column(name = "theme_config", columnDefinition = "jsonb")
+    @Column(name = "theme_config", columnDefinition = "jsonb") @JdbcTypeCode(SqlTypes.JSON)
     private String              themeConfig;
     /**
      * URL to the avatar image for the bio page.
@@ -110,6 +113,30 @@ public class BioPageEntity
      */
     @Column(name = "bio_text", length = 500)
     private String              bioText;
+    /**
+     * Display title for the bio page (separate from username).
+     * Maximum 100 characters.
+     */
+    @Column(name = "title", length = 100)
+    private String              title;
+    /**
+     * URL to the cover/banner image for the bio page.
+     * Maximum 500 characters.
+     */
+    @Column(name = "cover_url", length = 500)
+    private String              coverUrl;
+    /**
+     * SEO metadata in JSON format.
+     * Contains: {title, description, keywords, jsonLd}
+     */
+    @Column(name = "seo_meta", columnDefinition = "jsonb") @JdbcTypeCode(SqlTypes.JSON)
+    private String              seoMeta;
+    /**
+     * Whether the bio page is publicly visible.
+     * Default is true for backwards compatibility.
+     */
+    @Column(name = "is_public", nullable = false)
+    private Boolean             isPublic = true;
     /**
      * Timestamp when the bio page was created.
      * Automatically set on creation and immutable.

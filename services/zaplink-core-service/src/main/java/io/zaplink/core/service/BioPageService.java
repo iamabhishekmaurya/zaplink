@@ -110,6 +110,11 @@ public class BioPageService
             entity.setThemeConfig( request.themeConfig() );
             entity.setAvatarUrl( request.avatarUrl() );
             entity.setBioText( request.bioText() );
+            // New fields
+            entity.setTitle( request.title() );
+            entity.setCoverUrl( request.coverUrl() );
+            entity.setSeoMeta( request.seoMeta() );
+            entity.setIsPublic( request.isPublic() );
             BioPageEntity saved = bioPageRepository.save( entity );
             log.info( LogConstants.BIOPAGE_CREATE_SUCCESS, saved.getId(), saved.getUsername() );
             BioPageResponse response = convertToDto( saved );
@@ -170,6 +175,11 @@ public class BioPageService
         Optional.ofNullable( request.bioText() ).ifPresent( entity::setBioText );
         Optional.ofNullable( request.avatarUrl() ).ifPresent( entity::setAvatarUrl );
         Optional.ofNullable( request.themeConfig() ).ifPresent( entity::setThemeConfig );
+        // New fields
+        Optional.ofNullable( request.title() ).ifPresent( entity::setTitle );
+        Optional.ofNullable( request.coverUrl() ).ifPresent( entity::setCoverUrl );
+        Optional.ofNullable( request.seoMeta() ).ifPresent( entity::setSeoMeta );
+        Optional.ofNullable( request.isPublic() ).ifPresent( entity::setIsPublic );
         BioPageEntity saved = bioPageRepository.save( entity );
         log.info( LogConstants.BIOPAGE_UPDATE_SUCCESS, id );
         BioPageResponse response = convertToDto( saved );
@@ -278,7 +288,11 @@ public class BioPageService
                                         entity.getOwnerId(),
                                         entity.getThemeConfig(),
                                         entity.getAvatarUrl(),
+                                        entity.getCoverUrl(),
                                         entity.getBioText(),
+                                        entity.getTitle(),
+                                        entity.getSeoMeta(),
+                                        entity.getIsPublic(),
                                         entity.getCreatedAt(),
                                         entity.getUpdatedAt(),
                                         linkDtos );
@@ -327,6 +341,11 @@ public class BioPageService
                                     entity.getSortOrder(),
                                     entity.getPrice() != null ? entity.getPrice().doubleValue() : null,
                                     entity.getCurrency(),
+                                    entity.getMetadata(),
+                                    entity.getScheduleFrom(),
+                                    entity.getScheduleTo(),
+                                    entity.getIconUrl(),
+                                    entity.getThumbnailUrl(),
                                     entity.getCreatedAt(),
                                     entity.getUpdatedAt() );
     }
@@ -365,8 +384,7 @@ public class BioPageService
             // Verify the username matches
             if ( !bioPage.getUsername().equals( event.username() ) )
             {
-                log.warn( LogConstants.BIOPAGE_USERNAME_MISMATCH_WARNING, event.username(),
-                      bioPage.getUsername() );
+                log.warn( LogConstants.BIOPAGE_USERNAME_MISMATCH_WARNING, event.username(), bioPage.getUsername() );
                 throw new IllegalArgumentException( MessageConstants.ERROR_USERNAME_MISMATCH );
             }
             log.debug( LogConstants.BIOPAGE_VALIDATED_SUCCESS, bioPage.getUsername(), bioPage.getId() );
@@ -382,13 +400,11 @@ public class BioPageService
             sendCreationNotification( bioPage );
             // Cache the new bio page for faster access
             cacheBioPage( bioPage );
-            log.info( LogConstants.BIOPAGE_EVENT_PROCESSED_SUCCESS, event.username(),
-                      event.id() );
+            log.info( LogConstants.BIOPAGE_EVENT_PROCESSED_SUCCESS, event.username(), event.id() );
         }
         catch ( Exception e )
         {
-            log.error( LogConstants.BIOPAGE_EVENT_PROCESSING_FAILED, event.username(),
-                       event.id(), e );
+            log.error( LogConstants.BIOPAGE_EVENT_PROCESSING_FAILED, event.username(), event.id(), e );
             // Re-throw to mark the transaction as failed
             throw new RuntimeException( "Failed to process BioPageCreatedEvent", e );
         }

@@ -23,6 +23,15 @@ public class BioLinkResponse
     private int           sortOrder;
     private BigDecimal    price;
     private String        currency;
+    private String        metadata;
+    @JsonProperty("schedule_from")
+    private LocalDateTime scheduleFrom;
+    @JsonProperty("schedule_to")
+    private LocalDateTime scheduleTo;
+    @JsonProperty("icon_url")
+    private String        iconUrl;
+    @JsonProperty("thumbnail_url")
+    private String        thumbnailUrl;
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
     @JsonProperty("updated_at")

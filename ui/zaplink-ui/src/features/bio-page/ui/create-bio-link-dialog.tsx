@@ -1,189 +1,152 @@
 "use client"
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Form } from '@/components/ui/form'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { linkFormSchema, LinkFormValues } from '@/features/bio-page/lib/validators'
+import { LinkForm } from '@/features/bio-page/ui/link-forms/link-form'
+import { SocialLinkForm } from '@/features/bio-page/ui/link-forms/social-link-form'
+import { ProductLinkForm } from '@/features/bio-page/ui/link-forms/product-link-form'
+import { EmbedLinkForm } from '@/features/bio-page/ui/link-forms/embed-link-form'
+import { ScheduledLinkForm } from '@/features/bio-page/ui/link-forms/scheduled-link-form'
+import { GatedLinkForm } from '@/features/bio-page/ui/link-forms/gated-link-form'
+import { BioPageLinkType } from '@/features/bio-page/types/index'
+import { transformFormDataToApiRequest, validateLinkFormData } from '@/features/bio-page/lib/form-data-transformer'
 import { toast } from 'sonner'
 
 interface CreateBioLinkDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCreateLink: (linkData: any) => void
+  pageId: number
+  currentLinksCount: number
 }
 
-export function CreateBioLinkDialog({ open, onOpenChange, onCreateLink }: CreateBioLinkDialogProps) {
-  const [formData, setFormData] = useState({
-    title: '',
-    url: '',
-    type: 'LINK',
-    isActive: true,
-    sortOrder: 0,
-    price: '',
-    currency: 'USD'
-  })
-  const [loading, setLoading] = useState(false)
+export function CreateBioLinkDialog({ open, onOpenChange, onCreateLink, pageId, currentLinksCount }: CreateBioLinkDialogProps) {
+  const [selectedType, setSelectedType] = useState<BioPageLinkType>('LINK');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!formData.title.trim()) {
-      toast.error("Error", {
-        description: "Title is required",
-      })
-      return
+  const form = useForm({
+    resolver: zodResolver(linkFormSchema),
+    defaultValues: {
+      type: 'LINK',
+      isActive: true, // Explicit true matches boolean schema
+      sortOrder: 0,
+      currency: 'USD',
+      title: '',
+      url: '',
+      price: undefined,
+      scheduleFrom: null, // nullable in schema
+      scheduleTo: null,
+      thumbnailUrl: '',
+      iconUrl: '',
+      embedCode: '',
+      gateType: undefined,
+      gateValue: '',
+      gateMessage: ''
     }
+  });
 
-    if (formData.type !== 'PRODUCT' && !formData.url.trim()) {
-      toast.error("Error", {
-        description: "URL is required for this link type",
-      })
-      return
-    }
+  const { reset, setValue, watch, handleSubmit } = form;
 
-    if (formData.type === 'PRODUCT') {
-      if (!formData.price || parseFloat(formData.price) <= 0) {
-        toast.error("Error", {
-          description: "Valid price is required for product links",
-        })
-        return
-      }
-    }
+  // Watch type change to update local state if needed for UI switching
+  // Actually we should rely on form value if we sync them. 
+  // But type selector is outside the sub-forms usually, or part of the main form.
 
-    setLoading(true)
-    try {
-      const linkData = {
-        ...formData,
-        price: formData.type === 'PRODUCT' ? parseFloat(formData.price) : undefined,
-        currency: formData.type === 'PRODUCT' ? formData.currency : undefined,
-        url: formData.type === 'PRODUCT' ? undefined : formData.url
-      }
-
-      await onCreateLink(linkData)
-      setFormData({
-        title: '',
-        url: '',
+  // When dialog opens/closes, reset form
+  useEffect(() => {
+    if (open) {
+      reset({
         type: 'LINK',
         isActive: true,
         sortOrder: 0,
-        price: '',
-        currency: 'USD'
-      })
-    } finally {
-      setLoading(false)
+        currency: 'USD',
+        title: '',
+        url: ''
+      });
+      setSelectedType('LINK');
     }
-  }
+  }, [open, reset]);
+
+  const onSubmit = async (data: LinkFormValues) => {
+    try {
+      // Validate form data based on type
+      const validationErrors = validateLinkFormData(data);
+      if (validationErrors) {
+        // Display validation errors
+        Object.entries(validationErrors).forEach(([field, message]) => {
+          form.setError(field as any, { message });
+        });
+        return;
+      }
+
+      // Transform form data to API request format
+      const requestData = transformFormDataToApiRequest(data, pageId, currentLinksCount);
+
+      await onCreateLink(requestData);
+      onOpenChange(false);
+    } catch {
+      toast.error("Failed to create link");
+    }
+  };
+
+  const currentType = watch('type');
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Link</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              placeholder="My Awesome Link"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              required
-              maxLength={200}
-            />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="type">Type *</Label>
-            <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="LINK">Website Link</SelectItem>
-                <SelectItem value="PRODUCT">Product</SelectItem>
-                <SelectItem value="SOCIAL">Social Media</SelectItem>
-                <SelectItem value="EMAIL">Email</SelectItem>
-                <SelectItem value="PHONE">Phone</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
-          {formData.type !== 'PRODUCT' && (
             <div className="space-y-2">
-              <Label htmlFor="url">URL *</Label>
-              <Input
-                id="url"
-                type="url"
-                placeholder="https://example.com"
-                value={formData.url}
-                onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                required={formData.type !== 'PRODUCT'}
-                maxLength={2048}
-              />
+              <Label>Link Type</Label>
+              <Select
+                value={currentType || 'LINK'}
+                onValueChange={(val) => {
+                  setValue('type', val as BioPageLinkType, { shouldValidate: true });
+                  setSelectedType(val as BioPageLinkType);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select link type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="LINK">Link</SelectItem>
+                  <SelectItem value="SOCIAL">Social</SelectItem>
+                  <SelectItem value="PRODUCT">Product</SelectItem>
+                  <SelectItem value="EMBED">Music/Video</SelectItem>
+                  <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                  <SelectItem value="GATED">Gated Content</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
 
-          {formData.type === 'PRODUCT' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="price">Price *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="29.99"
-                  value={formData.price}
-                  onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                  required
-                />
-              </div>
+            {currentType === 'LINK' && <LinkForm />}
+            {currentType === 'SOCIAL' && <SocialLinkForm />}
+            {currentType === 'PRODUCT' && <ProductLinkForm />}
+            {currentType === 'EMBED' && <EmbedLinkForm />}
+            {currentType === 'SCHEDULED' && <ScheduledLinkForm />}
+            {currentType === 'GATED' && <GatedLinkForm />}
 
-              <div className="space-y-2">
-                <Label htmlFor="currency">Currency *</Label>
-                <Select value={formData.currency} onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value }))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USD">USD ($)</SelectItem>
-                    <SelectItem value="EUR">EUR (€)</SelectItem>
-                    <SelectItem value="GBP">GBP (£)</SelectItem>
-                    <SelectItem value="INR">INR (₹)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isActive"
-              checked={formData.isActive}
-              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
-            />
-            <Label htmlFor="isActive">Active</Label>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Add Link"}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Creating..." : "Add Link"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

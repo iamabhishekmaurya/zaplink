@@ -41,7 +41,6 @@ export default function BioPagesDashboard() {
         setPages(data)
       }
     } catch (error) {
-      console.error("Failed to load bio pages:", error)
       toast.error("Failed to load bio pages")
     } finally {
       setLoading(false)

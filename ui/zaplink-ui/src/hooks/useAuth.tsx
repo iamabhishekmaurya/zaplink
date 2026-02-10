@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useEffect, createContext, useContext, ReactNode } from "react"
+import { useSelector } from "react-redux"
+import { RootState } from "@/store"
 
 interface User {
-  id: number
+  id: string  // Changed from number to string to match UserInfo
   username: string
   email: string
   firstName?: string
@@ -15,7 +17,7 @@ interface AuthContextType {
   userRole: string
   organizationId: number
   teamId?: number
-  userId: number
+  userId: string  // Changed from number to string to match User.id
   isLoading: boolean
   hasPermission: (permission: string) => boolean
   hasRole: (role: string | string[]) => boolean
@@ -62,74 +64,19 @@ const ROLE_PERMISSIONS: PermissionConfig = {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [userRole, setUserRole] = useState<string>("VIEWER")
-  const [organizationId, setOrganizationId] = useState<number>(0)
+  const authState = useSelector((state: RootState) => state.auth)
+  const [userRole, setUserRole] = useState<string>("ADMIN")
+  const [organizationId, setOrganizationId] = useState<number>(1)
   const [teamId, setTeamId] = useState<number | undefined>(undefined)
-  const [userId, setUserId] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState(true)
 
+  // Set default role when user changes
   useEffect(() => {
-    // In a real app, this would parse JWT token from localStorage or cookies
-    // For demo purposes, we'll simulate user data
-    const initializeAuth = () => {
-      try {
-        // Get JWT token from localStorage
-        const token = localStorage.getItem("auth_token")
-        if (token) {
-          // Parse JWT token (in real app, use jwt-decode library)
-          const payload = parseJWT(token)
-          setUser(payload.user)
-          setUserRole(payload.role || "VIEWER")
-          setOrganizationId(payload.orgId || 1)
-          setTeamId(payload.teamId)
-          setUserId(payload.user?.id || 1)
-        }
-      } catch (error) {
-        console.error("Failed to initialize auth:", error)
-        // Set default values for demo
-        const demoUser = {
-          id: 1,
-          username: "demo_user",
-          email: "demo@example.com",
-          firstName: "Demo",
-          lastName: "User"
-        }
-        setUser(demoUser)
-        setUserRole("ADMIN") // Default to ADMIN for demo
-        setOrganizationId(1)
-        setUserId(demoUser.id)
-      } finally {
-        setIsLoading(false)
-      }
+    if (authState.user) {
+      setUserRole("ADMIN") // Default to ADMIN for demo
+      setOrganizationId(1)
+      setTeamId(undefined)
     }
-
-    initializeAuth()
-  }, [])
-
-  const parseJWT = (token: string) => {
-    // Simplified JWT parsing for demo
-    // In production, use a proper JWT library
-    try {
-      const base64Url = token.split('.')[1]
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      )
-      return JSON.parse(jsonPayload)
-    } catch (error) {
-      // Return demo payload if parsing fails
-      return {
-        user: { id: 1, username: "demo_user", email: "demo@example.com" },
-        role: "ADMIN",
-        orgId: 1,
-        teamId: 1
-      }
-    }
-  }
+  }, [authState.user])
 
   const hasPermission = (permission: string): boolean => {
     if (!userRole) return false
@@ -145,12 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const value: AuthContextType = {
-    user,
+    user: authState.user,
     userRole,
     organizationId,
     teamId,
-    userId,
-    isLoading,
+    userId: authState.user?.id || "", // Changed from 0 to empty string to match string type
+    isLoading: authState.isLoading || !authState.isInitialized,
     hasPermission,
     hasRole
   }

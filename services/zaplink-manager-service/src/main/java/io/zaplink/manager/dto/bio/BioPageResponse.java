@@ -21,6 +21,13 @@ public class BioPageResponse
     private String                avatarUrl;
     @JsonProperty("bio_text")
     private String                bioText;
+    private String                title;
+    @JsonProperty("cover_url")
+    private String                coverUrl;
+    @JsonProperty("seo_meta")
+    private String                seoMeta;
+    @JsonProperty("is_public")
+    private Boolean               isPublic;
     @JsonProperty("created_at")
     private LocalDateTime         createdAt;
     @JsonProperty("updated_at")

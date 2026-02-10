@@ -10,8 +10,9 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, Edit, Trash2, ExternalLink, Users } from 'lucide-react'
 import { BioLinkManager } from '@/features/bio-page/ui/bio-link-manager'
 import { CreateBioPageDialog } from '@/features/bio-page/ui/create-bio-page-dialog'
-import { showSuccessToast, showErrorToast } from '@/lib/toast'
-import { bioPageService, type BioPage, type BioLink } from '@/services/bioPageService'
+import { useAuth } from '@/hooks/useAuth'
+import { handleApiError, showSuccessToast } from '@/lib/error-handler'
+import { bioPageService, type BioPage, type BioLink, type CreateBioPageRequest } from '@/services/bioPageService'
 
 interface BioPageManagerProps {
   onPageSelect: (pageId: string) => void
@@ -23,14 +24,16 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
   const [selectedPage, setSelectedPage] = useState<BioPage | null>(null)
   const [loading, setLoading] = useState(true)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const { user } = useAuth()
 
   const fetchPages = async () => {
+    if (!user?.id) return
+    
     try {
-      // TODO: Get actual owner ID from auth context
-      const pages = await bioPageService.getBioPagesByOwnerId('user123')
+      const pages = await bioPageService.getBioPagesByOwnerId(user.id.toString())
       setPages(pages)
     } catch (error) {
-      showErrorToast("Error", "Failed to fetch bio pages")
+      handleApiError(error, 'Failed to fetch bio pages')
     } finally {
       setLoading(false)
     }
@@ -38,30 +41,26 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
 
   useEffect(() => {
     fetchPages()
-  }, [])
+  }, [user?.id])
 
-  const handleCreatePage = async (pageData: any) => {
+  const handleCreatePage = async (pageData: CreateBioPageRequest) => {
+    if (!user?.id) {
+      handleApiError({ message: 'User not authenticated' }, 'Create bio page')
+      return
+    }
+
     try {
-      const response = await fetch('/api/wr/bio-pages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...pageData,
-          owner_id: 'user123' // TODO: Get from auth
-        }),
+      const newPage = await bioPageService.createBioPage({
+        ...pageData,
+        owner_id: user.id.toString()
       })
-
-      if (response.ok) {
-        const newPage = await response.json()
-        setPages(prev => [...prev, newPage])
-        showSuccessToast("Success", "Bio page created successfully")
-        setShowCreateDialog(false)
-        onPageUpdate()
-      }
+      
+      setPages(prev => [...prev, newPage])
+      showSuccessToast('Bio page created successfully')
+      setShowCreateDialog(false)
+      onPageUpdate()
     } catch (error) {
-      showErrorToast("Error", "Failed to create bio page")
+      handleApiError(error, 'Failed to create bio page')
     }
   }
 
@@ -69,20 +68,15 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
     if (!confirm('Are you sure you want to delete this bio page?')) return
 
     try {
-      const response = await fetch(`/api/wr/bio-pages/${pageId}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        setPages(prev => prev.filter(p => p.id !== pageId))
-        if (selectedPage?.id === pageId) {
-          setSelectedPage(null)
-        }
-        showSuccessToast("Success", "Bio page deleted successfully")
-        onPageUpdate()
+      await bioPageService.deleteBioPage(pageId)
+      setPages(prev => prev.filter(p => p.id !== pageId))
+      if (selectedPage?.id === pageId) {
+        setSelectedPage(null)
       }
+      showSuccessToast('Bio page deleted successfully')
+      onPageUpdate()
     } catch (error) {
-      showErrorToast("Error", "Failed to delete bio page")
+      handleApiError(error, 'Failed to delete bio page')
     }
   }
 

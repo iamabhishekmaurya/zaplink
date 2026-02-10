@@ -122,6 +122,36 @@ public class BioLinkEntity
     @Column(name = "currency", length = 3)
     private String        currency;
     /**
+     * Flexible JSON metadata for link-specific configurations.
+     * Used for thumbnails, SKU IDs, embed codes, etc.
+     */
+    @Column(name = "metadata", columnDefinition = "jsonb")
+    private String        metadata;
+    /**
+     * Start time for scheduled visibility.
+     * Link is hidden before this timestamp.
+     */
+    @Column(name = "schedule_from")
+    private LocalDateTime scheduleFrom;
+    /**
+     * End time for scheduled visibility.
+     * Link is hidden after this timestamp.
+     */
+    @Column(name = "schedule_to")
+    private LocalDateTime scheduleTo;
+    /**
+     * Custom icon URL for the link.
+     * Overrides default type icon if provided.
+     */
+    @Column(name = "icon_url", length = 500)
+    private String        iconUrl;
+    /**
+     * Thumbnail or preview image URL.
+     * Used for video embeds, product previews, etc.
+     */
+    @Column(name = "thumbnail_url", length = 500)
+    private String        thumbnailUrl;
+    /**
      * Timestamp when the bio link was created.
      * Automatically set on creation and immutable.
      */

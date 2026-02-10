@@ -9,7 +9,6 @@ const OTLP_ENDPOINT = 'http://localhost:4318/v1/traces';
 
 if (typeof window === 'undefined') {
     // Node.js / Server-side initialization
-    console.log('Initializing OpenTelemetry for zaplink-ui (Server)...');
 
     const sdk = new NodeSDK({
         resource: resourceFromAttributes({
@@ -23,15 +22,13 @@ if (typeof window === 'undefined') {
 
     try {
         sdk.start();
-        console.log('OpenTelemetry (Server) initialized successfully');
-    } catch (error) {
-        console.error('Error initializing OpenTelemetry (Server):', error);
+    } catch {
+        // Silent fail for telemetry initialization
     }
 
     process.on('SIGTERM', () => {
         sdk.shutdown()
-            .then(() => console.log('OpenTelemetry terminated'))
-            .catch((error) => console.error('Error terminating OpenTelemetry', error))
+            .catch(() => {})
             .finally(() => process.exit(0));
     });
 } else {
@@ -42,8 +39,6 @@ if (typeof window === 'undefined') {
     const { FetchInstrumentation } = require('@opentelemetry/instrumentation-fetch');
     const { XMLHttpRequestInstrumentation } = require('@opentelemetry/instrumentation-xml-http-request');
     const { ZoneContextManager } = require('@opentelemetry/context-zone');
-
-    console.log('Initializing OpenTelemetry for zaplink-ui (Browser)...');
 
     const provider = new WebTracerProvider({
         resource: resourceFromAttributes({
@@ -73,7 +68,5 @@ if (typeof window === 'undefined') {
             }),
         ],
     });
-
-    console.log('OpenTelemetry (Browser) initialized successfully');
 }
 

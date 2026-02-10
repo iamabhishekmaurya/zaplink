@@ -26,6 +26,14 @@ public class BioReadService
     }
 
     @Transactional(readOnly = true)
+    public BioPageResponse getBioPageById( Long id )
+    {
+        BioPageEntity page = bioPageRepository.findById( id )
+                .orElseThrow( () -> new IllegalArgumentException( "BioPage not found" ) );
+        return mapToPageResponse( page );
+    }
+
+    @Transactional(readOnly = true)
     public List<BioPageResponse> getBioPagesByOwner( String ownerId )
     {
         return bioPageRepository.findByOwnerId( ownerId ).stream().map( this::mapToPageResponse )
@@ -65,7 +73,9 @@ public class BioReadService
                 .map( this::mapToLinkResponse ).collect( Collectors.toList() );
         return BioPageResponse.builder().id( page.getId() ).username( page.getUsername() ).ownerId( page.getOwnerId() )
                 .themeConfig( page.getThemeConfig() ).avatarUrl( page.getAvatarUrl() ).bioText( page.getBioText() )
-                .createdAt( page.getCreatedAt() ).updatedAt( page.getUpdatedAt() ).bioLinks( links ).build();
+                .title( page.getTitle() ).coverUrl( page.getCoverUrl() ).seoMeta( page.getSeoMeta() )
+                .isPublic( page.getIsPublic() ).createdAt( page.getCreatedAt() ).updatedAt( page.getUpdatedAt() )
+                .bioLinks( links ).build();
     }
 
     private BioLinkResponse mapToLinkResponse( BioLinkEntity link )
@@ -73,6 +83,8 @@ public class BioReadService
         return BioLinkResponse.builder().id( link.getId() ).pageId( link.getBioPage().getId() ).title( link.getTitle() )
                 .url( link.getUrl() ).type( link.getTypeName() ).isActive( link.getIsActive() )
                 .sortOrder( link.getSortOrder() ).price( link.getPrice() ).currency( link.getCurrency() )
+                .metadata( link.getMetadata() ).scheduleFrom( link.getScheduleFrom() )
+                .scheduleTo( link.getScheduleTo() ).iconUrl( link.getIconUrl() ).thumbnailUrl( link.getThumbnailUrl() )
                 .createdAt( link.getCreatedAt() ).updatedAt( link.getUpdatedAt() ).build();
     }
 }

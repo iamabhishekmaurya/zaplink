@@ -36,9 +36,8 @@ export function CreateFolderDialog({ ownerId, parentId }: CreateFolderDialogProp
                 setName("");
                 toast.success("Folder created");
             },
-            onError: (err) => {
+            onError: () => {
                 toast.error("Failed to create folder");
-                console.error(err);
             }
         });
     }

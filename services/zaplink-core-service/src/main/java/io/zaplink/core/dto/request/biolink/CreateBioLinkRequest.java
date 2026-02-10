@@ -35,7 +35,12 @@ public record CreateBioLinkRequest( @JsonProperty("page_id") @NotNull(message = 
                                     @JsonProperty("is_active") Boolean isActive,
                                     @JsonProperty("sort_order") @Min(value = 0, message = ErrorConstant.VALIDATION_MIN_VALUE) Integer sortOrder,
                                     Double price,
-                                    String currency )
+                                    String currency,
+                                    @JsonProperty("metadata") String metadata,
+                                    @JsonProperty("schedule_from") java.time.LocalDateTime scheduleFrom,
+                                    @JsonProperty("schedule_to") java.time.LocalDateTime scheduleTo,
+                                    @JsonProperty("icon_url") @Size(max = 500, message = "Icon URL cannot exceed 500 characters") String iconUrl,
+                                    @JsonProperty("thumbnail_url") @Size(max = 500, message = "Thumbnail URL cannot exceed 500 characters") String thumbnailUrl )
 {
     /**
      * Compact constructor for validation and default values.
@@ -70,24 +75,21 @@ public record CreateBioLinkRequest( @JsonProperty("page_id") @NotNull(message = 
         // Use Java 21 enhanced switch expression for type-specific validation
         switch ( type.toUpperCase() )
         {
-            case "LINK", "SOCIAL" -> {
+            case "LINK", "SOCIAL", "EMBED", "SCHEDULED", "GATED" -> {
                 if ( url == null || url.trim().isEmpty() )
                 {
                     throw new IllegalArgumentException( "URL is required for " + type + " links" );
                 }
             }
-            case "PRODUCT" -> {
-                if ( price == null || currency == null )
+            case "PRODUCT", "PAYMENT" -> {
+                if ( price != null && price < 0 )
                 {
-                    throw new IllegalArgumentException( "Product links must have both price and currency" );
+                    throw new IllegalArgumentException( "Price cannot be negative" );
                 }
-                if ( price <= 0 )
+                // Currency validation if price is present
+                if ( price != null && ( currency == null || !currency.matches( "^[A-Z]{3}$" ) ) )
                 {
-                    throw new IllegalArgumentException( "Product price must be positive" );
-                }
-                if ( !currency.matches( "^[A-Z]{3}$" ) )
-                {
-                    throw new IllegalArgumentException( "Currency must be a valid 3-letter ISO code" );
+                    throw new IllegalArgumentException( "Valid 3-letter currency code required when price is set" );
                 }
             }
             case "EMAIL" -> {

@@ -92,7 +92,6 @@ const AnalyticsPageContent = () => {
                     setMeta({ title: `QR Analytics: ${d.qrName}`, subtitle: `Tracking Key: ${d.qrKey}` })
                 }
             } catch (err: any) {
-                console.error("Failed to fetch analytics", err)
                 setError(err.response?.data?.message || "Failed to load analytics data")
                 toast.error("Could not load analytics")
             } finally {
