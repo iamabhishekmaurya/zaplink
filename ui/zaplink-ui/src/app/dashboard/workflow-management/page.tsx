@@ -12,10 +12,10 @@ export default function WorkflowManagementPage() {
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
-      <WorkflowManagement 
-        organizationId={organizationId} 
-        userRole={userRole} 
-        userId={userId} 
+      <WorkflowManagement
+        organizationId={organizationId}
+        userRole={userRole}
+        userId={Number(userId || 0)}
       />
     </div>
   )

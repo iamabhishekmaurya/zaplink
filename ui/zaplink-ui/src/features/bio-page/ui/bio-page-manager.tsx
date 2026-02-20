@@ -28,7 +28,7 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
 
   const fetchPages = async () => {
     if (!user?.id) return
-    
+
     try {
       const pages = await bioPageService.getBioPagesByOwnerId(user.id.toString())
       setPages(pages)
@@ -54,7 +54,7 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
         ...pageData,
         owner_id: user.id.toString()
       })
-      
+
       setPages(prev => [...prev, newPage])
       showSuccessToast('Bio page created successfully')
       setShowCreateDialog(false)
@@ -64,7 +64,7 @@ export function BioPageManager({ onPageSelect, onPageUpdate }: BioPageManagerPro
     }
   }
 
-  const handleDeletePage = async (pageId: number) => {
+  const handleDeletePage = async (pageId: string) => {
     if (!confirm('Are you sure you want to delete this bio page?')) return
 
     try {

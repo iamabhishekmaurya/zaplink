@@ -3,18 +3,19 @@
 import { motion } from "framer-motion";
 import { ThemeConfig } from "@/ui/design-system/theme-utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { FontSelector } from "./font-selector";
 import { BackgroundPicker } from "./background-picker";
 import { ButtonStylePicker } from "./button-style-picker";
 import { ColorPicker } from "@/components/ui/color-picker";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Palette, 
-  Type, 
-  Image as ImageIcon, 
-  LayoutTemplate,
-  Sparkles,
-  Eye
+
+import {
+    Palette,
+    Type,
+    Image as ImageIcon,
+    LayoutTemplate,
+    Sparkles,
+    Eye
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,15 +25,15 @@ interface ThemeEditorProps {
 }
 
 const accordionItemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.3,
-    },
-  }),
+    hidden: { opacity: 0, y: 10 },
+    visible: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: {
+            delay: i * 0.1,
+            duration: 0.3,
+        },
+    }),
 };
 
 export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
@@ -68,16 +69,16 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
         <ScrollArea className="h-full pr-4">
             <div className="space-y-6 pb-20">
                 {/* Header */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex items-center gap-3 pb-4 border-b"
                 >
-                    <div className="p-2 bg-gradient-to-br from-violet-100 to-purple-100 rounded-xl">
-                        <Sparkles className="w-5 h-5 text-violet-600" />
+                    <div className="p-2 bg-primary/10 rounded-xl">
+                        <Sparkles className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                        <h3 className="text-lg font-semibold text-foreground">
                             Design Your Page
                         </h3>
                         <p className="text-sm text-muted-foreground">
@@ -94,11 +95,11 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
                         animate="visible"
                         variants={accordionItemVariants}
                     >
-                        <AccordionItem value="background" className="border rounded-xl px-4 bg-gradient-to-r from-white to-muted/20 shadow-sm">
+                        <AccordionItem value="background" className="border rounded-xl px-4 bg-gradient-to-r from-card to-muted/20 shadow-sm">
                             <AccordionTrigger className="hover:no-underline py-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg">
-                                        <ImageIcon className="w-4 h-4 text-blue-600" />
+                                    <div className="p-2 bg-blue-500/10 rounded-lg">
+                                        <ImageIcon className="w-4 h-4 text-blue-500" />
                                     </div>
                                     <div className="text-left">
                                         <span className="font-semibold text-sm">Background</span>
@@ -124,11 +125,11 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
                         animate="visible"
                         variants={accordionItemVariants}
                     >
-                        <AccordionItem value="colors" className="border rounded-xl px-4 bg-gradient-to-r from-white to-muted/20 shadow-sm">
+                        <AccordionItem value="colors" className="border rounded-xl px-4 bg-gradient-to-r from-card to-muted/20 shadow-sm">
                             <AccordionTrigger className="hover:no-underline py-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gradient-to-br from-pink-100 to-rose-100 rounded-lg">
-                                        <Palette className="w-4 h-4 text-pink-600" />
+                                    <div className="p-2 bg-pink-500/10 rounded-lg">
+                                        <Palette className="w-4 h-4 text-pink-500" />
                                     </div>
                                     <div className="text-left">
                                         <span className="font-semibold text-sm">Colors</span>
@@ -162,11 +163,11 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
                         animate="visible"
                         variants={accordionItemVariants}
                     >
-                        <AccordionItem value="typography" className="border rounded-xl px-4 bg-gradient-to-r from-white to-muted/20 shadow-sm">
+                        <AccordionItem value="typography" className="border rounded-xl px-4 bg-gradient-to-r from-card to-muted/20 shadow-sm">
                             <AccordionTrigger className="hover:no-underline py-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg">
-                                        <Type className="w-4 h-4 text-amber-600" />
+                                    <div className="p-2 bg-amber-500/10 rounded-lg">
+                                        <Type className="w-4 h-4 text-amber-500" />
                                     </div>
                                     <div className="text-left">
                                         <span className="font-semibold text-sm">Typography</span>
@@ -189,11 +190,11 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
                         animate="visible"
                         variants={accordionItemVariants}
                     >
-                        <AccordionItem value="buttons" className="border rounded-xl px-4 bg-gradient-to-r from-white to-muted/20 shadow-sm">
+                        <AccordionItem value="buttons" className="border rounded-xl px-4 bg-gradient-to-r from-card to-muted/20 shadow-sm">
                             <AccordionTrigger className="hover:no-underline py-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-lg">
-                                        <LayoutTemplate className="w-4 h-4 text-emerald-600" />
+                                    <div className="p-2 bg-emerald-500/10 rounded-lg">
+                                        <LayoutTemplate className="w-4 h-4 text-emerald-500" />
                                     </div>
                                     <div className="text-left">
                                         <span className="font-semibold text-sm">Buttons & Cards</span>
@@ -214,10 +215,10 @@ export function ThemeEditor({ theme, onChange }: ThemeEditorProps) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="flex items-center gap-2 p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-100"
+                    className="flex items-center gap-2 p-4 bg-primary/5 rounded-xl border border-primary/10"
                 >
-                    <Eye className="w-4 h-4 text-violet-600" />
-                    <p className="text-sm text-violet-700">
+                    <Eye className="w-4 h-4 text-primary" />
+                    <p className="text-sm text-primary">
                         Changes apply instantly to the preview on the right
                     </p>
                 </motion.div>

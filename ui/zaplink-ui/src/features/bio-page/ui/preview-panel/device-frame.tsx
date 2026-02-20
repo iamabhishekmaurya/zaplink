@@ -29,11 +29,11 @@ export function DeviceFrame({ children, mode = "mobile", className }: DeviceFram
 
     return (
         <div className={cn("mx-auto relative", className)} style={{ width: '375px', height: '667px' }}>
-            <div className="absolute inset-0 border-8 border-gray-900 rounded-[3rem] overflow-hidden shadow-xl bg-background">
+            <div className="absolute inset-0 border-[8px] border-slate-900/90 rounded-[3rem] overflow-hidden shadow-2xl bg-background">
                 {/* Notch */}
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-6 bg-gray-900 rounded-b-2xl z-20"></div>
                 {/* Screen */}
-                <div className="w-full h-full overflow-y-auto scrollbar-hide bg-white dark:bg-black">
+                <div className="w-full h-full overflow-y-auto mobile-scrollbar bg-background">
                     {children}
                 </div>
             </div>

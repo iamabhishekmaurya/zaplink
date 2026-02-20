@@ -146,4 +146,26 @@ public class MinioStorageService
             // S3 idempotent delete doesn't always throw on missing keys, but connection errors will appear here.
         }
     }
+
+    /**
+     * Downloads an object from S3 as an InputStream.
+     *
+     * @param key The object key.
+     * @return InputStream of the object data.
+     */
+    @Override
+    public java.io.InputStream download( String key )
+    {
+        log.debug( "Downloading object from S3: {}", key );
+        try
+        {
+            return s3Client.getObject( software.amazon.awssdk.services.s3.model.GetObjectRequest.builder()
+                    .bucket( bucketName ).key( key ).build() );
+        }
+        catch ( Exception e )
+        {
+            log.error( "Failed to download object from S3: {}", key, e );
+            throw new RuntimeException( "Failed to download file: " + key, e );
+        }
+    }
 }

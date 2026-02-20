@@ -1,9 +1,6 @@
 server:
   port: 8090
 
-api:
-  base-path: /api
-
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}

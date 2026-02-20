@@ -5,3 +5,4 @@ export { PortalsSection } from './portals-section';
 export { SocialMediaSection } from './social-media-section';
 export { LinkRenderer } from './link-renderer';
 export { BioPageRenderer } from './bio-page-renderer';
+export { PreviewPanel } from './preview-panel';

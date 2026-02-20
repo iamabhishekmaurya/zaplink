@@ -8,15 +8,15 @@ import { useDebouncedCallback } from '@/hooks/use-debounce';
 export function useBioPageEditor(initialData?: BioPage) {
     // Safety check for initialData with fallback
     const safeInitialData: BioPage = initialData || {
-        id: 0,
+        id: '0',
         username: '',
         ownerId: '',
         bioText: '',
         avatarUrl: '',
-        themeConfig: '',
+        themeConfig: { palette: 'minimal' },
         title: '',
         coverUrl: '',
-        seoMeta: '',
+        seoMeta: undefined,
         isPublic: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -31,8 +31,8 @@ export function useBioPageEditor(initialData?: BioPage) {
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
     const prevSerializedTheme = useRef<string>('');
-    const pageIdRef = useRef<number>(safeInitialData.id);
-    
+    const pageIdRef = useRef<string>(safeInitialData.id);
+
     // Keep ref in sync with current ID
     useEffect(() => {
         pageIdRef.current = data.id;
@@ -45,17 +45,23 @@ export function useBioPageEditor(initialData?: BioPage) {
         serializedTheme,
         resetTheme,
         cssVariables
-    } = useTheme(safeInitialData.themeConfig || '{}');
+    } = useTheme(JSON.stringify(safeInitialData.themeConfig || {}));
 
     // Debounced theme update to prevent excessive re-renders
     const debouncedThemeUpdate = useDebouncedCallback((newSerializedTheme: string) => {
-        setData(prev => ({ ...prev, themeConfig: newSerializedTheme }));
-        setHasUnsavedChanges(true);
+        try {
+            const parsed = JSON.parse(newSerializedTheme);
+            setData(prev => ({ ...prev, themeConfig: parsed }));
+            setHasUnsavedChanges(true);
+        } catch {
+            console.error('Failed to parse theme update');
+        }
     }, 300, []);
 
     // Update local data when theme changes (debounced)
     useEffect(() => {
-        if (serializedTheme !== prevSerializedTheme.current && serializedTheme !== data.themeConfig) {
+        const currentThemeString = JSON.stringify(data.themeConfig || {});
+        if (serializedTheme !== prevSerializedTheme.current && serializedTheme !== currentThemeString) {
             debouncedThemeUpdate(serializedTheme);
             prevSerializedTheme.current = serializedTheme;
         }
@@ -71,10 +77,10 @@ export function useBioPageEditor(initialData?: BioPage) {
 
     const refresh = useCallback(async () => {
         const currentId = pageIdRef.current;
-        if (!currentId || currentId === 0) {
+        if (!currentId || currentId === '0') {
             return;
         }
-        
+
         try {
             const freshData = await bioPageService.getBioPageById(String(currentId));
             setData(prev => ({ ...prev, ...freshData }));
@@ -84,11 +90,11 @@ export function useBioPageEditor(initialData?: BioPage) {
     }, []);
 
     const save = useCallback(async () => {
-        if (!data.id || data.id === 0) {
+        if (!data.id || data.id === '0') {
             toast.error("Cannot save: Invalid page ID");
             return;
         }
-        
+
         setIsSaving(true);
         try {
             await bioPageService.updateBioPage(data.id, {
@@ -97,7 +103,7 @@ export function useBioPageEditor(initialData?: BioPage) {
                 theme_config: serializedTheme,
                 avatar_url: data.avatarUrl,
                 is_public: data.isPublic ?? true,
-                seo_meta: data.seoMeta
+                seo_meta: data.seoMeta ? JSON.stringify(data.seoMeta) : undefined
             });
             setHasUnsavedChanges(false);
             toast.success("Changes saved successfully");

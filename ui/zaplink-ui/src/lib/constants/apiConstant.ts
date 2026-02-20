@@ -18,7 +18,8 @@ export const API_BASE_URLS = {
   MANAGER_DYQR: '/rd/qr',
 
   // Media Service
-  MEDIA: '/media'
+  MEDIA: '/media',
+  FOLDERS: '/folders'
 } as const
 
 // API Endpoints

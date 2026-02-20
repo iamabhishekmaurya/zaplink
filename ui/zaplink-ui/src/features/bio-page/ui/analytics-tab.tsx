@@ -1,8 +1,14 @@
-"use client"
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { BioPage } from "@/services/bioPageService";
 import { motion } from "framer-motion";
@@ -21,11 +27,8 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
-  Cell,
   Pie,
   PieChart,
-  ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis
 } from "recharts";
@@ -42,10 +45,37 @@ interface AnalyticsData {
   topCountries: Array<{ name: string; value: number; percentage: number }>;
   dailyViews: Array<{ date: string; views: number; clicks: number }>;
   linkPerformance: Array<{ title: string; clicks: number; percentage: number }>;
-  deviceStats: Array<{ device: string; count: number; percentage: number }>;
+  deviceStats: Array<{ device: string; count: number; percentage: number; fill: string }>;
 }
 
-const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981'];
+const viewsChartConfig = {
+  views: {
+    label: "Page Views",
+    color: "#8b5cf6",
+  },
+  clicks: {
+    label: "Total Clicks",
+    color: "#06b6d4",
+  },
+} satisfies ChartConfig;
+
+const deviceChartConfig = {
+  count: {
+    label: "Visitors",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "#8b5cf6",
+  },
+  desktop: {
+    label: "Desktop",
+    color: "#06b6d4",
+  },
+  tablet: {
+    label: "Tablet",
+    color: "#f59e0b",
+  },
+} satisfies ChartConfig;
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -60,47 +90,48 @@ const cardVariants = {
 };
 
 // Stat Card Component
-function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
+const colorMap: Record<string, string> = {
+  blue: "bg-blue-500/10 text-blue-600",
+  emerald: "bg-emerald-500/10 text-emerald-600",
+  amber: "bg-amber-500/10 text-amber-600",
+  violet: "bg-violet-500/10 text-violet-600",
+};
+
+function StatCard({
+  title,
+  value,
+  icon: Icon,
   color,
   subtitle,
-  index 
-}: { 
-  title: string; 
-  value: string; 
-  icon: any; 
+  index
+}: {
+  title: string;
+  value: string;
+  icon: any;
   color: string;
   subtitle?: string;
   index: number;
 }) {
-  const colorClasses: Record<string, string> = {
-    blue: 'from-blue-500 to-cyan-500',
-    emerald: 'from-emerald-500 to-teal-500',
-    amber: 'from-amber-500 to-orange-500',
-    violet: 'from-violet-500 to-purple-500',
-  };
-  
+  const colorStyles = colorMap[color] || colorMap.blue;
+
   return (
     <motion.div custom={index} initial="hidden" animate="visible" variants={cardVariants}>
-      <Card className="border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-        <CardContent className="p-5">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">{title}</p>
-              <p className="text-2xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                {value}
-              </p>
-              {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-            </div>
-            <div className={cn(
-              "p-2.5 rounded-xl bg-gradient-to-br",
-              colorClasses[color]
-            )}>
-              <Icon className="h-5 w-5 text-white" />
-            </div>
+      <Card className="border shadow-sm overflow-hidden hover:shadow-md transition-all duration-200">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {title}
+          </CardTitle>
+          <div className={cn("p-2 rounded-lg transition-colors", colorStyles)}>
+            <Icon className="h-4 w-4" />
           </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold tracking-tight">{value}</div>
+          {subtitle && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {subtitle}
+            </p>
+          )}
         </CardContent>
       </Card>
     </motion.div>
@@ -117,7 +148,7 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
   }, [bioPage.id, dateRange]);
 
   const fetchAnalytics = async () => {
-    setIsLoading(true);
+    if (!analytics) setIsLoading(true);
     try {
       // Mock data - replace with actual API call
       const mockData: AnalyticsData = {
@@ -143,9 +174,9 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
           percentage: Math.random() * 100
         })) || [],
         deviceStats: [
-          { device: 'Mobile', count: 567, percentage: 66.3 },
-          { device: 'Desktop', count: 234, percentage: 27.4 },
-          { device: 'Tablet', count: 55, percentage: 6.3 }
+          { device: 'Mobile', count: 567, percentage: 66.3, fill: "var(--color-mobile)" },
+          { device: 'Desktop', count: 234, percentage: 27.4, fill: "var(--color-desktop)" },
+          { device: 'Tablet', count: 55, percentage: 6.3, fill: "var(--color-tablet)" }
         ]
       };
 
@@ -170,8 +201,8 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
             <div className="w-48 h-3 bg-muted rounded animate-pulse" />
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i} className="animate-pulse border-0 shadow-sm">
               <CardContent className="p-5">
@@ -181,8 +212,8 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
             </Card>
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="animate-pulse h-80 border-0 shadow-sm" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="animate-pulse h-80 border-0 shadow-sm lg:col-span-2" />
           <Card className="animate-pulse h-80 border-0 shadow-sm" />
         </div>
       </div>
@@ -191,7 +222,7 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
 
   if (!analytics) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="text-center py-16 px-4"
@@ -210,17 +241,17 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
   return (
     <div className="space-y-6 pb-20">
       {/* Header */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b"
       >
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl">
-            <BarChart3 className="w-5 h-5 text-blue-600" />
+          <div className="p-2 bg-primary/10 rounded-xl">
+            <BarChart3 className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+            <h3 className="text-lg font-semibold text-foreground">
               Analytics Dashboard
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -228,7 +259,7 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
             </p>
           </div>
         </div>
-        
+
         {/* Date Range Selector */}
         <div className="flex bg-muted rounded-lg p-1">
           {(['7d', '30d', '90d'] as const).map((range) => (
@@ -239,7 +270,7 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
               onClick={() => setDateRange(range)}
               className={cn(
                 "text-xs",
-                dateRange === range && "bg-white shadow-sm"
+                dateRange === range && "bg-background shadow-sm"
               )}
             >
               {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
@@ -248,8 +279,8 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
         </div>
       </motion.div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Key Metrics - 2x2 Grid */}
+      <div className="grid grid-cols-2 gap-4">
         <StatCard
           title="Total Clicks"
           value={analytics.totalClicks.toLocaleString()}
@@ -280,85 +311,157 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Main Charts Row */}
+      <div className="flex flex-col gap-6">
         {/* Daily Views Chart */}
         <motion.div custom={4} initial="hidden" animate="visible" variants={cardVariants}>
-          <Card className="border shadow-sm overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-violet-50 to-purple-50 border-b pb-3">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-violet-600" />
-                <CardTitle className="text-base font-semibold">Daily Views & Clicks</CardTitle>
-              </div>
+          <Card className="border shadow-sm overflow-hidden h-full">
+            <CardHeader>
+              <CardTitle>Daily Views & Clicks</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4">
-              <ResponsiveContainer width="100%" height={280}>
-                <AreaChart data={analytics.dailyViews}>
-                  <defs>
-                    <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" tick={{fontSize: 11}} stroke="#9ca3af" />
-                  <YAxis tick={{fontSize: 11}} stroke="#9ca3af" />
-                  <Tooltip 
-                    contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+            <CardContent className="px-2 sm:px-4">
+              <ChartContainer config={viewsChartConfig} className="aspect-auto h-[280px] w-full">
+                <AreaChart
+                  data={analytics.dailyViews}
+                  margin={{
+                    left: 12,
+                    right: 12,
+                  }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    minTickGap={32}
+                    tickFormatter={(value) => {
+                      const date = new Date(value)
+                      return date.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })
+                    }}
                   />
-                  <Area type="monotone" dataKey="views" stroke="#8b5cf6" strokeWidth={2} fillOpacity={1} fill="url(#colorViews)" />
-                  <Area type="monotone" dataKey="clicks" stroke="#06b6d4" strokeWidth={2} fillOpacity={1} fill="url(#colorClicks)" />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="dot" />}
+                  />
+                  <Area
+                    dataKey="views"
+                    type="natural"
+                    fill={viewsChartConfig.views.color}
+                    fillOpacity={0.4}
+                    stroke={viewsChartConfig.views.color}
+                    stackId="a"
+                  />
+                  <Area
+                    dataKey="clicks"
+                    type="natural"
+                    fill={viewsChartConfig.clicks.color}
+                    fillOpacity={0.4}
+                    stroke={viewsChartConfig.clicks.color}
+                    stackId="a"
+                  />
                 </AreaChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </motion.div>
 
         {/* Device Stats */}
         <motion.div custom={5} initial="hidden" animate="visible" variants={cardVariants}>
-          <Card className="border shadow-sm overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-cyan-50 to-blue-50 border-b pb-3">
-              <div className="flex items-center gap-2">
-                <Smartphone className="w-4 h-4 text-cyan-600" />
-                <CardTitle className="text-base font-semibold">Traffic by Device</CardTitle>
-              </div>
+          <Card className="border shadow-sm overflow-hidden h-full">
+            <CardHeader>
+              <CardTitle>Traffic by Device</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4">
-              <ResponsiveContainer width="100%" height={280}>
+            <CardContent>
+              <ChartContainer
+                config={deviceChartConfig}
+                className="mx-auto aspect-square max-h-[300px]"
+              >
                 <PieChart>
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel />}
+                  />
                   <Pie
                     data={analytics.deviceStats}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={4}
                     dataKey="count"
-                  >
-                    {analytics.deviceStats.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                    nameKey="device"
+                    innerRadius={60}
+                    strokeWidth={5}
                   />
+                  <ChartLegend content={<ChartLegendContent />} />
                 </PieChart>
-              </ResponsiveContainer>
-              {/* Device Legend */}
-              <div className="flex justify-center gap-4 mt-2">
-                {analytics.deviceStats.map((device, index) => (
-                  <div key={device.device} className="flex items-center gap-1.5">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      {device.device} ({device.percentage.toFixed(0)}%)
-                    </span>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Bottom Row - Performance & Countries */}
+      <div className="flex flex-col gap-6">
+        {/* Link Performance */}
+        <motion.div custom={6} initial="hidden" animate="visible" variants={cardVariants}>
+          <Card className="border shadow-sm overflow-hidden h-full">
+            <CardHeader>
+              <CardTitle>Link Performance</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {analytics.linkPerformance.slice(0, 5).map((link, index) => (
+                  <div key={index} className="flex items-center gap-4 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
+                    <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-sm font-semibold text-foreground">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{link.title}</p>
+                      <p className="text-xs text-muted-foreground">{link.clicks.toLocaleString()} clicks</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-32 bg-muted rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all duration-500"
+                          style={{ width: `${Math.max(link.percentage, 5)}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-medium w-12 text-right text-muted-foreground">
+                        {link.percentage.toFixed(0)}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Top Countries */}
+        <motion.div custom={7} initial="hidden" animate="visible" variants={cardVariants}>
+          <Card className="border shadow-sm overflow-hidden h-full">
+            <CardHeader>
+              <CardTitle>Top Countries</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {analytics.topCountries.map((country, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <span className="font-medium text-sm">{country.name}</span>
+                        <p className="text-xs text-muted-foreground">{country.value.toLocaleString()} visitors</p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary">
+                      {country.percentage.toFixed(1)}%
+                    </Badge>
                   </div>
                 ))}
               </div>
@@ -366,79 +469,6 @@ export function AnalyticsTab({ bioPage }: AnalyticsTabProps) {
           </Card>
         </motion.div>
       </div>
-
-      {/* Link Performance */}
-      <motion.div custom={6} initial="hidden" animate="visible" variants={cardVariants}>
-        <Card className="border shadow-sm overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b pb-3">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-emerald-600" />
-              <CardTitle className="text-base font-semibold">Link Performance</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="space-y-3">
-              {analytics.linkPerformance.slice(0, 5).map((link, index) => (
-                <div key={index} className="flex items-center gap-4 p-3 rounded-lg border bg-gradient-to-r from-white to-muted/20 hover:shadow-sm transition-shadow">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-100 to-indigo-100 flex items-center justify-center text-sm font-semibold text-violet-600">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{link.title}</p>
-                    <p className="text-xs text-muted-foreground">{link.clicks.toLocaleString()} clicks</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-32 bg-muted rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 transition-all duration-500" 
-                        style={{ width: `${Math.max(link.percentage, 5)}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium w-12 text-right text-muted-foreground">
-                      {link.percentage.toFixed(0)}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Top Countries */}
-      <motion.div custom={7} initial="hidden" animate="visible" variants={cardVariants}>
-        <Card className="border shadow-sm overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b pb-3">
-            <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-amber-600" />
-              <CardTitle className="text-base font-semibold">Top Countries</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {analytics.topCountries.map((country, index) => (
-                <div 
-                  key={index} 
-                  className="flex items-center justify-between p-3 rounded-lg border bg-gradient-to-r from-white to-muted/20"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
-                      <Globe className="h-4 w-4 text-amber-600" />
-                    </div>
-                    <div>
-                      <span className="font-medium text-sm">{country.name}</span>
-                      <p className="text-xs text-muted-foreground">{country.value.toLocaleString()} visitors</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">
-                    {country.percentage.toFixed(1)}%
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
     </div>
   );
 }

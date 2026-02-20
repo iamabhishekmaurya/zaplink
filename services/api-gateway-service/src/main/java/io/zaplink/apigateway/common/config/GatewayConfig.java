@@ -152,15 +152,11 @@ public class GatewayConfig
                                  * Media Service Routes
                                  * Port: 8086
                                  */
-                                .route( "media-service", r -> r.path( basePath + "/media/**" ).and()
-                                                .header( "X-API-Version", "1" )
-                                                .filters( f -> f.rewritePath( basePath + "/media/(?<segment>.*)",
-                                                                              "/media/${segment}" ) )
+                                .route( "media-service", r -> r.path( basePath + "/media", basePath + "/media/**" )
+                                                .and().header( "X-API-Version", "1" ).filters( f -> f.stripPrefix( 1 ) )
                                                 .uri( "http://localhost:8086" ) )
-                                .route( "media-folders", r -> r.path( basePath + "/folders/**" ).and()
-                                                .header( "X-API-Version", "1" )
-                                                .filters( f -> f.rewritePath( basePath + "/folders/(?<segment>.*)",
-                                                                              "/folders/${segment}" ) )
+                                .route( "media-folders", r -> r.path( basePath + "/folders", basePath + "/folders/**" )
+                                                .and().header( "X-API-Version", "1" ).filters( f -> f.stripPrefix( 1 ) )
                                                 .uri( "http://localhost:8086" ) )
                                 /**
                                  * Social Service Routes

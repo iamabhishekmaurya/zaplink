@@ -149,6 +149,7 @@ All providers now in single file: `components/providers/Providers.tsx`
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4
+- **Settings Hub**: Comprehensive user and application settings.
 - **UI Components**: shadcn/ui (Radix primitives)
 - **State Management**: Redux Toolkit + React Query
 - **Forms**: React Hook Form + Zod

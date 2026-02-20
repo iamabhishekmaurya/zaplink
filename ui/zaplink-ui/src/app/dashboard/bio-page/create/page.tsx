@@ -16,6 +16,7 @@ import { handleApiError, showSuccessToast } from "@/lib/error-handler"
 import { Loader2, ArrowRight, LayoutTemplate, AlertCircle } from "lucide-react"
 import { templates, BioPageTemplate } from "@/features/bio-page/lib/templates"
 import { cn } from "@/lib/utils"
+import { ThemePreviewCard } from "./theme-preview-card"
 
 const schema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").max(50),
@@ -64,22 +65,22 @@ export default function CreateBioPage() {
         owner_id: String(user.id),
         is_public: true
       };
-      
+
       // Only include these fields if they have actual values
       if (data.bioText && data.bioText.trim()) {
         requestData.bio_text = data.bioText;
       }
-      
+
       const newPage = await bioPageService.createBioPage(requestData);
 
       showSuccessToast("Bio page created successfully")
       // Redirect DIRECTLY to the new Editor
       router.push(`/dashboard/bio-page/${newPage.id}`)
     } catch (error) {
-      
+
       // Type-safe error handling
       let errorMessage = 'Failed to create bio page';
-      
+
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as any;
         if (axiosError.response?.data?.message) {
@@ -92,7 +93,7 @@ export default function CreateBioPage() {
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       setError(errorMessage);
       handleApiError(error, 'Failed to create bio page');
     } finally {
@@ -193,54 +194,24 @@ export default function CreateBioPage() {
         <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {templates.map(template => (
-          <div
+          <ThemePreviewCard
             key={template.id}
-            className={cn(
-              "cursor-pointer rounded-xl border-2 transition-all overflow-hidden relative group",
-              selectedTemplate.id === template.id ? "border-primary ring-2 ring-primary ring-offset-2" : "border-slate-200 hover:border-slate-300"
-            )}
+            template={template}
+            isSelected={selectedTemplate.id === template.id}
             onClick={() => setSelectedTemplate(template)}
-          >
-            <div className="aspect-[9/16] bg-slate-100 relative">
-              {/* Mockup of template style */}
-              <div className="absolute inset-0 flex items-center justify-center text-slate-400">
-                {/* In real app, render a mini preview here */}
-                <div className="text-center p-4">
-                  <div className="w-16 h-16 rounded-full bg-slate-200 mx-auto mb-4" />
-                  <div className="h-4 w-24 bg-slate-200 mx-auto mb-2 rounded" />
-                  <div className="h-3 w-32 bg-slate-200 mx-auto rounded" />
-                  <div className="mt-8 space-y-2">
-                    <div className="h-10 w-full bg-slate-200 rounded-lg" />
-                    <div className="h-10 w-full bg-slate-200 rounded-lg" />
-                  </div>
-                </div>
-              </div>
-              {/* Overlay active state */}
-              {selectedTemplate.id === template.id && (
-                <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-                  <div className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium shadow-sm">
-                    Selected
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="p-4 border-t bg-card">
-              <h3 className="font-semibold">{template.name}</h3>
-              <p className="text-xs text-muted-foreground">{template.description}</p>
-            </div>
-          </div>
+          />
         ))}
       </div>
 
       <div className="flex justify-end pb-12">
-        <Button 
-          size="lg" 
+        <Button
+          size="lg"
           onClick={async () => {
             // Validate form first
             const isValid = await form.trigger()
-            
+
             if (isValid) {
               // Get form values and submit
               const formData = form.getValues()
@@ -249,8 +220,8 @@ export default function CreateBioPage() {
               // Show validation errors
               setError('Please fix the validation errors before proceeding')
             }
-          }} 
-          disabled={loading} 
+          }}
+          disabled={loading}
           className="w-full md:w-auto min-w-[200px]"
         >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

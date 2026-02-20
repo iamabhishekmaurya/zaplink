@@ -118,102 +118,110 @@ const data = {
       ],
     },
     {
-      title: "Media",
-      url: "/dashboard/media",
+      title: "Content",
+      url: "/dashboard/content",
       icon: ImageIcon,
       items: [
         {
           title: "Library",
-          url: "/dashboard/media",
+          url: "/dashboard/content",
+        },
+        {
+          title: "Favorites",
+          url: "/dashboard/content/favorites",
+        },
+        {
+          title: "Trash",
+          url: "/dashboard/content/trash",
         }
       ]
     },
-    {
-      title: "Team Management",
-      url: "/dashboard/team-management",
-      icon: Users,
-      items: [
-        {
-          title: "Team Members",
-          url: "/dashboard/team-management",
-        },
-        {
-          title: "Workflow",
-          url: "/dashboard/workflow-management",
-        },
-      ],
-    },
-    {
-      title: "Workflow",
-      url: "/dashboard/workflow-management",
-      icon: Workflow,
-      items: [
-        {
-          title: "My Posts",
-          url: "/dashboard/workflow-management",
-        },
-        {
-          title: "Pending Approval",
-          url: "/dashboard/workflow-management?tab=pending",
-        },
-      ],
-    },
-    {
-      title: "Influencer",
-      url: "/dashboard/influencer-management",
-      icon: Target,
-      items: [
-        {
-          title: "My Campaigns",
-          url: "/dashboard/influencer-management",
-        },
-      ],
-    },
-    {
-      title: "Calendar",
-      url: "/dashboard/calendar",
-      icon: CalendarDays,
-      items: [
-        {
-          title: "Scheduler",
-          url: "/dashboard/calendar",
-        }
-      ]
-    },
-    {
-      title: "Finance",
-      url: "#",
-      icon: Wallet,
-      items: [
-        {
-          title: "Billing",
-          url: "/dashboard/billing",
-        }
-      ]
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "/dashboard/settings",
-        },
-        {
-          title: "Account",
-          url: "/dashboard/account",
-        },
-        {
-          title: "Notifications",
-          url: "/dashboard/notification",
-        },
-      ],
-    },
+    // {
+    //   title: "Team Management",
+    //   url: "/dashboard/team-management",
+    //   icon: Users,
+    //   items: [
+    //     {
+    //       title: "Team Members",
+    //       url: "/dashboard/team-management",
+    //     },
+    //     {
+    //       title: "Workflow",
+    //       url: "/dashboard/workflow-management",
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: "Workflow",
+    //   url: "/dashboard/workflow-management",
+    //   icon: Workflow,
+    //   items: [
+    //     {
+    //       title: "My Posts",
+    //       url: "/dashboard/workflow-management",
+    //     },
+    //     {
+    //       title: "Pending Approval",
+    //       url: "/dashboard/workflow-management?tab=pending",
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: "Influencer",
+    //   url: "/dashboard/influencer-management",
+    //   icon: Target,
+    //   items: [
+    //     {
+    //       title: "My Campaigns",
+    //       url: "/dashboard/influencer-management",
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: "Calendar",
+    //   url: "/dashboard/calendar",
+    //   icon: CalendarDays,
+    //   items: [
+    //     {
+    //       title: "Scheduler",
+    //       url: "/dashboard/calendar",
+    //     }
+    //   ]
+    // },
+    // {
+    //   title: "Finance",
+    //   url: "#",
+    //   icon: Wallet,
+    //   items: [
+    //     {
+    //       title: "Billing",
+    //       url: "/dashboard/billing",
+    //     }
+    //   ]
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "/dashboard/settings",
+    //   icon: Settings2,
+    //   items: [],
+    // },
   ],
 }
 
+// Add imports
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  // Fallback to sample data if user is not loaded
+  const sidebarUser = user ? {
+    name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username,
+    email: user.email,
+    avatar: "https://github.com/shadcn.png" // Fallback avatar as UserInfo doesn't have it yet
+  } : data.user;
+
   return (
     <Sidebar collapsible="icon" className="bg-background/60 font-bold backdrop-blur-xl border-r border-border/50 supports-[backdrop-filter]:bg-background/60" {...props}>
       <SidebarHeader>
@@ -228,7 +236,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         className="mb-2 data-[orientation=vertical]:h-4"
       />
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={sidebarUser} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

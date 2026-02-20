@@ -8,20 +8,36 @@ export function EmbedLinkForm() {
     const { control } = useFormContext<LinkFormData>();
 
     return (
-        <div className="space-y-4">
-            <FormField
-                control={control}
-                name="title"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Title (Optional)</FormLabel>
-                        <FormControl>
-                            <Input placeholder="My Favorite Song" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                    control={control}
+                    name="title"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Title (Optional)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="My Favorite Song" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={control}
+                    name="url"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Fallback URL (Optional)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="https://..." {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
 
             <FormField
                 control={control}
@@ -32,27 +48,11 @@ export function EmbedLinkForm() {
                         <FormControl>
                             <Textarea
                                 placeholder="<iframe src='...'></iframe> or https://youtube.com/..."
-                                className="font-mono text-sm"
-                                rows={4}
+                                className="font-mono text-sm min-h-[120px]"
                                 {...field}
                             />
                         </FormControl>
                         <FormDescription>Paste the embed code from YouTube, Spotify, SoundCloud, etc.</FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-
-            {/* Embed links might not need a direct URL if embed code is provided, but often we want a fallback or canonical URL */}
-            <FormField
-                control={control}
-                name="url"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Fallback URL (Optional)</FormLabel>
-                        <FormControl>
-                            <Input placeholder="https://..." {...field} />
-                        </FormControl>
                         <FormMessage />
                     </FormItem>
                 )}

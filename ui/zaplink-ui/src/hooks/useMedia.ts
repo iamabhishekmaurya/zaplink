@@ -34,7 +34,7 @@ export const useFolders = (ownerId: string, parentId?: string | null) => {
         queryFn: async () => {
             const params: any = { ownerId };
             if (parentId) params.parentId = parentId;
-            const res = await api.get<Folder[]>(`${API_BASE_URLS.MEDIA}/folders`, { params });
+            const res = await api.get<Folder[]>(`${API_BASE_URLS.FOLDERS}`, { params });
             return res.data;
         },
         enabled: !!ownerId,
@@ -58,7 +58,7 @@ export const useCreateFolder = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (payload: CreateFolderPayload) => {
-            const res = await api.post<Folder>(`${API_BASE_URLS.MEDIA}/folders`, payload);
+            const res = await api.post<Folder>(`${API_BASE_URLS.FOLDERS}`, payload);
             return res.data;
         },
         onSuccess: (data, variables) => {
@@ -102,7 +102,7 @@ export const useDeleteFolder = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (id: string) => {
-            await api.delete(`${API_BASE_URLS.MEDIA}/folders/${id}`);
+            await api.delete(`${API_BASE_URLS.FOLDERS}/${id}`);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["folders"] });

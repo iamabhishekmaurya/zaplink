@@ -21,7 +21,7 @@ export interface LinkFormData {
 }
 
 export interface BioLinkRequestData {
-  page_id: number;
+  page_id: string;
   title: string;
   url?: string;
   type: string;
@@ -41,15 +41,15 @@ export interface BioLinkRequestData {
  * Transforms form data to API request format
  * Handles metadata construction and field mapping
  */
-export function transformFormDataToApiRequest(formData: LinkFormData, pageId: number, sortOrder?: number): BioLinkRequestData {
+export function transformFormDataToApiRequest(formData: LinkFormData, pageId: string, sortOrder?: number): BioLinkRequestData {
   // Debug: Log what we received
   console.log('[transformFormDataToApiRequest] Received formData:', JSON.stringify(formData, null, 2));
   console.log('[transformFormDataToApiRequest] formData.type:', formData.type, '| type:', typeof formData.type);
-  
+
   // Ensure type is always a valid string
   const linkType = formData.type && typeof formData.type === 'string' ? formData.type : 'LINK';
   console.log('[transformFormDataToApiRequest] Resolved linkType:', linkType);
-  
+
   const requestData: BioLinkRequestData = {
     page_id: pageId,
     title: formData.title,
@@ -62,7 +62,7 @@ export function transformFormDataToApiRequest(formData: LinkFormData, pageId: nu
     icon_url: formData.iconUrl,
     thumbnail_url: formData.thumbnailUrl,
   };
-  
+
   console.log('[transformFormDataToApiRequest] Final requestData:', JSON.stringify(requestData, null, 2));
 
   // Handle date fields
@@ -248,23 +248,23 @@ export function transformApiResponseToFormData(apiData: any): LinkFormData {
   if (apiData.metadata) {
     try {
       const metadata = JSON.parse(apiData.metadata);
-      
+
       // Extract flattened fields from metadata
       if (metadata.gatedContent) {
         formData.gateType = metadata.gatedContent.type;
         formData.gateValue = metadata.gatedContent.value;
         formData.gateMessage = metadata.gatedContent.gateMessage;
       }
-      
+
       if (metadata.embedCode) {
         formData.embedCode = metadata.embedCode;
       }
-      
+
       if (metadata.product) {
         formData.sku = metadata.product.sku;
         formData.description = metadata.product.description;
       }
-      
+
       if (metadata.description && !formData.description) {
         formData.description = metadata.description;
       }

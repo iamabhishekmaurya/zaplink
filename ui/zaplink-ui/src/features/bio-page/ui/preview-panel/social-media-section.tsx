@@ -33,8 +33,11 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 export function SocialMediaSection({ links, theme }: SocialMediaSectionProps) {
+  const buttonStyle = theme.layout?.buttonStyle || 'filled';
+  const alignment = theme.layout?.contentAlignment === 'left' ? 'justify-start' : 'justify-center';
+
   return (
-    <div className="flex flex-wrap justify-center gap-3">
+    <div className={cn("flex flex-wrap gap-3", alignment)}>
       {links.map((link, index) => {
         const Icon = getIconForLink(link);
         const platform = getPlatformName(link);
@@ -62,17 +65,38 @@ export function SocialMediaSection({ links, theme }: SocialMediaSectionProps) {
             className={cn(
               "group relative flex items-center justify-center",
               "w-12 h-12 rounded-xl",
-              "bg-white/10 backdrop-blur-sm",
-              "border border-white/10",
               "transition-all duration-300",
-              "hover:bg-white/20 hover:border-white/30",
-              "shadow-lg hover:shadow-xl"
+              "shadow-lg hover:shadow-xl",
+
+              // Shape override
+              theme.layout?.buttonShape === 'pill' ? 'rounded-full' :
+                theme.layout?.buttonShape === 'square' ? 'rounded-none' :
+                  theme.layout?.buttonShape === 'hard' ? 'rounded-sm' : 'rounded-xl',
+
+              // Shadows
+              theme.layout?.buttonShadow === 'none' ? 'shadow-none' :
+                theme.layout?.buttonShadow === 'sm' ? 'shadow-sm' :
+                  theme.layout?.buttonShadow === 'md' ? 'shadow-md' :
+                    theme.layout?.buttonShadow === 'lg' ? 'shadow-lg' : 'shadow-[0_0_15px_rgba(var(--theme-primary),0.5)]'
             )}
+            style={{
+              background: getBackgroundStyle(buttonStyle),
+              border: getBorderStyle(buttonStyle),
+              color: getTextColor(buttonStyle),
+              backdropFilter: buttonStyle === 'glass' ? 'blur(10px)' : undefined,
+            }}
           >
-            <Icon className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" />
+            {/* Animated Gradient for specific styles */}
+            {buttonStyle === 'filled' && (
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-inherit" />
+            )}
+
+            <Icon className="w-5 h-5 transition-colors relative z-10" />
 
             {/* Tooltip */}
-            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            <span
+              className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20"
+            >
               {platform}
             </span>
           </motion.a>
@@ -119,4 +143,53 @@ function getPlatformName(link: BioLink): string {
     if (url.includes('twitch')) return 'Twitch';
   }
   return 'Link';
+}
+
+function getBackgroundStyle(style: string): string {
+  switch (style) {
+    case 'filled':
+      return 'var(--theme-btn-bg)';
+    case 'glass':
+      return 'rgba(255, 255, 255, 0.1)';
+    case 'outline':
+      return 'transparent';
+    case 'soft':
+      return 'rgba(var(--theme-primary-rgb), 0.1)';
+    case 'ghost':
+      return 'transparent';
+    default:
+      return 'var(--theme-btn-bg)';
+  }
+}
+
+function getBorderStyle(style: string): string {
+  switch (style) {
+    case 'filled':
+      return 'none';
+    case 'outline':
+      return '2px solid var(--theme-btn-bg)';
+    case 'glass':
+      return '1px solid rgba(255, 255, 255, 0.2)';
+    case 'soft':
+      return 'none';
+    default:
+      return 'none';
+  }
+}
+
+function getTextColor(style: string): string {
+  switch (style) {
+    case 'filled':
+      return 'var(--theme-btn-text)';
+    case 'outline':
+      return 'var(--theme-btn-bg)';
+    case 'glass':
+      return 'var(--theme-text)';
+    case 'soft':
+      return 'var(--theme-primary)';
+    case 'ghost':
+      return 'var(--theme-text)';
+    default:
+      return 'var(--theme-btn-text)';
+  }
 }

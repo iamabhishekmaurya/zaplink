@@ -1,35 +1,35 @@
 "use client"
 
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { FormProvider, useForm } from "react-hook-form";
-import { useEffect } from "react";
 import { useBioPageEditor } from "@/features/bio-page/hooks/useBioPageEditor";
+import { AnalyticsTab } from "@/features/bio-page/ui/analytics-tab";
+import { AvatarUpload } from "@/features/bio-page/ui/avatar-upload";
 import { BioLinkManager } from "@/features/bio-page/ui/bio-link-manager";
 import { PreviewPanel } from "@/features/bio-page/ui/preview-panel/index";
-import { ThemeEditor } from "@/features/bio-page/ui/theme-editor/index";
 import { SeoSettingsTab } from "@/features/bio-page/ui/seo-settings-tab";
-import { AvatarUpload } from "@/features/bio-page/ui/avatar-upload";
-import { AnalyticsTab } from "@/features/bio-page/ui/analytics-tab";
-import { BioPage } from "@/services/bioPageService";
-import { 
-  BarChart, 
-  Link as LinkIcon, 
-  Loader2, 
-  Palette, 
-  Save, 
-  Search, 
-  UserCircle,
-  Sparkles,
-  LayoutGrid,
-  Settings2,
-  TrendingUp
-} from "lucide-react";
+import { ProfileTab } from "@/features/bio-page/ui/profile-tab";
+import { ThemeEditor } from "@/features/bio-page/ui/theme-editor/index";
+import { LayoutSelector } from "@/features/bio-page/ui/theme-editor/layout-selector";
 import { cn } from "@/lib/utils";
+import { BioPage } from "@/services/bioPageService";
+import { motion } from "framer-motion";
+import {
+    LayoutDashboard,
+    LayoutGrid,
+    Link as LinkIcon,
+    Loader2,
+    Save,
+    Settings2,
+    Sparkles,
+    TrendingUp,
+    UserCircle
+} from "lucide-react";
+import { useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 
 interface EditorLayoutProps {
     initialData: BioPage;
@@ -99,7 +99,7 @@ export function EditorLayout({ initialData }: EditorLayoutProps) {
 
     return (
         <FormProvider {...form}>
-            <div className="flex h-[calc(100vh-4rem)] w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+            <div className="flex h-[calc(105vh-4rem)] w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
                 {/* Left Panel: Controls - Increased Width */}
                 <div className="w-full md:w-[55%] lg:w-[50%] xl:w-[520px] 2xl:w-[580px] flex flex-col border-r bg-card/50 backdrop-blur-sm shadow-xl">
 
@@ -115,13 +115,13 @@ export function EditorLayout({ initialData }: EditorLayoutProps) {
                                 <span className="text-xs text-muted-foreground">{hasUnsavedChanges ? 'Press Ctrl+S to save' : 'Your page is live'}</span>
                             </div>
                         </div>
-                        <Button 
-                            onClick={save} 
-                            disabled={!hasUnsavedChanges || isSaving} 
+                        <Button
+                            onClick={save}
+                            disabled={!hasUnsavedChanges || isSaving}
                             size="sm"
                             className={cn(
                                 "transition-all duration-300",
-                                hasUnsavedChanges && "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-lg hover:shadow-xl"
+                                hasUnsavedChanges && "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl"
                             )}
                         >
                             {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
@@ -129,22 +129,30 @@ export function EditorLayout({ initialData }: EditorLayoutProps) {
                         </Button>
                     </div>
 
-                    <Tabs defaultValue="links" className="flex-1 flex flex-col overflow-hidden">
+                    <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden">
                         <div className="px-4 py-3 border-b bg-gradient-to-b from-card to-muted/20">
-                            <TabsList className="grid w-full grid-cols-4 p-1 bg-muted/50">
-                                <TabsTrigger value="links" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                            <TabsList className="grid w-full grid-cols-6 p-1 bg-muted/50">
+                                <TabsTrigger value="profile" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                    <UserCircle className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Profile</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="links" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                                     <LayoutGrid className="w-4 h-4" />
                                     <span className="hidden sm:inline">Links</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="design" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                                <TabsTrigger value="design" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                                     <Sparkles className="w-4 h-4" />
                                     <span className="hidden sm:inline">Design</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="settings" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                                <TabsTrigger value="layout" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                    <LayoutDashboard className="w-4 h-4" />
+                                    <span className="hidden sm:inline">Layout</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="settings" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                                     <Settings2 className="w-4 h-4" />
                                     <span className="hidden sm:inline">SEO</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="analytics" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                                <TabsTrigger value="analytics" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                                     <TrendingUp className="w-4 h-4" />
                                     <span className="hidden sm:inline">Stats</span>
                                 </TabsTrigger>
@@ -152,84 +160,18 @@ export function EditorLayout({ initialData }: EditorLayoutProps) {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-5 md:p-7 space-y-6">
-                            <TabsContent value="links" className="m-0 h-full space-y-6">
-                                {/* Modern Profile Card */}
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="space-y-5 bg-gradient-to-br from-white to-muted/30 border rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow"
-                                >
-                                    <div className="flex items-center gap-2 pb-3 border-b border-border/50">
-                                        <div className="p-2 bg-violet-100 rounded-lg">
-                                            <UserCircle className="w-5 h-5 text-violet-600" />
-                                        </div>
-                                        <Label className="text-lg font-semibold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                                            Profile Information
-                                        </Label>
-                                    </div>
-                                    
-                                    <div className="grid gap-5">
-                                        <div className="space-y-2.5">
-                                            <Label htmlFor="title" className="text-sm font-medium text-foreground/80 flex items-center gap-2">
-                                                Page Title
-                                                <span className="text-xs text-muted-foreground">(Shown at top of your page)</span>
-                                            </Label>
-                                            <Input
-                                                id="title"
-                                                value={data.title || ''}
-                                                onChange={(e) => updateField('title', e.target.value)}
-                                                placeholder="@username or Your Name"
-                                                className="h-11 transition-all focus:ring-2 focus:ring-violet-500/20"
-                                            />
-                                        </div>
-                                        
-                                        <div className="space-y-2.5">
-                                            <Label htmlFor="bio" className="text-sm font-medium text-foreground/80 flex items-center gap-2">
-                                                Bio
-                                                <span className="text-xs text-muted-foreground">(Tell visitors about yourself)</span>
-                                            </Label>
-                                            <Textarea
-                                                id="bio"
-                                                value={data.bioText || ''}
-                                                onChange={(e) => updateField('bioText', e.target.value)}
-                                                placeholder="Share your story, what you do, or what visitors can find here..."
-                                                rows={4}
-                                                className="resize-none transition-all focus:ring-2 focus:ring-violet-500/20"
-                                            />
-                                        </div>
-                                        
-                                        {/* Avatar Upload - Integrated Better */}
-                                        <div className="pt-2">
-                                            <AvatarUpload
-                                                currentAvatar={data.avatarUrl}
-                                                onAvatarChange={(url) => updateField('avatarUrl', url)}
-                                            />
-                                        </div>
-                                    </div>
-                                </motion.div>
+                            <TabsContent value="profile" className="m-0 h-full">
+                                <ProfileTab data={data} updateField={updateField} />
+                            </TabsContent>
 
-                                {/* Links Manager - Styled Container */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                >
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <div className="p-2 bg-indigo-100 rounded-lg">
-                                            <LinkIcon className="w-5 h-5 text-indigo-600" />
-                                        </div>
-                                        <Label className="text-lg font-semibold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                                            Your Links
-                                        </Label>
-                                    </div>
-                                    <BioLinkManager
-                                        pageId={data.id}
-                                        links={data.bioLinks || []}
-                                        onLinksUpdate={() => {
-                                            refresh();
-                                        }}
-                                    />
-                                </motion.div>
+                            <TabsContent value="links" className="m-0 h-full">
+                                <BioLinkManager
+                                    pageId={data.id}
+                                    links={data.bioLinks || []}
+                                    onLinksUpdate={() => {
+                                        refresh();
+                                    }}
+                                />
                             </TabsContent>
 
                             <TabsContent value="design" className="m-0 h-full">
@@ -245,6 +187,13 @@ export function EditorLayout({ initialData }: EditorLayoutProps) {
 
                             <TabsContent value="analytics" className="m-0 h-full">
                                 <AnalyticsTab bioPage={data} />
+                            </TabsContent>
+
+                            <TabsContent value="layout" className="m-0 h-full">
+                                <LayoutSelector
+                                    theme={bioPageWithTheme.parsedTheme}
+                                    onChange={updateTheme}
+                                />
                             </TabsContent>
                         </div>
                     </Tabs>

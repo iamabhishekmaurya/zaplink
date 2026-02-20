@@ -7,7 +7,7 @@ export function ProductLinkForm() {
     const { control } = useFormContext<LinkFormData>();
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <FormField
                 control={control}
                 name="title"
@@ -22,12 +22,12 @@ export function ProductLinkForm() {
                 )}
             />
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                     control={control}
                     name="price"
                     render={({ field }) => (
-                        <FormItem className="col-span-2">
+                        <FormItem>
                             <FormLabel>Price</FormLabel>
                             <FormControl>
                                 <Input type="number" step="0.01" placeholder="99.99" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value))} />
@@ -52,34 +52,36 @@ export function ProductLinkForm() {
                 />
             </div>
 
-            <FormField
-                control={control}
-                name="url"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Product URL</FormLabel>
-                        <FormControl>
-                            <Input placeholder="https://store.com/item" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                    control={control}
+                    name="url"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Product URL</FormLabel>
+                            <FormControl>
+                                <Input placeholder="https://store.com/item" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-            <FormField
-                control={control}
-                name="thumbnailUrl"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Image URL</FormLabel>
-                        <FormControl>
-                            <Input placeholder="https://image-url.com/prod.jpg" {...field} />
-                        </FormControl>
-                        <FormDescription>Product image to display.</FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
+                <FormField
+                    control={control}
+                    name="thumbnailUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Image URL</FormLabel>
+                            <FormControl>
+                                <Input placeholder="https://image-url.com/prod.jpg" {...field} />
+                            </FormControl>
+                            <FormDescription>Product image to display.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
         </div>
     );
 }

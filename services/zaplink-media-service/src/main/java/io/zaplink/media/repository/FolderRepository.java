@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -12,13 +13,21 @@ public interface FolderRepository
     extends
     JpaRepository<Folder, UUID>
 {
-    List<Folder> findByParentId( UUID parentId );
+    List<Folder> findByParentIdAndIsDeletedFalse( UUID parentId );
 
-    List<Folder> findByOwnerId( String ownerId );
+    List<Folder> findByOwnerIdAndIsDeletedFalse( String ownerId );
 
-    // For listing folders securely
-    List<Folder> findByOwnerIdAndParentId( String ownerId, UUID parentId );
+    List<Folder> findByOwnerIdAndParentIsNullAndIsDeletedFalse( String ownerId );
 
-    // For checking if folder has subfolders
-    boolean existsByParentId( UUID parentId );
+    List<Folder> findByOwnerIdAndParentIdAndIsDeletedFalse( String ownerId, UUID parentId );
+
+    List<Folder> findByOwnerIdAndIsDeletedTrue( String ownerId );
+
+    List<Folder> findByOwnerIdAndIsFavoriteTrueAndIsDeletedFalse( String ownerId );
+
+    Optional<Folder> findByIdAndOwnerIdAndIsDeletedFalse( UUID id, String ownerId );
+
+    Optional<Folder> findByIdAndOwnerId( UUID id, String ownerId );
+
+    boolean existsByParentIdAndIsDeletedFalse( UUID parentId );
 }

@@ -12,10 +12,10 @@ export default function InfluencerManagementPage() {
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
-      <InfluencerManagement 
-        organizationId={organizationId} 
-        userId={userId} 
-        userRole={userRole} 
+      <InfluencerManagement
+        organizationId={organizationId}
+        userId={Number(userId || 0)}
+        userRole={userRole}
       />
     </div>
   )

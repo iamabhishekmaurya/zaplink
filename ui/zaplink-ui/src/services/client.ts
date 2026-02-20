@@ -1,8 +1,15 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+const apiBase = process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8090';
+
+// On server, ensure we have an absolute URL
+const baseURL = (typeof window === 'undefined' && apiBase.startsWith('/'))
+  ? `http://localhost:8090${apiBase}`
+  : apiBase;
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8090',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
     'X-API-Version': '1',

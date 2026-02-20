@@ -3,9 +3,10 @@
 import { toast } from "@/lib/toast"
 
 export interface Toast {
-  id: string
+  id?: string
   title?: string
   description?: string
+  variant?: "default" | "destructive" | "success" | "warning"
   action?: {
     label: string
     onClick: () => void
@@ -24,11 +25,11 @@ export function useToast(): UseToastReturn {
 
   const showToast = (props: Toast) => {
     const { title, description, action } = props
-    
+
     if (!title) {
       return toast.info("", { description, action })
     }
-    
+
     if (title.toLowerCase().includes("error") || title.toLowerCase().includes("failed")) {
       return toast.error(title, { description, action })
     } else if (title.toLowerCase().includes("warning")) {

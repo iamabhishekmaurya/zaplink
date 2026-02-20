@@ -22,6 +22,8 @@ export interface ThemeConfig {
         buttonShadow: 'none' | 'sm' | 'md' | 'lg' | 'glow';
         cardStyle?: 'flat' | 'raised' | 'glass' | 'border';
         cardBlur?: number;
+        contentAlignment?: 'center' | 'left';
+        layoutStyle?: 'classic' | 'hero' | 'framed';
     };
     effects: {
         backgroundType: 'solid' | 'gradient' | 'image' | 'video' | 'particles';
@@ -50,6 +52,8 @@ export const defaultTheme: ThemeConfig = {
         buttonStyle: 'filled',
         buttonShape: 'rounded',
         buttonShadow: 'sm',
+        contentAlignment: 'center',
+        layoutStyle: 'classic',
     },
     effects: {
         backgroundType: 'solid',

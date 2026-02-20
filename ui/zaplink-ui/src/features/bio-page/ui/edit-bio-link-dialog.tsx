@@ -61,7 +61,9 @@ export function EditBioLinkDialog({ link, open, onOpenChange, onUpdateLink }: Ed
 
       if (link.metadata) {
         try {
-          const meta = JSON.parse(link.metadata);
+          // Metadata is already an object in BioLink interface
+          const meta = typeof link.metadata === 'string' ? JSON.parse(link.metadata) : link.metadata;
+
           if (meta.gatedContent) {
             gateType = meta.gatedContent.type;
             gateValue = meta.gatedContent.value;
@@ -71,7 +73,7 @@ export function EditBioLinkDialog({ link, open, onOpenChange, onUpdateLink }: Ed
             embedCode = meta.embedCode;
           }
         } catch {
-          // Silent fail for metadata parsing
+          // Silent fail
         }
       }
 
@@ -130,7 +132,7 @@ export function EditBioLinkDialog({ link, open, onOpenChange, onUpdateLink }: Ed
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Link</DialogTitle>
         </DialogHeader>
@@ -142,26 +144,53 @@ export function EditBioLinkDialog({ link, open, onOpenChange, onUpdateLink }: Ed
                  If I change type from LINK to PRODUCT, new fields appear.
                  I'll allow type change.
              */}
-            <div className="space-y-2">
-              <Label>Link Type</Label>
-              <Select
-                value={currentType}
-                onValueChange={(val) => {
-                  setValue('type', val as BioPageLinkType);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="LINK">Link</SelectItem>
-                  <SelectItem value="SOCIAL">Social</SelectItem>
-                  <SelectItem value="PRODUCT">Product</SelectItem>
-                  <SelectItem value="EMBED">Music/Video</SelectItem>
-                  <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                  <SelectItem value="GATED">Gated Content</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid gap-6 py-4">
+              <div className="grid gap-2">
+                <Label className="text-base font-semibold">Link Type</Label>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                  {[
+                    { value: 'LINK', label: 'Link', icon: '🔗' },
+                    { value: 'SOCIAL', label: 'Social', icon: '📱' },
+                    { value: 'PRODUCT', label: 'Product', icon: '🛍️' },
+                    { value: 'EMBED', label: 'Music/Video', icon: '🎵' },
+                    { value: 'SCHEDULED', label: 'Scheduled', icon: '📅' },
+                    { value: 'GATED', label: 'Gated', icon: '🔒' }
+                  ].map((type) => (
+                    <div
+                      key={type.value}
+                      onClick={() => setValue('type', type.value as BioPageLinkType)}
+                      className={`
+                        cursor-pointer flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all
+                        ${currentType === type.value
+                          ? 'border-primary bg-primary/5 text-primary'
+                          : 'border-muted hover:border-primary/50 hover:bg-muted/50'}
+                      `}
+                    >
+                      <span className="text-2xl mb-1">{type.icon}</span>
+                      <span className="text-xs font-medium">{type.label}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Hidden select to maintain form state compatibility if needed, or just use the buttons above to drive the state */}
+                <div className="hidden">
+                  <Select
+                    value={currentType}
+                    onValueChange={(val) => {
+                      setValue('type', val as BioPageLinkType);
+                    }}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="LINK">Link</SelectItem>
+                      <SelectItem value="SOCIAL">Social</SelectItem>
+                      <SelectItem value="PRODUCT">Product</SelectItem>
+                      <SelectItem value="EMBED">Music/Video</SelectItem>
+                      <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                      <SelectItem value="GATED">Gated Content</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
             {currentType === 'LINK' && <LinkForm />}

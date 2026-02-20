@@ -13,7 +13,13 @@ export const templates: BioPageTemplate[] = [
         id: 'minimal',
         name: 'Minimal Clean',
         description: 'Clean, professional design suitable for everyone.',
-        theme: defaultTheme,
+        theme: {
+            ...defaultTheme,
+            layout: {
+                ...defaultTheme.layout,
+                contentAlignment: 'left',
+            }
+        },
     },
     {
         id: 'dark-mode',
@@ -35,6 +41,8 @@ export const templates: BioPageTemplate[] = [
                 buttonStyle: 'glass',
                 buttonShape: 'hard',
                 buttonShadow: 'glow',
+                contentAlignment: 'center',
+                layoutStyle: 'framed',
             },
             effects: {
                 backgroundType: 'solid',
@@ -59,6 +67,7 @@ export const templates: BioPageTemplate[] = [
                 buttonStyle: 'glass',
                 buttonShape: 'pill',
                 buttonShadow: 'lg',
+                contentAlignment: 'center',
             },
             effects: {
                 backgroundType: 'gradient',
@@ -86,6 +95,7 @@ export const templates: BioPageTemplate[] = [
                 buttonStyle: 'outline',
                 buttonShape: 'square',
                 buttonShadow: 'none',
+                contentAlignment: 'left',
             },
             effects: {
                 backgroundType: 'solid',
@@ -112,6 +122,7 @@ export const templates: BioPageTemplate[] = [
                 buttonStyle: 'filled',
                 buttonShape: 'rounded',
                 buttonShadow: 'sm',
+                layoutStyle: 'hero',
             },
             effects: {
                 backgroundType: 'solid',
@@ -138,6 +149,7 @@ export const templates: BioPageTemplate[] = [
                 buttonStyle: 'filled', // Soft filled
                 buttonShape: 'pill',
                 buttonShadow: 'sm',
+                layoutStyle: 'framed',
             },
             effects: {
                 backgroundType: 'gradient',

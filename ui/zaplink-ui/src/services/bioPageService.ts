@@ -47,16 +47,47 @@ interface BioLinkApiResponse {
 }
 
 // ============ Frontend Types (camelCase) ============
+// ============ Frontend Types (camelCase) ============
+
+export enum BioLinkType {
+  LINK = 'LINK',
+  SOCIAL = 'SOCIAL',
+  PRODUCT = 'PRODUCT', // Commerce
+  EMBED = 'EMBED', // YouTube, Spotify, etc.
+  SCHEDULED = 'SCHEDULED',
+  GATED = 'GATED', // Password/Email
+  PAYMENT = 'PAYMENT', // Razorpay stub
+}
+
+export interface BioPageThemeConfig {
+  palette: 'minimal' | 'dark' | 'neon' | 'commerce' | 'portfolio' | 'gradient' | 'editorial' | 'compact' | 'custom';
+  customColors?: {
+    background: string;
+    text: string;
+    primary: string;
+    secondary: string;
+  };
+  fontFamily?: string;
+  buttonShape?: 'rounded' | 'pill' | 'sharp';
+  backgroundStyle?: 'solid' | 'gradient' | 'image';
+  backgroundImage?: string;
+}
+
 export interface BioPage {
-  id: number;
+  id: string; // Changed to string for frontend consistency
   username: string;
   ownerId: string;
   bioText?: string;
   avatarUrl?: string;
-  themeConfig?: string;
+  themeConfig: BioPageThemeConfig; // Changed from string? to strong type
   title?: string;
   coverUrl?: string;
-  seoMeta?: string;
+  seoMeta?: {
+    title?: string;
+    description?: string;
+    keywords?: string[];
+    ogImage?: string;
+  };
   isPublic: boolean;
   createdAt: string;
   updatedAt: string;
@@ -70,11 +101,11 @@ export interface BioPage {
 }
 
 export interface BioLink {
-  id: number;
-  pageId: number;
+  id: string; // Changed to string
+  pageId: string; // Changed to string
   title: string;
   url?: string;
-  type: string;
+  type: BioLinkType | string; // Allow string for backward compat but prefer Enum
   isActive: boolean;
   sortOrder: number;
   price?: number;
@@ -162,22 +193,19 @@ export interface ReorderLinksRequest {
 
 // ============ Transformation Functions ============
 function transformBioLink(apiLink: BioLinkApiResponse): BioLink {
-  console.log('[transformBioLink] Received apiLink:', JSON.stringify(apiLink, null, 2));
   let parsedMetadata: BioLink['metadata'] = undefined;
-  
+
   if (apiLink.metadata) {
     try {
       parsedMetadata = JSON.parse(apiLink.metadata);
     } catch {
-      // If parsing fails, use as string or undefined
       parsedMetadata = undefined;
     }
   }
 
-  console.log('[transformBioLink] Parsed metadata:', JSON.stringify(parsedMetadata, null, 2));
   return {
-    id: apiLink.id,
-    pageId: apiLink.page_id,
+    id: String(apiLink.id),
+    pageId: String(apiLink.page_id),
     title: apiLink.title,
     url: apiLink.url,
     type: apiLink.type,
@@ -196,16 +224,38 @@ function transformBioLink(apiLink: BioLinkApiResponse): BioLink {
 }
 
 function transformBioPage(apiPage: BioPageApiResponse): BioPage {
+  let parsedThemeConfig: BioPageThemeConfig = {
+    palette: 'minimal',
+    customColors: { background: '#ffffff', text: '#000000', primary: '#000000', secondary: '#888888' }
+  };
+  let parsedSeoMeta: BioPage['seoMeta'] = undefined;
+
+  if (apiPage.theme_config) {
+    try {
+      parsedThemeConfig = JSON.parse(apiPage.theme_config);
+    } catch {
+      console.error('Failed to parse theme_config');
+    }
+  }
+
+  if (apiPage.seo_meta) {
+    try {
+      parsedSeoMeta = JSON.parse(apiPage.seo_meta);
+    } catch {
+      parsedSeoMeta = undefined;
+    }
+  }
+
   return {
-    id: apiPage.id,
+    id: String(apiPage.id),
     username: apiPage.username,
     ownerId: apiPage.owner_id,
     bioText: apiPage.bio_text,
     avatarUrl: apiPage.avatar_url,
-    themeConfig: apiPage.theme_config,
+    themeConfig: parsedThemeConfig,
     title: apiPage.title,
     coverUrl: apiPage.cover_url,
-    seoMeta: apiPage.seo_meta,
+    seoMeta: parsedSeoMeta,
     isPublic: apiPage.is_public ?? true,
     createdAt: apiPage.created_at,
     updatedAt: apiPage.updated_at,
@@ -233,12 +283,12 @@ class BioPageService {
     }
   }
 
-  async updateBioPage(pageId: number, request: UpdateBioPageRequest): Promise<BioPage> {
+  async updateBioPage(pageId: string | number, request: UpdateBioPageRequest): Promise<BioPage> {
     const response = await apiClient.put<BioPageApiResponse>(`/wr/bio/page/${pageId}`, request);
     return transformBioPage(response.data);
   }
 
-  async deleteBioPage(pageId: number): Promise<void> {
+  async deleteBioPage(pageId: string | number): Promise<void> {
     await apiClient.delete(`/wr/bio/page/${pageId}`);
   }
 
@@ -267,24 +317,34 @@ class BioPageService {
 
   // ========== BioLink Write Operations (Core Service) ==========
 
-  async createBioLink(request: CreateBioLinkRequest): Promise<BioLink> {
-    console.log('[BioPageService.createBioLink] Sending request:', JSON.stringify(request, null, 2));
-    const response = await apiClient.post<BioLinkApiResponse>(`/wr/bio/link`, request);
+  async createBioLink(pageId: string | number, request: Omit<CreateBioLinkRequest, 'page_id'>): Promise<BioLink> {
+    const payload: CreateBioLinkRequest = { ...request, page_id: Number(pageId) };
+    console.log('[BioPageService.createBioLink] Sending request:', JSON.stringify(payload, null, 2));
+    const response = await apiClient.post<BioLinkApiResponse>(`/wr/bio/link`, payload);
     console.log('[BioPageService.createBioLink] Response:', response.data);
     return transformBioLink(response.data);
   }
 
-  async updateBioLink(linkId: number, request: UpdateBioLinkRequest): Promise<BioLink> {
+  async updateBioLink(linkId: string | number, request: UpdateBioLinkRequest): Promise<BioLink> {
     const response = await apiClient.put<BioLinkApiResponse>(`/wr/bio/link/${linkId}`, request);
     return transformBioLink(response.data);
   }
 
-  async deleteBioLink(linkId: number): Promise<void> {
+  async deleteBioLink(linkId: string | number): Promise<void> {
     await apiClient.delete(`/wr/bio/link/${linkId}`);
   }
 
-  async reorderLinks(pageId: number, linkIds: number[]): Promise<void> {
-    await apiClient.put(`/wr/bio/link/${pageId}/reorder`, { linkOrders: linkIds.map((id, index) => ({ linkId: id, sortOrder: index })) });
+  async reorderLinks(pageId: string | number, linkIds: (string | number)[]): Promise<void> {
+    const numericLinkIds = linkIds.map(id => Number(id)).filter(id => !isNaN(id));
+    await apiClient.put(`/wr/bio/link/${pageId}/reorder`, { linkOrders: numericLinkIds.map((id, index) => ({ linkId: id, sortOrder: index })) });
+  }
+
+  async trackClick(linkId: string | number): Promise<void> {
+    try {
+      await apiClient.post(`/wr/bio/link/${linkId}/click`, {});
+    } catch (e) {
+      console.error('Failed to track click', e);
+    }
   }
 
   // ========== BioLink Read Operations (Manager Service) ==========

@@ -5,12 +5,12 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  GripVertical, 
-  ExternalLink, 
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  GripVertical,
+  ExternalLink,
   Link2,
   Package,
   Video,
@@ -68,26 +68,29 @@ function getLinkTypeIcon(type: string) {
 // Get color based on link type
 function getLinkTypeColor(type: string) {
   switch (type) {
-    case 'PRODUCT': return 'bg-emerald-100 text-emerald-600 border-emerald-200'
-    case 'VIDEO': return 'bg-red-100 text-red-600 border-red-200'
-    case 'MUSIC': return 'bg-purple-100 text-purple-600 border-purple-200'
-    case 'SOCIAL': return 'bg-blue-100 text-blue-600 border-blue-200'
-    case 'SECTION': return 'bg-amber-100 text-amber-600 border-amber-200'
-    case 'EMBED': return 'bg-pink-100 text-pink-600 border-pink-200'
-    default: return 'bg-slate-100 text-slate-600 border-slate-200'
+    case 'PRODUCT': return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+    case 'VIDEO': return 'bg-red-500/10 text-red-500 border-red-500/20'
+    case 'MUSIC': return 'bg-purple-500/10 text-purple-500 border-purple-500/20'
+    case 'SOCIAL': return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+    case 'SECTION': return 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+    case 'EMBED': return 'bg-pink-500/10 text-pink-500 border-pink-500/20'
+    default: return 'bg-slate-500/10 text-slate-500 border-slate-500/20'
   }
 }
 
 interface BioLinkManagerProps {
-  pageId: number
+  pageId: string
   links: BioLink[]
   onLinksUpdate: () => void
 }
 
-function SortableLinkItem({ link, onEdit, onDelete, index }: {
+import { Switch } from '@/components/ui/switch'
+
+function SortableLinkItem({ link, onEdit, onDelete, onToggleActive, index }: {
   link: BioLink
   onEdit: (link: BioLink) => void
-  onDelete: (linkId: number) => void
+  onDelete: (linkId: string) => void
+  onToggleActive: (linkId: string, isActive: boolean) => void
   index: number
 }) {
   const {
@@ -112,97 +115,92 @@ function SortableLinkItem({ link, onEdit, onDelete, index }: {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group flex items-center gap-3 p-4 border rounded-xl bg-gradient-to-r from-white to-muted/20",
-        "hover:shadow-lg hover:border-violet-300 transition-all duration-300",
-        isDragging && "shadow-2xl scale-105 z-50 ring-2 ring-violet-500/50"
+        "group relative flex items-center justify-between p-4 bg-card border border-border/60 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200",
+        isDragging && "shadow-2xl scale-[1.02] z-50 ring-2 ring-violet-500/20 rotate-1"
       )}
     >
-      {/* Drag Handle */}
-      <div 
-        {...attributes} 
-        {...listeners} 
-        className="cursor-grab active:cursor-grabbing p-2 rounded-lg hover:bg-muted transition-colors"
-      >
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
-      </div>
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        {/* Drag Handle */}
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-2 -ml-2 rounded-lg text-muted-foreground/40 hover:text-foreground hover:bg-muted/50 transition-colors"
+        >
+          <GripVertical className="h-5 w-5" />
+        </div>
 
-      {/* Link Type Icon */}
-      <div className={cn(
-        "p-2.5 rounded-xl border-2",
-        getLinkTypeColor(link.type)
-      )}>
-        {getLinkTypeIcon(link.type)}
-      </div>
-
-      {/* Link Content */}
-      <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex items-center gap-2">
-          <h4 className="font-semibold text-sm truncate">{link.title}</h4>
-          {link.isActive ? (
-            <span className="w-2 h-2 rounded-full bg-emerald-500" title="Active" />
+        {/* Link Icon/Thumbnail */}
+        <div className="shrink-0">
+          {link.thumbnailUrl ? (
+            <div className="h-12 w-12 rounded-xl bg-cover bg-center border shadow-sm" style={{ backgroundImage: `url(${link.thumbnailUrl})` }} />
           ) : (
-            <span className="w-2 h-2 rounded-full bg-slate-300" title="Inactive" />
+            <div className={cn(
+              "h-12 w-12 rounded-xl flex items-center justify-center border shadow-sm",
+              getLinkTypeColor(link.type)
+            )}>
+              {getLinkTypeIcon(link.type)}
+            </div>
           )}
         </div>
 
-        {link.url && (
-          <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
-            <ExternalLink className="w-3 h-3" />
-            {link.url}
-          </p>
-        )}
+        {/* Link Content */}
+        <div className="flex flex-col gap-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h4 className="font-semibold text-base text-foreground truncate">{link.title}</h4>
+            <Badge
+              variant="secondary"
+              className={cn("text-[10px] px-2 py-0.5 h-auto font-semibold tracking-wide uppercase rounded-md border",
+                link.type === 'SOCIAL' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                  link.type === 'PRODUCT' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                    link.type === 'VIDEO' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                      'bg-slate-500/10 text-slate-500 border-slate-500/20'
+              )}
+            >
+              {link.type}
+            </Badge>
+          </div>
 
-        <div className="flex items-center gap-2 pt-1">
-          <Badge 
-            variant="secondary" 
-            className={cn("text-[10px] px-1.5 py-0.5", getLinkTypeColor(link.type))}
-          >
-            {link.type}
-          </Badge>
-          {link.type === 'PRODUCT' && link.price && (
-            <span className="text-xs font-medium text-emerald-600">
-              {link.currency} {link.price.toFixed(2)}
-            </span>
+          {link.url && (
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-muted-foreground truncate hover:text-primary hover:underline flex items-center gap-1 group-hover/link:text-primary"
+            >
+              {link.url.replace(/^https?:\/\//, '')}
+              <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+            </a>
           )}
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        {link.url && (
+      <div className="flex items-center gap-4 pl-6 border-l border-border/50 h-10 ml-4 shrink-0">
+        <Switch
+          checked={link.isActive}
+          onCheckedChange={(checked) => onToggleActive(link.id, checked)}
+          className="data-[state=checked]:bg-primary"
+        />
+
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            onClick={() => window.open(link.url, '_blank')}
+            className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full"
+            onClick={() => onEdit(link)}
           >
-            <ExternalLink className="h-4 w-4" />
+            <Edit2 className="h-4 w-4" />
           </Button>
-        )}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-violet-600"
-          onClick={() => onEdit(link)}
-        >
-          <Edit2 className="h-4 w-4" />
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-red-500">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem 
-              className="text-red-600 focus:text-red-600"
-              onClick={() => onDelete(link.id)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Link
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-full"
+            onClick={() => onDelete(link.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </motion.div>
   )
@@ -250,11 +248,12 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
       if (!linkData.type || typeof linkData.type !== 'string') {
         linkData.type = 'LINK';
       }
-      
+
       // Transform form data to API request format
       const requestData = transformFormDataToApiRequest(linkData, pageId, bioLinks.length);
 
-      await bioPageService.createBioLink(requestData);
+      const { page_id, ...payload } = requestData;
+      await bioPageService.createBioLink(page_id, payload);
 
       onLinksUpdate()
       toast.success("Success", {
@@ -267,7 +266,7 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
     }
   }
 
-  const handleUpdateLink = async (linkId: number, linkData: any) => {
+  const handleUpdateLink = async (linkId: string, linkData: any) => {
     try {
       const requestData = {
         title: linkData.title,
@@ -298,7 +297,7 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
     }
   }
 
-  const handleDeleteLink = async (linkId: number) => {
+  const handleDeleteLink = async (linkId: string) => {
     if (!confirm('Are you sure you want to delete this link?')) return
 
     try {
@@ -316,16 +315,30 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-20">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <h4 className="text-lg font-semibold">Links ({bioLinks.length})</h4>
-          <Badge variant="secondary" className="text-xs">
-            Drag to reorder
-          </Badge>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between pb-4 border-b"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-xl">
+            <Link2 className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">
+              Your Links
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Manage and organize your links ({bioLinks.length})
+            </p>
+          </div>
         </div>
-      </div>
+        <Badge variant="secondary" className="text-xs">
+          Drag to reorder
+        </Badge>
+      </motion.div>
 
       {/* Empty State */}
       {bioLinks.length === 0 && (
@@ -336,8 +349,8 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
         >
           <Card className="border-dashed border-2 bg-gradient-to-br from-muted/50 to-muted/20">
             <CardContent className="flex flex-col items-center justify-center py-12 px-8 text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-violet-100 to-indigo-100 flex items-center justify-center mb-4">
-                <Link2 className="w-8 h-8 text-violet-600" />
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <Link2 className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-lg font-semibold mb-2">No links yet</h3>
               <p className="text-muted-foreground text-center max-w-xs text-sm">
@@ -367,6 +380,7 @@ export function BioLinkManager({ pageId, links, onLinksUpdate }: BioLinkManagerP
                   index={index}
                   onEdit={setEditingLink}
                   onDelete={handleDeleteLink}
+                  onToggleActive={(id, isActive) => handleUpdateLink(id, { ...link, isActive })}
                 />
               ))}
             </div>

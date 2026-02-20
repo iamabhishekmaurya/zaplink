@@ -8,34 +8,36 @@ export function LinkForm() {
     const { control } = useFormContext<LinkFormData>();
 
     return (
-        <div className="space-y-4">
-            <FormField
-                control={control}
-                name="title"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                            <Input placeholder="My Website" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                    control={control}
+                    name="title"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                                <Input placeholder="My Website" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-            <FormField
-                control={control}
-                name="url"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>URL</FormLabel>
-                        <FormControl>
-                            <Input placeholder="https://example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
+                <FormField
+                    control={control}
+                    name="url"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>URL</FormLabel>
+                            <FormControl>
+                                <Input placeholder="https://example.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
 
             <FormField
                 control={control}

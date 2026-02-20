@@ -53,6 +53,9 @@ function useSidebar() {
   return context
 }
 
+// Import useIsTablet
+import { useIsTablet } from "@/hooks/use-tablet"
+
 function SidebarProvider({
   defaultOpen = true,
   open: openProp,
@@ -67,6 +70,7 @@ function SidebarProvider({
   onOpenChange?: (open: boolean) => void
 }) {
   const isMobile = useIsMobile()
+  const isTablet = useIsTablet() // Use tablet hook
   const [openMobile, setOpenMobile] = React.useState(false)
 
   // This is the internal state of the sidebar.
@@ -87,6 +91,17 @@ function SidebarProvider({
     },
     [setOpenProp, open]
   )
+
+  // Auto-collapse on tablet
+  React.useEffect(() => {
+    if (isTablet && open) {
+      setOpen(false)
+    } else if (!isTablet && !isMobile && !open && defaultOpen) {
+      // Optional: Auto-expand on desktop if preference was defaultOpen=true?
+      // But maybe user manually closed it. Let's not force expand unless necessary.
+      // For simplicity, just auto-collapse on tablet.
+    }
+  }, [isTablet, open, setOpen, isMobile, defaultOpen])
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
