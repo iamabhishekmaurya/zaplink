@@ -1,158 +1,264 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
-import {
-    FolderPlus, Upload, LayoutGrid, List, Search,
-    MoreVertical, Star, Trash2, Folder as FolderIcon,
-    Image as ImageIcon, File as FileIcon, Move, Edit2
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ContentApi } from '../api/contentApi';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { useContentManager } from '../hooks/useContentManager';
+import { Sidebar } from './components/Sidebar';
+import { Toolbar } from './components/Toolbar';
+import { ContentGrid } from './components/ContentGrid';
+import { CreateFolderDialog } from './components/CreateFolderDialog';
+import { UploadMediaDialog } from './components/UploadMediaDialog';
+import { RenameDialog } from './components/RenameDialog';
+import { DeleteConfirmationDialog } from './components/DeleteConfirmationDialog';
+import { MoveDialog } from './components/MoveDialog';
+import { Folder, MediaItem } from '../types';
+import { ContentApi } from '@/services/contentApi';
+import { toast } from 'sonner';
 
 export default function ContentManager() {
-    const [folders, setFolders] = useState<any[]>([]);
-    const [media, setMedia] = useState<any[]>([]);
-    const [currentFolderId, setCurrentFolderId] = useState<string | undefined>(undefined);
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-    const [searchQuery, setSearchQuery] = useState('');
+    const [isCreateFolderOpen, setIsCreateFolderOpen] = React.useState(false);
+    const [isUploadOpen, setIsUploadOpen] = React.useState(false);
 
-    // Fetch data
-    const loadContent = async (folderId?: string) => {
+    // Advanced Action States
+    const [renameItem, setRenameItem] = React.useState<{ item: Folder | MediaItem, isFolder: boolean } | null>(null);
+    const [deleteItem, setDeleteItem] = React.useState<{ item: Folder | MediaItem, isFolder: boolean } | null>(null);
+    const [moveItem, setMoveItem] = React.useState<{ item: Folder | MediaItem, isFolder: boolean } | null>(null);
+    const [isUploadingDrop, setIsUploadingDrop] = React.useState(false);
+    const [isSelectMode, setIsSelectMode] = React.useState(false);
+
+    const {
+        folders,
+        allTreeFolders,
+        allTreeMedia,
+        media,
+        currentFolderId,
+        folderPath,
+        viewMode,
+        activeTab,
+        searchQuery,
+        isLoading,
+        setViewMode,
+        setActiveTab,
+        setSearchQuery,
+        handleNavigate,
+        reload
+    } = useContentManager();
+
+    const handleUploadClick = () => setIsUploadOpen(true);
+    const handleCreateFolderClick = () => setIsCreateFolderOpen(true);
+
+    const handleRenameClick = (item: Folder | MediaItem, isFolder: boolean) => setRenameItem({ item, isFolder });
+    const handleDeleteClick = (item: Folder | MediaItem, isFolder: boolean) => setDeleteItem({ item, isFolder });
+    const handleMoveClick = (item: Folder | MediaItem, isFolder: boolean) => setMoveItem({ item, isFolder });
+
+    const handleRenameSubmit = async (newName: string) => {
+        if (!renameItem) return;
         try {
-            const [fRes, mRes] = await Promise.all([
-                ContentApi.listFolders(folderId),
-                ContentApi.listMedia(folderId)
-            ]);
-            setFolders(fRes.data || []);
-            setMedia(mRes.data || []);
-        } catch (e) {
-            console.error("Failed to load content", e);
+            if (renameItem.isFolder) {
+                await ContentApi.renameFolder(renameItem.item.id, newName);
+            } else {
+                await ContentApi.updateMediaMetadata(renameItem.item.id, newName, (renameItem.item as MediaItem).tags);
+            }
+            toast.success("Renamed successfully");
+            reload();
+        } catch (error) {
+            console.error("Failed to rename", error);
+            toast.error("Failed to rename item");
         }
     };
 
-    useEffect(() => {
-        loadContent(currentFolderId);
-    }, [currentFolderId]);
+    const handleDeleteSubmit = async () => {
+        if (!deleteItem) return;
+        try {
+            const isPermanent = deleteItem.item.isDeleted;
+            if (deleteItem.isFolder) {
+                await ContentApi.deleteFolder(deleteItem.item.id, isPermanent);
+            } else {
+                await ContentApi.deleteMedia(deleteItem.item.id, isPermanent);
+            }
+            toast.success(isPermanent ? "Permanently deleted" : "Moved to trash");
+            reload();
+        } catch (error) {
+            console.error("Failed to delete", error);
+            toast.error("Failed to delete item");
+        }
+    };
+
+    const handleFavoriteToggle = async (item: Folder | MediaItem, isFolder: boolean) => {
+        try {
+            if (isFolder) {
+                await ContentApi.toggleFolderFavorite(item.id);
+            } else {
+                await ContentApi.toggleMediaFavorite(item.id);
+            }
+            toast.success(item.isFavorite ? "Removed from favorites" : "Added to favorites");
+            reload();
+        } catch (error) {
+            console.error("Failed to toggle favorite", error);
+            toast.error("Action failed");
+        }
+    };
+
+    const handleMoveSubmit = async (newFolderId: string | undefined) => {
+        if (!moveItem) return;
+        try {
+            if (moveItem.isFolder) {
+                await ContentApi.moveFolder(moveItem.item.id, newFolderId);
+            } else {
+                await ContentApi.moveMedia(moveItem.item.id, newFolderId);
+            }
+            toast.success("Moved successfully");
+            reload();
+        } catch (error) {
+            console.error("Failed to move item", error);
+            toast.error("Failed to move item");
+        }
+    };
+
+    // Handle file drops
+    const handleFilesDrop = async (files: File[]) => {
+        if (files.length === 0) return;
+        setIsUploadingDrop(true);
+        // Simple sequential upload for Phase 4 to avoid overwhelming the server
+        let uploadedCount = 0;
+        try {
+            toast.loading(`Uploading ${files.length} files...`, { id: 'drop-upload' });
+            for (const file of files) {
+                await ContentApi.uploadMedia(file, currentFolderId);
+                uploadedCount++;
+            }
+            toast.success(`Successfully uploaded ${uploadedCount} files`, { id: 'drop-upload' });
+            reload();
+        } catch (error) {
+            console.error("Failed to upload dropped files", error);
+            toast.error(`Uploaded ${uploadedCount}/${files.length} files. Some failed.`, { id: 'drop-upload' });
+            reload(); // Reload to show the ones that succeeded
+        } finally {
+            setIsUploadingDrop(false);
+        }
+    };
+
+    // Handle bulk delete of multiple items
+    const handleBulkDelete = async (selectedItems: { item: Folder | MediaItem; isFolder: boolean }[]) => {
+        if (selectedItems.length === 0) return;
+        try {
+            toast.loading(`Deleting ${selectedItems.length} item${selectedItems.length !== 1 ? 's' : ''}...`, { id: 'bulk-delete' });
+            await Promise.all(
+                selectedItems.map(({ item, isFolder }) => {
+                    const isPermanent = item.isDeleted;
+                    return isFolder
+                        ? ContentApi.deleteFolder(item.id, isPermanent)
+                        : ContentApi.deleteMedia(item.id, isPermanent);
+                })
+            );
+            const allPermanent = selectedItems.every(({ item }) => item.isDeleted);
+            toast.success(
+                allPermanent
+                    ? `Permanently deleted ${selectedItems.length} item${selectedItems.length !== 1 ? 's' : ''}`
+                    : `Moved ${selectedItems.length} item${selectedItems.length !== 1 ? 's' : ''} to trash`,
+                { id: 'bulk-delete' }
+            );
+            reload();
+        } catch (error) {
+            console.error('Bulk delete failed', error);
+            toast.error('Some items could not be deleted', { id: 'bulk-delete' });
+            reload();
+        }
+    };
 
     return (
-        <div className="flex flex-col md:flex-row h-[70vh] gap-6">
-            {/* Sidebar Folder Tree */}
-            <Card className="w-full md:w-1/4 h-full bg-card/50 backdrop-blur border-border/50">
-                <CardContent className="p-4 flex flex-col h-full gap-4">
-                    <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-lg flex items-center gap-2">
-                            <FolderIcon className="w-5 h-5 text-primary" /> Folders
-                        </h3>
-                        <Button variant="ghost" size="icon"><FolderPlus className="w-4 h-4" /></Button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto space-y-2">
-                        <Button
-                            variant={currentFolderId === undefined ? "secondary" : "ghost"}
-                            className="w-full justify-start"
-                            onClick={() => setCurrentFolderId(undefined)}
-                        >
-                            <FolderIcon className="w-4 h-4 mr-2" /> Root
-                        </Button>
-                        {folders.map(f => (
-                            <Button
-                                key={f.id}
-                                variant={currentFolderId === f.id ? "secondary" : "ghost"}
-                                className="w-full justify-start ml-4"
-                                onClick={() => setCurrentFolderId(f.id)}
-                            >
-                                <FolderIcon className="w-4 h-4 mr-2 text-muted-foreground" /> {f.name}
-                            </Button>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col md:flex-row h-full gap-6"
+        >
+            {/* Folder Navigation Tree */}
+            <Sidebar
+                folders={allTreeFolders}
+                media={allTreeMedia}
+                currentFolderId={currentFolderId}
+                activeTab={activeTab}
+                onNavigate={handleNavigate}
+                onTabChange={setActiveTab}
+            />
 
-            {/* Main Content Area */}
-            <Card className="flex-1 flex flex-col bg-card/50 backdrop-blur border-border/50 overflow-hidden">
-                <div className="p-4 border-b border-border/50 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="relative w-full md:w-64">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search content..."
-                            className="pl-8 bg-background/50"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Tabs value={viewMode} onValueChange={(v: any) => setViewMode(v)}>
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="grid"><LayoutGrid className="w-4 h-4" /></TabsTrigger>
-                                <TabsTrigger value="list"><List className="w-4 h-4" /></TabsTrigger>
-                            </TabsList>
-                        </Tabs>
-                        <Button><Upload className="w-4 h-4 mr-2" /> Upload</Button>
-                    </div>
-                </div>
+            {/* Main Workspace Area */}
+            <motion.div
+                layout
+                className="flex-1 flex flex-col bg-card/50 backdrop-blur border border-border/50 overflow-hidden rounded-xl shadow-sm"
+            >
 
-                <CardContent className="flex-1 p-6 overflow-y-auto">
-                    {media.length === 0 && folders.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-                            <ImageIcon className="w-12 h-12 mb-4 opacity-50" />
-                            <p>This folder is empty.</p>
-                            <Button variant="outline" className="mt-4"><Upload className="w-4 h-4 mr-2" /> Upload Media</Button>
-                        </div>
-                    ) : (
-                        <div className={viewMode === 'grid' ? "grid grid-cols-2 md:grid-cols-4 gap-4" : "flex flex-col gap-2"}>
-                            {/* Render Subfolders in main view too */}
-                            {folders.map(f => (
-                                <Card key={f.id} className="cursor-pointer hover:bg-muted/50 transition flex items-center p-4 gap-3">
-                                    <FolderIcon className="w-8 h-8 text-blue-500" />
-                                    <div className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-medium">{f.name}</div>
-                                    <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                                </Card>
-                            ))}
-                            {/* Render Media */}
-                            {media.filter(m => m.name.toLowerCase().includes(searchQuery.toLowerCase())).map(m => (
-                                <Card key={m.id} className="group relative overflow-hidden cursor-pointer hover:border-primary/50 transition">
-                                    {viewMode === 'grid' ? (
-                                        <>
-                                            <div className="aspect-square bg-muted/30 flex items-center justify-center relative">
-                                                {m.type?.startsWith('image/') ? (
-                                                    <img src={m.url} alt={m.name} className="object-cover w-full h-full" />
-                                                ) : (
-                                                    <FileIcon className="w-12 h-12 text-muted-foreground" />
-                                                )}
-                                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition flex gap-1">
-                                                    <Button variant="secondary" size="icon" className="h-7 w-7"><Star className="w-3 h-3" /></Button>
-                                                    <Button variant="destructive" size="icon" className="h-7 w-7"><Trash2 className="w-3 h-3" /></Button>
-                                                </div>
-                                            </div>
-                                            <div className="p-3">
-                                                <p className="text-sm font-medium truncate">{m.name}</p>
-                                                <p className="text-xs text-muted-foreground mt-1">{(m.size / 1024 / 1024).toFixed(2)} MB</p>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <div className="flex items-center p-3 gap-4">
-                                            <div className="w-10 h-10 bg-muted/30 rounded flex items-center justify-center">
-                                                {m.type?.startsWith('image/') ? (
-                                                    <img src={m.url} alt={m.name} className="object-cover w-full h-full rounded" />
-                                                ) : (
-                                                    <FileIcon className="w-5 h-5 text-muted-foreground" />
-                                                )}
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="text-sm font-medium truncate">{m.name}</p>
-                                            </div>
-                                            <div className="w-24 text-right text-xs text-muted-foreground">{(m.size / 1024 / 1024).toFixed(2)} MB</div>
-                                            <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
-                                        </div>
-                                    )}
-                                </Card>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
+
+                <Toolbar
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    onUploadClick={handleUploadClick}
+                    onCreateFolderClick={handleCreateFolderClick}
+                    isReadOnly={activeTab === 'trash'}
+                    folderPath={folderPath}
+                    onNavigate={handleNavigate}
+                    isSelectMode={isSelectMode}
+                    onToggleSelectMode={() => setIsSelectMode(v => !v)}
+                />
+
+                <ContentGrid
+                    folders={folders}
+                    media={media}
+                    viewMode={viewMode}
+                    isLoading={isLoading}
+                    onFolderClick={handleNavigate}
+                    onRenameClick={handleRenameClick}
+                    onDeleteClick={handleDeleteClick}
+                    onFavoriteToggle={handleFavoriteToggle}
+                    onMoveClick={handleMoveClick}
+                    onFilesDrop={handleFilesDrop}
+                    onBulkDelete={handleBulkDelete}
+                    isSelectMode={isSelectMode}
+                    onExitSelectMode={() => setIsSelectMode(false)}
+                />
+            </motion.div>
+
+            {/* Dialogs */}
+            <CreateFolderDialog
+                open={isCreateFolderOpen}
+                onOpenChange={setIsCreateFolderOpen}
+                parentId={currentFolderId}
+                onSuccess={reload}
+            />
+
+            <UploadMediaDialog
+                open={isUploadOpen}
+                onOpenChange={setIsUploadOpen}
+                folderId={currentFolderId}
+                folderPath={folderPath}
+                onSuccess={reload}
+            />
+
+            <RenameDialog
+                open={!!renameItem}
+                onOpenChange={(open) => !open && setRenameItem(null)}
+                currentName={renameItem?.item.name || ""}
+                onRename={handleRenameSubmit}
+            />
+
+            <DeleteConfirmationDialog
+                open={!!deleteItem}
+                onOpenChange={(open) => !open && setDeleteItem(null)}
+                itemName={deleteItem?.item.name || ""}
+                isFolder={deleteItem?.isFolder}
+                onConfirm={handleDeleteSubmit}
+            />
+
+            <MoveDialog
+                open={!!moveItem}
+                onOpenChange={(open) => !open && setMoveItem(null)}
+                item={moveItem?.item || null}
+                isFolder={moveItem?.isFolder || false}
+                currentFolderId={currentFolderId}
+                onMove={handleMoveSubmit}
+            />
+        </motion.div>
     );
 }

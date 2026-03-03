@@ -13,6 +13,8 @@ public interface MediaItemRepository
     extends
     JpaRepository<MediaItem, UUID>
 {
+    List<MediaItem> findByOwnerIdAndIsDeletedFalse( String ownerId );
+
     List<MediaItem> findByOwnerIdAndFolderIdAndIsDeletedFalse( String ownerId, UUID folderId );
 
     List<MediaItem> findByOwnerIdAndFolderIsNullAndIsDeletedFalse( String ownerId );

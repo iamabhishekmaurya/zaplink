@@ -137,6 +137,14 @@ public class GatewayConfig
                                                                 .addResponseHeader( "X-Zaplink-Mode", "HYBRID" ) )
                                                 .uri( "http://localhost:8085" ) )
                                 /**
+                                 * Scheduler Service Routes
+                                 * Port: 8089
+                                 */
+                                .route( "scheduler-service",
+                                        r -> r.path( basePath + "/schedule/**" ).and().header( "X-API-Version", "1" )
+                                                        .filters( f -> f.stripPrefix( 1 ) )
+                                                        .uri( "http://localhost:8089" ) )
+                                /**
                                  * Auth Service Routes
                                  * Port: 8084
                                  */
@@ -152,7 +160,7 @@ public class GatewayConfig
                                  * Media Service Routes
                                  * Port: 8086
                                  */
-                                .route( "media-service", r -> r.path( basePath + "/media", basePath + "/media/**" )
+                                .route( "media-service", r -> r.path( basePath + "/medias", basePath + "/medias/**" )
                                                 .and().header( "X-API-Version", "1" ).filters( f -> f.stripPrefix( 1 ) )
                                                 .uri( "http://localhost:8086" ) )
                                 .route( "media-folders", r -> r.path( basePath + "/folders", basePath + "/folders/**" )
@@ -168,13 +176,11 @@ public class GatewayConfig
                                                                               "/social/${segment}" ) )
                                                 .uri( "http://localhost:8088" ) )
                                 /**
-                                 * Scheduler Service Routes
-                                 * Port: 8089
+                                 * Scraper Service Routes
+                                 * Port: 8095
                                  */
-                                .route( "scheduler-service",
-                                        r -> r.path( basePath + "/schedule/**" ).and().header( "X-API-Version", "1" )
-                                                        .filters( f -> f.stripPrefix( 1 ) )
-                                                        .uri( "http://localhost:8089" ) )
+                                .route( "scraper-service", r -> r.path( basePath + "/scraper/**" ).and()
+                                                .header( "X-API-Version", "1" ).uri( "http://localhost:8095" ) )
                                 .build();
         }
 }

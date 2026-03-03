@@ -98,7 +98,7 @@ export function CreateBioLinkDialog({ open, onOpenChange, onCreateLink, pageId, 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto mobile-scrollbar pr-1">
         <DialogHeader>
           <DialogTitle>Add New Link</DialogTitle>
         </DialogHeader>

@@ -64,6 +64,11 @@ public class FolderService
         return folderRepository.findByOwnerIdAndParentIdAndIsDeletedFalse( ownerId, parentId );
     }
 
+    public List<Folder> listAllFolders( String ownerId )
+    {
+        return folderRepository.findByOwnerIdAndIsDeletedFalse( ownerId );
+    }
+
     @Transactional
     public void deleteFolder( UUID folderId, String ownerId )
     {
@@ -101,5 +106,17 @@ public class FolderService
     public List<Folder> listTrash( String ownerId )
     {
         return folderRepository.findByOwnerIdAndIsDeletedTrue( ownerId );
+    }
+
+    @Transactional
+    public void hardDeleteTrashedFolder( UUID folderId, String ownerId )
+    {
+        Folder folder = folderRepository.findByIdAndOwnerId( folderId, ownerId )
+                .orElseThrow( () -> new AssetNotFoundException( "Folder not found" ) );
+        if ( !folder.isDeleted() )
+        {
+            throw new IllegalStateException( "Only trashed items can be permanently deleted" );
+        }
+        folderRepository.delete( folder );
     }
 }

@@ -96,12 +96,12 @@
 
 .dark {
   /* Dark Theme - Lifted/Softer Approach */
-  --background: oklch(0.14 0.03 290); /* Much lighter than 0.10, definitely not pure black */
-  --foreground: oklch(0.90 0.02 290); /* Softer white (off-white, subtly violet) */
-  --card: oklch(0.18 0.04 290);       /* Lighter cards */
-  --card-foreground: oklch(0.90 0.02 290);
-  --popover: oklch(0.18 0.04 290);
-  --popover-foreground: oklch(0.90 0.02 290);
+  --background: oklch(0.09 0.03 290); /* Dimmer, deeper background */
+  --foreground: oklch(0.78 0.02 290); /* Much softer, dimmer text */
+  --card: oklch(0.12 0.04 290);       /* Dimmer cards */
+  --card-foreground: oklch(0.78 0.02 290);
+  --popover: oklch(0.12 0.04 290);
+  --popover-foreground: oklch(0.78 0.02 290);
   
   /* Primary - Lighter Violet for Dark Mode */
   --primary: oklch(0.65 0.20 290);
@@ -115,8 +115,8 @@
   --accent: oklch(0.25 0.06 290);
   --accent-foreground: oklch(0.98 0 0);
   
-  --muted: oklch(0.22 0.04 290);
-  --muted-foreground: oklch(0.65 0.04 290); /* Softer muted text */
+  --muted: oklch(0.16 0.04 290);
+  --muted-foreground: oklch(0.55 0.04 290); /* Dimmer muted text */
   
   --destructive: oklch(0.577 0.245 27.325); /* Keep strict red for errors */
   --border: oklch(0.25 0.04 290);

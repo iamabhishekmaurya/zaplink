@@ -99,8 +99,8 @@ public class BioPageService
         if ( bioPageRepository.existsByUsername( request.username() ) )
         {
             log.warn( LogConstants.BIOPAGE_USERNAME_CONFLICT_WARNING, request.username() );
-            throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_USERNAME_ALREADY_EXISTS,
-                                                               request.username() ) );
+            throw new IllegalArgumentException( ErrorConstant.ERROR_USERNAME_ALREADY_EXISTS
+                    .replace( "{}", request.username() ) );
         }
         try
         {

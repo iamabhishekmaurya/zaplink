@@ -162,7 +162,13 @@ export function AdvancedLinkCard({ link, theme, previewMode, index }: AdvancedLi
 
           {link.url && !isProduct && (
             <p className="text-sm opacity-70 truncate transition-colors">
-              {new URL(link.url).hostname.replace('www.', '')}
+              {(() => {
+                try {
+                  return new URL(link.url!).hostname.replace('www.', '');
+                } catch {
+                  return link.url === '#' ? 'Link' : link.url;
+                }
+              })()}
             </p>
           )}
 

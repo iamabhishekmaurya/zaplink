@@ -6,6 +6,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { MobileBottomDock } from '@/features/dashboard/ui/mobile-bottom-dock';
 
 export default function DashboardLayout({
   children,
@@ -30,11 +31,12 @@ export default function DashboardLayout({
             <div className="h-[500px] w-[500px] bg-[#ff8904]/5 rounded-full blur-3xl opacity-50 absolute top-40 -left-20" />
           </div>
           {/* <SiteHeader /> */}
-          <div className="relative z-10">
+          <div className="relative z-10 pb-20 md:pb-0">
             <ErrorBoundary>
               {children}
             </ErrorBoundary>
           </div>
+          <MobileBottomDock />
         </SidebarInset>
       </SidebarProvider>
     </ErrorBoundary>

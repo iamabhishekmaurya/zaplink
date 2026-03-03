@@ -99,6 +99,11 @@ public class MediaItemService
         return mediaItemRepository.save( item );
     }
 
+    public List<MediaItem> listAllMedia( String ownerId )
+    {
+        return mediaItemRepository.findByOwnerIdAndIsDeletedFalse( ownerId );
+    }
+
     public List<MediaItem> listMedia( String ownerId, UUID folderId )
     {
         if ( folderId == null )

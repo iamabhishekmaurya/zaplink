@@ -1,6 +1,9 @@
 package io.zaplink.core.service;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,8 +16,10 @@ import io.zaplink.core.common.constants.LogConstants;
 import io.zaplink.core.common.constants.MessageConstants;
 import io.zaplink.core.dto.request.biolink.CreateBioLinkRequest;
 import io.zaplink.core.dto.request.biolink.ReorderLinksRequest;
+import io.zaplink.core.dto.request.biolink.TrackClickRequest;
 import io.zaplink.core.dto.request.biolink.UpdateBioLinkRequest;
 import io.zaplink.core.dto.response.biolink.BioLinkResponse;
+import io.zaplink.core.entity.BioClickEntity;
 import io.zaplink.core.entity.BioLinkEntity;
 import io.zaplink.core.entity.BioPageEntity;
 import io.zaplink.core.repository.BioLinkRepository;
@@ -57,9 +62,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j @Service @RequiredArgsConstructor @Transactional(readOnly = true)
 public class BioLinkService
 {
-    private final BioLinkRepository     bioLinkRepository;
-    private final BioPageRepository     bioPageRepository;
-    private final EventPublisherService eventPublisherService;
+    private final BioLinkRepository                             bioLinkRepository;
+    private final BioPageRepository                             bioPageRepository;
+    private final io.zaplink.core.repository.BioClickRepository bioClickRepository;
+    private final EventPublisherService                         eventPublisherService;
     /**
      * Creates a new bio link with comprehensive validation and logging.
      * 
@@ -324,9 +330,7 @@ public class BioLinkService
         // Validate type-specific requirements using Java 21 switch expression
         switch ( request.type().toUpperCase() )
         {
-            case MessageConstants.LINK_TYPE_LINK, MessageConstants.LINK_TYPE_SOCIAL,
-                 MessageConstants.LINK_TYPE_EMBED, MessageConstants.LINK_TYPE_SCHEDULED,
-                 MessageConstants.LINK_TYPE_GATED -> {
+            case MessageConstants.LINK_TYPE_LINK, MessageConstants.LINK_TYPE_SOCIAL, MessageConstants.LINK_TYPE_EMBED, MessageConstants.LINK_TYPE_SCHEDULED, MessageConstants.LINK_TYPE_GATED -> {
                 if ( request.url() == null || request.url().trim().isEmpty() )
                 {
                     throw new IllegalArgumentException( String.format( ErrorConstant.ERROR_URL_REQUIRED_FOR_LINK_TYPE,
@@ -422,5 +426,50 @@ public class BioLinkService
             log.error( LogConstants.BIOLINK_CONVERT_TO_DTO_FAILED, entity.getId(), e );
             throw new RuntimeException( MessageConstants.ERROR_FAILED_TO_CONVERT_ENTITY_TO_DTO, e );
         }
+    }
+
+    /**
+     * Tracks a click on a bio link for analytics.
+     * 
+     * @param linkId the ID of the link clicked
+     * @param request the track click request with referrer and userAgent
+     * @param ipAddress the IP address of the user (to be hashed for privacy)
+     */
+    @Transactional
+    public void trackClick( Long linkId, TrackClickRequest request, String ipAddress )
+    {
+        BioLinkEntity link = bioLinkRepository.findById( linkId )
+                .orElseThrow( () -> new IllegalArgumentException( String
+                        .format( MessageConstants.ERROR_BIO_LINK_NOT_FOUND_WITH_ID, linkId ) ) );
+        String ipHash = null;
+        if ( ipAddress != null && !ipAddress.isEmpty() )
+        {
+            try
+            {
+                MessageDigest digest = MessageDigest.getInstance( "SHA-256" );
+                byte[] hash = digest.digest( ipAddress.getBytes( StandardCharsets.UTF_8 ) );
+                StringBuilder hexString = new StringBuilder();
+                for ( byte b : hash )
+                {
+                    String hex = Integer.toHexString( 0xff & b );
+                    if ( hex.length() == 1 )
+                    {
+                        hexString.append( '0' );
+                    }
+                    hexString.append( hex );
+                }
+                ipHash = hexString.toString();
+            }
+            catch ( Exception e )
+            {
+                log.warn( "Failed to hash IP address for click tracking", e );
+            }
+        }
+        BioClickEntity clickEvent = BioClickEntity.builder().link( link ).page( link.getBioPage() )
+                .referrer( request != null ? request.referrer() : null )
+                .userAgent( request != null ? request.userAgent() : null ).ipHash( ipHash )
+                .createdAt( LocalDateTime.now() ).build();
+        bioClickRepository.save( clickEvent );
+        log.debug( "Tracked click for link {}", linkId );
     }
 }

@@ -23,7 +23,7 @@ export interface ThemeConfig {
         cardStyle?: 'flat' | 'raised' | 'glass' | 'border';
         cardBlur?: number;
         contentAlignment?: 'center' | 'left';
-        layoutStyle?: 'classic' | 'hero' | 'framed';
+        layoutStyle?: 'classic' | 'hero' | 'framed' | 'split' | 'minimalist' | 'grid' | 'cyberpunk' | 'notion' | 'terminal' | 'carousel';
     };
     effects: {
         backgroundType: 'solid' | 'gradient' | 'image' | 'video' | 'particles';

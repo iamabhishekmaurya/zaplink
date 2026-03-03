@@ -188,7 +188,7 @@ export interface UpdateBioLinkRequest {
 }
 
 export interface ReorderLinksRequest {
-  linkOrders: { linkId: number; sortOrder: number }[];
+  link_orders: { link_id: number; sort_order: number }[];
 }
 
 // ============ Transformation Functions ============
@@ -218,6 +218,10 @@ function transformBioLink(apiLink: BioLinkApiResponse): BioLink {
     scheduleTo: apiLink.schedule_to,
     iconUrl: apiLink.icon_url,
     thumbnailUrl: apiLink.thumbnail_url,
+    embedCode: parsedMetadata?.embedCode,
+    gateType: parsedMetadata?.gateType,
+    gateValue: parsedMetadata?.gateValue,
+    gateMessage: parsedMetadata?.gateMessage,
     createdAt: apiLink.created_at,
     updatedAt: apiLink.updated_at,
   };
@@ -336,7 +340,7 @@ class BioPageService {
 
   async reorderLinks(pageId: string | number, linkIds: (string | number)[]): Promise<void> {
     const numericLinkIds = linkIds.map(id => Number(id)).filter(id => !isNaN(id));
-    await apiClient.put(`/wr/bio/link/${pageId}/reorder`, { linkOrders: numericLinkIds.map((id, index) => ({ linkId: id, sortOrder: index })) });
+    await apiClient.put(`/wr/bio/link/${pageId}/reorder`, { link_orders: numericLinkIds.map((id, index) => ({ link_id: id, sort_order: index })) });
   }
 
   async trackClick(linkId: string | number): Promise<void> {

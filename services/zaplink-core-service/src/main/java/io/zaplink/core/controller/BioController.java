@@ -22,6 +22,7 @@ import io.zaplink.core.common.constants.ControllerConstants;
 import io.zaplink.core.common.constants.StatusConstants;
 import io.zaplink.core.dto.request.biolink.CreateBioLinkRequest;
 import io.zaplink.core.dto.request.biolink.ReorderLinksRequest;
+import io.zaplink.core.dto.request.biolink.TrackClickRequest;
 import io.zaplink.core.dto.request.biolink.UpdateBioLinkRequest;
 import io.zaplink.core.dto.request.biopage.CreateBioPageRequest;
 import io.zaplink.core.dto.request.biopage.UpdateBioPageRequest;
@@ -29,6 +30,7 @@ import io.zaplink.core.dto.response.biolink.BioLinkResponse;
 import io.zaplink.core.dto.response.biopage.BioPageResponse;
 import io.zaplink.core.service.BioLinkService;
 import io.zaplink.core.service.BioPageService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -61,7 +63,7 @@ public class BioController
   { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_BIO_PAGE_UPDATED, content = @Content(schema = @Schema(implementation = BioPageResponse.class))),
     @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_DATA),
     @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_BIO_PAGE_NOT_FOUND) })
-  public BioPageResponse updateBioPage( @Parameter(description = ControllerConstants.PARAM_DESC_BIO_PAGE_ID) @PathVariable Long pageId,
+  public BioPageResponse updateBioPage( @Parameter(description = ControllerConstants.PARAM_DESC_BIO_PAGE_ID) @PathVariable("pageId") Long pageId,
                                         @Valid @RequestBody UpdateBioPageRequest request,
                                         @RequestHeader(value = ControllerConstants.HEADER_USER_EMAIL, required = false) String userEmail )
   {
@@ -72,7 +74,7 @@ public class BioController
       + "/{pageId}", version = ControllerConstants.API_VERSION_1) @Operation(summary = ControllerConstants.BIO_DELETE_PAGE_SUMMARY, description = ControllerConstants.BIO_DELETE_PAGE_DESC) @ApiResponses(value =
   { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_BIO_PAGE_DELETED),
     @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_BIO_PAGE_NOT_FOUND) })
-  public ResponseEntity<Void> deleteBioPage( @Parameter(description = ControllerConstants.PARAM_DESC_BIO_PAGE_ID) @PathVariable Long pageId,
+  public ResponseEntity<Void> deleteBioPage( @Parameter(description = ControllerConstants.PARAM_DESC_BIO_PAGE_ID) @PathVariable("pageId") Long pageId,
                                              @RequestHeader(value = ControllerConstants.HEADER_USER_EMAIL, required = false) String userEmail )
   {
     boolean deleted = bioPageWriteService.deleteBioPage( pageId, userEmail );
@@ -95,7 +97,7 @@ public class BioController
   { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = ControllerConstants.RESPONSE_200_BIO_LINK_UPDATED, content = @Content(schema = @Schema(implementation = BioLinkResponse.class))),
     @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_DATA),
     @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_BIO_LINK_NOT_FOUND) })
-  public BioLinkResponse updateBioLink( @Parameter(description = ControllerConstants.PARAM_DESC_BIO_LINK_ID) @PathVariable Long linkId,
+  public BioLinkResponse updateBioLink( @Parameter(description = ControllerConstants.PARAM_DESC_BIO_LINK_ID) @PathVariable("linkId") Long linkId,
                                         @Valid @RequestBody UpdateBioLinkRequest request,
                                         @RequestHeader(value = ControllerConstants.HEADER_USER_EMAIL, required = false) String userEmail )
   {
@@ -123,5 +125,19 @@ public class BioController
   {
     boolean reordered = bioLinkWriteService.reorderLinks( pageId, request, userEmail );
     return reordered ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+  }
+
+  @PostMapping(value = ControllerConstants.BIO_LINK_PATH
+      + "/{linkId}/click", version = ControllerConstants.API_VERSION_1) @Operation(summary = "Track Link Click", description = "Records a click event for a bio link") @ApiResponses(value =
+  { @ApiResponse(responseCode = StatusConstants.STATUS_200_OK, description = "Click tracked successfully"),
+    @ApiResponse(responseCode = StatusConstants.STATUS_400_BAD_REQUEST, description = ControllerConstants.RESPONSE_400_INVALID_DATA),
+    @ApiResponse(responseCode = StatusConstants.STATUS_404_NOT_FOUND, description = ControllerConstants.RESPONSE_404_BIO_LINK_NOT_FOUND) })
+  public ResponseEntity<Void> trackClick( @Parameter(description = ControllerConstants.PARAM_DESC_BIO_LINK_ID) @PathVariable("linkId") Long linkId,
+                                          @RequestBody(required = false) TrackClickRequest request,
+                                          HttpServletRequest servletRequest )
+  {
+    String ipAddress = servletRequest.getRemoteAddr();
+    bioLinkWriteService.trackClick( linkId, request, ipAddress );
+    return ResponseEntity.ok().build();
   }
 }

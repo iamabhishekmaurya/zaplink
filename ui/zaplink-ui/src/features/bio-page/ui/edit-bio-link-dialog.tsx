@@ -1,23 +1,36 @@
 "use client"
 
-import { useEffect, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { linkFormSchema, LinkFormValues } from '@/features/bio-page/lib/validators'
-import { LinkForm } from '@/features/bio-page/ui/link-forms/link-form'
-import { SocialLinkForm } from '@/features/bio-page/ui/link-forms/social-link-form'
-import { ProductLinkForm } from '@/features/bio-page/ui/link-forms/product-link-form'
-import { EmbedLinkForm } from '@/features/bio-page/ui/link-forms/embed-link-form'
-import { ScheduledLinkForm } from '@/features/bio-page/ui/link-forms/scheduled-link-form'
-import { GatedLinkForm } from '@/features/bio-page/ui/link-forms/gated-link-form'
-import { BioLink } from '@/services/bioPageService'
+import { Label } from '@/components/ui/label'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { linkFormSchema } from '@/features/bio-page/lib/validators'
 import { BioPageLinkType } from '@/features/bio-page/types/index'
+import { EmbedLinkForm } from '@/features/bio-page/ui/link-forms/embed-link-form'
+import { GatedLinkForm } from '@/features/bio-page/ui/link-forms/gated-link-form'
+import { LinkForm } from '@/features/bio-page/ui/link-forms/link-form'
+import { ProductLinkForm } from '@/features/bio-page/ui/link-forms/product-link-form'
+import { ScheduledLinkForm } from '@/features/bio-page/ui/link-forms/scheduled-link-form'
+import { SocialLinkForm } from '@/features/bio-page/ui/link-forms/social-link-form'
+import { BioLink } from '@/services/bioPageService'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { FileText, Link2, Music, Package, ShoppingBag, Video } from 'lucide-react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+
+// Get icon from type
+function getTypeIcon(type: string) {
+  switch (type) {
+    case 'PRODUCT': return <ShoppingBag className="w-5 h-5" />
+    case 'VIDEO': return <Video className="w-5 h-5" />
+    case 'MUSIC': return <Music className="w-5 h-5" />
+    case 'SOCIAL': return <Link2 className="w-5 h-5" />
+    case 'SECTION': return <Package className="w-5 h-5" />
+    case 'EMBED': return <FileText className="w-5 h-5" />
+    default: return <Link2 className="w-5 h-5" />
+  }
+}
 
 interface EditBioLinkDialogProps {
   link: BioLink
@@ -131,86 +144,81 @@ export function EditBioLinkDialog({ link, open, onOpenChange, onUpdateLink }: Ed
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Link</DialogTitle>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="sm:max-w-md md:max-w-lg lg:max-w-xl overflow-y-auto p-0 flex flex-col h-full bg-card/95 backdrop-blur-xl border-l border-border/50 mobile-scrollbar pr-1">
+        <SheetHeader className="p-6 border-b bg-background/50 sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-primary/10 rounded-xl text-primary shrink-0">
+              {getTypeIcon(currentType || link.type)}
+            </div>
+            <div className="text-left flex-1 min-w-0">
+              <SheetTitle className="text-xl font-bold truncate">{watch('title') || 'Edit Link'}</SheetTitle>
+              <SheetDescription className="truncate">
+                {watch('url') ? watch('url') : 'Configure your link details'}
+              </SheetDescription>
+            </div>
+          </div>
+        </SheetHeader>
 
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Type selector usually disabled or omitted in edit mode if type change is not supported properly. 
-                 But user might want to change "Social" platform (which is just title change in my SocialLinkForm logic? No, type is SOCIAL).
-                 If I change type from LINK to PRODUCT, new fields appear.
-                 I'll allow type change.
-             */}
-            <div className="grid gap-6 py-4">
-              <div className="grid gap-2">
-                <Label className="text-base font-semibold">Link Type</Label>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+        <div className="p-6 flex-1">
+          <Form {...form}>
+            <form id="edit-link-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6 pb-24">
+
+              <div className="grid gap-3">
+                <Label className="text-sm font-semibold">Change Link Type</Label>
+                <div className="grid grid-cols-3 gap-2">
                   {[
                     { value: 'LINK', label: 'Link', icon: '🔗' },
                     { value: 'SOCIAL', label: 'Social', icon: '📱' },
                     { value: 'PRODUCT', label: 'Product', icon: '🛍️' },
-                    { value: 'EMBED', label: 'Music/Video', icon: '🎵' },
-                    { value: 'SCHEDULED', label: 'Scheduled', icon: '📅' },
+                    { value: 'EMBED', label: 'Media', icon: '🎵' },
+                    { value: 'SCHEDULED', label: 'Schedule', icon: '📅' },
                     { value: 'GATED', label: 'Gated', icon: '🔒' }
                   ].map((type) => (
                     <div
                       key={type.value}
                       onClick={() => setValue('type', type.value as BioPageLinkType)}
                       className={`
-                        cursor-pointer flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all
+                        cursor-pointer flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all duration-200
                         ${currentType === type.value
-                          ? 'border-primary bg-primary/5 text-primary'
-                          : 'border-muted hover:border-primary/50 hover:bg-muted/50'}
+                          ? 'border-primary bg-primary/10 text-primary shadow-sm scale-[1.02]'
+                          : 'border-transparent bg-muted/50 hover:bg-muted hover:scale-[1.01]'}
                       `}
                     >
-                      <span className="text-2xl mb-1">{type.icon}</span>
-                      <span className="text-xs font-medium">{type.label}</span>
+                      <span className="text-xl mb-1.5">{type.icon}</span>
+                      <span className="text-[11px] font-semibold tracking-wide uppercase">{type.label}</span>
                     </div>
                   ))}
                 </div>
-                {/* Hidden select to maintain form state compatibility if needed, or just use the buttons above to drive the state */}
-                <div className="hidden">
-                  <Select
-                    value={currentType}
-                    onValueChange={(val) => {
-                      setValue('type', val as BioPageLinkType);
-                    }}
-                  >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="LINK">Link</SelectItem>
-                      <SelectItem value="SOCIAL">Social</SelectItem>
-                      <SelectItem value="PRODUCT">Product</SelectItem>
-                      <SelectItem value="EMBED">Music/Video</SelectItem>
-                      <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-                      <SelectItem value="GATED">Gated Content</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
-            </div>
 
-            {currentType === 'LINK' && <LinkForm />}
-            {currentType === 'SOCIAL' && <SocialLinkForm />}
-            {currentType === 'PRODUCT' && <ProductLinkForm />}
-            {currentType === 'EMBED' && <EmbedLinkForm />}
-            {currentType === 'SCHEDULED' && <ScheduledLinkForm />}
-            {currentType === 'GATED' && <GatedLinkForm />}
+              <div className="h-px w-full bg-border" />
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? "Updating..." : "Update Link"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+              {/* Form Content */}
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                {currentType === 'LINK' && <LinkForm />}
+                {currentType === 'SOCIAL' && <SocialLinkForm />}
+                {currentType === 'PRODUCT' && <ProductLinkForm />}
+                {currentType === 'EMBED' && <EmbedLinkForm />}
+                {currentType === 'SCHEDULED' && <ScheduledLinkForm />}
+                {currentType === 'GATED' && <GatedLinkForm />}
+              </div>
+
+            </form>
+          </Form>
+        </div>
+
+        {/* Floating Action Bar at the bottom of the sheet */}
+        <div className="p-4 border-t bg-background/80 backdrop-blur-md sticky bottom-0 z-10 flex justify-end gap-3 rounded-tl-xl mt-auto">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl px-6">
+            Cancel
+          </Button>
+          <Button type="submit" form="edit-link-form" disabled={form.formState.isSubmitting} className="rounded-xl px-8 shadow-md hover:shadow-lg transition-shadow">
+            {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
+
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     // Proxy all /api/* requests to the Gateway
-    // API versioning is done via X-API-Version header, not URL path
     return [
       {
         source: "/api/:path*",
@@ -55,6 +54,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  serverExternalPackages: ['puppeteer-extra', 'puppeteer-extra-plugin-stealth'],
 };
 
 export default nextConfig;

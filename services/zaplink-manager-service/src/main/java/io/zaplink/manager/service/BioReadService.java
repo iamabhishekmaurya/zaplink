@@ -58,7 +58,7 @@ public class BioReadService
     @Transactional(readOnly = true)
     public List<BioLinkResponse> getActiveBioLinksByPageId( Long pageId )
     {
-        return bioLinkRepository.findByBioPageIdAndIsActiveOrderBySortOrderAsc( pageId, true ).stream()
+        return bioLinkRepository.findActiveLinksByPageId( pageId, java.time.LocalDateTime.now() ).stream()
                 .map( this::mapToLinkResponse ).collect( Collectors.toList() );
     }
 

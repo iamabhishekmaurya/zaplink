@@ -105,6 +105,13 @@ export function useBioPageEditor(initialData?: BioPage) {
                 is_public: data.isPublic ?? true,
                 seo_meta: data.seoMeta ? JSON.stringify(data.seoMeta) : undefined
             });
+
+            // Also save the latest link order context
+            // If the user reordered links locally, this call persists that new order to the backend
+            if (data.bioLinks && data.bioLinks.length > 0) {
+                await bioPageService.reorderLinks(data.id, data.bioLinks.map(l => l.id));
+            }
+
             setHasUnsavedChanges(false);
             toast.success("Changes saved successfully");
         } catch {

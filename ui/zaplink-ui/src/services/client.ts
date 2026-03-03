@@ -37,51 +37,49 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Handle 401 Unauthorized errors
-    if (error.response?.status === 401) {
-      // Clear tokens from both localStorage and cookies
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        Cookies.remove('token', { path: '/' });
-        Cookies.remove('refreshToken', { path: '/' });
-
-        // Only redirect if not already on login page and not a checkAuth call failing silently
-        if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
-          window.location.replace('/login');
-        }
-      }
-      return Promise.reject(error);
-    }
-
-    // Handle other errors that might need token refresh
-    if (error.response?.status === 403 && !originalRequest._retry) {
+    // Attempt token refresh on 401 Unauthorized, but only once per request
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      try {
+      if (typeof window !== 'undefined') {
         const refreshToken = localStorage.getItem('refreshToken');
+
         if (refreshToken) {
-          // Attempt to refresh the token using the Refresh endpoint
-          const response = await axios.post(`${api.defaults.baseURL}/auth/refresh`, null, {
-            params: { refreshToken },
-          });
+          try {
+            // Call the refresh endpoint with the stored refresh token
+            const refreshResponse = await axios.post(
+              `${api.defaults.baseURL}/auth/refresh`,
+              null,
+              { params: { refreshToken } }
+            );
 
-          const { accessToken, refreshToken: newRefreshToken } = response.data;
+            const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
 
-          localStorage.setItem('token', accessToken);
-          localStorage.setItem('refreshToken', newRefreshToken);
+            // Store the new tokens
+            localStorage.setItem('token', accessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
+            Cookies.set('token', accessToken, { expires: 7, path: '/', sameSite: 'Strict' });
+            Cookies.set('refreshToken', newRefreshToken, { expires: 30, path: '/', sameSite: 'Strict' });
 
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          return api(originalRequest);
-        }
-      } catch {
-        // Refresh token failed, logout user
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          Cookies.remove('token', { path: '/' });
-          Cookies.remove('refreshToken', { path: '/' });
-          window.location.replace('/login');
+            // Retry the original request with the new access token
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return api(originalRequest);
+          } catch {
+            // Refresh failed — clear everything and redirect to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            Cookies.remove('token', { path: '/' });
+            Cookies.remove('refreshToken', { path: '/' });
+
+            if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+              window.location.replace('/login');
+            }
+          }
+        } else {
+          // No refresh token available — redirect to login
+          if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+            window.location.replace('/login');
+          }
         }
       }
     }

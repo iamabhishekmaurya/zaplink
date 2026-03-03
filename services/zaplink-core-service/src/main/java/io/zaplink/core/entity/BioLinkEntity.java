@@ -139,8 +139,7 @@ public class BioLinkEntity
      * Flexible metadata JSON for link-specific data.
      * Can contain: thumbnails, SKU, oEmbed data, gate config, etc.
      */
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON) @Column(name = "metadata", columnDefinition = "jsonb")
     private String        metadata;
     /**
      * Start timestamp for scheduled link visibility.
@@ -331,12 +330,23 @@ public class BioLinkEntity
                 {
                     throw new IllegalArgumentException( "Scheduled links must have a valid URL" );
                 }
-                // Schedule validation is optional - can be set later
+                if ( scheduleFrom == null && scheduleTo == null )
+                {
+                    throw new IllegalArgumentException( "Scheduled links must have at least schedule_from or schedule_to set" );
+                }
+                if ( scheduleFrom != null && scheduleTo != null && scheduleFrom.isAfter( scheduleTo ) )
+                {
+                    throw new IllegalArgumentException( "schedule_from must be before schedule_to" );
+                }
             }
             case GATED -> {
                 if ( url == null || url.trim().isEmpty() )
                 {
                     throw new IllegalArgumentException( "Gated links must have a valid URL" );
+                }
+                if ( metadata == null || !metadata.contains( "gateType" ) )
+                {
+                    throw new IllegalArgumentException( "Gated links must have gate configuration in metadata" );
                 }
             }
             case PAYMENT -> validateProductLink();

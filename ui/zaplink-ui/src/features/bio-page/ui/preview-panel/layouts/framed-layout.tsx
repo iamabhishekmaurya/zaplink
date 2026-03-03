@@ -1,22 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BioPageWithTheme } from "@/features/bio-page/types/index";
 import { ProfileHeader } from '@/features/bio-page/ui/preview-panel/profile-header';
 import { SocialMediaSection } from '@/features/bio-page/ui/preview-panel/social-media-section';
 import { PortalsSection } from '@/features/bio-page/ui/preview-panel/portals-section';
 import { AdvancedLinkCard } from '@/features/bio-page/ui/preview-panel/advanced-link-card';
-import { Sparkles, Zap, ExternalLink } from "lucide-react";
+import { Sparkles, Zap } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
-
-interface LayoutProps {
-    page: BioPageWithTheme;
-    previewMode?: boolean;
-    socialLinks: any[];
-    regularLinks: any[];
-    portalLinks: any[];
-    itemVariants: any;
-}
+import { LayoutProps } from "./types";
 
 export function FramedLayout({
     page,
@@ -29,21 +20,22 @@ export function FramedLayout({
     const theme = page.parsedTheme;
 
     return (
-        <div className="w-full flex flex-col items-center justify-center min-h-full px-4 py-8">
+        <div className="w-full h-full min-h-screen flex flex-col items-center justify-center p-4 sm:p-8">
 
-            {/* Framed Card Container */}
             <div
-                className="w-full max-w-xl rounded-[2.5rem] p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl"
+                className="w-full max-w-xl rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden backdrop-blur-xl transition-all duration-500 my-auto"
                 style={{
                     background: theme.colors.cardBg || 'rgba(255, 255, 255, 0.8)',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 100px rgba(0,0,0,0.1)',
                     border: '1px solid rgba(255, 255, 255, 0.2)'
                 }}
             >
-                {/* Decorative elements */}
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-[var(--theme-primary)] to-transparent opacity-50" />
+                {/* Decorative glowing edge */}
+                <div
+                    className="absolute top-0 left-0 w-full h-2 opacity-50"
+                    style={{ background: `linear-gradient(90deg, transparent, var(--theme-primary), transparent)` }}
+                />
 
-                {/* Profile Header */}
                 <motion.div variants={itemVariants}>
                     <ProfileHeader
                         avatarUrl={page.avatarUrl}
@@ -55,24 +47,21 @@ export function FramedLayout({
                     />
                 </motion.div>
 
-                {/* Social Media Icons */}
                 {socialLinks.length > 0 && (
-                    <motion.div variants={itemVariants} className="mt-6">
+                    <motion.div variants={itemVariants} className="mt-8">
                         <SocialMediaSection links={socialLinks} theme={theme} />
                     </motion.div>
                 )}
 
-                {/* Portals/Sections */}
                 {portalLinks.length > 0 && (
                     <motion.div variants={itemVariants} className="mt-8">
                         <PortalsSection links={portalLinks} theme={theme} previewMode={previewMode} />
                     </motion.div>
                 )}
 
-                {/* Main Links */}
                 <motion.div variants={itemVariants} className="mt-8 space-y-3">
                     <AnimatePresence mode="popLayout">
-                        {regularLinks.map((link, index) => (
+                        {regularLinks.map((link: any, index: number) => (
                             <AdvancedLinkCard
                                 key={link.id}
                                 link={link}
@@ -87,33 +76,21 @@ export function FramedLayout({
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="text-center py-12 border-2 border-dashed border-current/20 rounded-2xl opacity-50"
+                            className="text-center py-10 border-2 border-dashed border-current/20 rounded-2xl opacity-50"
                         >
-                            <Sparkles className="w-12 h-12 mx-auto mb-4" />
-                            <p className="text-lg font-medium">No links added yet</p>
+                            <Sparkles className="w-10 h-10 mx-auto mb-2" />
+                            <p className="font-medium">Empty Frame</p>
                         </motion.div>
                     )}
                 </motion.div>
 
-                {/* Footer */}
-                <motion.div
-                    variants={itemVariants}
-                    className="mt-10 pt-6 text-center"
-                >
+                <motion.div variants={itemVariants} className="mt-10 pt-6 text-center">
                     <div
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full"
-                        style={{ backgroundColor: 'color-mix(in srgb, var(--theme-text), transparent 90%)' }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm"
+                        style={{ backgroundColor: 'color-mix(in srgb, var(--theme-text), transparent 90%)', color: 'var(--theme-text)' }}
                     >
                         <Zap className="w-3 h-3" />
-                        <span className="text-xs font-medium">Powered by</span>
-                        <a
-                            href="https://zap.link"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-bold hover:underline inline-flex items-center gap-0.5"
-                        >
-                            Zaplink
-                        </a>
+                        Zaplink
                     </div>
                 </motion.div>
             </div>

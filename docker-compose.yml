@@ -134,8 +134,23 @@ services:
             - zaplink-net
 
     # ============================================================
-    # 🪣 MinIO (Object Storage)
+    # 📥 Media Service
     # ============================================================
+    zaplink-media-service:
+        build:
+            context: ./services/zaplink-media-service
+            dockerfile: Dockerfile
+        container_name: zaplink-media-service
+        image: zaplink-media-service:latest
+        ports:
+            - "8086:8086"
+        depends_on:
+            - zaplink-service-registry
+        environment:
+            - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://zaplink-service-registry:8761/eureka/
+            - SPRING_PROFILES_ACTIVE=docker
+        networks:
+            - zaplink-net
     minio:
         image: minio/minio:latest
         container_name: zaplink-minio

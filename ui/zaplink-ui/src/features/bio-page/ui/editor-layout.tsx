@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { useBioPageEditor } from "@/features/bio-page/hooks/useBioPageEditor";
 import { AnalyticsTab } from "@/features/bio-page/ui/analytics-tab";
@@ -26,9 +27,10 @@ import {
     Settings2,
     Sparkles,
     TrendingUp,
-    UserCircle
+    UserCircle,
+    Smartphone
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 interface EditorLayoutProps {
@@ -99,20 +101,33 @@ export function EditorLayout({ initialData }: EditorLayoutProps) {
 
     return (
         <FormProvider {...form}>
-            <div className="flex h-[calc(105vh-4rem)] w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
-                {/* Left Panel: Controls - Increased Width */}
-                <div className="w-full md:w-[55%] lg:w-[50%] xl:w-[520px] 2xl:w-[580px] flex flex-col border-r bg-card/50 backdrop-blur-sm shadow-xl">
+            <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+                {/* Left Panel: Controls */}
+                <div className="w-full md:w-[70%] lg:w-[65%] xl:w-[750px] 2xl:w-[950px] flex flex-col border-r bg-card/40 backdrop-blur-md shadow-xl relative">
 
-                    {/* Header / Save Bar - Modern Glass Effect */}
-                    <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-card via-card to-muted/30 backdrop-blur-md sticky top-0 z-10 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className={cn(
-                                "w-3 h-3 rounded-full animate-pulse",
-                                hasUnsavedChanges ? 'bg-amber-500' : 'bg-emerald-500'
-                            )} />
+                    {/* Top Save Action Bar */}
+                    <motion.div
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="m-2 md:mx-4 lg:mx-6 mb-0 z-50 flex items-center justify-between py-1.5 px-3 bg-card/95 backdrop-blur-xl border border-border/50 shadow-sm transition-shadow duration-300 rounded-lg flex-shrink-0"
+                    >
+                        <div className="flex items-center gap-2.5">
+                            <div className="relative flex h-2 w-2">
+                                {hasUnsavedChanges && (
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                )}
+                                <span className={cn(
+                                    "relative inline-flex rounded-full h-2 w-2 transition-colors",
+                                    hasUnsavedChanges ? "bg-amber-500" : "bg-emerald-500"
+                                )}></span>
+                            </div>
                             <div className="flex flex-col">
-                                <span className="font-semibold text-sm">{hasUnsavedChanges ? 'Unsaved Changes' : 'All Saved'}</span>
-                                <span className="text-xs text-muted-foreground">{hasUnsavedChanges ? 'Press Ctrl+S to save' : 'Your page is live'}</span>
+                                <span className="font-semibold text-xs sm:text-[13px] leading-none flex items-center gap-1.5 sm:gap-2">
+                                    {hasUnsavedChanges ? 'Unsaved Changes' : 'All Changes Saved'}
+                                </span>
+                                <span className="text-[9px] sm:text-[10px] text-muted-foreground leading-none mt-0.5">
+                                    {hasUnsavedChanges ? 'Don\'t forget to publish' : 'Your page is live'}
+                                </span>
                             </div>
                         </div>
                         <Button
@@ -120,76 +135,117 @@ export function EditorLayout({ initialData }: EditorLayoutProps) {
                             disabled={!hasUnsavedChanges || isSaving}
                             size="sm"
                             className={cn(
-                                "transition-all duration-300",
-                                hasUnsavedChanges && "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl"
+                                "h-7 rounded-md text-[11px] font-semibold px-3 transition-all duration-300",
+                                hasUnsavedChanges
+                                    ? "bg-primary text-primary-foreground shadow-sm hover:shadow hover:-translate-y-0.5"
+                                    : "bg-muted text-muted-foreground"
                             )}
                         >
-                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                            {isSaving ? 'Saving...' : 'Save Changes'}
+                            {isSaving ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Save className="mr-1 h-3 w-[14px]" />}
+                            <span className="hidden sm:inline">{isSaving ? 'Publishing...' : 'Publish'}</span>
                         </Button>
-                    </div>
 
-                    <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden">
-                        <div className="px-4 py-3 border-b bg-gradient-to-b from-card to-muted/20">
-                            <TabsList className="grid w-full grid-cols-6 p-1 bg-muted/50">
-                                <TabsTrigger value="profile" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        {/* Mobile Preview Button */}
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="md:hidden h-7 rounded-md text-[11px] font-semibold px-3 ml-2 border-primary/20 text-primary hover:bg-primary/5 shadow-sm"
+                                >
+                                    <Smartphone className="mr-1 h-3 w-3" />
+                                    Preview
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="bottom" className="h-[95vh] px-0 pt-6 pb-0 flex flex-col bg-muted/30 backdrop-blur-3xl border-t border-border/50 rounded-t-3xl sm:max-w-none">
+                                <SheetTitle className="sr-only">Live Preview</SheetTitle>
+                                <div className="flex-1 w-full relative overflow-hidden flex flex-col items-center justify-center">
+                                    <PreviewPanel page={bioPageWithTheme} className="h-full w-full max-w-sm mx-auto shadow-2xl" />
+
+                                    {/* Quick Link Share Helper (Mobile inside Sheet) */}
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="absolute bottom-6 z-50 flex items-center gap-3 px-5 py-2.5 bg-background/90 backdrop-blur-md rounded-full border shadow-lg"
+                                    >
+                                        <span className="text-xs font-medium text-foreground">zap.link/{data.username}</span>
+                                        <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full bg-primary/10 hover:bg-primary/20" onClick={() => {
+                                            navigator.clipboard.writeText(`https://zap.me/${data.username}`);
+                                        }}>
+                                            <LinkIcon className="h-3.5 w-3.5 text-primary" />
+                                        </Button>
+                                    </motion.div>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+                    </motion.div>
+
+                    <Tabs defaultValue="profile" className="flex-1 flex flex-col overflow-hidden h-full">
+                        {/* Premium Floating Tabs Navigation */}
+                        <div className="px-4 py-2 md:px-6 md:py-2 lg:px-8 z-10 w-full">
+                            <TabsList className="flex w-full overflow-x-auto no-scrollbar bg-background/60 backdrop-blur-xl border shadow-sm p-1.5 rounded-xl gap-1">
+                                <TabsTrigger value="profile" className="flex-1 rounded-lg text-xs sm:text-sm gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all duration-300 py-2.5">
                                     <UserCircle className="w-4 h-4" />
                                     <span className="hidden sm:inline">Profile</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="links" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                <TabsTrigger value="links" className="flex-1 rounded-lg text-xs sm:text-sm gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all duration-300 py-2.5">
                                     <LayoutGrid className="w-4 h-4" />
                                     <span className="hidden sm:inline">Links</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="design" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                <TabsTrigger value="design" className="flex-1 rounded-lg text-xs sm:text-sm gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all duration-300 py-2.5">
                                     <Sparkles className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Design</span>
+                                    <span className="hidden md:inline">Design</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="layout" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                <TabsTrigger value="layout" className="flex-1 rounded-lg text-xs sm:text-sm gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all duration-300 py-2.5">
                                     <LayoutDashboard className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Layout</span>
+                                    <span className="hidden md:inline">Layout</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="settings" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                <TabsTrigger value="settings" className="flex-1 rounded-lg text-xs sm:text-sm gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all duration-300 py-2.5">
                                     <Settings2 className="w-4 h-4" />
-                                    <span className="hidden sm:inline">SEO</span>
+                                    <span className="hidden md:inline">SEO</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="analytics" className="text-xs sm:text-sm gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                <TabsTrigger value="analytics" className="flex-1 rounded-lg text-xs sm:text-sm gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all duration-300 py-2.5">
                                     <TrendingUp className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Stats</span>
+                                    <span className="hidden lg:inline">Stats</span>
                                 </TabsTrigger>
                             </TabsList>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-5 md:p-7 space-y-6">
-                            <TabsContent value="profile" className="m-0 h-full">
+                        {/* Scrollable Content Area */}
+                        <div className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 scroll-smooth mobile-scrollbar pr-2">
+                            <TabsContent value="profile" className="m-0 h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <ProfileTab data={data} updateField={updateField} />
                             </TabsContent>
 
-                            <TabsContent value="links" className="m-0 h-full">
+                            <TabsContent value="links" className="m-0 h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <BioLinkManager
                                     pageId={data.id}
                                     links={data.bioLinks || []}
                                     onLinksUpdate={() => {
                                         refresh();
                                     }}
+                                    onLinksReorder={(newLinks) => {
+                                        updateField('bioLinks', newLinks);
+                                    }}
                                 />
                             </TabsContent>
 
-                            <TabsContent value="design" className="m-0 h-full">
+                            <TabsContent value="design" className="m-0 h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <ThemeEditor
                                     theme={bioPageWithTheme.parsedTheme}
                                     onChange={updateTheme}
                                 />
                             </TabsContent>
 
-                            <TabsContent value="settings" className="m-0 h-full">
+                            <TabsContent value="settings" className="m-0 h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <SeoSettingsTab />
                             </TabsContent>
 
-                            <TabsContent value="analytics" className="m-0 h-full">
+                            <TabsContent value="analytics" className="m-0 h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <AnalyticsTab bioPage={data} />
                             </TabsContent>
 
-                            <TabsContent value="layout" className="m-0 h-full">
+                            <TabsContent value="layout" className="m-0 h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <LayoutSelector
                                     theme={bioPageWithTheme.parsedTheme}
                                     onChange={updateTheme}
@@ -197,11 +253,27 @@ export function EditorLayout({ initialData }: EditorLayoutProps) {
                             </TabsContent>
                         </div>
                     </Tabs>
+
                 </div>
 
-                {/* Right Panel: Preview */}
-                <div className="hidden md:flex flex-1 flex-col bg-muted/30 relative">
+                {/* Right Panel: Live Preview */}
+                <div className="hidden md:flex flex-1 flex-col bg-muted/10 relative">
                     <PreviewPanel page={bioPageWithTheme} className="h-full w-full" />
+
+                    {/* Quick Link Share Helper */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="absolute bottom-6 right-6 z-50 flex items-center gap-3 px-6 py-3 bg-background/80 backdrop-blur-md rounded-full border shadow-sm"
+                    >
+                        <span className="text-sm font-medium text-muted-foreground">zap.link/{data.username}</span>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-full" onClick={() => {
+                            navigator.clipboard.writeText(`https://zap.me/${data.username}`);
+                        }}>
+                            <LinkIcon className="h-4 w-4" />
+                        </Button>
+                    </motion.div>
                 </div>
             </div>
         </FormProvider>

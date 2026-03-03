@@ -25,14 +25,14 @@ import {
 } from "@/components/ui/card"
 
 const privacyFormSchema = z.object({
-    public_profile: z.boolean().default(false),
-    data_sharing: z.boolean().default(false),
-    marketing_emails: z.boolean().default(false),
+    public_profile: z.boolean(),
+    data_sharing: z.boolean(),
+    marketing_emails: z.boolean(),
 })
 
 type PrivacyFormValues = z.infer<typeof privacyFormSchema>
 
-const defaultValues: Partial<PrivacyFormValues> = {
+const defaultValues: PrivacyFormValues = {
     public_profile: false,
     data_sharing: false,
     marketing_emails: false,

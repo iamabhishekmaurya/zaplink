@@ -37,11 +37,11 @@ public class MediaItem
     private LocalDateTime      createdAt;
     @UpdateTimestamp @Column(name = "updated_at")
     private LocalDateTime      updatedAt;
-    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default @Column(name = "is_deleted", nullable = false)
     private boolean            isDeleted  = false;
-    @Column(name = "is_favorite", nullable = false)
+    @Builder.Default @Column(name = "is_favorite", nullable = false)
     private boolean            isFavorite = false;
-    @Column(nullable = false)
+    @Builder.Default @Column(nullable = false)
     private Integer            version    = 1;
     @JdbcTypeCode(SqlTypes.JSON) @Column(name = "shared_with", columnDefinition = "jsonb")
     private List<Collaborator> sharedWith;

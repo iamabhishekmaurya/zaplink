@@ -122,7 +122,7 @@ public class JwtAuthenticationFilter
         boolean isAuthPublic = PUBLIC_AUTH_PATHS.contains( path );
         boolean isPublic = isAuthPublic || path.equals( "/error" ) || path.equals( "/favicon.ico" )
                 || path.startsWith( "/.well-known/" ) || path.startsWith( "/actuator" ) || path.startsWith( "/r/" )
-                || path.startsWith( "/s/" ) || path.startsWith( "/b/" );
+                || path.startsWith( "/s/" ) || path.startsWith( "/b/" ) || path.startsWith( "/api/scraper/" );
         log.info( "JWT Filter: isPublicEndpoint check - path: {}, isAuthPublic: {}, isPublic: {}", path, isAuthPublic,
                   isPublic );
         return isPublic;

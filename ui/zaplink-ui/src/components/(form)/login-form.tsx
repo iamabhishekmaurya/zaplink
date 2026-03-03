@@ -118,8 +118,8 @@ export function LoginForm({
                 )}
               </Field>
               <Field>
-                <Button type="submit" className="w-full" disabled={isLoading === true}>
-                  {isLoading === true && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <Button type="submit" className="w-full" disabled={!!isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Login
                 </Button>
               </Field>

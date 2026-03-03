@@ -20,7 +20,7 @@ export function DeviceFrame({ children, mode = "mobile", className }: DeviceFram
                         zap.link/username
                     </div>
                 </div>
-                <div className="h-[calc(100%-2rem)] overflow-y-auto w-full">
+                <div className="h-[calc(100%-2rem)] overflow-y-auto w-full mobile-scrollbar pr-1">
                     {children}
                 </div>
             </div>
